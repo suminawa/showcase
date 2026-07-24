@@ -1,18 +1,156 @@
 @import "tailwindcss";
 
+/*
+ * Showcase — The Glazier's Partition
+ * 框（bar）= レイアウトの黒いグリッド。ペイン = 框に嵌まるガラス。
+ * 線は框だけ / 色はペイン全面 / 動きは「灯る」だけ。詳細は DESIGN.md。
+ */
+
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --bar: #1b1b1e;
+  --glass: #f4f2ed;
+  --glass-bright: #fcfbf8;
+  --glass-frost: #edebe4;
+  --cobalt: #1b3fb4;
+  --cobalt-deep: #142e85;
+  --amber: #c9860e;
+  --amber-bright: #d9930f;
+  --oxblood: #8c2a2c;
+  --ink: #1b1b1e;
+  --ink-soft: #5c5a52;
+
+  --glass-noise: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)' opacity='0.055'/%3E%3C/svg%3E");
+  --glass-sheen: linear-gradient(
+    133deg,
+    rgba(255, 255, 255, 0.5) 0%,
+    rgba(255, 255, 255, 0) 38%,
+    rgba(27, 27, 30, 0.04) 100%
+  );
+  --glass-sheen-color: linear-gradient(
+    133deg,
+    rgba(255, 255, 255, 0.24) 0%,
+    rgba(255, 255, 255, 0) 45%,
+    rgba(0, 0, 0, 0.06) 100%
+  );
+
+  --ease-glass: cubic-bezier(0.22, 1, 0.36, 1);
+
+  color-scheme: light;
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
+  --color-bar: var(--bar);
+  --color-glass: var(--glass);
+  --color-glass-bright: var(--glass-bright);
+  --color-glass-frost: var(--glass-frost);
+  --color-cobalt: var(--cobalt);
+  --color-cobalt-deep: var(--cobalt-deep);
+  --color-amber: var(--amber);
+  --color-amber-bright: var(--amber-bright);
+  --color-oxblood: var(--oxblood);
+  --color-ink: var(--ink);
+  --color-ink-soft: var(--ink-soft);
   --font-sans: var(--font-noto-sans-jp), ui-sans-serif, system-ui,
     "Hiragino Sans", sans-serif;
+  --font-display: var(--font-big-shoulders), var(--font-noto-sans-jp),
+    sans-serif;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
+  background: var(--bar);
+  color: var(--ink);
+}
+
+/* ---- Panes（ガラス） ---- */
+
+.pane {
+  background-color: var(--glass);
+  background-image: var(--glass-sheen), var(--glass-noise);
+}
+
+.pane-frost {
+  background-color: var(--glass-frost);
+  background-image: var(--glass-sheen), var(--glass-noise), var(--glass-noise);
+}
+
+.pane-reeded {
+  background-color: var(--glass);
+  background-image: var(--glass-sheen),
+    repeating-linear-gradient(
+      90deg,
+      rgba(27, 27, 30, 0) 0px,
+      rgba(27, 27, 30, 0) 7px,
+      rgba(27, 27, 30, 0.07) 7px,
+      rgba(27, 27, 30, 0.07) 8px,
+      rgba(255, 255, 255, 0.5) 8px,
+      rgba(255, 255, 255, 0.5) 9px
+    ),
+    var(--glass-noise);
+}
+
+.pane-cobalt {
+  background-color: var(--cobalt);
+  background-image: var(--glass-sheen-color), var(--glass-noise);
+}
+
+.pane-amber {
+  background-color: var(--amber);
+  background-image: var(--glass-sheen-color), var(--glass-noise);
+}
+
+.pane-oxblood {
+  background-color: var(--oxblood);
+  background-image: var(--glass-sheen-color), var(--glass-noise);
+}
+
+/* ---- 灯り（インタラクション） ---- */
+
+.pane-lit {
+  transition:
+    background-color 600ms var(--ease-glass),
+    box-shadow 600ms var(--ease-glass);
+}
+
+.pane-lit:hover {
+  background-color: var(--glass-bright);
+  box-shadow: inset 0 0 90px 10px rgba(255, 255, 255, 0.55);
+}
+
+.pane-amber.pane-lit:hover {
+  background-color: var(--amber-bright);
+  box-shadow: inset 0 0 90px 10px rgba(255, 255, 255, 0.28);
+}
+
+/* Featured ペインのロード時 flood（唯一の登場モーション） */
+@keyframes pane-flood {
+  from {
+    background-color: var(--glass);
+  }
+}
+
+.pane-flood-in {
+  animation: pane-flood 1100ms var(--ease-glass) 250ms backwards;
+}
+
+/* ---- フォーカス ---- */
+
+:focus-visible {
+  outline: 3px solid var(--cobalt);
+  outline-offset: -3px;
+}
+
+.on-color:focus-visible,
+.on-color :focus-visible {
+  outline-color: #ffffff;
+}
+
+/* ---- Reduced motion ---- */
+
+@media (prefers-reduced-motion: reduce) {
+  .pane-lit {
+    transition: none;
+  }
+  .pane-flood-in {
+    animation: none;
+  }
 }
