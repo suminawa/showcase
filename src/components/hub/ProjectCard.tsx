@@ -1,37 +1,45 @@
 import Link from "next/link";
 import { projectHref, type Project } from "@/lib/projects";
 
-/**
- * Featured 作品ペイン — 壁の中で最大のアンバー色ガラス。
- * ロード時に一度だけガラスから琥珀へ flood し、ホバーで明るく灯る。
- */
+const VARIANT_STYLES = {
+  marble: {
+    pane: "pane-marble pane-lit pane-flood-in on-color text-[#f4f2ed]",
+    secondary: "text-[#b7c3dd]",
+  },
+  amber: {
+    pane: "pane-amber pane-lit on-color",
+    secondary: "text-amber-ink",
+  },
+} as const;
+
+/** 作品ペイン。marble = 主役（藍のマーブルガラス + ロード時 flood）、amber = ツール系 */
 export function ProjectCard({
   project,
-  number,
+  variant,
   className = "",
 }: {
   project: Project;
-  number: string;
+  variant: keyof typeof VARIANT_STYLES;
   className?: string;
 }) {
+  const styles = VARIANT_STYLES[variant];
   return (
     <Link
       href={projectHref(project)}
-      className={`pane-amber pane-lit pane-flood-in on-color group flex flex-col justify-between gap-10 p-[clamp(20px,3vw,40px)] ${className}`}
+      className={`${styles.pane} group flex flex-col justify-between gap-10 p-[clamp(20px,3vw,40px)] ${className}`}
     >
       <div>
-        <p className="font-display text-[0.8125rem] font-semibold tracking-[0.14em] uppercase">
-          {number}
-        </p>
-        <h2 className="mt-5 max-w-[22ch] text-[clamp(1.5rem,2.5vw,2rem)] leading-snug font-bold">
+        <h2 className="max-w-[22ch] text-[clamp(1.5rem,2.5vw,2rem)] leading-snug font-bold">
           {project.title}
         </h2>
-        <p className="mt-4 max-w-[40ch] text-[0.9375rem] leading-[1.9] text-amber-ink">
+        <p
+          className={`mt-4 max-w-[40ch] text-[0.9375rem] leading-[1.9] ${styles.secondary}`}
+        >
           {project.description}
         </p>
       </div>
       <div className="flex flex-wrap items-end justify-between gap-x-6 gap-y-3">
-        <p className="text-[0.8125rem] text-amber-ink">
+        <p className={`text-[0.8125rem] ${styles.secondary}`}>
           {project.tags.join(" · ")}
         </p>
         <p className="shrink-0 text-[0.9375rem] font-bold">
