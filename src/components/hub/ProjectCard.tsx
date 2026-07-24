@@ -26,12 +26,12 @@ export function ProjectCard({
         <h2 className="mt-5 max-w-[22ch] text-[clamp(1.5rem,2.5vw,2rem)] leading-snug font-bold">
           {project.title}
         </h2>
-        <p className="mt-4 max-w-[40ch] text-[0.9375rem] leading-[1.9] text-[#332707]">
+        <p className="mt-4 max-w-[40ch] text-[0.9375rem] leading-[1.9] text-amber-ink">
           {project.description}
         </p>
       </div>
       <div className="flex flex-wrap items-end justify-between gap-x-6 gap-y-3">
-        <p className="text-[0.8125rem] text-[#332707]">
+        <p className="text-[0.8125rem] text-amber-ink">
           {project.tags.join(" · ")}
         </p>
         <p className="shrink-0 text-[0.9375rem] font-bold">

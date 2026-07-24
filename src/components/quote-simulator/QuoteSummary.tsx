@@ -8,30 +8,28 @@ import { AnimatedYen } from "./AnimatedYen";
 export function QuoteSummary({
   breakdown,
   includeTax,
-  className = "",
 }: {
   breakdown: QuoteBreakdown;
   includeTax: boolean;
-  className?: string;
 }) {
   return (
     <aside
       aria-label="見積もり内訳"
-      className={`pane-amber on-color h-fit p-[clamp(20px,3vw,36px)] lg:sticky lg:top-3 ${className}`}
+      className="pane-amber on-color h-fit p-[clamp(20px,3vw,36px)] lg:sticky lg:top-3"
     >
       <h2 className="font-display text-[0.8125rem] font-semibold tracking-[0.14em] uppercase">
         Estimate
       </h2>
       <dl className="mt-6 space-y-3.5 text-sm">
         <div className="flex justify-between gap-4">
-          <dt className="text-[#332707]">小計</dt>
+          <dt className="text-amber-ink">小計</dt>
           <dd className="font-medium tabular-nums">
             {formatYen(breakdown.subtotal)}
           </dd>
         </div>
         {breakdown.optionLines.map((line) => (
           <div key={line.id} className="flex justify-between gap-4">
-            <dt className="text-[#332707]">{line.label}</dt>
+            <dt className="text-amber-ink">{line.label}</dt>
             <dd className="font-medium tabular-nums">
               +{formatYen(line.amount)}
             </dd>
@@ -39,7 +37,7 @@ export function QuoteSummary({
         ))}
         {includeTax && (
           <div className="flex justify-between gap-4">
-            <dt className="text-[#332707]">消費税（10%）</dt>
+            <dt className="text-amber-ink">消費税（10%）</dt>
             <dd className="font-medium tabular-nums">
               {formatYen(breakdown.tax)}
             </dd>

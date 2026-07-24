@@ -85,4 +85,25 @@ describe("calculateQuote", () => {
     expect(result.subtotal).toBe(0);
     expect(result.total).toBe(0);
   });
+
+  it("オプション 3 種と税を併用しても、税は税抜合計（小計+オプション）に対する切り捨て", () => {
+    const result = calculateQuote({
+      ...base,
+      hourlyRate: 3333,
+      effort: 3,
+      selectedOptionIds: ["rush", "unlimited-revisions", "weekend"],
+      includeTax: true,
+    });
+    // 小計 9,999 / 急ぎ +2,000 / 修正無制限 +1,500 / 土日祝 +1,000
+    expect(result.subtotal).toBe(9999);
+    expect(result.optionLines).toEqual([
+      { id: "rush", label: "急ぎ対応", amount: 2000 },
+      { id: "unlimited-revisions", label: "修正回数無制限", amount: 1500 },
+      { id: "weekend", label: "土日祝対応", amount: 1000 },
+    ]);
+    expect(result.optionsTotal).toBe(4500);
+    expect(result.taxableTotal).toBe(14499);
+    expect(result.tax).toBe(1449); // floor(14499 × 0.1) — 小計だけを税基準にすると 999 になり検出できる
+    expect(result.total).toBe(15948);
+  });
 });

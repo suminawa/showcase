@@ -52,7 +52,7 @@ typography:
   label:
     fontFamily: "Noto Sans JP, sans-serif"
     fontSize: "0.875rem"
-    fontWeight: 500
+    fontWeight: 700
     lineHeight: 1.6
   amount:
     fontFamily: "Noto Sans JP, sans-serif"

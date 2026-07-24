@@ -222,7 +222,9 @@ function SegmentedControl<T extends string>({
             onClick={() => onChange(choice.value)}
             onKeyDown={(event) => onKeyDown(event, index)}
             className={`${
-              checked ? "pane-cobalt on-color text-white" : "pane pane-lit"
+              checked
+                ? "pane-cobalt on-color text-white active:bg-cobalt-deep"
+                : "pane pane-lit active:bg-glass-frost"
             } font-medium transition-[background-color,box-shadow] duration-500 ease-[var(--ease-glass)] motion-reduce:transition-none ${
               size === "md"
                 ? "px-6 py-2.5 text-sm"
@@ -253,9 +255,9 @@ function CheckRow({
     <label
       className={`${
         checked
-          ? "pane-cobalt on-color text-white"
-          : "pane pane-lit cursor-pointer"
-      } flex items-center gap-4 px-4 py-3.5 transition-[background-color,box-shadow] duration-500 ease-[var(--ease-glass)] has-focus-visible:outline-3 has-focus-visible:-outline-offset-3 has-focus-visible:outline-cobalt has-checked:has-focus-visible:outline-white motion-reduce:transition-none cursor-pointer`}
+          ? "pane-cobalt on-color text-white active:bg-cobalt-deep"
+          : "pane pane-lit cursor-pointer active:bg-glass-frost"
+      } flex items-center gap-4 px-4 py-3.5 transition-[background-color,box-shadow] duration-500 ease-[var(--ease-glass)] has-focus-visible:outline-3 has-focus-visible:-outline-offset-3 has-focus-visible:outline-cobalt has-checked:has-focus-visible:outline-white motion-reduce:transition-none`}
     >
       <input
         type="checkbox"

@@ -10,13 +10,14 @@
  * FORM: glazier colorfield partition（challenger、seed db3c0da4）。
  * ユーザーが指名案 vitrine より選択。
  */
+import Link from "next/link";
 import { ProjectCard } from "@/components/hub/ProjectCard";
-import { projects } from "@/lib/projects";
+import { projectHref, projects } from "@/lib/projects";
 
 const PANE_PAD = "p-[clamp(20px,3vw,40px)]";
 
 export default function Home() {
-  const [featured] = projects;
+  const [featured, second] = projects;
 
   return (
     <main className="grid min-h-svh grid-cols-1 gap-1 p-2 sm:gap-1.5 sm:p-3 lg:grid-cols-12 lg:grid-rows-6">
@@ -49,16 +50,33 @@ export default function Home() {
           number="NO.001"
           className="min-h-[45svh] lg:min-h-0 lg:[grid-area:1/7/5/13]"
         />
-        <div
-          className={`pane-frost flex flex-col justify-end gap-2 ${PANE_PAD} lg:[grid-area:5/3/7/7]`}
-        >
-          <p className="font-display text-[0.8125rem] font-semibold tracking-[0.14em] text-ink-soft uppercase">
-            NO.002
-          </p>
-          <p className="text-[0.9375rem] leading-[1.9] text-ink-soft">
-            準備中 — 次の作品がここに嵌まります。
-          </p>
-        </div>
+        {second ? (
+          <Link
+            href={projectHref(second)}
+            className={`pane pane-lit group flex flex-col justify-end gap-2 ${PANE_PAD} lg:[grid-area:5/3/7/7]`}
+          >
+            <p className="font-display text-[0.8125rem] font-semibold tracking-[0.14em] text-ink-soft uppercase">
+              NO.002
+            </p>
+            <p className="text-[1.0625rem] leading-snug font-bold">
+              {second.title}
+            </p>
+            <p className="text-[0.8125rem] text-ink-soft">
+              作品を開く <span aria-hidden="true">→</span>
+            </p>
+          </Link>
+        ) : (
+          <div
+            className={`pane-frost flex flex-col justify-end gap-2 ${PANE_PAD} lg:[grid-area:5/3/7/7]`}
+          >
+            <p className="font-display text-[0.8125rem] font-semibold tracking-[0.14em] text-ink-soft uppercase">
+              NO.002
+            </p>
+            <p className="text-[0.9375rem] leading-[1.9] text-ink-soft">
+              準備中 — 次の作品がここに嵌まります。
+            </p>
+          </div>
+        )}
       </section>
 
       <div

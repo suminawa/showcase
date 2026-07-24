@@ -15,6 +15,7 @@
   --cobalt-deep: #142e85;
   --amber: #c9860e;
   --amber-bright: #d9930f;
+  --amber-ink: #332707;
   --oxblood: #8c2a2c;
   --ink: #1b1b1e;
   --ink-soft: #5c5a52;
@@ -47,6 +48,7 @@
   --color-cobalt-deep: var(--cobalt-deep);
   --color-amber: var(--amber);
   --color-amber-bright: var(--amber-bright);
+  --color-amber-ink: var(--amber-ink);
   --color-oxblood: var(--oxblood);
   --color-ink: var(--ink);
   --color-ink-soft: var(--ink-soft);
