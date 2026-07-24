@@ -4,7 +4,7 @@ import { projectHref, type Project } from "@/lib/projects";
 const VARIANT_STYLES = {
   marble: {
     pane: "pane-marble pane-lit pane-flood-in on-color text-[#f4f2ed]",
-    secondary: "text-[#b7c3dd]",
+    secondary: "text-[#c6d0ea]",
   },
   amber: {
     pane: "pane-amber pane-lit on-color",
