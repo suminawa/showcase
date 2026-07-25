@@ -24,28 +24,29 @@ export function SuminagashiBasin() {
   // 演出・ループ制御（re-render を避けるため ref に持つ）
   const loopRef = useRef<{
     raf: number;
-    startMs: number;
-    prevElapsed: number;
+    /** 演出の進行度。壁時計ではなく実際に描いたフレーム時間の積算 */
+    entranceMs: number;
+    prevEntranceMs: number;
     lastFrameMs: number;
     slowFrames: number;
     entranceDone: boolean;
-    stirred: boolean;
-    fanned: boolean;
+    fanPhase: number;
     reducedMotion: boolean;
     paused: boolean;
     interactionUntil: number;
+    touched: boolean;
   }>({
     raf: 0,
-    startMs: 0,
-    prevElapsed: -1,
+    entranceMs: 0,
+    prevEntranceMs: -1,
     lastFrameMs: 0,
     slowFrames: 0,
     entranceDone: false,
-    stirred: false,
-    fanned: false,
+    fanPhase: 0,
     reducedMotion: false,
     paused: false,
     interactionUntil: 0,
+    touched: false,
   });
 
   const pointersRef = useRef(
@@ -55,15 +56,21 @@ export function SuminagashiBasin() {
   /** 直接操作の直後だけシミュレーションを動かすための猶予（reduced-motion 用） */
   const markInteraction = useCallback(() => {
     loopRef.current.interactionUntil = performance.now() + 1200;
+    loopRef.current.touched = true;
   }, []);
 
-  /** エントランスの渦: 中心の周りに接線方向の力を 3 点 */
-  const applyStir = useCallback((engine: FluidSimulation) => {
-    for (let i = 0; i < 3; i++) {
-      const angle = (i / 3) * Math.PI * 2;
-      const x = 0.5 + 0.16 * Math.cos(angle);
-      const y = 0.5 + 0.16 * Math.sin(angle);
-      engine.splatVelocity(x, y, -Math.sin(angle) * 0.0016, Math.cos(angle) * 0.0016);
+  /** エントランスの渦: 輪の帯に沿って接線方向の力を回す */
+  const applyStir = useCallback((engine: FluidSimulation, strength = 1) => {
+    for (let i = 0; i < 10; i++) {
+      const angle = (i / 10) * Math.PI * 2;
+      const x = 0.5 + 0.2 * Math.cos(angle);
+      const y = 0.5 + 0.2 * Math.sin(angle);
+      engine.splatVelocity(
+        x,
+        y,
+        -Math.sin(angle) * 0.019 * strength,
+        Math.cos(angle) * 0.019 * strength,
+      );
     }
   }, []);
 
@@ -72,11 +79,10 @@ export function SuminagashiBasin() {
     if (!engine) return;
     engine.clearAll();
     const loop = loopRef.current;
-    loop.startMs = performance.now();
-    loop.prevElapsed = -1;
+    loop.entranceMs = 0;
+    loop.prevEntranceMs = -1;
     loop.entranceDone = false;
-    loop.stirred = false;
-    loop.fanned = false;
+    loop.fanPhase = Math.random() * Math.PI * 2;
     if (loop.reducedMotion) {
       runInstantEntrance(engine);
       loop.entranceDone = true;
@@ -104,7 +110,9 @@ export function SuminagashiBasin() {
     loop.reducedMotion = window.matchMedia(
       "(prefers-reduced-motion: reduce)",
     ).matches;
-    loop.startMs = performance.now();
+    loop.entranceMs = 0;
+    loop.prevEntranceMs = -1;
+    loop.fanPhase = Math.random() * Math.PI * 2;
 
     if (loop.reducedMotion) {
       runInstantEntrance(engine);
@@ -115,7 +123,11 @@ export function SuminagashiBasin() {
       loop.raf = requestAnimationFrame(onFrame);
       if (loop.paused) return;
 
-      const dt = loop.lastFrameMs === 0 ? 1 / 60 : (now - loop.lastFrameMs) / 1000;
+      // 大きく飛んだフレーム（タブ復帰・スロットリング）は 1/30 秒として扱う
+      const dt =
+        loop.lastFrameMs === 0
+          ? 1 / 60
+          : Math.min((now - loop.lastFrameMs) / 1000, 1 / 30);
       // パフォーマンスガード
       if (loop.lastFrameMs !== 0 && now - loop.lastFrameMs > SLOW_FRAME_MS) {
         loop.slowFrames += 1;
@@ -128,22 +140,24 @@ export function SuminagashiBasin() {
       }
       loop.lastFrameMs = now;
 
-      // エントランス演出
+      // エントランス演出。壁時計ではなく描いたフレーム時間で進めるので、
+      // 背面タブで開かれても「見ないうちに終わっていた」が起きない
       if (!loop.entranceDone) {
-        const elapsed = now - loop.startMs;
-        for (const drop of dropsBetween(loop.prevElapsed, elapsed)) {
+        const elapsed = loop.entranceMs + dt * 1000;
+        for (const drop of dropsBetween(loop.prevEntranceMs, elapsed)) {
           engine.splatInk(drop.x, drop.y, drop.ink, drop.radius);
         }
-        if (!loop.stirred && elapsed >= 2600) {
-          applyStir(engine);
-          loop.stirred = true;
+        // 輪が育ちきってから撫でる（滴は 3.0 秒あたりで打ち終わる）。
+        // 一撃ではなく数秒かけて風を通し、輪を羽根状に引き伸ばす
+        if (elapsed >= 3200 && elapsed < 4700) {
+          engine.fan(0.005, loop.fanPhase);
         }
-        if (!loop.fanned && elapsed >= 3300) {
-          engine.fan();
-          loop.fanned = true;
+        if (elapsed >= 3600 && elapsed < 5000) {
+          applyStir(engine, 0.003);
         }
-        if (elapsed >= 4200) loop.entranceDone = true;
-        loop.prevElapsed = elapsed;
+        if (elapsed >= 5600) loop.entranceDone = true;
+        loop.prevEntranceMs = elapsed;
+        loop.entranceMs = elapsed;
       } else if (!loop.reducedMotion) {
         engine.applyDrift(now);
       }
@@ -172,7 +186,22 @@ export function SuminagashiBasin() {
     };
     canvas.addEventListener("webglcontextlost", onContextLost);
 
-    const observer = new ResizeObserver(() => engine.resize());
+    const observer = new ResizeObserver(() => {
+      // 解像度が本当に変わった時だけ作り直す（空振りの通知で演出が止まらないように）
+      const changed = engine.resize();
+      // リサイズ時の染料はそのまま引き伸ばされる。まだ誰も触っていない演出中／
+      // 静止模様のうちは輪が楕円に歪むので、正しいサイズで作り直す
+      if (!changed || loop.touched) return;
+      engine.clearAll();
+      if (loop.reducedMotion) {
+        runInstantEntrance(engine);
+        return;
+      }
+      loop.entranceMs = 0;
+      loop.prevEntranceMs = -1;
+      loop.entranceDone = false;
+      loop.fanPhase = Math.random() * Math.PI * 2;
+    });
     observer.observe(canvas);
 
     return () => {
@@ -325,16 +354,21 @@ function runInstantEntrance(engine: FluidSimulation) {
   for (const drop of ENTRANCE_DROPS) {
     engine.splatInk(drop.x, drop.y, drop.ink, drop.radius);
   }
-  for (let i = 0; i < 3; i++) {
-    const angle = (i / 3) * Math.PI * 2;
-    engine.splatVelocity(
-      0.5 + 0.16 * Math.cos(angle),
-      0.5 + 0.16 * Math.sin(angle),
-      -Math.sin(angle) * 0.0016,
-      Math.cos(angle) * 0.0016,
-    );
-  }
-  for (let i = 0; i < 150; i++) {
+  // 動きは見せずに、風と渦を通した後の完成形だけを作る
+  const phase = Math.PI * 0.4;
+  for (let frame = 0; frame < 130; frame++) {
+    if (frame < 90) engine.fan(0.005, phase);
+    if (frame >= 24 && frame < 108) {
+      for (let i = 0; i < 10; i++) {
+        const angle = (i / 10) * Math.PI * 2;
+        engine.splatVelocity(
+          0.5 + 0.2 * Math.cos(angle),
+          0.5 + 0.2 * Math.sin(angle),
+          -Math.sin(angle) * 0.019 * 0.003,
+          Math.cos(angle) * 0.019 * 0.003,
+        );
+      }
+    }
     engine.step(1 / 60);
   }
   engine.still();

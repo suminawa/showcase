@@ -9,8 +9,9 @@ import {
 } from "./simulation";
 
 describe("entrance choreography", () => {
-  it("滴は 4 つ、時刻昇順、座標は 0..1 に収まる", () => {
-    expect(ENTRANCE_DROPS).toHaveLength(4);
+  it("同心円が育つだけの滴数があり、時刻昇順、座標は 0..1 に収まる", () => {
+    // 同じ一点へ交互に落として輪を育てる演出なので、滴は多く必要
+    expect(ENTRANCE_DROPS.length).toBeGreaterThanOrEqual(12);
     for (let i = 1; i < ENTRANCE_DROPS.length; i++) {
       expect(ENTRANCE_DROPS[i].atMs).toBeGreaterThan(
         ENTRANCE_DROPS[i - 1].atMs,
@@ -32,7 +33,7 @@ describe("entrance choreography", () => {
     const first = ENTRANCE_DROPS[0];
     expect(dropsBetween(first.atMs - 1, first.atMs)).toEqual([first]);
     expect(dropsBetween(first.atMs, first.atMs)).toEqual([]);
-    const last = ENTRANCE_DROPS[3];
+    const last = ENTRANCE_DROPS[ENTRANCE_DROPS.length - 1];
     expect(dropsBetween(last.atMs - 1, last.atMs + 1000)).toEqual([last]);
     expect(dropsBetween(last.atMs, last.atMs + 1000)).toEqual([]);
   });

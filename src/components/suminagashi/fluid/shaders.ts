@@ -58,6 +58,74 @@ void main () {
 }`;
 
 /**
+ * 滴の着水による面積保存の放射変位。
+ * 非圧縮ソルバは点からの正味の湧き出しを打ち消してしまうため、輪の成長は
+ * 速度場ではなく染料そのものを外へずらして表現する（マーブリングの定石）。
+ * 既存の染料は r_old = sqrt(r² − a) から読み直され、半径 sqrt(a) の空白が中心に開く。
+ */
+export const displaceShader = /* glsl */ `#version 300 es
+precision highp float;
+in vec2 vUv;
+uniform sampler2D uTarget;
+uniform vec2 uPoint;
+uniform float uAspectRatio;
+uniform float uAmount;
+out vec4 outColor;
+void main () {
+  vec2 p = vUv - uPoint;
+  p.x *= uAspectRatio;
+  float r = length(p);
+  float rOld = sqrt(max(r * r - uAmount, 0.0));
+  vec2 dir = r > 0.00001 ? p / r : vec2(0.0);
+  vec2 src = uPoint + vec2(dir.x * rOld / uAspectRatio, dir.y * rOld);
+  outColor = texture(uTarget, clamp(src, 0.0, 1.0));
+}`;
+
+/**
+ * 落ちた滴そのもの。輪を重ねても黒く飽和しないよう、加算ではなく置換で描く。
+ */
+export const dropShader = /* glsl */ `#version 300 es
+precision highp float;
+in vec2 vUv;
+uniform sampler2D uTarget;
+uniform vec2 uPoint;
+uniform float uAspectRatio;
+uniform float uRadius;
+uniform vec3 uColor;
+out vec4 outColor;
+void main () {
+  vec2 p = vUv - uPoint;
+  p.x *= uAspectRatio;
+  float d = length(p);
+  float edge = fwidth(d) * 1.5 + 0.0012;
+  float mask = 1.0 - smoothstep(uRadius - edge, uRadius + edge, d);
+  vec3 base = texture(uTarget, vUv).rgb;
+  outColor = vec4(mix(base, uColor, mask), 1.0);
+}`;
+
+/**
+ * 水面を渡る風。点の集まりではなく速度場そのものへ横流れを 1 パスで足す。
+ * 上下に波打たせることで、輪が櫛で梳いたように羽根状へ引き伸ばされる。
+ * 盤の縁では包絡線で 0 に落とし、墨が外へ吹き飛ばないようにする。
+ */
+export const breezeShader = /* glsl */ `#version 300 es
+precision highp float;
+in vec2 vUv;
+uniform sampler2D uTarget;
+uniform float uStrength;
+uniform float uPhase;
+out vec4 outColor;
+void main () {
+  vec2 v = texture(uTarget, vUv).xy;
+  float wave = sin(vUv.y * 4.1 + uPhase);
+  float envelope =
+    smoothstep(0.0, 0.20, vUv.x) * smoothstep(1.0, 0.80, vUv.x) *
+    smoothstep(0.0, 0.16, vUv.y) * smoothstep(1.0, 0.84, vUv.y);
+  vec2 add = vec2(1.0 + wave * 0.35, wave * 0.5) * uStrength * envelope;
+  outColor = vec4(v + add, 0.0, 1.0);
+}`;
+
+/**
  * セミラグランジュ移流。線形フィルタ不可の環境では MANUAL_FILTERING を
  * 先頭に #define して手動バイリニアで補間する。
  */

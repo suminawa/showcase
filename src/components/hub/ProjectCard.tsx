@@ -29,7 +29,7 @@ export function ProjectCard({
       className={`${styles.pane} group flex flex-col justify-between gap-10 p-[clamp(20px,3vw,40px)] ${className}`}
     >
       <div>
-        <h2 className="max-w-[22ch] text-[clamp(1.5rem,2.5vw,2rem)] leading-snug font-bold">
+        <h2 className="max-w-[22ch] text-[clamp(1.5rem,2.5vw,2rem)] leading-snug font-bold text-balance">
           {project.title}
         </h2>
         <p

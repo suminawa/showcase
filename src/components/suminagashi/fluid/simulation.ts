@@ -5,11 +5,14 @@
 import {
   advectionShader,
   baseVertexShader,
+  breezeShader,
   clearShader,
   copyShader,
   curlShader,
+  displaceShader,
   displayShader,
   divergenceShader,
+  dropShader,
   gradientSubtractShader,
   pressureShader,
   splatShader,
@@ -29,6 +32,9 @@ export const INK_ABSORPTION: Record<InkName, [number, number, number]> = {
 /** 紙白 #f6f3ed 相当 */
 export const PAPER: [number, number, number] = [0.965, 0.953, 0.929];
 
+/** 水面に広がった一滴の半径（UV 単位）。輪は sqrt(滴数) で外へ育つ */
+export const DROP_RADIUS = 0.075;
+
 export type EntranceDrop = {
   atMs: number;
   x: number;
@@ -37,13 +43,25 @@ export type EntranceDrop = {
   radius: number;
 };
 
-/** エントランス演出: 4 滴が時間差で落ちる */
-export const ENTRANCE_DROPS: EntranceDrop[] = [
-  { atMs: 300, x: 0.5, y: 0.55, ink: "carbon", radius: 0.0034 },
-  { atMs: 950, x: 0.44, y: 0.5, ink: "indigo", radius: 0.0046 },
-  { atMs: 1600, x: 0.58, y: 0.46, ink: "indigo", radius: 0.0038 },
-  { atMs: 2200, x: 0.52, y: 0.62, ink: "carbon", radius: 0.003 },
-];
+/**
+ * エントランス演出。本物の墨流しと同じ手順を再現する:
+ * ほぼ同じ一点へ墨と藍を交互に落とすと、後の滴が先の滴を外へ押し広げ、
+ * 同心円のリングが育つ。撫でるのはリングが出来てから（Basin 側の演出）。
+ */
+export const ENTRANCE_DROPS: EntranceDrop[] = Array.from(
+  { length: 26 },
+  (_, index): EntranceDrop => {
+    // 手仕事のばらつき: 落とす位置をわずかにずらす（決定論的な擬似ランダム）
+    const jitter = Math.sin(index * 12.9898) * 0.007;
+    return {
+      atMs: 240 + index * 108,
+      x: 0.5 + jitter,
+      y: 0.5 + Math.cos(index * 7.233) * 0.006,
+      ink: index % 2 === 0 ? "carbon" : "indigo",
+      radius: DROP_RADIUS,
+    };
+  },
+);
 
 /** (prevMs, nowMs] に落ちるべき滴を返す */
 export function dropsBetween(
@@ -99,12 +117,15 @@ type DoubleFBO = {
 const SIM_RES_STEPS = [256, 192, 128];
 const DYE_RES_STEPS = [1024, 768, 512];
 const PRESSURE_ITERATIONS = 24;
-const CURL_STRENGTH = 6;
+/** 渦強化。上げすぎると輪の縁が毛羽立つので、墨流しでは弱めに保つ */
+const CURL_STRENGTH = 1.4;
 const VELOCITY_DISSIPATION = 0.35;
 const DYE_DISSIPATION = 0.015;
 const SPLAT_FORCE = 5200;
 const BASE_SPLAT_RADIUS = 0.0022;
 const MAX_DPR = 2;
+/** 「風を送る」1 回で速度場へ足す横流れ（sim グリッド単位/秒） */
+const FAN_VELOCITY = 90;
 
 export class FluidSimulation {
   supported = false;
@@ -118,6 +139,9 @@ export class FluidSimulation {
     copy: ProgramInfo;
     clear: ProgramInfo;
     splat: ProgramInfo;
+    displace: ProgramInfo;
+    drop: ProgramInfo;
+    breeze: ProgramInfo;
     advection: ProgramInfo;
     divergence: ProgramInfo;
     curl: ProgramInfo;
@@ -157,9 +181,10 @@ export class FluidSimulation {
 
   // ---- 公開 API ----
 
-  resize(): void {
+  /** 実際に解像度が変わった時だけ true。呼び出し側が演出のやり直しを判断できる */
+  resize(): boolean {
     const gl = this.gl;
-    if (!gl) return;
+    if (!gl) return false;
     const dpr = Math.min(
       MAX_DPR,
       typeof window === "undefined" ? 1 : window.devicePixelRatio || 1,
@@ -167,7 +192,7 @@ export class FluidSimulation {
     const width = Math.max(2, Math.floor(this.canvas.clientWidth * dpr));
     const height = Math.max(2, Math.floor(this.canvas.clientHeight * dpr));
     if (this.canvas.width === width && this.canvas.height === height && this.velocity) {
-      return;
+      return false;
     }
     this.canvas.width = width;
     this.canvas.height = height;
@@ -199,6 +224,7 @@ export class FluidSimulation {
     this.destroyFBO(oldDivergence);
     this.destroyFBO(oldCurl);
     this.destroyDoubleFBO(oldDye);
+    return true;
   }
 
   step(dtSec: number): void {
@@ -290,41 +316,56 @@ export class FluidSimulation {
     this.splatVelocityRaw(x, y, dx * SPLAT_FORCE, dy * SPLAT_FORCE, BASE_SPLAT_RADIUS);
   }
 
-  splatInk(x: number, y: number, ink: InkName, radius = 0.0038): void {
+  /**
+   * 一滴落とす。radius は水面に広がった滴の半径（UV 単位）。
+   * 既存の染料を面積保存で外へずらしてから、中心に滴を置く = 同心円が育つ。
+   */
+  splatInk(x: number, y: number, ink: InkName, radius = DROP_RADIUS): void {
     if (!this.supported) return;
     const gl = this.gl;
+    const aspect = this.canvas.width / this.canvas.height;
+
+    this.useProgram(this.programs.displace, this.dye.texelSizeX, this.dye.texelSizeY);
+    gl.uniform1i(this.programs.displace.uniforms.uTarget, this.dye.read.attach(0));
+    gl.uniform1f(this.programs.displace.uniforms.uAspectRatio, aspect);
+    gl.uniform2f(this.programs.displace.uniforms.uPoint, x, y);
+    gl.uniform1f(this.programs.displace.uniforms.uAmount, radius * radius);
+    this.blitTo(this.dye.write);
+    this.dye.swap();
+
     const absorption = INK_ABSORPTION[ink];
-    this.useProgram(this.programs.splat, this.dye.texelSizeX, this.dye.texelSizeY);
-    gl.uniform1i(this.programs.splat.uniforms.uTarget, this.dye.read.attach(0));
-    gl.uniform1f(this.programs.splat.uniforms.uAspectRatio, this.canvas.width / this.canvas.height);
-    gl.uniform2f(this.programs.splat.uniforms.uPoint, x, y);
+    this.useProgram(this.programs.drop, this.dye.texelSizeX, this.dye.texelSizeY);
+    gl.uniform1i(this.programs.drop.uniforms.uTarget, this.dye.read.attach(0));
+    gl.uniform1f(this.programs.drop.uniforms.uAspectRatio, aspect);
+    gl.uniform2f(this.programs.drop.uniforms.uPoint, x, y);
     gl.uniform3f(
-      this.programs.splat.uniforms.uColor,
+      this.programs.drop.uniforms.uColor,
       absorption[0],
       absorption[1],
       absorption[2],
     );
-    gl.uniform1f(
-      this.programs.splat.uniforms.uRadius,
-      correctRadius(radius, this.canvas.width, this.canvas.height),
-    );
+    gl.uniform1f(this.programs.drop.uniforms.uRadius, radius);
     this.blitTo(this.dye.write);
     this.dye.swap();
-    // 滴が落ちた反動の弱い外向き流れ
-    this.splatVelocityRaw(x, y, 0, 0.8, radius * 3);
   }
 
   nextInk(): InkName {
     return pickInk(this.inkCounter++);
   }
 
-  /** 左から右へ表面を撫でる風 */
-  fan(): void {
+  /**
+   * 水面を横切る風。輪が羽根状に引き伸ばされて墨流しの模様になる。
+   * 一直線ではなく上下に波打たせ、櫛で梳いたような筋を作る。
+   */
+  fan(strength = 1, phase = Math.random() * Math.PI * 2): void {
     if (!this.supported) return;
-    for (let i = 0; i < 9; i++) {
-      const y = 0.14 + (i / 8) * 0.72;
-      this.splatVelocityRaw(0.06, y, 9.5, (Math.random() - 0.5) * 1.4, BASE_SPLAT_RADIUS * 6);
-    }
+    const gl = this.gl;
+    this.useProgram(this.programs.breeze, this.velocity.texelSizeX, this.velocity.texelSizeY);
+    gl.uniform1i(this.programs.breeze.uniforms.uTarget, this.velocity.read.attach(0));
+    gl.uniform1f(this.programs.breeze.uniforms.uStrength, FAN_VELOCITY * strength);
+    gl.uniform1f(this.programs.breeze.uniforms.uPhase, phase);
+    this.blitTo(this.velocity.write);
+    this.velocity.swap();
   }
 
   /** 流れを一気に減衰させる */
@@ -384,16 +425,24 @@ export class FluidSimulation {
     return true;
   }
 
+  /**
+   * GPU リソースを解放する。
+   * WEBGL_lose_context は呼ばない: canvas は 1 つのコンテキストしか持てず、
+   * 失わせると同じ canvas に再マウントした次のインスタンスが復帰できない
+   * （React の再マウントやクライアント遷移で必ず踏む）。コンテキスト自体は
+   * canvas が破棄されるときに GC される。
+   */
   destroy(): void {
-    if (this.gl) {
-      this.destroyDoubleFBO(this.velocity);
-      this.destroyDoubleFBO(this.pressure);
-      this.destroyDoubleFBO(this.dye);
-      this.destroyFBO(this.divergence);
-      this.destroyFBO(this.curl);
+    if (!this.gl) return;
+    this.destroyDoubleFBO(this.velocity);
+    this.destroyDoubleFBO(this.pressure);
+    this.destroyDoubleFBO(this.dye);
+    this.destroyFBO(this.divergence);
+    this.destroyFBO(this.curl);
+    for (const info of Object.values(this.programs ?? {})) {
+      this.gl.deleteProgram(info.program);
     }
-    const ext = this.gl?.getExtension("WEBGL_lose_context");
-    ext?.loseContext();
+    this.supported = false;
   }
 
   // ---- 内部実装 ----
@@ -426,6 +475,9 @@ export class FluidSimulation {
       copy: this.createProgram(copyShader),
       clear: this.createProgram(clearShader),
       splat: this.createProgram(splatShader),
+      displace: this.createProgram(displaceShader),
+      drop: this.createProgram(dropShader),
+      breeze: this.createProgram(breezeShader),
       advection: this.createProgram(
         advectionShader.replace("#version 300 es\n", `#version 300 es\n${defines}`),
       ),
