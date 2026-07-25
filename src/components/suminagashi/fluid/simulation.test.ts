@@ -33,7 +33,8 @@ describe("entrance choreography", () => {
     expect(dropsBetween(first.atMs - 1, first.atMs)).toEqual([first]);
     expect(dropsBetween(first.atMs, first.atMs)).toEqual([]);
     const last = ENTRANCE_DROPS[3];
-    expect(dropsBetween(last.atMs, last.atMs + 1000)).toEqual([last]);
+    expect(dropsBetween(last.atMs - 1, last.atMs + 1000)).toEqual([last]);
+    expect(dropsBetween(last.atMs, last.atMs + 1000)).toEqual([]);
   });
 });
 
