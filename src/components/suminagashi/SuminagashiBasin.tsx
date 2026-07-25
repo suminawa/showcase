@@ -33,6 +33,7 @@ export function SuminagashiBasin() {
     fanned: boolean;
     reducedMotion: boolean;
     paused: boolean;
+    interactionUntil: number;
   }>({
     raf: 0,
     startMs: 0,
@@ -44,11 +45,17 @@ export function SuminagashiBasin() {
     fanned: false,
     reducedMotion: false,
     paused: false,
+    interactionUntil: 0,
   });
 
   const pointersRef = useRef(
     new Map<number, { x: number; y: number; startX: number; startY: number; moved: boolean }>(),
   );
+
+  /** 直接操作の直後だけシミュレーションを動かすための猶予（reduced-motion 用） */
+  const markInteraction = useCallback(() => {
+    loopRef.current.interactionUntil = performance.now() + 1200;
+  }, []);
 
   /** エントランスの渦: 中心の周りに接線方向の力を 3 点 */
   const applyStir = useCallback((engine: FluidSimulation) => {
@@ -74,6 +81,7 @@ export function SuminagashiBasin() {
       runInstantEntrance(engine);
       loop.entranceDone = true;
     }
+    loop.interactionUntil = performance.now() + 1200;
   }, []);
 
   useEffect(() => {
@@ -85,7 +93,11 @@ export function SuminagashiBasin() {
     if (!engine.supported) {
       // effect 本体での直接 setState は react-hooks/set-state-in-effect に反するため遅延させる
       const timer = setTimeout(() => setState("unsupported"), 0);
-      return () => clearTimeout(timer);
+      return () => {
+        clearTimeout(timer);
+        engine.destroy();
+        engineRef.current = null;
+      };
     }
 
     const loop = loopRef.current;
@@ -136,8 +148,15 @@ export function SuminagashiBasin() {
         engine.applyDrift(now);
       }
 
-      engine.step(dt);
-      engine.render();
+      // reduced-motion: 操作していない間は完全に静止させる（染料の減衰も止める）
+      const idle =
+        loop.reducedMotion &&
+        loop.entranceDone &&
+        now > loop.interactionUntil;
+      if (!idle) {
+        engine.step(dt);
+        engine.render();
+      }
     };
     loop.raf = requestAnimationFrame(onFrame);
 
@@ -186,6 +205,7 @@ export function SuminagashiBasin() {
       startY: event.clientY,
       moved: false,
     });
+    markInteraction();
   };
 
   const onPointerMove = (event: React.PointerEvent<HTMLCanvasElement>) => {
@@ -201,6 +221,7 @@ export function SuminagashiBasin() {
     engine.splatVelocity(x, y, x - pointer.x, y - pointer.y);
     pointer.x = x;
     pointer.y = y;
+    markInteraction();
   };
 
   const onPointerUp = (event: React.PointerEvent<HTMLCanvasElement>) => {
@@ -211,6 +232,7 @@ export function SuminagashiBasin() {
     if (!pointer.moved) {
       engine.splatInk(pointer.x, pointer.y, engine.nextInk());
     }
+    markInteraction();
   };
 
   // ---- ボタン ----
@@ -223,6 +245,7 @@ export function SuminagashiBasin() {
       0.3 + Math.random() * 0.4,
       engine.nextInk(),
     );
+    markInteraction();
   };
 
   const save = async () => {
@@ -270,10 +293,20 @@ export function SuminagashiBasin() {
       <div className="flex flex-wrap items-center gap-1 sm:gap-1.5">
         <div className="inline-grid grid-flow-col gap-[3px] bg-bar p-[3px]">
           <BasinButton onClick={dropInkRandom}>墨を落とす</BasinButton>
-          <BasinButton onClick={() => engineRef.current?.fan()}>
+          <BasinButton
+            onClick={() => {
+              engineRef.current?.fan();
+              markInteraction();
+            }}
+          >
             風を送る
           </BasinButton>
-          <BasinButton onClick={() => engineRef.current?.still()}>
+          <BasinButton
+            onClick={() => {
+              engineRef.current?.still();
+              markInteraction();
+            }}
+          >
             静める
           </BasinButton>
           <BasinButton onClick={restart}>流し直す</BasinButton>
