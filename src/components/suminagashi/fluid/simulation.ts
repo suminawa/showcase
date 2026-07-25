@@ -159,6 +159,7 @@ export class FluidSimulation {
 
   resize(): void {
     const gl = this.gl;
+    if (!gl) return;
     const dpr = Math.min(
       MAX_DPR,
       typeof window === "undefined" ? 1 : window.devicePixelRatio || 1,
@@ -175,6 +176,10 @@ export class FluidSimulation {
     const dyeRes = this.fitResolution(DYE_RES_STEPS[this.resStep]);
 
     const filter = this.linearFiltering ? gl.LINEAR : gl.NEAREST;
+    const oldVelocity = this.velocity;
+    const oldPressure = this.pressure;
+    const oldDivergence = this.divergence;
+    const oldCurl = this.curl;
     const oldDye = this.dye;
 
     this.velocity = this.createDoubleFBO(simRes.w, simRes.h, gl.RG16F, gl.RG, filter);
@@ -184,9 +189,16 @@ export class FluidSimulation {
 
     const newDye = this.createDoubleFBO(dyeRes.w, dyeRes.h, gl.RGBA16F, gl.RGBA, filter);
     if (oldDye) {
+      // 旧染料を新解像度へ引き継いでから破棄する（模様を失わない）
       this.blit(oldDye.read, newDye.read, this.programs.copy);
     }
     this.dye = newDye;
+
+    this.destroyDoubleFBO(oldVelocity);
+    this.destroyDoubleFBO(oldPressure);
+    this.destroyFBO(oldDivergence);
+    this.destroyFBO(oldCurl);
+    this.destroyDoubleFBO(oldDye);
   }
 
   step(dtSec: number): void {
@@ -364,6 +376,7 @@ export class FluidSimulation {
   }
 
   downscale(): boolean {
+    if (!this.supported) return false;
     if (this.resStep >= SIM_RES_STEPS.length - 1) return false;
     this.resStep += 1;
     this.canvas.width = 0; // resize を強制
@@ -372,6 +385,13 @@ export class FluidSimulation {
   }
 
   destroy(): void {
+    if (this.gl) {
+      this.destroyDoubleFBO(this.velocity);
+      this.destroyDoubleFBO(this.pressure);
+      this.destroyDoubleFBO(this.dye);
+      this.destroyFBO(this.divergence);
+      this.destroyFBO(this.curl);
+    }
     const ext = this.gl?.getExtension("WEBGL_lose_context");
     ext?.loseContext();
   }
@@ -470,6 +490,18 @@ export class FluidSimulation {
     return aspect >= 1
       ? { w: Math.round(target * aspect), h: target }
       : { w: target, h: Math.round(target / aspect) };
+  }
+
+  private destroyFBO(target: FBO | undefined): void {
+    if (!target) return;
+    this.gl.deleteFramebuffer(target.fbo);
+    this.gl.deleteTexture(target.texture);
+  }
+
+  private destroyDoubleFBO(target: DoubleFBO | undefined): void {
+    if (!target) return;
+    this.destroyFBO(target.read);
+    this.destroyFBO(target.write);
   }
 
   private createFBO(
