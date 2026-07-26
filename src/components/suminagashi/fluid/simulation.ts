@@ -262,6 +262,10 @@ export class FluidSimulation {
   private resStep: 0 | 1 | 2 = 0;
   private pressureIterations = DEFAULT_PRESSURE_ITERATIONS;
   private maxDpr = DEFAULT_MAX_DPR;
+  /** 渦強化。上げると細い筋が巻いて羽根状になる */
+  private curlStrength = CURL_STRENGTH;
+  /** 染料の拡散。上げると縁がほどけて霧になる */
+  private dyeDissipation = DYE_DISSIPATION;
   private vao: WebGLVertexArrayObject | null = null;
   private vertexBuffer: WebGLBuffer | null = null;
 
@@ -423,7 +427,7 @@ export class FluidSimulation {
     this.useProgram(this.programs.vorticity, this.velocity.texelSizeX, this.velocity.texelSizeY);
     gl.uniform1i(this.programs.vorticity.uniforms.uVelocity, this.velocity.read.attach(0));
     gl.uniform1i(this.programs.vorticity.uniforms.uCurl, this.curl.attach(1));
-    gl.uniform1f(this.programs.vorticity.uniforms.uCurlStrength, CURL_STRENGTH);
+    gl.uniform1f(this.programs.vorticity.uniforms.uCurlStrength, this.curlStrength);
     gl.uniform1f(this.programs.vorticity.uniforms.uDt, dt);
     this.blitTo(this.velocity.write);
     this.velocity.swap();
@@ -482,7 +486,7 @@ export class FluidSimulation {
       gl.uniform1i(advection.uniforms.uSource, dye.read.attach(1));
       gl.uniform1i(advection.uniforms.uRest, this.rests[i].attach(2));
       gl.uniform1f(advection.uniforms.uHoming, this.homing);
-      gl.uniform1f(advection.uniforms.uDissipation, DYE_DISSIPATION);
+      gl.uniform1f(advection.uniforms.uDissipation, this.dyeDissipation);
       this.blitTo(dye.write);
       dye.swap();
     }
@@ -584,6 +588,12 @@ export class FluidSimulation {
   /** 縁で染料を紙白へ溶かす幅（UV 単位）。0 でオフ */
   setEdgeFade(width: number): void {
     this.edgeFade = Math.max(0, width);
+  }
+
+  /** 渦強化と染料の拡散。既定は輪がくっきり残る値。上げるほど霧に近づく */
+  setViscosityDials(opts: { curl?: number; dyeDissipation?: number }): void {
+    if (opts.curl !== undefined) this.curlStrength = opts.curl;
+    if (opts.dyeDissipation !== undefined) this.dyeDissipation = opts.dyeDissipation;
   }
 
   /** 特定 species を濃く、他を薄く。species = null で解除 */
