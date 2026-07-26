@@ -15,7 +15,6 @@ import {
   projectHref,
   projects,
   projectsByCategory,
-  type Project,
   type ProjectCategory,
 } from "@/lib/projects";
 import type { BasinSpecies } from "./basinBridge";
@@ -24,9 +23,6 @@ import {
   BasinIndexNote,
   BasinSwatch,
 } from "./BasinIndexItem";
-
-/** 仕様 §5 の 1 行。projects.ts へ `hubNote` が入るまでは undefined */
-type HubProject = Project & { hubNote?: string };
 
 const SUMI = "var(--sumi, #14171b)";
 const SUMI_SOFT = "var(--sumi-soft, #5a564c)";
@@ -87,7 +83,7 @@ export function BasinIndex({ className }: { className?: string }) {
 
       <div className="flex flex-col gap-[clamp(28px,4vh,44px)]">
         {CATEGORIES.map((category) => {
-          const items = projectsByCategory(category.id) as HubProject[];
+          const items = projectsByCategory(category.id);
           const pigment = PIGMENT[category.id];
           const headingId = `basin-${category.id}`;
           // 見出しのスウォッチは、そのカテゴリの最初の一塊を指す

@@ -6,6 +6,11 @@ export type Project = {
   description: string;
   tags: string[];
   category: ProjectCategory;
+  /**
+   * ハブ（水盤）の索引にだけ出る 1 行。作品ページは読まない。
+   * ハブの素材そのものが作品と同じもののとき、その重複を明示的に引き受ける。
+   */
+  hubNote?: string;
 };
 
 /** 表示順もこの配列の順に従う */
@@ -21,6 +26,8 @@ export const projects: Project[] = [
     title: "墨流し — Suminagashi",
     description:
       "藍と墨が水面で渦を巻く、GPU 流体の水盤。指でかき混ぜ、墨を落とし、気に入った模様はそのまま保存できる。",
+    hubNote:
+      "いま触っているこの水面が、その作品です。ここでは混ぜられるだけ。落として、風を送って、保存できるのは向こう側。粘りと渦のつまみも、作品の側にあります。",
     tags: ["WebGL2", "GLSL", "TypeScript"],
     category: "sites",
   },

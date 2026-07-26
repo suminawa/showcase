@@ -1,9 +1,5 @@
 import type { Metadata } from "next";
-import {
-  Big_Shoulders,
-  Noto_Sans_JP,
-  Shippori_Mincho_B1,
-} from "next/font/google";
+import { Big_Shoulders, Noto_Sans_JP, Source_Sans_3 } from "next/font/google";
 import "./globals.css";
 
 const notoSansJp = Noto_Sans_JP({
@@ -12,18 +8,18 @@ const notoSansJp = Noto_Sans_JP({
   variable: "--font-noto-sans-jp",
 });
 
+/** 框の世界（作品ページ 2 枚）のディスプレイ書体 */
 const bigShoulders = Big_Shoulders({
   subsets: ["latin"],
   display: "swap",
   variable: "--font-big-shoulders",
 });
 
-/** 墨の世界（/preview/sumi）のディスプレイ書体。ラテン専用 */
-const shippori = Shippori_Mincho_B1({
+/** 水盤の世界（ハブ）の書体 — a quiet humanist sans。ラテン専用 */
+const sourceSans = Source_Sans_3({
   subsets: ["latin"],
-  weight: ["600", "700"],
   display: "swap",
-  variable: "--font-shippori",
+  variable: "--font-source-sans-3",
 });
 
 export const metadata: Metadata = {
@@ -37,7 +33,7 @@ export default function RootLayout({
   return (
     <html lang="ja">
       <body
-        className={`${notoSansJp.variable} ${bigShoulders.variable} ${shippori.variable} font-sans antialiased`}
+        className={`${notoSansJp.variable} ${bigShoulders.variable} ${sourceSans.variable} font-sans antialiased`}
       >
         {children}
       </body>

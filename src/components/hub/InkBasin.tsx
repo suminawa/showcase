@@ -87,6 +87,8 @@ const STIR_RING_STRENGTH = 0.012;
 
 /** reduced-motion のヘッドレス実行で進めるフレーム数 */
 const HEADLESS_FRAMES = 130;
+/** 風を通してから静定するまで（動く経路の 1.7s → 1.8s と同じ 6 フレーム） */
+const HEADLESS_SETTLE_FRAMES = 6;
 
 type Drop = {
   atMs: number;
@@ -189,6 +191,16 @@ function onIdle(callback: () => void, timeout: number): () => void {
   }
   const id = window.setTimeout(callback, 0);
   return () => window.clearTimeout(id);
+}
+
+/**
+ * canvas は alpha:false なので描く前は不透明な黒。1 フレーム描けてから見せる。
+ * これで WebGL2 が使えない場合も背面タブで開かれた場合も、静止画がそのまま残る。
+ */
+function revealCanvas(canvas: HTMLCanvasElement | null): void {
+  if (!canvas || canvas.dataset.painted === "1") return;
+  canvas.dataset.painted = "1";
+  canvas.style.opacity = "1";
 }
 
 export type InkBasinProps = {
@@ -420,13 +432,20 @@ export function InkBasin({
       for (const drop of loop.schedule) {
         engine.splatSpecies(drop.x, drop.y, drop.species, drop.radius);
       }
-      engine.fan(FAN_STRENGTH, loop.phase);
+      // 風は動く経路と同じく「静定の直前」に通す。先に通すと 130 フレーム分
+      // （= 2.17 秒）風下へ流れ続け、composition が盤の縁へ寄って切れる。
+      // 実測で確かめた: 先に通すと乾いた縁 10% が壊れ、後に通すと動く経路と一致する
       for (let i = 0; i < HEADLESS_FRAMES; i++) {
+        engine.step(1 / 60);
+      }
+      engine.fan(FAN_STRENGTH, loop.phase);
+      for (let i = 0; i < HEADLESS_SETTLE_FRAMES; i++) {
         engine.step(1 / 60);
       }
       engine.still();
       engine.captureRest();
       engine.render();
+      revealCanvas(canvasRef.current);
       loop.nextDrop = loop.schedule.length;
       loop.fanDone = true;
       loop.restCaptured = true;
@@ -460,6 +479,7 @@ export function InkBasin({
           loop.forceIdMapAt = 0;
         }
         engine.render();
+        revealCanvas(canvasRef.current);
       }
       stop();
       loop.parked = true;
@@ -489,6 +509,7 @@ export function InkBasin({
         engine.step(dt);
       }
       engine.render();
+      revealCanvas(canvasRef.current);
 
       maybeReadIdMap(now);
 
@@ -807,7 +828,7 @@ export function InkBasin({
         ref={canvasRef}
         // 水面は活字が持っていない情報を一つも持たない。装飾として扱わせる
         aria-hidden="true"
-        className="h-full w-full touch-none"
+        className="h-full w-full touch-none opacity-0 transition-opacity duration-200 motion-reduce:transition-none"
         onPointerDown={onPointerDown}
         onPointerMove={onPointerMove}
         onPointerUp={onPointerUp}
