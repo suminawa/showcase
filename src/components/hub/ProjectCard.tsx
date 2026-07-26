@@ -3,8 +3,8 @@ import { projectHref, type Project } from "@/lib/projects";
 
 const VARIANT_STYLES = {
   marble: {
-    pane: "pane-marble pane-lit pane-flood-in on-color text-[#f4f2ed]",
-    secondary: "text-[#c6d0ea]",
+    pane: "pane-marble pane-lit pane-flood-in on-color text-marble-fg",
+    secondary: "text-marble-fg-soft",
   },
   amber: {
     pane: "pane-amber pane-lit on-color",
@@ -29,7 +29,7 @@ export function ProjectCard({
       className={`${styles.pane} group flex flex-col justify-between gap-10 p-[clamp(20px,3vw,40px)] ${className}`}
     >
       <div>
-        <h2 className="max-w-[22ch] text-[clamp(1.5rem,2.5vw,2rem)] leading-snug font-bold text-balance">
+        <h2 className="max-w-[22ch] text-[clamp(1.5rem,2.5vw,2rem)] leading-snug font-bold text-balance [word-break:auto-phrase]">
           {project.title}
         </h2>
         <p

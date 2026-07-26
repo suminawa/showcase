@@ -19,6 +19,9 @@
   --oxblood: #8c2a2c;
   --ink: #1b1b1e;
   --ink-soft: #5c5a52;
+  /* 陳列窓（pane-marble）上の文字。世界ごとに地が反転するのでトークン化する */
+  --marble-fg: #f4f2ed;
+  --marble-fg-soft: #c6d0ea;
 
   --glass-noise: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)' opacity='0.055'/%3E%3C/svg%3E");
   --glass-sheen: linear-gradient(
@@ -52,6 +55,8 @@
   --color-oxblood: var(--oxblood);
   --color-ink: var(--ink);
   --color-ink-soft: var(--ink-soft);
+  --color-marble-fg: var(--marble-fg);
+  --color-marble-fg-soft: var(--marble-fg-soft);
   --font-sans: var(--font-noto-sans-jp), ui-sans-serif, system-ui,
     "Hiragino Sans", sans-serif;
   --font-display: var(--font-big-shoulders), var(--font-noto-sans-jp),
@@ -61,6 +66,8 @@
 body {
   background: var(--bar);
   color: var(--ink);
+  /* 小書きカナ・長音符が行頭に来る折り返しを禁じる（既定は緩い） */
+  line-break: strict;
 }
 
 /* ---- Panes（ガラス） ---- */
@@ -178,6 +185,175 @@ body {
     transition: none;
   }
   .pane-flood-in {
+    animation: none;
+  }
+}
+
+/* ==========================================================================
+   墨の世界（プレビュー） — 墨壺で線を打った一枚の白木の板
+   トークン名は変えず値だけ差し替える。@theme inline が素通しするので
+   既存コンポーネントは何も変えずに追随する。仕様:
+   .superpowers/docs/specs/2026-07-26-sumi-world-spec.md
+   ========================================================================== */
+
+.world-sumi {
+  --bar: #14171b; /* 墨線 — 打った基準線 = gap */
+  --glass: #f6f3ed; /* 板 — 白木の面（水盤の紙白と同値） */
+  --glass-bright: #fbf9f2; /* 削りたて */
+  --glass-frost: #e7e2d6; /* 荒木地 */
+  --cobalt: #224372; /* 藍 — 状態の色 */
+  --cobalt-deep: #17304f;
+  --amber: #a83b1e; /* 朱墨 — 出力・主役 */
+  --amber-bright: #a83b1e; /* 染めた面は明度を動かさない */
+  --amber-ink: #eed9d1;
+  --ink: #14171b;
+  --ink-soft: #5a564c; /* 薄墨 */
+  --marble-fg: #14171b; /* 紙白の地なので墨で書く */
+  --marble-fg-soft: #5a564c;
+  --on-color-fg: #f6f3ed; /* 色面上の文字。純白は使わない */
+  --focus-on-color: #f6f3ed;
+
+  --ease-snap: cubic-bezier(0.16, 1, 0.3, 1);
+
+  /* 木理（もくめ）— 縦に流れる柾目 */
+  --mokume: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='420' height='420'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.62 0.006' numOctaves='3' seed='7' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='420' height='420' filter='url(%23g)' opacity='0.07'/%3E%3C/svg%3E");
+  --mokume-ara: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='420' height='420'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.62 0.006' numOctaves='3' seed='7' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='420' height='420' filter='url(%23g)' opacity='0.11'/%3E%3C/svg%3E");
+  /* 粉（こ）— 削り粉 */
+  --ko: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)' opacity='0.038'/%3E%3C/svg%3E");
+  /* 染めむら — 均一なベタ塗りは染めではなく印刷 */
+  --mura: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='600' height='600'%3E%3Cfilter id='m'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.012' numOctaves='2' seed='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='600' height='600' filter='url(%23m)' opacity='0.07'/%3E%3C/svg%3E");
+
+  --font-display-stack: var(--font-shippori), "Hiragino Mincho ProN",
+    "Yu Mincho", serif;
+}
+
+/* 方向性グラデーション（ガラスの記号）は墨の世界に存在しない */
+.world-sumi .pane {
+  background-image: var(--mokume), var(--ko);
+}
+.world-sumi .pane-frost {
+  background-image: var(--mokume-ara), var(--ko), var(--ko);
+}
+.world-sumi .pane-cobalt,
+.world-sumi .pane-amber {
+  background-image: var(--mura), var(--ko);
+  color: var(--on-color-fg);
+}
+
+/* 柾目 — 板に鏡面反射は無いので白ハイライト行を持たない */
+.world-sumi .pane-reeded {
+  background-image: repeating-linear-gradient(
+      90deg,
+      transparent 0 9px,
+      rgba(20, 23, 27, 0.055) 9px 10px,
+      transparent 10px 13px,
+      rgba(20, 23, 27, 0.03) 13px 14px
+    ),
+    var(--mokume), var(--ko);
+}
+
+/* 陳列窓 — 紙白の地に墨と藍の輪。実物の水盤と同じ向き */
+.world-sumi {
+  --marble-rings: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 600 400'%3E%3Cfilter id='w' x='-25%25' y='-25%25' width='150%25' height='150%25'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.0045' numOctaves='3' seed='11' result='n'/%3E%3CfeDisplacementMap in='SourceGraphic' in2='n' scale='38' xChannelSelector='R' yChannelSelector='G'/%3E%3C/filter%3E%3Cg filter='url(%23w)' fill='none' stroke-width='6'%3E%3Cg stroke='%231b191c'%3E%3Ccircle cx='300' cy='200' r='30'/%3E%3Ccircle cx='300' cy='200' r='69'/%3E%3Ccircle cx='300' cy='200' r='96'/%3E%3Ccircle cx='300' cy='200' r='118'/%3E%3Ccircle cx='300' cy='200' r='137'/%3E%3Ccircle cx='300' cy='200' r='153'/%3E%3Ccircle cx='300' cy='200' r='168'/%3E%3C/g%3E%3Cg stroke='%23223e6d'%3E%3Ccircle cx='300' cy='200' r='52'/%3E%3Ccircle cx='300' cy='200' r='84'/%3E%3Ccircle cx='300' cy='200' r='108'/%3E%3Ccircle cx='300' cy='200' r='128'/%3E%3Ccircle cx='300' cy='200' r='145'/%3E%3Ccircle cx='300' cy='200' r='161'/%3E%3Ccircle cx='300' cy='200' r='175'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+}
+
+.world-sumi .pane-marble {
+  background-color: var(--glass);
+  background-image: linear-gradient(
+      100deg,
+      rgba(246, 243, 237, 0.95) 0%,
+      rgba(246, 243, 237, 0.88) 30%,
+      rgba(246, 243, 237, 0) 60%
+    ),
+    var(--marble-rings), var(--ko);
+  background-size: auto, cover, auto;
+  background-position: center, 82% center, center;
+  --focus-on-color: var(--bar);
+}
+
+/* 縦長では輪が文字に被る。輪を下へ逃がし、地は上から掛ける */
+@media (max-width: 1023px) {
+  .world-sumi .pane-marble {
+    background-image: linear-gradient(
+        180deg,
+        rgba(246, 243, 237, 0.97) 0%,
+        rgba(246, 243, 237, 0.93) 32%,
+        rgba(246, 243, 237, 0) 56%
+      ),
+      linear-gradient(
+        0deg,
+        rgba(246, 243, 237, 0.95) 0%,
+        rgba(246, 243, 237, 0.82) 10%,
+        rgba(246, 243, 237, 0) 22%
+      ),
+      var(--marble-rings), var(--ko);
+    background-size: auto, auto, 155% auto, auto;
+    background-position: center, center, center 78%, center;
+  }
+}
+
+/* ---- 張る（線が先に応える） ---- */
+
+.world-sumi .pane-lit {
+  transition:
+    box-shadow 140ms var(--ease-snap),
+    background-color 420ms var(--ease-snap);
+}
+.world-sumi .pane-lit:hover {
+  box-shadow: inset 0 0 0 2px var(--bar);
+  background-color: var(--glass-bright);
+}
+.world-sumi .pane-lit:active {
+  box-shadow: inset 0 0 0 3px var(--bar);
+  background-color: var(--glass-frost);
+}
+/* 染めた面と陳列窓は明度を一切動かさない */
+.world-sumi .pane-marble.pane-lit:hover {
+  box-shadow: inset 0 0 0 2px var(--bar);
+  background-color: var(--glass);
+}
+.world-sumi .pane-amber.pane-lit:hover {
+  box-shadow: inset 0 0 0 2px var(--bar);
+  background-color: var(--amber);
+}
+.world-sumi .pane-cobalt.pane-lit:hover {
+  box-shadow: inset 0 0 0 2px var(--bar);
+  background-color: var(--cobalt);
+}
+
+.world-sumi .on-color:focus-visible,
+.world-sumi .on-color :focus-visible {
+  outline-color: var(--focus-on-color);
+}
+
+/* ---- 打ち墨（登場） ---- */
+/* gap も最初は板色 = まだ切られていない一枚の板。ペインは不透明なので
+   墨は gap にだけ現れ、線が板を横切って打たれていく像になる */
+@keyframes uchizumi {
+  from {
+    background-size: 0% 100%;
+  }
+}
+
+main.world-sumi {
+  background-color: var(--glass);
+  background-image: linear-gradient(var(--bar), var(--bar));
+  background-repeat: no-repeat;
+  background-size: 100% 100%;
+  animation: uchizumi 900ms var(--ease-snap) backwards;
+}
+
+/* 染めは線が通過した後に始まる */
+.world-sumi .pane-flood-in {
+  animation: pane-flood 1100ms var(--ease-snap) 620ms backwards;
+}
+
+.world-sumi .font-display {
+  font-family: var(--font-display-stack);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  main.world-sumi {
     animation: none;
   }
 }
