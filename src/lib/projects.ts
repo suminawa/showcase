@@ -1,20 +1,43 @@
+export type ProjectCategory = "tools" | "games" | "sites";
+
 export type Project = {
   slug: string;
   title: string;
   description: string;
   tags: string[];
+  category: ProjectCategory;
 };
 
+/** 表示順もこの配列の順に従う */
+export const CATEGORIES: { id: ProjectCategory; label: string }[] = [
+  { id: "sites", label: "SITES" },
+  { id: "tools", label: "TOOLS" },
+  { id: "games", label: "GAMES" },
+];
+
 export const projects: Project[] = [
+  {
+    slug: "suminagashi",
+    title: "墨流し — Suminagashi",
+    description:
+      "藍と墨が水面で渦を巻く、GPU 流体の水盤。指でかき混ぜ、墨を落とし、気に入った模様はそのまま保存できる。",
+    tags: ["WebGL2", "GLSL", "TypeScript"],
+    category: "sites",
+  },
   {
     slug: "quote-simulator",
     title: "見積もりシミュレーター",
     description:
       "作業条件を入れると、見積もりの内訳と合計がその場で見える。フリーランスの「いくらでやる？」を 30 秒で形にする電卓。",
     tags: ["Next.js", "TypeScript", "Tailwind CSS"],
+    category: "tools",
   },
 ];
 
 export function projectHref(project: Project): string {
   return `/projects/${project.slug}`;
+}
+
+export function projectsByCategory(category: ProjectCategory): Project[] {
+  return projects.filter((project) => project.category === category);
 }
