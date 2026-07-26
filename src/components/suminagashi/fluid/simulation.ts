@@ -134,6 +134,8 @@ export class FluidSimulation {
   private gl!: WebGL2RenderingContext;
   private linearFiltering = false;
   private resStep = 0;
+  private vao: WebGLVertexArrayObject | null = null;
+  private vertexBuffer: WebGLBuffer | null = null;
 
   private programs!: {
     copy: ProgramInfo;
@@ -442,6 +444,10 @@ export class FluidSimulation {
     for (const info of Object.values(this.programs ?? {})) {
       this.gl.deleteProgram(info.program);
     }
+    if (this.vao) this.gl.deleteVertexArray(this.vao);
+    if (this.vertexBuffer) this.gl.deleteBuffer(this.vertexBuffer);
+    this.vao = null;
+    this.vertexBuffer = null;
     this.supported = false;
   }
 
@@ -524,8 +530,10 @@ export class FluidSimulation {
   private initGeometry(): void {
     const gl = this.gl;
     const vao = gl.createVertexArray();
+    this.vao = vao;
     gl.bindVertexArray(vao);
     const buffer = gl.createBuffer();
+    this.vertexBuffer = buffer;
     gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
     // フルスクリーン三角形
     gl.bufferData(

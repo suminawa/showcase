@@ -12,8 +12,11 @@ type BasinState = "running" | "unsupported" | "contextlost";
 
 /** タップ判定: 移動がこの px 未満なら「墨を落とす」 */
 const TAP_MOVE_PX = 6;
-/** パフォーマンスガード: この ms を超えるフレームが続いたら格子を縮小 */
-const SLOW_FRAME_MS = 33;
+/**
+ * 縮小を判断するフレーム時間のしきい値。
+ * 30fps 相当（33.3ms）の正常なカデンスを「遅い」と誤判定しないよう余裕を取る。
+ */
+const SLOW_FRAME_MS = 42;
 const SLOW_FRAME_LIMIT = 60;
 
 export function SuminagashiBasin() {
@@ -80,6 +83,7 @@ export function SuminagashiBasin() {
     engine.clearAll();
     const loop = loopRef.current;
     loop.entranceMs = 0;
+    loop.touched = false;
     loop.prevEntranceMs = -1;
     loop.entranceDone = false;
     loop.fanPhase = Math.random() * Math.PI * 2;
@@ -180,12 +184,6 @@ export function SuminagashiBasin() {
     };
     document.addEventListener("visibilitychange", onVisibility);
 
-    const onContextLost = (event: Event) => {
-      event.preventDefault();
-      setState("contextlost");
-    };
-    canvas.addEventListener("webglcontextlost", onContextLost);
-
     const observer = new ResizeObserver(() => {
       // 解像度が本当に変わった時だけ作り直す（空振りの通知で演出が止まらないように）
       const changed = engine.resize();
@@ -203,6 +201,15 @@ export function SuminagashiBasin() {
       loop.fanPhase = Math.random() * Math.PI * 2;
     });
     observer.observe(canvas);
+
+    const onContextLost = (event: Event) => {
+      event.preventDefault();
+      // 失われた context に対してループを回し続けない
+      cancelAnimationFrame(loop.raf);
+      observer.disconnect();
+      setState("contextlost");
+    };
+    canvas.addEventListener("webglcontextlost", onContextLost);
 
     return () => {
       cancelAnimationFrame(loop.raf);
@@ -291,7 +298,8 @@ export function SuminagashiBasin() {
       .slice(0, 13);
     anchor.download = `suminagashi-${stamp}.png`;
     anchor.click();
-    URL.revokeObjectURL(url);
+    // 同期で revoke すると一部ブラウザでダウンロードが落ちるため 1 拍置く
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
   };
 
   if (state === "unsupported") {

@@ -140,7 +140,7 @@ components:
 ### Hierarchy
 - **Display** (700, clamp(3rem, 7vw, 6rem), lh 0.95, uppercase): ワードマーク「SHOWCASE」のみ
 - **Headline** (700, clamp(1.5rem, 2.5vw, 2rem), Noto Sans JP): 作品名・ページタイトル
-- **Kicker** (600, 13px, tracking 0.14em, uppercase, Big Shoulders): ペインのラベル（NO.001、ESTIMATE 等）
+- **Kicker** (600, 13px, tracking 0.14em, uppercase, Big Shoulders): ペインのラベル（SITES、ESTIMATE 等）
 - **Subhead** (700, 17px, lh 1.4): ページ内タイトル（帯の中の h1 等）
 - **Body** (400, 16px, lh 1.9): 説明文。最大 65ch
 - **Caption** (400, 15px, lh 1.9): ペイン内の補足文・タグ・キャプション
@@ -154,7 +154,7 @@ components:
 
 グリッドの gap がそのまま框になる。コンテナ背景 = Bar 黒、`gap: 6px`（モバイル 4px）、外周 `padding: 12px`（モバイル 8px）が外框。ペイン = グリッドセル。
 
-- ハブ: カテゴリ = **ベイ（区画）**。ベイ内は通常框（6px / モバイル 4px）、ベイ同士はより太い方立（10px / モバイル 12px = `gap-2.5 sm:gap-3`）で区切る。上から 顔ベイ（SHOWCASE + タグライン）→ SITES → TOOLS・GAMES → 下段ノート。各ベイは「ラベル小ペイン + 作品ペイン」。作品ペインの大きさ = 重要度で、最新カテゴリ（SITES）が最大
+- ハブ: カテゴリ = **ベイ（区画）**。ベイ内は通常框（6px / モバイル 4px）、ベイ同士はより太い方立（モバイル 10px / デスクトップ 12px = `gap-2.5 sm:gap-3`）で区切る。上から 顔ベイ（SHOWCASE + タグライン）→ SITES → TOOLS・GAMES → 下段ノート。各ベイは「ラベル小ペイン + 作品ペイン」。作品ペインの大きさ = 重要度で、最新カテゴリ（SITES）が最大
 - 通し番号（NO.001 等）は使わない。ペインのキッカーはカテゴリラベル（SITES / TOOLS / GAMES）
 - シミュレーター: 上部にバック/タイトルの帯、左に入力ペイン群（縦積み）、右にサマリーペイン（sticky）。モバイルは 1 列に積み、框の太さを 4px に保つ
 - 余白リズム: ペイン内 padding はハブ `clamp(20px, 3vw, 40px)`、シミュレーター（Operate 面は密度高め）`clamp(20px, 3vw, 36px)`。見出しの上に下より広い余白
