@@ -83,6 +83,9 @@ void main () {
 
 /**
  * 落ちた滴そのもの。輪を重ねても黒く飽和しないよう、加算ではなく置換で描く。
+ * 染料の 4 成分は「species（作品）ごとの濃度」なので、uSpecies は one-hot ベクトル。
+ * 置換を 4 成分すべてで行うことで、アンチエイリアス帯の混合比がそのまま
+ * 濃度の内分になる（表示は線形写像なので現行の見た目と一致する）。
  */
 export const dropShader = /* glsl */ `#version 300 es
 precision highp float;
@@ -91,7 +94,7 @@ uniform sampler2D uTarget;
 uniform vec2 uPoint;
 uniform float uAspectRatio;
 uniform float uRadius;
-uniform vec3 uColor;
+uniform vec4 uSpecies;
 out vec4 outColor;
 void main () {
   vec2 p = vUv - uPoint;
@@ -99,8 +102,8 @@ void main () {
   float d = length(p);
   float edge = fwidth(d) * 1.5 + 0.0012;
   float mask = 1.0 - smoothstep(uRadius - edge, uRadius + edge, d);
-  vec3 base = texture(uTarget, vUv).rgb;
-  outColor = vec4(mix(base, uColor, mask), 1.0);
+  vec4 base = texture(uTarget, vUv);
+  outColor = mix(base, uSpecies, mask);
 }`;
 
 /**
@@ -134,10 +137,13 @@ precision highp float;
 in vec2 vUv;
 uniform sampler2D uVelocity;
 uniform sampler2D uSource;
+uniform sampler2D uRest;
 uniform vec2 uTexelSize;
 uniform vec2 uDyeTexelSize;
 uniform float uDt;
 uniform float uDissipation;
+/** 生まれた場所（rest）へ戻る速さ。0 で無効（速度移流パスでは必ず 0） */
+uniform float uHoming;
 out vec4 outColor;
 
 #ifdef MANUAL_FILTERING
@@ -162,8 +168,9 @@ void main () {
   vec4 result = texture(uSource, coord);
 #endif
   float decay = 1.0 + uDissipation * uDt;
-  outColor = result / decay;
-  outColor.a = 1.0;
+  vec4 advected = result / decay;
+  // uHoming = 0 のとき mix は advected をそのまま返す（現行と完全同一）
+  outColor = mix(advected, texture(uRest, vUv), clamp(uHoming * uDt, 0.0, 1.0));
 }`;
 
 export const divergenceShader = /* glsl */ `#version 300 es
@@ -275,15 +282,75 @@ void main () {
   outColor = vec4(velocity, 0.0, 1.0);
 }`;
 
-/** 染料 = 累積吸収。表示色 = 紙白 − 吸収（減法混色）。 */
+/**
+ * 染料の 4 成分 = species（作品）ごとの濃度。
+ * 表示色 = 紙白 − Σ cᵢ·Aᵢ（Aᵢ = species i の顔料の吸収ベクトル = uPalette[i]）。
+ * 写像が線形なので、既定パレット [carbon, indigo, 0, 0] のとき
+ * 現行（染料 = 吸収そのもの）と同一の出力になる。
+ *
+ * uPalette は uniform 配列。location のキーは "uPalette[0]" になる点に注意
+ * （gl.getActiveUniform().name が返す名前）。
+ */
 export const displayShader = /* glsl */ `#version 300 es
 precision highp float;
 in vec2 vUv;
 uniform sampler2D uDye;
 uniform vec3 uPaper;
+uniform vec3 uPalette[4];
+uniform int uHighlight;
+uniform float uHighlightAmt;
+uniform float uEdgeFade;
 out vec4 outColor;
 void main () {
-  vec3 absorption = texture(uDye, vUv).rgb;
-  vec3 color = clamp(uPaper - absorption, 0.0, 1.0);
-  outColor = vec4(color, 1.0);
+  vec4 c = texture(uDye, vUv);
+  float w[4];
+  for (int i = 0; i < 4; i++) {
+    w[i] = uHighlight < 0
+      ? 1.0
+      : (uHighlight == i ? 1.0 + 0.35 * uHighlightAmt : 1.0 - 0.15 * uHighlightAmt);
+  }
+  vec3 absorption = c.r * w[0] * uPalette[0] + c.g * w[1] * uPalette[1]
+                  + c.b * w[2] * uPalette[2] + c.a * w[3] * uPalette[3];
+  float fade = 1.0;
+  if (uEdgeFade > 0.0) {
+    // 逆向き smoothstep（smoothstep(1.0, 0.8, x)）は GLSL 未定義。順方向 2 本で書く
+    fade = smoothstep(0.0, uEdgeFade, vUv.x) * (1.0 - smoothstep(1.0 - uEdgeFade, 1.0, vUv.x))
+         * smoothstep(0.0, uEdgeFade, vUv.y) * (1.0 - smoothstep(1.0 - uEdgeFade, 1.0, vUv.y));
+  }
+  outColor = vec4(clamp(uPaper - absorption * fade, 0.0, 1.0), 1.0);
+}`;
+
+/**
+ * 当たり判定用の id map。96×96 の RGBA8 へ 1 パスで焼く。
+ * R = argmax の species index（idx/255 を書くとバイト値がちょうど idx になる）
+ * G = 勝者の占有率（best / total）
+ * B = 総濃度（0..1 にクランプ）
+ * 3×3 の平均を取ってから argmax するので、境界のちらつきが出ない。
+ */
+export const idmapShader = /* glsl */ `#version 300 es
+precision highp float;
+in vec2 vUv;
+uniform sampler2D uDye;
+uniform vec2 uStep;
+out vec4 outColor;
+void main () {
+  vec4 sum = vec4(0.0);
+  for (int j = -1; j <= 1; j++) {
+    for (int i = -1; i <= 1; i++) {
+      sum += texture(uDye, vUv + vec2(float(i), float(j)) * uStep);
+    }
+  }
+  vec4 c = sum / 9.0;
+  float total = c.r + c.g + c.b + c.a;
+  float best = c.r;
+  float idx = 0.0;
+  if (c.g > best) { best = c.g; idx = 1.0; }
+  if (c.b > best) { best = c.b; idx = 2.0; }
+  if (c.a > best) { best = c.a; idx = 3.0; }
+  outColor = vec4(
+    idx / 255.0,
+    total > 1e-4 ? best / total : 0.0,
+    clamp(total, 0.0, 1.0),
+    1.0
+  );
 }`;
