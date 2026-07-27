@@ -1,0 +1,681 @@
+/* ==========================================================================
+   飛白（ひはく）走り — 三筆目
+   --------------------------------------------------------------------------
+   紙が主で、墨は従。画面の八割以上を紙のまま残すために、この世界は
+   「置くもの」ではなく「置かないもの」で組んである。
+
+   構造をつくる三つの規則（これ以外の装置を一切持たない）
+
+   1. 起点の斜行 ── 段ごとに左の余白が階段状に増える。
+        名乗り  1 列目 …… 左余白 0
+        作品    6 列目 …… 左余白 約 42%
+        結び    1 列目 …… 起点に戻る（筆が紙を離れて手元へ返る）
+      左に溜まっていく紙そのものが、進行の目盛りになる。
+
+   2. 字の断絶 ── 使う寸法は「大」と「小」の二つだけ。
+        大 = 28〜140px（名乗り）
+        小 = 13〜15px（それ以外のすべて）
+      20〜30px の中間帯を一箇所も使わない。中間が無いことが飛白の呼吸。
+      （落款だけは字ではなく図像として扱うので、この規則の外にある）
+
+   3. 沈黙の段差 ── 段と段の間は 40〜52svh。作品どうしの間も同じ。
+      罫・枠・角丸・背景色の切り替え・チップ・区切り線は一つも使わない。
+      間を作るのは余白だけ。
+
+   墨は二筆しか無い。入りの一筆（sumi-sparse を右上に大きく）と、
+   筆が紙を離れる最後の掠れ（sumi-wide の左端の飛沫を右下に小さく）。
+   どちらも grayscale で藍を殺し、brightness→contrast で
+   「濃い芯」と「掠れの灰」に分解した二層を darken で紙に重ねている。
+   darken を使うのは、素材の地色 (246,243,237) が紙 (246,243,235) より
+   わずかに明るく、min 合成すると矩形の縁が完全に消えるため。
+
+   --------------------------------------------------------------------------
+   この案が足したもの ── 三筆目（.hashiri / .run）
+
+   静止した紙には、依然として二筆しか無い。誰も触っていない画面は原本と同一。
+   読み手が作品に触れた、その一件の背後にだけ、同じ筆が左から右へ一息で走る。
+   手を離せば 300ms で全体が薄れて乾き、紙は元の二筆に戻る。
+
+   「同じ筆」であることが、この案の全部である。だから作りは入りの一筆を丸ごと踏襲した：
+     ・同じ二層構造（同じ seed の乱流を、閾値違いで「掠れの灰」と「濃い芯」に分解）
+     ・同じ異方ノイズ（baseFrequency x≪y。横へ長く伸びた縞が穂の割れ目になる）
+     ・同じ darken 合成、同じ素材（/ink/sumi-wide.png）
+     ・同じ「濡れて入り、乾いて抜ける」── 書き出しは筋が埋まり、右へ行くほど筋が勝ち、
+       最後は墨が尽きて消える
+   違うのは寸法と時間だけ。短く細い一筆なので割れ目は細かく（y = 0.19、
+   入りの一筆は 0.1）、走り抜けるのに 470〜620ms かかる。これは打撃ではなく筆速。
+
+   一筆は【題の足元】を通る。字の上半分は紙のまま残し、ベースライン側だけを掠める。
+   墨の上に字が乗るように、走りは .entry の中で最初に置き、字の三段には
+   position: relative を与えて後から重ねている（どれも z-index は持たない ──
+   持つと mix-blend-mode がそこで隔離され、紙まで届かなくなる）。
+   同じ理由で .works からは z-index を外した（position: relative だけで、
+   DOM 順により入りの一筆と最後の掠れの上に載る）。
+
+   コントラスト（紙 #F6F3EB 上、実測値）
+     #1C1A15 15.5:1 / #3A3730 10.9:1 / #55514A 7.1:1 / #6A665D 5.2:1
+     #A63A2E  5.9:1（落款）  #8E8A80 3.1:1 → 図版専用。文字には使わない
+   走りが掛かる二つの字（カテゴリと題）は、走りと同時に #1C1A15 まで沈む。
+   墨の最も濃いところ（灰 #8E8A80 相当）に重なっても 5.4:1 を保つための措置。
+   ========================================================================== */
+
+.paper {
+  /* ---- 紙と墨 ---- */
+  --hi-paper: #f6f3eb;
+  --hi-sumi: #1c1a15; /* 15.5:1 */
+  --hi-sumi-2: #3a3730; /* 10.9:1 */
+  --hi-sumi-3: #55514a; /* 7.1:1 */
+  --hi-sumi-4: #6a665d; /* 5.2:1 */
+  --hi-kasure: #8e8a80; /* 3.1:1 — 図版のかすれの色。文字には使わない */
+  --hi-shu: #a63a2e; /* 落款の朱。画面で色を持つのはここ一箇所だけ */
+
+  /* ---- 二段しかない字の寸法 ---- */
+  --hi-tiny: clamp(0.8125rem, 0.75rem + 0.22vw, 0.9375rem); /* 13 → 15px */
+
+  /* ---- 沈黙 ---- */
+  --hi-void: clamp(88px, 40svh, 380px);
+  --hi-void-lg: clamp(112px, 52svh, 500px);
+
+  --hi-brush: cubic-bezier(0.16, 1, 0.3, 1);
+  --hi-soak: 560ms cubic-bezier(0.25, 0.8, 0.3, 1);
+
+  /* ---- 三筆目の時間 ----
+     筆速。押し出しでゆるく加速し、墨が尽きるところで長く減速して止まる。
+     打撃（一瞬で決まる）ではないので、緩急は入りより浅い。 */
+  --hi-hashiri: cubic-bezier(0.2, 0.74, 0.24, 1);
+  --hi-run-kasure: 620ms; /* 掠れが先に出て、長くかかる */
+  --hi-run-core: 470ms; /* 芯は 90ms 遅れて入り、先に止まる */
+  --hi-dry: 300ms; /* 手を離してから乾くまで */
+
+  --hi-serif:
+    var(--hi-mincho), "Hiragino Mincho ProN", "Yu Mincho", YuMincho,
+    "Noto Serif JP", serif;
+  --hi-serif-display:
+    var(--hi-display), "Hiragino Mincho ProN", "Yu Mincho", YuMincho,
+    "Noto Serif JP", serif;
+
+  position: relative;
+  isolation: isolate;
+  overflow-x: clip;
+  min-height: 100svh;
+  background: var(--hi-paper);
+  color: var(--hi-sumi);
+  font-family: var(--hi-serif);
+  font-feature-settings: "palt" 1;
+
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  column-gap: clamp(12px, 2vw, 28px);
+  align-content: start;
+  padding-inline: clamp(20px, 5.2vw, 96px);
+  padding-block: clamp(24px, 6svh, 72px) 0;
+}
+
+/* 紙の面はページ全体。オーバースクロールで框の黒が覗かないようにする。
+   :has で自分のページにいるときだけ効く（globals.css は触らない） */
+:global(body):has(.paper) {
+  background: #f6f3eb;
+}
+
+/* ==========================================================================
+   墨 ── 紙の上には二筆だけ
+   ========================================================================== */
+
+/*
+ * 入りの一筆。sumi-sparse を紙幅より大きく引き伸ばし、右上へ抜けさせる。
+ * ラッパは transform も z-index も持たない（持つと mix-blend-mode が
+ * ここで隔離されて紙と混ざらなくなる）。傾きと合成は子だけが担当する。
+ */
+.stroke {
+  position: absolute;
+  top: -30svh;
+  right: -34vw;
+  /* 196svh の上限が要る。横長で背の低い紙のとき、一筆が名乗りの上へ降りてくるのを
+     この項だけが止める（背が低いほど筆は小さく、右上へ寄る） */
+  width: min(136vw, 1780px, 196svh);
+  aspect-ratio: 2000 / 1400;
+  pointer-events: none;
+}
+
+/*
+ * 飛白そのもの ── 筆の毛が割れて、墨の中を白い筋が走る。
+ * 素材は流体が描いた「濡れた」塊なので、そのままでは潑墨にしかならない。
+ *
+ * 割れ目は feTurbulence で作る。baseFrequency を x=0.0038 / y=0.1 と
+ * 極端に異方にすると、横へ長く伸びた縞状のノイズが出る。これを feColorMatrix で
+ * アルファへ移し、feFuncA の急な linear（slope 8）でほぼ二値化すると、
+ * 等間隔でない・うねる・端が千切れた筋になる。直線の repeating-gradient では
+ * 走査線にしか見えないので使わない。全体を -7deg 回して穂の進行方向に沿わせる。
+ *
+ * さらに穂先側（左下）から穂尻（右上）へ白のグラデーションを重ねて和を取り、
+ * 墨を多く含んだ書き出しだけは筋を埋めて残す。
+ * 濡れて入り、乾いて抜ける ── 一筆の中に時間が入る。
+ */
+.ink {
+  position: absolute;
+  inset: 0;
+  background: url("/ink/sumi-sparse.png") no-repeat center / 100% 100%;
+  transform: rotate(-5.5deg);
+  transform-origin: 62% 46%;
+  mix-blend-mode: darken;
+  mask-repeat: no-repeat;
+  /* mask-composite の初期値は add。二枚は和で重なる */
+}
+
+/* 掠れ ── 飛んだ灰。中間調をそのまま残し、sepia で紙の温度に寄せる */
+.inkKasure {
+  filter: grayscale(1) brightness(0.95) contrast(1.52) sepia(0.34)
+    saturate(0.55);
+  opacity: 0.9;
+  /* 芯より筋を細く抜く（閾値 intercept -2.96）。黒の外に灰の縁が残る */
+  mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1200 800' preserveAspectRatio='none'%3E%3Cfilter id='h' color-interpolation-filters='sRGB'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.0038 0.1' numOctaves='4' seed='5'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 1 0 0 0 0'/%3E%3CfeComponentTransfer%3E%3CfeFuncA type='linear' slope='8' intercept='-2.96'/%3E%3C/feComponentTransfer%3E%3C/filter%3E%3ClinearGradient id='g' x1='0' y1='1' x2='0.9' y2='0.05'%3E%3Cstop offset='0.16' stop-color='%23fff' stop-opacity='1'/%3E%3Cstop offset='0.68' stop-color='%23fff' stop-opacity='0'/%3E%3C/linearGradient%3E%3Cg transform='rotate(-7 600 400)'%3E%3Crect x='-500' y='-500' width='2200' height='1800' filter='url(%23h)'/%3E%3C/g%3E%3Crect width='1200' height='800' fill='url(%23g)'/%3E%3C/svg%3E");
+  mask-size: 100% 100%;
+  animation: hi-sweep 1750ms var(--hi-brush) 60ms both;
+}
+
+/* 芯 ── 一番沈んだところだけを墨まで落とす。126〜232 を黒〜白へ引き伸ばす */
+.inkCore {
+  filter: grayscale(1) brightness(0.74) contrast(2.85) sepia(0.28)
+    saturate(0.62);
+  /* 同じ乱流・同じ seed。閾値だけ上げて（-3.68）筋を太く抜く */
+  mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1200 800' preserveAspectRatio='none'%3E%3Cfilter id='h' color-interpolation-filters='sRGB'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.0038 0.1' numOctaves='4' seed='5'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 1 0 0 0 0'/%3E%3CfeComponentTransfer%3E%3CfeFuncA type='linear' slope='8' intercept='-3.68'/%3E%3C/feComponentTransfer%3E%3C/filter%3E%3ClinearGradient id='g' x1='0' y1='1' x2='0.9' y2='0.05'%3E%3Cstop offset='0.14' stop-color='%23fff' stop-opacity='1'/%3E%3Cstop offset='0.6' stop-color='%23fff' stop-opacity='0'/%3E%3C/linearGradient%3E%3Cg transform='rotate(-7 600 400)'%3E%3Crect x='-500' y='-500' width='2200' height='1800' filter='url(%23h)'/%3E%3C/g%3E%3Crect width='1200' height='800' fill='url(%23g)'/%3E%3C/svg%3E");
+  mask-size: 100% 100%;
+  animation: hi-sweep 1450ms var(--hi-brush) 160ms both;
+}
+
+/*
+ * 筆が紙を離れる最後の掠れ。sumi-wide を横 3.7 倍に縮めて置くので、
+ * 元の大きな飛沫が細かい点に落ち、長く尾を引いた一条になる。
+ * 割れ目は入りの一筆より細かく（y=0.22）、右へ行くほど内側の mask で
+ * 消えていく ── 穂が紙から浮いて、そこで書が終わる。
+ * 作品と結びの間の余白に置き、文字とは一切重ねない。
+ */
+.trace {
+  position: absolute;
+  right: -6vw;
+  bottom: clamp(190px, 38svh, 420px);
+  width: min(74vw, 900px);
+  aspect-ratio: 3200 / 900;
+  pointer-events: none;
+  background: url("/ink/sumi-wide.png") no-repeat center / 100% 100%;
+  filter: grayscale(1) brightness(1.08) contrast(1.5) sepia(0.3) saturate(0.5);
+  mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1200 400' preserveAspectRatio='none'%3E%3Cfilter id='h' color-interpolation-filters='sRGB'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.006 0.22' numOctaves='4' seed='3'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 1 0 0 0 0'/%3E%3CfeComponentTransfer%3E%3CfeFuncA type='linear' slope='8' intercept='-3.5'/%3E%3C/feComponentTransfer%3E%3C/filter%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='0'%3E%3Cstop offset='0' stop-color='%23fff' stop-opacity='1'/%3E%3Cstop offset='0.66' stop-color='%23fff' stop-opacity='0.3'/%3E%3Cstop offset='1' stop-color='%23fff' stop-opacity='0'/%3E%3C/linearGradient%3E%3Cmask id='m'%3E%3Crect width='1200' height='400' fill='url(%23g)'/%3E%3C/mask%3E%3Cg mask='url(%23m)' transform='rotate(-2.5 600 200)'%3E%3Crect x='-400' y='-400' width='2000' height='1200' filter='url(%23h)'/%3E%3C/g%3E%3C/svg%3E");
+  mask-size: 100% 100%;
+  mask-repeat: no-repeat;
+  mix-blend-mode: darken;
+  opacity: 0.7;
+  transform: rotate(2.5deg);
+}
+
+@keyframes hi-sweep {
+  from {
+    clip-path: inset(0 100% 0 0);
+  }
+  to {
+    clip-path: inset(0 -2% 0 0);
+  }
+}
+
+@keyframes hi-rise {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* ==========================================================================
+   名乗り ── 初画面はこれしか置かない
+   ========================================================================== */
+
+.mark {
+  position: relative;
+  z-index: 1;
+  grid-column: 1 / 13;
+  min-height: min(88svh, 760px);
+  display: grid;
+  align-content: end;
+  padding-bottom: clamp(28px, 10svh, 110px);
+}
+
+.showcase {
+  font-size: var(--hi-tiny);
+  line-height: 2;
+  letter-spacing: 0.34em;
+  color: var(--hi-sumi-4);
+  margin-bottom: clamp(12px, 2.2svh, 26px);
+  animation: hi-rise 1000ms var(--hi-brush) 620ms both;
+}
+
+.wordmark {
+  font-family: var(--hi-serif-display);
+  font-weight: 400;
+  /* 下限は 320px の紙で SUMINAWA 一行が収まる最大値（実測 263px < 280px） */
+  font-size: clamp(2.85rem, 12.6vw, 8.75rem);
+  line-height: 0.94;
+  letter-spacing: 0.075em;
+  color: var(--hi-sumi);
+  animation: hi-rise 1200ms var(--hi-brush) 760ms both;
+}
+
+/* 英文は名乗りの真下に置かず、紙の中ほどまで送る。この段差が非対称の起点 */
+.en {
+  font-size: var(--hi-tiny);
+  line-height: 2;
+  letter-spacing: 0.24em;
+  color: var(--hi-sumi-4);
+  margin-top: clamp(20px, 4svh, 52px);
+  margin-left: clamp(28px, 20vw, 280px);
+  animation: hi-rise 1000ms var(--hi-brush) 1020ms both;
+}
+
+/*
+ * 落款。画面で唯一の色。字ではなく図像として扱うので、
+ * トラッキングと明朝の規則の外にある。英文の直後、さらに右へ送って
+ * 「筆を置いたあと、最後に捺す」順序を作る。
+ */
+.seal {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: clamp(28px, 2.6vw, 34px);
+  height: clamp(28px, 2.6vw, 34px);
+  margin-top: clamp(18px, 3svh, 34px);
+  margin-left: clamp(28px, 20vw, 280px);
+  background: var(--hi-shu);
+  color: var(--hi-paper);
+  font-size: clamp(0.75rem, 1.1vw, 0.875rem);
+  line-height: 1;
+  letter-spacing: 0;
+  animation: hi-rise 900ms var(--hi-brush) 1320ms both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .seal {
+    animation: none;
+  }
+}
+
+/* ==========================================================================
+   作品 ── 紙の上の小さな一行。飾りも罫も持たない
+   ========================================================================== */
+
+/*
+ * z-index を持たない。position: relative だけで、DOM 順により
+ * 入りの一筆（.stroke）と最後の掠れ（.trace）の上に載る。
+ * z-index を与えると新しい重ね合わせ文脈ができ、この中で走る三筆目の
+ * mix-blend-mode: darken が紙の地まで届かなくなる（素材の地色の矩形が浮く）。
+ */
+.works {
+  position: relative;
+  grid-column: 6 / 13;
+  margin-top: var(--hi-void-lg);
+  list-style: none;
+  margin-block-end: 0;
+  padding: 0;
+}
+
+.work {
+  display: grid;
+  grid-template-columns: clamp(70px, 7vw, 104px) minmax(0, 1fr);
+  column-gap: clamp(20px, 4vw, 72px);
+}
+
+.work + .work {
+  margin-top: var(--hi-void);
+}
+
+.cat {
+  font-size: var(--hi-tiny);
+  line-height: 2;
+  letter-spacing: 0.3em;
+  color: var(--hi-sumi-4);
+  transition: color var(--hi-soak);
+}
+
+/*
+ * 走りの containing block。z-index は持たない（.works と同じ理由）。
+ * 位置指定だけを持ち、字の三段は position: relative で後から重なる。
+ */
+.entry {
+  position: relative;
+  display: grid;
+  row-gap: clamp(12px, 1.8svh, 20px);
+  text-decoration: none;
+  color: inherit;
+}
+
+/* ==========================================================================
+   三筆目 ── 走り
+   --------------------------------------------------------------------------
+   紙の上には無い。触れているあいだだけ在る一筆。
+
+   置き場所：カテゴリの左の紙から入り、カテゴリと題の【足元】を通って右へ抜ける。
+   墨が乗るのは帯の下寄りなので、字の胴は紙のまま残り、掠れの上端だけが
+   字の足に触れる。読めることと「字の背後を通ること」の折衷点。
+   浅く（+1.4deg）右下がりに傾けるのは、水平の直線が、どれだけ掠らせても
+   罫に見えるため ── この世界に罫は一本も無い。傾ければ手の跡になる。
+
+   帯は一件につき一本。分割しない。一筆で書いたものだから。
+   ========================================================================== */
+
+.hashiri {
+  position: absolute;
+  /* 左はカテゴリ列を越えて紙の余白まで戻る。筆はそこから入ってくる */
+  left: calc(-1 * clamp(52px, 15vw, 232px));
+  /* 右は本文の右端をわずかに越える。越えたところで墨が尽きる */
+  right: calc(-1 * clamp(8px, 2.4vw, 44px));
+  /*
+   * 縦位置。帯の墨は下寄りに出るので、帯の上辺を題の行の上のほうに置くと
+   * ちょうど墨が【ベースラインの高さ】を通る。字の胴は紙のまま残り、
+   * 掠れの上端だけが字の足に触れる ── 読めることと「背後を通ること」の境目。
+   * これ以上上げると字が墨に沈み、下げると罫に見える（実測でこの 3〜6px に決めた）。
+   */
+  top: clamp(3px, 0.35vw, 6px);
+  height: clamp(30px, 2.6vw, 40px);
+  pointer-events: none;
+}
+
+/*
+ * 二層のうちの一枚。
+ * 素材は最後の掠れと同じ sumi-wide.png。ただし置き方が違う ──
+ * 最後の掠れは素材を丸ごと 3.7 倍に縮めて「大きな飛沫を細かい点に落とす」が、
+ * 帯の高さが 33px しかないここで同じことをすると、点が離れすぎて
+ * 一筆に見えず、砂を撒いたようになる（実測。最初そう作って撮って分かった）。
+ * だから縮めるのではなく【素材の一部を切り出す】：
+ *   横 154%／位置 8.6% … 素材の 3〜68% の区間だけを帯いっぱいに引く。
+ *                        この区間は左が縦に厚く、右へ行くほど痩せる ──
+ *                        筆を下ろした側が太いという、一筆の当たり前の形になる
+ *   縦 300%／位置 18.5% … 素材で墨が乗っている帯（上から 14〜43%）だけを抜く
+ * 結果、横 2.8 倍・縦 9 倍に潰れ、飛沫は横に寝た短い筋になる。穂の跡に近い。
+ *
+ * 割れ目は入りの一筆とまったく同じ機構（異方 feTurbulence → feColorMatrix で
+ * アルファへ → feFuncA slope 8 でほぼ二値化）。短く細い一筆なので目は細かく、
+ * y = 0.19（入りの一筆は 0.1、最後の掠れは 0.22）。
+ *
+ * mask は二枚を intersect で掛け合わせて「一筆の中の時間」を作る：
+ *   一枚目（SVG）… 割れ目そのもの。書き出しだけ白の勾配で塗り潰して和を取り、
+ *                   墨を多く含んだ入りは筋が埋まって濃い
+ *   二枚目（CSS）… 左→右の包絡。右へ行くほど全体が薄れ、右端で消える（墨が尽きる）
+ * 濡れて入り、乾いて抜ける。
+ *
+ * ★実測メモ：この包絡を最後の掠れ（.trace）と同じく SVG の中の入れ子 <mask> で
+ *   作ると、Chrome がこのページの作品欄を丸ごとラスタライズできなくなり、
+ *   文字ごと消える。mix-blend-mode: darken を持つ要素が
+ *   .paper 直下ではなく四階層下（.works > .work > .entry > .hashiri）に居るとき
+ *   だけ起きる。入れ子 <mask> をやめて CSS の二枚重ね（mask-composite: intersect）
+ *   に置き換えると解消する。表現は同じ、機構だけ CSS 側へ移した。
+ *
+ * 静止時は clip-path で幅ゼロ。触れると右へ開く ── これが「走り」。
+ * 離すときは clip-path を戻さず opacity だけを落とす。
+ * 逆再生（右から左へ引っ込む）は筆の動きとして嘘になるので、全体を薄れさせる。
+ * clip-path の復帰は 0ms、ただし遅延 300ms ── 薄れ切ってから畳む。
+ */
+.run {
+  position: absolute;
+  inset: 0;
+  background: url("/ink/sumi-wide.png") no-repeat;
+  background-size: 154% 300%;
+  background-position: 8.6% 18.5%;
+  /*
+   * 1.4deg 右下がり。水平の直線は、どれだけ掠らせても罫に見える。
+   * 題の終わりまでで 11px ほど落ちるので、筆は字の足元から入って
+   * 字の外へ抜けていく。原本の最後の掠れ（+2.5deg）と同じ向きの傾き。
+   */
+  transform: rotate(1.4deg);
+  transform-origin: 2% 50%;
+  mix-blend-mode: darken;
+  mask-repeat: no-repeat;
+  mask-size: 100% 100%;
+  mask-composite: intersect;
+  opacity: 0;
+  clip-path: inset(0 100% 0 0);
+  transition:
+    opacity var(--hi-dry) linear,
+    clip-path 0ms linear var(--hi-dry);
+}
+
+/* 掠れ ── 飛んだ灰。筋を細く抜き（intercept -3）、墨の外に灰の縁を残す。
+   包絡は緩やかで、芯が尽きたあとも右へ尾を引く */
+.runKasure {
+  filter: grayscale(1) brightness(1.12) contrast(1.3) sepia(0.32) saturate(0.5);
+  mask-image:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1200 60' preserveAspectRatio='none'%3E%3Cfilter id='r' color-interpolation-filters='sRGB'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.0055 0.19' numOctaves='4' seed='21'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 1 0 0 0 0'/%3E%3CfeComponentTransfer%3E%3CfeFuncA type='linear' slope='8' intercept='-3'/%3E%3C/feComponentTransfer%3E%3C/filter%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='0'%3E%3Cstop offset='0' stop-color='%23fff' stop-opacity='0.9'/%3E%3Cstop offset='0.13' stop-color='%23fff' stop-opacity='0'/%3E%3C/linearGradient%3E%3Cg transform='rotate(-0.7 600 30)'%3E%3Crect x='-300' y='-240' width='1900' height='540' filter='url(%23r)'/%3E%3C/g%3E%3Crect width='1200' height='60' fill='url(%23g)'/%3E%3C/svg%3E"),
+    linear-gradient(
+      to right,
+      rgb(0 0 0) 0%,
+      rgb(0 0 0 / 0.74) 52%,
+      rgb(0 0 0 / 0.16) 86%,
+      rgb(0 0 0 / 0) 100%
+    );
+}
+
+/* 芯 ── 同じ乱流・同じ seed。閾値だけ上げて（-3.72）筋を太く抜く。
+   墨は掠れより早く尽きるので、包絡も一段前倒しにしてある */
+.runCore {
+  filter: grayscale(1) brightness(1.02) contrast(1.6) sepia(0.26) saturate(0.58);
+  mask-image:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1200 60' preserveAspectRatio='none'%3E%3Cfilter id='r' color-interpolation-filters='sRGB'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.0055 0.19' numOctaves='4' seed='21'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 1 0 0 0 0'/%3E%3CfeComponentTransfer%3E%3CfeFuncA type='linear' slope='8' intercept='-3.72'/%3E%3C/feComponentTransfer%3E%3C/filter%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='0'%3E%3Cstop offset='0' stop-color='%23fff' stop-opacity='0.94'/%3E%3Cstop offset='0.11' stop-color='%23fff' stop-opacity='0'/%3E%3C/linearGradient%3E%3Cg transform='rotate(-0.7 600 30)'%3E%3Crect x='-300' y='-240' width='1900' height='540' filter='url(%23r)'/%3E%3C/g%3E%3Crect width='1200' height='60' fill='url(%23g)'/%3E%3C/svg%3E"),
+    linear-gradient(
+      to right,
+      rgb(0 0 0) 0%,
+      rgb(0 0 0 / 0.6) 42%,
+      rgb(0 0 0 / 0.1) 72%,
+      rgb(0 0 0 / 0) 88%
+    );
+}
+
+/*
+ * 走らせる。掠れが先に出て長くかかり、芯は 90ms 遅れて入って先に止まる
+ * （原本の入りの一筆と同じ前後関係）。穂が紙を離れる瞬間まで灰が尾を引く。
+ * :focus-visible にも同じだけ掛ける ── 手が無くても同じ一筆が走る。
+ */
+.entry:hover .runKasure,
+.entry:focus-visible .runKasure {
+  opacity: 0.4;
+  clip-path: inset(0 -2% 0 0);
+  transition:
+    opacity 150ms linear,
+    clip-path var(--hi-run-kasure) var(--hi-hashiri);
+}
+
+.entry:hover .runCore,
+.entry:focus-visible .runCore {
+  opacity: 0.5;
+  clip-path: inset(0 -2% 0 0);
+  transition:
+    opacity 130ms linear 90ms,
+    clip-path var(--hi-run-core) var(--hi-hashiri) 90ms;
+}
+
+.title {
+  position: relative;
+  font-size: var(--hi-tiny);
+  font-weight: 500;
+  line-height: 2;
+  letter-spacing: 0.14em;
+  color: var(--hi-sumi-3);
+  transition: color var(--hi-soak);
+}
+
+.desc {
+  position: relative;
+  font-size: var(--hi-tiny);
+  line-height: 2.3;
+  letter-spacing: 0.05em;
+  color: var(--hi-sumi-4);
+  max-width: 30em;
+  transition: color var(--hi-soak);
+}
+
+.tags {
+  position: relative;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem clamp(1rem, 2.4vw, 2.1rem);
+  font-size: var(--hi-tiny);
+  line-height: 2;
+  letter-spacing: 0.18em;
+  color: var(--hi-sumi-4);
+  transition: color var(--hi-soak);
+}
+
+/*
+ * 触れると墨が一段濃くなる（原本のふるまい）。
+ * ただし走りが掛かる二つ ── カテゴリと題 ── は一段でなく最も濃い #1C1A15 まで
+ * 沈める。墨の最も濃いところに重なっても 5.4:1 を保つため。
+ * 走りと同じ速さで沈むので、筆が来て字が濃くなるのが一つの動作に見える。
+ */
+.work:has(.entry:hover) .cat,
+.work:has(.entry:focus-visible) .cat {
+  color: var(--hi-sumi);
+}
+
+.entry:hover .title,
+.entry:focus-visible .title {
+  color: var(--hi-sumi);
+}
+
+.entry:hover .desc,
+.entry:hover .tags,
+.entry:focus-visible .desc,
+.entry:focus-visible .tags {
+  color: var(--hi-sumi-2);
+}
+
+.empty {
+  font-size: var(--hi-tiny);
+  line-height: 2.3;
+  letter-spacing: 0.05em;
+  color: var(--hi-sumi-4);
+  max-width: 30em;
+}
+
+/* ==========================================================================
+   結び ── 起点（1 列目）へ戻る
+   ========================================================================== */
+
+.close {
+  position: relative;
+  z-index: 1;
+  grid-column: 1 / 8;
+  margin-top: var(--hi-void-lg);
+  padding-bottom: clamp(64px, 18svh, 180px);
+}
+
+.closeLine {
+  font-size: var(--hi-tiny);
+  line-height: 2.2;
+  letter-spacing: 0.1em;
+  color: var(--hi-sumi-4);
+}
+
+.back {
+  display: inline-block;
+  margin-top: clamp(28px, 5svh, 64px);
+  font-size: var(--hi-tiny);
+  line-height: 2;
+  letter-spacing: 0.2em;
+  color: var(--hi-sumi-3);
+  text-decoration: none;
+  transition: color var(--hi-soak);
+}
+
+.back:hover,
+.back:focus-visible {
+  color: var(--hi-sumi);
+}
+
+/* 罫を持たない世界なので、フォーカスの輪は紙から充分に離して細く引く */
+.paper a:focus-visible {
+  outline: 1px solid var(--hi-sumi);
+  outline-offset: clamp(10px, 1.6vw, 18px);
+}
+
+/* ==========================================================================
+   小さい紙
+   ========================================================================== */
+
+@media (max-width: 1023px) {
+  .works {
+    grid-column: 3 / 13;
+  }
+  .close {
+    grid-column: 1 / 11;
+  }
+}
+
+@media (max-width: 767px) {
+  .paper {
+    --hi-void: clamp(72px, 26svh, 210px);
+    --hi-void-lg: clamp(88px, 32svh, 260px);
+  }
+
+  /* 縦長の紙では一筆を寝かせず、上半分を横切らせる */
+  .stroke {
+    top: -8svh;
+    right: -48vw;
+    width: 168vw;
+  }
+
+  /* 縦長の紙では結びが下に詰まる。最後の掠れはその上の余白へ逃がす */
+  .trace {
+    right: -14vw;
+    width: 92vw;
+    bottom: clamp(250px, 44svh, 330px);
+  }
+
+  .mark {
+    min-height: 84svh;
+  }
+
+  /* 12 列では刻めない幅なので、起点の斜行は padding で保つ */
+  .utterance,
+  .works,
+  .close {
+    grid-column: 1 / 13;
+  }
+  .utterance {
+    padding-left: 4vw;
+  }
+  .works {
+    padding-left: 9vw;
+  }
+
+  .work {
+    grid-template-columns: minmax(0, 1fr);
+    row-gap: clamp(10px, 1.6svh, 16px);
+  }
+
+  /* 一段組みになるとカテゴリが題の上へ抜けるので、走りは題の行だけを通る。
+     入りは紙の左端（本文の左 52px）まで戻る ── 画面外から入ってくる */
+  .hashiri {
+    left: -52px;
+    right: -20px;
+  }
+}
+
+/* ==========================================================================
+   一筆の勢いを望まない人へ ── 走らせずに、置いてある状態から始める
+   ========================================================================== */
+
+@media (prefers-reduced-motion: reduce) {
+  .paper *,
+  .paper *::before,
+  .paper *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+
+  /*
+   * 三筆目は走らない。clip-path をあらかじめ開き切っておき、
+   * 触れた瞬間に「もう乾いて置いてある」一筆が現れる。
+   * 動きが消えても、静止画として同じ絵が成立する。
+   */
+  .run {
+    clip-path: inset(0 -2% 0 0);
+  }
+}

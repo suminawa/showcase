@@ -1,5 +1,5 @@
 /**
- * 世界の比較一覧。6 案とも内容は完全に同一で、違うのは視覚世界だけ。
+ * 世界の比較一覧。どの案も内容は完全に同一で、違うのは視覚世界だけ。
  * 採用が決まったらこの /preview 以下はすべて削除する。
  */
 import type { Metadata } from "next";
@@ -7,7 +7,7 @@ import Link from "next/link";
 
 export const metadata: Metadata = {
   title: "世界の比較",
-  description: "トップページの視覚世界 6 案。内容は同一で、世界だけが違う",
+  description: "トップページの視覚世界の比較。内容は同一で、世界だけが違う",
 };
 
 /** 墨そのものに寄せた 5 案 */
@@ -94,18 +94,65 @@ const WORLDS = [
   },
 ];
 
+/** 飛白（かすれと余白）に線を足した派生 5 案。先頭は対照群の原本 */
+const HIHAKU_LINES = [
+  {
+    slug: "hihaku",
+    label: "飛白",
+    latin: "Dry Brush",
+    line: "なし（原本）",
+    note: "入りの一筆と結びの掠れの二筆だけで、作品の行には線を足していない。",
+  },
+  {
+    slug: "hihaku-hashiri",
+    label: "走り",
+    latin: "Third Stroke",
+    line: "水平・触れると出る",
+    note: "原本と同じ二層の掠れを題の足元に複製し、clip-path を左から右へ 620ms で開く。",
+  },
+  {
+    slug: "hihaku-nawa",
+    label: "墨縄",
+    latin: "Chalk Line",
+    line: "水平・全幅・触れると出る",
+    note: "粒状マスクを左端から 118ms で開き、紙の左端から右端まで 2px の水平直線を打つ。",
+  },
+  {
+    slug: "hihaku-myaku",
+    label: "筆脈",
+    latin: "Vein",
+    line: "垂直・静止時から在る",
+    note: "縦に蛇行する一本の脈を段ごとに分け、触れた作品までの上流を mask で上から濃くする。",
+  },
+  {
+    slug: "hihaku-nagare",
+    label: "流れ",
+    latin: "Flow",
+    line: "面・触れると出る",
+    note: "等方ノイズでマスクした墨の面を行の背後に重ね、粒と窓を異なる距離で動かす。",
+  },
+  {
+    slug: "hihaku-kei",
+    label: "界線",
+    latin: "Ruled Paper",
+    line: "横罫・静止時から在る",
+    note: "微かに波打つ横罫を全段に repeat-y で敷き、触れた作品の題の一本だけを濃くする。",
+  },
+];
+
 export default function PreviewIndex() {
   return (
     <main className="mx-auto min-h-svh max-w-3xl bg-white px-6 py-16 text-neutral-900">
       <h1 className="text-2xl font-bold tracking-tight">
-        トップページの世界 — 6 案
+        トップページの世界 — 16 案
       </h1>
       <p className="mt-3 text-[0.9375rem] leading-[1.9] text-neutral-600">
-        6 案とも
+        どの案も
         <strong className="font-semibold text-neutral-900">
           内容は完全に同じ
         </strong>
-        です。ワードマーク、タグライン、作品 2 件、空カテゴリ、すべて同一の文字が入っています。
+        です。ワードマーク、作品 2
+        件、空カテゴリ、すべて同一の文字が入っています。
         違うのは視覚世界だけなので、そのまま見比べられます。
       </p>
 
@@ -157,6 +204,40 @@ export default function PreviewIndex() {
                 </span>
                 <span className="ml-auto text-[0.8125rem] text-neutral-500">
                   構造 = {w.structure}
+                </span>
+              </div>
+              <p className="text-[0.875rem] leading-[1.8] text-neutral-600">
+                {w.note}
+              </p>
+            </Link>
+          </li>
+        ))}
+      </ul>
+
+      <h2 className="mt-12 text-[0.8125rem] font-semibold tracking-[0.14em] text-neutral-500 uppercase">
+        飛白 ── 墨の線を足す 5 案 ＋ 原本
+      </h2>
+      <p className="mt-2 text-[0.8125rem] leading-[1.9] text-neutral-500">
+        6 件とも
+        飛白（かすれと余白）の派生で、違うのは線だけです。先頭が線なしの原本なので、
+        「線を足すべきか、足すならどれか」をこの列の中で見比べられます。
+      </p>
+      <ul className="mt-3 divide-y divide-neutral-200 border-y border-neutral-200">
+        {HIHAKU_LINES.map((w) => (
+          <li key={w.slug}>
+            <Link
+              href={`/preview/${w.slug}`}
+              className="group flex flex-col gap-1.5 py-5 transition-colors hover:bg-neutral-50"
+            >
+              <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
+                <span className="text-[1.0625rem] font-bold group-hover:underline">
+                  {w.label}
+                </span>
+                <span className="text-[0.8125rem] tracking-[0.12em] text-neutral-400 uppercase">
+                  {w.latin}
+                </span>
+                <span className="ml-auto text-[0.8125rem] text-neutral-500">
+                  線 = {w.line}
                 </span>
               </div>
               <p className="text-[0.875rem] leading-[1.8] text-neutral-600">

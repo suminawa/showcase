@@ -1,0 +1,778 @@
+/* ==========================================================================
+   飛白 筆脈（ひはく・ひつみゃく）— かすれと余白に、縦の脈を一本
+   --------------------------------------------------------------------------
+   原本「飛白」の三規則はそのまま生きている。足したのは筆脈ひとつだけ。
+
+   1. 起点の斜行 ── 段ごとに左の余白が階段状に増える。
+        名乗り  1 列目 …… 左余白 0
+        作品    6 列目 …… 左余白 約 42%
+        結び    1 列目 …… 起点に戻る（筆が紙を離れて手元へ返る）
+      左に溜まっていく紙そのものが、進行の目盛りになる。
+      ── この案は、その目盛りを一本の線で【なぞる】。今まで余白の量でしか
+         表せていなかった斜行が、はじめて目に見える軌跡になる。
+
+   2. 字の断絶 ── 大（28〜140px）と小（13〜15px）の二段だけ。中間帯は使わない。
+
+   3. 沈黙の段差 ── 段と段の間は 40〜52svh。罫・枠・角丸・チップは一つも無い。
+      筆脈は罫ではない。真っ直ぐでなく、太さが一定でなく、紙の中で途切れる。
+      直線に見えたらこの案は失敗している。
+
+   墨は原本と同じ二筆（入りの一筆・最後の掠れ）。筆脈はその二筆を繋ぐ
+   「筆が紙から離れているあいだ」の軌跡なので、三筆目ではなく二筆の間である。
+
+   --------------------------------------------------------------------------
+   筆脈の作り
+   --------------------------------------------------------------------------
+   ● 座標系
+     区間ごとに viewBox="0 0 100 100" / preserveAspectRatio="none"。
+     x=0 が紙の左端、x=100 が作品欄の左端（6 列目の起点）に来るよう、
+     箱の left/width を 12 列グリッドから逆算して揃えてある。
+     u = 列幅 = (C - 11g)/12 として作品欄の左端は 5u+5g。
+       名乗り（12 列幅の箱）の中では  (5*100% + 5g)/12
+       作品欄（ 7 列幅の箱）の中では  (5*100% + 5g)/7
+     どちらも同じ物理位置を指すので、親が違っても区間は一本に繋がる。
+
+   ● 縦の位置
+     ページ全長を JS で測らない。各区間は自分が属する段の実寸に貼り付く。
+       頭   … 名乗りの「空白の行」（grid-template-rows の 1fr）＝文字の上に
+              余っている紙そのもの。ビューポートが低くて余白が無ければ 0 になり、
+              脈の頭は素直に消える。文字と交差する事故が構造的に起きない。
+       w1〜3 … 各作品の箱＋その上の間（margin 領域へ top を負に伸ばす）
+       尾   … 作品欄と結びのあいだの間（52svh）
+     この 5 区間で紙の縦を隙間なく覆う。ビューポート高が変わっても
+     「作品 k の位置」がずれない ── 割合で持たない理由はこれ一点に尽きる。
+
+   ● 線の質
+     一本を三筋に割る。芯（太）・添え（細）・乾き（破線）で、d が僅かに違う。
+     穂が割れて毛束ごとに別の道を通る ── 重なれば肥、離れれば痩。
+     stroke-width は vector-effect: non-scaling-stroke で画面 px に固定するので、
+     preserveAspectRatio="none" の不均等スケールでも線の太さが歪まない。
+     さらに feTurbulence を CSS mask に掛けて長さ方向に途切れさせる。
+     baseFrequency は x=0.085 / y=0.007 ── 原本の二筆（x≪y で横に長い縞）の
+     ちょうど裏返しで、縦に長い縞になる。垂直の線に対して直交する切れ目が入る。
+
+   ● 濃くなる仕組み
+     淡い層（常在）と濃い層を同じ d で重ね、濃い層だけを上から開く。開くのは
+     箱の 2.2 倍の高さを持つグラデーション mask を mask-position で降ろす方式で、
+     境目に 2% のぼかしが入っているので切り口ではなく【滲みの先端】が降りる。
+     かすれの mask は二層の外側の箱に一度だけ掛けるので、濃くなっても
+     掠れの位置が動かない＝同じ筆であることが保証される。
+     触れた作品より上流の区間は :has(~ …) の兄弟結合子で一緒に開く。
+     遅延を積んで上から順に、速度をほぼ一定（約 2px/ms）に保つ。
+       作品1 まで 470ms / 作品2 まで 710ms / 作品3 まで 900ms
+     離すときは逆に、下流から順に退く（戻りの遅延は基底側に書いてある）。
+     動かす CSS プロパティは mask-position ひとつだけ。レイアウトは一切動かない。
+
+   ● 狭い紙
+     通り道の幅は広い紙で約 480px、狭い紙では約 50px と一桁変わる。同じ d では
+     狭い紙で横の振れが 6px しか出ず罫にしか見えないので、1023px 以下は
+     振れを 4〜5 倍に取った第二の d に display だけで差し替える（page.tsx 参照）。
+
+   コントラスト（紙 #F6F3EB 上、実測値）
+     #1C1A15 15.5:1 / #3A3730 10.9:1 / #55514A 7.1:1 / #6A665D 5.2:1
+     #A63A2E  5.9:1（落款）  #8E8A80 3.1:1 → 図版専用。文字には使わない
+   ========================================================================== */
+
+.paper {
+  /* ---- 紙と墨 ---- */
+  --hi-paper: #f6f3eb;
+  --hi-sumi: #1c1a15; /* 15.5:1 */
+  --hi-sumi-2: #3a3730; /* 10.9:1 */
+  --hi-sumi-3: #55514a; /* 7.1:1 */
+  --hi-sumi-4: #6a665d; /* 5.2:1 */
+  --hi-kasure: #8e8a80; /* 3.1:1 — 図版のかすれの色。文字には使わない */
+  --hi-shu: #a63a2e; /* 落款の朱。画面で色を持つのはここ一箇所だけ */
+
+  /* ---- 二段しかない字の寸法 ---- */
+  --hi-tiny: clamp(0.8125rem, 0.75rem + 0.22vw, 0.9375rem); /* 13 → 15px */
+
+  /* ---- 沈黙 ---- */
+  --hi-void: clamp(88px, 40svh, 380px);
+  --hi-void-lg: clamp(112px, 52svh, 500px);
+
+  /* 列の隙間と紙の縁。筆脈が 12 列グリッドを逆算するために変数で持つ */
+  --hi-gap: clamp(12px, 2vw, 28px);
+  --hi-pad: clamp(20px, 5.2vw, 96px);
+
+  --hi-brush: cubic-bezier(0.16, 1, 0.3, 1);
+  --hi-soak: 560ms cubic-bezier(0.25, 0.8, 0.3, 1);
+  /* 脈が墨を吸う曲がり。入りは速く、着いてからゆっくり止まる */
+  --hi-vein: cubic-bezier(0.32, 0.7, 0.32, 1);
+
+  --hi-serif: var(--hi-mincho), "Hiragino Mincho ProN", "Yu Mincho", YuMincho,
+    "Noto Serif JP", serif;
+  --hi-serif-display: var(--hi-display), "Hiragino Mincho ProN", "Yu Mincho",
+    YuMincho, "Noto Serif JP", serif;
+
+  position: relative;
+  isolation: isolate;
+  overflow-x: clip;
+  min-height: 100svh;
+  background: var(--hi-paper);
+  color: var(--hi-sumi);
+  font-family: var(--hi-serif);
+  font-feature-settings: "palt" 1;
+
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  column-gap: var(--hi-gap);
+  align-content: start;
+  padding-inline: var(--hi-pad);
+  padding-block: clamp(24px, 6svh, 72px) 0;
+}
+
+/* 紙の面はページ全体。オーバースクロールで框の黒が覗かないようにする。
+   :has で自分のページにいるときだけ効く（globals.css は触らない） */
+:global(body):has(.paper) {
+  background: #f6f3eb;
+}
+
+/* ==========================================================================
+   墨 ── 二筆だけ（原本のまま）
+   ========================================================================== */
+
+/*
+ * 入りの一筆。sumi-sparse を紙幅より大きく引き伸ばし、右上へ抜けさせる。
+ * ラッパは transform も z-index も持たない（持つと mix-blend-mode が
+ * ここで隔離されて紙と混ざらなくなる）。傾きと合成は子だけが担当する。
+ */
+.stroke {
+  position: absolute;
+  top: -30svh;
+  right: -34vw;
+  /* 196svh の上限が要る。横長で背の低い紙のとき、一筆が名乗りの上へ降りてくるのを
+     この項だけが止める（背が低いほど筆は小さく、右上へ寄る） */
+  width: min(136vw, 1780px, 196svh);
+  aspect-ratio: 2000 / 1400;
+  pointer-events: none;
+}
+
+/*
+ * 飛白そのもの ── 筆の毛が割れて、墨の中を白い筋が走る。
+ * 素材は流体が描いた「濡れた」塊なので、そのままでは潑墨にしかならない。
+ *
+ * 割れ目は feTurbulence で作る。baseFrequency を x=0.0038 / y=0.1 と
+ * 極端に異方にすると、横へ長く伸びた縞状のノイズが出る。これを feColorMatrix で
+ * アルファへ移し、feFuncA の急な linear（slope 8）でほぼ二値化すると、
+ * 等間隔でない・うねる・端が千切れた筋になる。直線の repeating-gradient では
+ * 走査線にしか見えないので使わない。全体を -7deg 回して穂の進行方向に沿わせる。
+ *
+ * さらに穂先側（左下）から穂尻（右上）へ白のグラデーションを重ねて和を取り、
+ * 墨を多く含んだ書き出しだけは筋を埋めて残す。
+ * 濡れて入り、乾いて抜ける ── 一筆の中に時間が入る。
+ */
+.ink {
+  position: absolute;
+  inset: 0;
+  background: url("/ink/sumi-sparse.png") no-repeat center / 100% 100%;
+  transform: rotate(-5.5deg);
+  transform-origin: 62% 46%;
+  mix-blend-mode: darken;
+  mask-repeat: no-repeat;
+  /* mask-composite の初期値は add。二枚は和で重なる */
+}
+
+/* 掠れ ── 飛んだ灰。中間調をそのまま残し、sepia で紙の温度に寄せる */
+.inkKasure {
+  filter: grayscale(1) brightness(0.95) contrast(1.52) sepia(0.34)
+    saturate(0.55);
+  opacity: 0.9;
+  /* 芯より筋を細く抜く（閾値 intercept -2.96）。黒の外に灰の縁が残る */
+  mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1200 800' preserveAspectRatio='none'%3E%3Cfilter id='h' color-interpolation-filters='sRGB'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.0038 0.1' numOctaves='4' seed='5'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 1 0 0 0 0'/%3E%3CfeComponentTransfer%3E%3CfeFuncA type='linear' slope='8' intercept='-2.96'/%3E%3C/feComponentTransfer%3E%3C/filter%3E%3ClinearGradient id='g' x1='0' y1='1' x2='0.9' y2='0.05'%3E%3Cstop offset='0.16' stop-color='%23fff' stop-opacity='1'/%3E%3Cstop offset='0.68' stop-color='%23fff' stop-opacity='0'/%3E%3C/linearGradient%3E%3Cg transform='rotate(-7 600 400)'%3E%3Crect x='-500' y='-500' width='2200' height='1800' filter='url(%23h)'/%3E%3C/g%3E%3Crect width='1200' height='800' fill='url(%23g)'/%3E%3C/svg%3E");
+  mask-size: 100% 100%;
+  animation: hi-sweep 1750ms var(--hi-brush) 60ms both;
+}
+
+/* 芯 ── 一番沈んだところだけを墨まで落とす。126〜232 を黒〜白へ引き伸ばす */
+.inkCore {
+  filter: grayscale(1) brightness(0.74) contrast(2.85) sepia(0.28)
+    saturate(0.62);
+  /* 同じ乱流・同じ seed。閾値だけ上げて（-3.68）筋を太く抜く */
+  mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1200 800' preserveAspectRatio='none'%3E%3Cfilter id='h' color-interpolation-filters='sRGB'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.0038 0.1' numOctaves='4' seed='5'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 1 0 0 0 0'/%3E%3CfeComponentTransfer%3E%3CfeFuncA type='linear' slope='8' intercept='-3.68'/%3E%3C/feComponentTransfer%3E%3C/filter%3E%3ClinearGradient id='g' x1='0' y1='1' x2='0.9' y2='0.05'%3E%3Cstop offset='0.14' stop-color='%23fff' stop-opacity='1'/%3E%3Cstop offset='0.6' stop-color='%23fff' stop-opacity='0'/%3E%3C/linearGradient%3E%3Cg transform='rotate(-7 600 400)'%3E%3Crect x='-500' y='-500' width='2200' height='1800' filter='url(%23h)'/%3E%3C/g%3E%3Crect width='1200' height='800' fill='url(%23g)'/%3E%3C/svg%3E");
+  mask-size: 100% 100%;
+  animation: hi-sweep 1450ms var(--hi-brush) 160ms both;
+}
+
+/*
+ * 筆が紙を離れる最後の掠れ。sumi-wide を横 3.7 倍に縮めて置くので、
+ * 元の大きな飛沫が細かい点に落ち、長く尾を引いた一条になる。
+ * 割れ目は入りの一筆より細かく（y=0.22）、右へ行くほど内側の mask で
+ * 消えていく ── 穂が紙から浮いて、そこで書が終わる。
+ * 作品と結びの間の余白に置き、文字とは一切重ねない。
+ */
+.trace {
+  position: absolute;
+  right: -6vw;
+  bottom: clamp(190px, 38svh, 420px);
+  width: min(74vw, 900px);
+  aspect-ratio: 3200 / 900;
+  pointer-events: none;
+  background: url("/ink/sumi-wide.png") no-repeat center / 100% 100%;
+  filter: grayscale(1) brightness(1.08) contrast(1.5) sepia(0.3) saturate(0.5);
+  mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1200 400' preserveAspectRatio='none'%3E%3Cfilter id='h' color-interpolation-filters='sRGB'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.006 0.22' numOctaves='4' seed='3'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 1 0 0 0 0'/%3E%3CfeComponentTransfer%3E%3CfeFuncA type='linear' slope='8' intercept='-3.5'/%3E%3C/feComponentTransfer%3E%3C/filter%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='0'%3E%3Cstop offset='0' stop-color='%23fff' stop-opacity='1'/%3E%3Cstop offset='0.66' stop-color='%23fff' stop-opacity='0.3'/%3E%3Cstop offset='1' stop-color='%23fff' stop-opacity='0'/%3E%3C/linearGradient%3E%3Cmask id='m'%3E%3Crect width='1200' height='400' fill='url(%23g)'/%3E%3C/mask%3E%3Cg mask='url(%23m)' transform='rotate(-2.5 600 200)'%3E%3Crect x='-400' y='-400' width='2000' height='1200' filter='url(%23h)'/%3E%3C/g%3E%3C/svg%3E");
+  mask-size: 100% 100%;
+  mask-repeat: no-repeat;
+  mix-blend-mode: darken;
+  opacity: 0.7;
+  transform: rotate(2.5deg);
+}
+
+@keyframes hi-sweep {
+  from {
+    clip-path: inset(0 100% 0 0);
+  }
+  to {
+    clip-path: inset(0 -2% 0 0);
+  }
+}
+
+@keyframes hi-rise {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* ==========================================================================
+   筆脈 ── 紙を縦に降りる一本
+   ========================================================================== */
+
+/*
+ * かすれ。縦に長い縞の乱流を二値に近く潰して、線の【長さ方向】を途切れさせる。
+ * baseFrequency x=0.085 / y=0.007 は原本の二筆（x≪y）の裏返し。
+ * slope 8 / intercept -2.78 で、R<0.35 が完全に抜け（全長の 1 割弱）、
+ * R>0.47 は残る。抜けが多すぎると点線になり、少ないと罫になる。この間が飛白。
+ *
+ * 頭と尾は、同じ乱流に linearGradient の mask を掛け合わせた別版を使う。
+ * mask-composite で二枚を交差させる手もあるが、最下層の合成子の扱いが
+ * 実装で揺れるので、原本の .trace と同じく SVG の中で掛け合わせておく。
+ * 紙の上端で筆はまだ触れておらず、結びの直前で浮く ── 始点と終点は紙の中で消える。
+ */
+.paper {
+  --myaku-kasure: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 300 1000' preserveAspectRatio='none'%3E%3Cfilter id='v' color-interpolation-filters='sRGB'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.085 0.007' numOctaves='3' seed='17'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 1 0 0 0 0'/%3E%3CfeComponentTransfer%3E%3CfeFuncA type='linear' slope='8' intercept='-2.78'/%3E%3C/feComponentTransfer%3E%3C/filter%3E%3Crect width='300' height='1000' filter='url(%23v)'/%3E%3C/svg%3E");
+  --myaku-kasure-head: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 300 1000' preserveAspectRatio='none'%3E%3Cfilter id='v' color-interpolation-filters='sRGB'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.085 0.007' numOctaves='3' seed='17'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 1 0 0 0 0'/%3E%3CfeComponentTransfer%3E%3CfeFuncA type='linear' slope='8' intercept='-2.78'/%3E%3C/feComponentTransfer%3E%3C/filter%3E%3ClinearGradient id='g' x1='0' y1='0' x2='0' y2='1'%3E%3Cstop offset='0' stop-color='%23fff' stop-opacity='0'/%3E%3Cstop offset='0.2' stop-color='%23fff' stop-opacity='1'/%3E%3C/linearGradient%3E%3Cmask id='m'%3E%3Crect width='300' height='1000' fill='url(%23g)'/%3E%3C/mask%3E%3Cg mask='url(%23m)'%3E%3Crect width='300' height='1000' filter='url(%23v)'/%3E%3C/g%3E%3C/svg%3E");
+  --myaku-kasure-tail: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 300 1000' preserveAspectRatio='none'%3E%3Cfilter id='v' color-interpolation-filters='sRGB'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.085 0.007' numOctaves='3' seed='17'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 1 0 0 0 0'/%3E%3CfeComponentTransfer%3E%3CfeFuncA type='linear' slope='8' intercept='-2.78'/%3E%3C/feComponentTransfer%3E%3C/filter%3E%3ClinearGradient id='g' x1='0' y1='0' x2='0' y2='1'%3E%3Cstop offset='0.72' stop-color='%23fff' stop-opacity='1'/%3E%3Cstop offset='1' stop-color='%23fff' stop-opacity='0'/%3E%3C/linearGradient%3E%3Cmask id='m'%3E%3Crect width='300' height='1000' fill='url(%23g)'/%3E%3C/mask%3E%3Cg mask='url(%23m)'%3E%3Crect width='300' height='1000' filter='url(%23v)'/%3E%3C/g%3E%3C/svg%3E");
+}
+
+.myaku {
+  position: absolute;
+  z-index: 0;
+  pointer-events: none;
+  mask-image: var(--myaku-kasure);
+  mask-size: 100% 100%;
+  mask-repeat: no-repeat;
+  /* 読み込み時、上から下へ引かれる。走り終えたあとは静止して残る */
+  animation: hi-myaku var(--myaku-draw) var(--hi-vein) var(--myaku-draw-delay)
+    both;
+}
+
+.vein {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+/* 常在の脈。#6A665D をそのまま使う ── 淡いが、紙の上でちゃんと見える濃さ */
+.dry {
+  color: var(--hi-sumi-4);
+}
+
+/*
+ * 墨を得た脈。同じ path を #1C1A15 で重ね、上から開く。
+ *
+ * 開き方は clip-path の直線切りではなく、箱の 2.2 倍の高さを持つ
+ * グラデーションを mask にして、その境目を mask-position で降ろす。
+ * 境目には 2%（＝箱の約 4%）のぼかしを入れてあるので、切り口ではなく
+ * 【滲みの先端】が降りていく。紙が墨を吸う速さがそこに出る。
+ * mask-size を 220% にしてあるのは、位置 0% で境目が箱より下へ抜け、
+ * 塗り終わった区間の末端にぼけを残さないため ── 区間の継ぎ目が濁らない。
+ *
+ * 基底の transition-delay は【戻り】に効く。下流ほど 0 に近く、
+ * 上流ほど遅い ── 離すと墨は下から順に退いていく。
+ */
+.wet {
+  color: var(--hi-sumi);
+  mask-image: linear-gradient(
+    to bottom,
+    #000 0%,
+    #000 46%,
+    transparent 48%,
+    transparent 100%
+  );
+  mask-size: 100% 220%;
+  mask-repeat: no-repeat;
+  mask-position: 0% 100%;
+  transition: mask-position var(--myaku-dur) var(--hi-vein) var(--myaku-out);
+}
+
+.strandCore,
+.strandSide,
+.strandDry {
+  stroke: currentColor;
+}
+
+/*
+ * 広い紙と狭い紙で d を差し替える。通り道の幅が 480px → 50px と一桁変わるので、
+ * 同じ d では狭い紙で横の振れが 6px しか出ず罫になってしまう。
+ * 出す・出さないは display だけで決め、ホバーの機構には一切触れない。
+ */
+.onNarrow {
+  display: none;
+}
+
+@media (max-width: 1023px) {
+  .onWide {
+    display: none;
+  }
+  .onNarrow {
+    display: inline;
+  }
+}
+
+/* 芯・添え・乾き。淡い層は細く弱く、濃い層はわずかに肥えて筋が揃う */
+.dry .strandCore {
+  stroke-width: 1.1px;
+  opacity: 0.88;
+}
+.dry .strandSide {
+  stroke-width: 0.7px;
+  opacity: 0.42;
+}
+.dry .strandDry {
+  stroke-width: 0.6px;
+  opacity: 0.34;
+  stroke-dasharray: 9 6 2 11 15 4;
+}
+
+.wet .strandCore {
+  stroke-width: 1.45px;
+  opacity: 1;
+}
+.wet .strandSide {
+  stroke-width: 0.95px;
+  opacity: 0.66;
+}
+.wet .strandDry {
+  stroke-width: 0.7px;
+  opacity: 0.5;
+  stroke-dasharray: 9 6 2 11 15 4;
+}
+
+/* --------------------------------------------------------------------------
+   区間ごとの箱。x=100 が作品欄の左端に来るよう 12 列から逆算する
+   -------------------------------------------------------------------------- */
+
+/*
+ * 頭 ── 名乗りの「空白の行」そのもの（.mark の 1fr）。
+ * grid item なので absolute にしない。紙が余っていなければ高さ 0 になり、
+ * 脈の頭は自然に消える。文字と交差する事故が構造的に起こらない。
+ */
+.zHead {
+  position: relative;
+  justify-self: start;
+  align-self: stretch;
+  min-height: 0;
+  width: calc((5 * 100% + 5 * var(--hi-gap)) / 12);
+  --myaku-dur: 180ms;
+  --myaku-in: 0ms;
+  --myaku-out: 200ms;
+  --myaku-draw: 860ms;
+  --myaku-draw-delay: 900ms;
+  /* 紙の上端では筆はまだ紙に触れていない。上 2 割を掠れさせて始点を消す */
+  mask-image: var(--myaku-kasure-head);
+}
+
+/* 作品の区間。作品欄（7 列幅）の左外へ、その 5/7 ぶんだけ張り出す */
+.zW1,
+.zW2,
+.zW3 {
+  --myaku-band: calc((5 * 100% + 5 * var(--hi-gap)) / 7);
+  left: calc(-1 * var(--myaku-band));
+  width: var(--myaku-band);
+  bottom: 0;
+}
+
+/* 一つめは上の間が 52svh（.works の margin）。以降は 40svh（.work の margin） */
+.zW1 {
+  top: calc(-1 * var(--hi-void-lg));
+  --myaku-dur: 290ms;
+  --myaku-in: 180ms;
+  --myaku-out: 120ms;
+  --myaku-draw: 1000ms;
+  --myaku-draw-delay: 1120ms;
+}
+
+.zW2 {
+  top: calc(-1 * var(--hi-void));
+  --myaku-dur: 240ms;
+  --myaku-in: 470ms;
+  --myaku-out: 60ms;
+  --myaku-draw: 900ms;
+  --myaku-draw-delay: 1340ms;
+}
+
+.zW3 {
+  top: calc(-1 * var(--hi-void));
+  --myaku-dur: 190ms;
+  --myaku-in: 710ms;
+  --myaku-out: 0ms;
+  --myaku-draw: 820ms;
+  --myaku-draw-delay: 1540ms;
+}
+
+/* 尾 ── 作品欄と結びのあいだの間。結びの箱も 7 列幅なので式は作品欄と同じ */
+.zTail {
+  --myaku-band: calc((5 * 100% + 5 * var(--hi-gap)) / 7);
+  left: 0;
+  width: var(--myaku-band);
+  top: calc(-1 * var(--hi-void-lg));
+  height: var(--hi-void-lg);
+  --myaku-dur: 220ms;
+  --myaku-in: 900ms;
+  --myaku-out: 0ms;
+  --myaku-draw: 900ms;
+  --myaku-draw-delay: 1720ms;
+  /* 結びの一行の直前で筆が浮く。下 28% を掠れさせて終点を消す */
+  mask-image: var(--myaku-kasure-tail);
+}
+
+/* --------------------------------------------------------------------------
+   触れる ── 上端からその作品までの区間だけが墨を得る
+   -------------------------------------------------------------------------- */
+
+/* 頭は、どの作品に触れても必ず濡れる（紙の上端が起点なので） */
+.paper:has(.entry:hover) .zHead .wet,
+.paper:has(.entry:focus-visible) .zHead .wet,
+/* 触れた作品自身の区間 */
+.work:has(.entry:hover) .wet,
+.work:has(.entry:focus-visible) .wet,
+/* その上流（あとに触れられた作品を兄弟に持つ作品）の区間 */
+.work:has(~ .work .entry:hover) .wet,
+.work:has(~ .work .entry:focus-visible) .wet,
+/* 結びの「← 一覧へ」に触れると、脈は手元まで帰りきる */
+.paper:has(.back:hover) .wet,
+.paper:has(.back:focus-visible) .wet {
+  mask-position: 0% 0%;
+  transition-delay: var(--myaku-in);
+}
+
+@keyframes hi-myaku {
+  from {
+    clip-path: inset(0 0 101% 0);
+  }
+  to {
+    clip-path: inset(0 0 -1% 0);
+  }
+}
+
+/* ==========================================================================
+   名乗り ── 初画面はこれしか置かない
+   ========================================================================== */
+
+/*
+ * 1fr を先頭に置いて、余った紙を【行として】確保する。
+ * align-content: end と見た目は同じだが、余白が要素になるので
+ * 筆脈の頭がそこへ正確に収まる（原本は align-content: end だった）。
+ */
+.mark {
+  position: relative;
+  z-index: 1;
+  grid-column: 1 / 13;
+  min-height: min(88svh, 760px);
+  display: grid;
+  grid-template-rows: 1fr auto auto auto auto;
+  padding-bottom: clamp(28px, 10svh, 110px);
+}
+
+.showcase {
+  font-size: var(--hi-tiny);
+  line-height: 2;
+  letter-spacing: 0.34em;
+  color: var(--hi-sumi-4);
+  margin-bottom: clamp(12px, 2.2svh, 26px);
+  animation: hi-rise 1000ms var(--hi-brush) 620ms both;
+}
+
+.wordmark {
+  font-family: var(--hi-serif-display);
+  font-weight: 400;
+  /* 下限は 320px の紙で SUMINAWA 一行が収まる最大値（実測 263px < 280px） */
+  font-size: clamp(2.85rem, 12.6vw, 8.75rem);
+  line-height: 0.94;
+  letter-spacing: 0.075em;
+  color: var(--hi-sumi);
+  animation: hi-rise 1200ms var(--hi-brush) 760ms both;
+}
+
+/* 英文は名乗りの真下に置かず、紙の中ほどまで送る。この段差が非対称の起点 */
+.en {
+  font-size: var(--hi-tiny);
+  line-height: 2;
+  letter-spacing: 0.24em;
+  color: var(--hi-sumi-4);
+  margin-top: clamp(20px, 4svh, 52px);
+  margin-left: clamp(28px, 20vw, 280px);
+  animation: hi-rise 1000ms var(--hi-brush) 1020ms both;
+}
+
+/*
+ * 落款。画面で唯一の色。字ではなく図像として扱うので、
+ * トラッキングと明朝の規則の外にある。英文の直後、さらに右へ送って
+ * 「筆を置いたあと、最後に捺す」順序を作る。
+ */
+.seal {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: clamp(28px, 2.6vw, 34px);
+  height: clamp(28px, 2.6vw, 34px);
+  margin-top: clamp(18px, 3svh, 34px);
+  margin-left: clamp(28px, 20vw, 280px);
+  background: var(--hi-shu);
+  color: var(--hi-paper);
+  font-size: clamp(0.75rem, 1.1vw, 0.875rem);
+  line-height: 1;
+  letter-spacing: 0;
+  animation: hi-rise 900ms var(--hi-brush) 1320ms both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .seal {
+    animation: none;
+  }
+}
+
+/* ==========================================================================
+   作品 ── 紙の上の小さな一行。飾りも罫も持たない
+   ========================================================================== */
+
+.works {
+  position: relative;
+  z-index: 1;
+  grid-column: 6 / 13;
+  margin-top: var(--hi-void-lg);
+  list-style: none;
+  margin-block-end: 0;
+  padding: 0;
+}
+
+/* 筆脈の区間を負の left で左外へ出すため、ここが位置の基準になる */
+.work {
+  position: relative;
+  display: grid;
+  grid-template-columns: clamp(70px, 7vw, 104px) minmax(0, 1fr);
+  column-gap: clamp(20px, 4vw, 72px);
+}
+
+.work + .work {
+  margin-top: var(--hi-void);
+}
+
+.cat {
+  font-size: var(--hi-tiny);
+  line-height: 2;
+  letter-spacing: 0.3em;
+  color: var(--hi-sumi-4);
+}
+
+.entry {
+  display: grid;
+  row-gap: clamp(12px, 1.8svh, 20px);
+  text-decoration: none;
+  color: inherit;
+}
+
+.title {
+  font-size: var(--hi-tiny);
+  font-weight: 500;
+  line-height: 2;
+  letter-spacing: 0.14em;
+  color: var(--hi-sumi-3);
+  transition: color var(--hi-soak);
+}
+
+.desc {
+  font-size: var(--hi-tiny);
+  line-height: 2.3;
+  letter-spacing: 0.05em;
+  color: var(--hi-sumi-4);
+  max-width: 30em;
+  transition: color var(--hi-soak);
+}
+
+.tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem clamp(1rem, 2.4vw, 2.1rem);
+  font-size: var(--hi-tiny);
+  line-height: 2;
+  letter-spacing: 0.18em;
+  color: var(--hi-sumi-4);
+  transition: color var(--hi-soak);
+}
+
+/* 触れると墨が一段濃くなる。筆を置き直す、それだけ（原本のまま残す） */
+.entry:hover .title,
+.entry:focus-visible .title {
+  color: var(--hi-sumi);
+}
+
+.entry:hover .desc,
+.entry:hover .tags,
+.entry:focus-visible .desc,
+.entry:focus-visible .tags {
+  color: var(--hi-sumi-2);
+}
+
+.empty {
+  font-size: var(--hi-tiny);
+  line-height: 2.3;
+  letter-spacing: 0.05em;
+  color: var(--hi-sumi-4);
+  max-width: 30em;
+}
+
+/* ==========================================================================
+   結び ── 起点（1 列目）へ戻る
+   ========================================================================== */
+
+.close {
+  position: relative;
+  z-index: 1;
+  grid-column: 1 / 8;
+  margin-top: var(--hi-void-lg);
+  padding-bottom: clamp(64px, 18svh, 180px);
+}
+
+.closeLine {
+  font-size: var(--hi-tiny);
+  line-height: 2.2;
+  letter-spacing: 0.1em;
+  color: var(--hi-sumi-4);
+}
+
+.back {
+  display: inline-block;
+  margin-top: clamp(28px, 5svh, 64px);
+  font-size: var(--hi-tiny);
+  line-height: 2;
+  letter-spacing: 0.2em;
+  color: var(--hi-sumi-3);
+  text-decoration: none;
+  transition: color var(--hi-soak);
+}
+
+.back:hover,
+.back:focus-visible {
+  color: var(--hi-sumi);
+}
+
+/* 罫を持たない世界なので、フォーカスの輪は紙から充分に離して細く引く */
+.paper a:focus-visible {
+  outline: 1px solid var(--hi-sumi);
+  outline-offset: clamp(10px, 1.6vw, 18px);
+}
+
+/* ==========================================================================
+   小さい紙
+   ========================================================================== */
+
+@media (max-width: 1023px) {
+  .works {
+    grid-column: 3 / 13;
+  }
+  .close {
+    grid-column: 1 / 11;
+  }
+
+  /* 作品欄の起点が 3 列目へ寄るので、脈の通り道も 2u+2g に締め直す */
+  .zHead {
+    width: calc((100% + var(--hi-gap)) / 6);
+  }
+  .zW1,
+  .zW2,
+  .zW3,
+  .zTail {
+    --myaku-band: calc((100% + var(--hi-gap)) / 5);
+  }
+}
+
+@media (max-width: 767px) {
+  .paper {
+    --hi-void: clamp(72px, 26svh, 210px);
+    --hi-void-lg: clamp(88px, 32svh, 260px);
+  }
+
+  /* 縦長の紙では一筆を寝かせず、上半分を横切らせる */
+  .stroke {
+    top: -8svh;
+    right: -48vw;
+    width: 168vw;
+  }
+
+  /* 縦長の紙では結びが下に詰まる。最後の掠れはその上の余白へ逃がす */
+  .trace {
+    right: -14vw;
+    width: 92vw;
+    bottom: clamp(250px, 44svh, 330px);
+  }
+
+  .mark {
+    min-height: 84svh;
+  }
+
+  /* 12 列では刻めない幅なので、起点の斜行は padding で保つ */
+  .works,
+  .close {
+    grid-column: 1 / 13;
+  }
+  .works {
+    padding-left: 9vw;
+  }
+
+  .work {
+    grid-template-columns: minmax(0, 1fr);
+    row-gap: clamp(10px, 1.6svh, 16px);
+  }
+
+  /*
+   * 斜行が padding-left: 9vw に化けるので、脈の通り道もそれに合わせる。
+   * 9vw だけでは細すぎるため、紙の縁（padding-inline）の内側半分まで
+   * 外へ広げる。x=0 は縁の中、x=100 は作品欄の左端で、全区間で共通。
+   */
+  .zHead,
+  .zTail {
+    /* .zHead は grid item だが position: relative なので left がそのまま効く */
+    left: calc(-0.85 * var(--hi-pad));
+    width: calc(9vw + 0.85 * var(--hi-pad));
+  }
+  .zW1,
+  .zW2,
+  .zW3 {
+    --myaku-band: calc(9vw + 0.85 * var(--hi-pad));
+    left: calc(-9vw - 0.85 * var(--hi-pad));
+  }
+}
+
+/* ==========================================================================
+   一筆の勢いを望まない人へ ── 走らせずに、置いてある状態から始める
+   --------------------------------------------------------------------------
+   筆脈は静止時から在る線なので、animation / transition が全て消えても
+   淡い脈はそのまま紙に残り、ホバー・フォーカスでは一瞬で濃くなる。
+   「動かないと何も見えない」表現にはなっていない。
+   ========================================================================== */
+
+@media (prefers-reduced-motion: reduce) {
+  .paper *,
+  .paper *::before,
+  .paper *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+}
