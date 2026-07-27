@@ -1,0 +1,813 @@
+/* ==========================================================================
+   表具 — 掛軸の表装
+   --------------------------------------------------------------------------
+   意匠は「作品を見せるための構造」そのもの。柄は一切置かない。
+   成立させているのは無地の裂の【比例】だけ。
+
+   三段表具（行の行）。本紙の丈 H を 1 として：
+
+     八双            0.020
+     天              0.360   ┐
+     上中回し        0.160   │ 天 : 地 = 3 : 2
+     上一文字        0.056   │ （= H/18）
+     本紙            1.000   │
+     下一文字        0.045   │ （= 上一文字 × 0.8）
+     下中回し        0.160   │
+     地              0.240   ┘
+     軸              0.030
+     ------------------------------
+     全丈            2.071 H
+
+     柱（左右の中回し）  本紙幅 / 6
+     風帯（二条）        幅 = 一文字の丈、丈 = 天 − 0.02H
+     軸先               天地の幅から左右へ 0.05H ずつ出る
+
+   本紙の縦横比だけは軸ごとに変わる（--paper）。表装の比は全幅で不変。
+   ========================================================================== */
+
+.world {
+  /* ---- 裂と紙 ---- */
+  --ten: #1f2a44; /* 天地の裂（濃紺） */
+  --ten-deep: #17203a;
+  --naka: #8c9bb5; /* 中回しの裂（薄縹） */
+  --naka-deep: #7b8aa5;
+  --kin: #a8874e; /* 一文字（金茶） */
+  --kin-ink: #7a5e28; /* 金茶の濃口。本紙上の小文字に使う（5.2:1） */
+  --shi: #f2ede1; /* 本紙の紙 */
+  --koku: #2a2320; /* 軸先の黒檀 */
+  --sumi: #1a1815; /* 墨（本紙上 15.7:1） */
+  --sumi-2: #453e33; /* 淡墨（本紙上 9.0:1） */
+  --shu: #9e3b2e; /* 落款印の朱。画面上ここ一箇所だけ */
+
+  /* ---- 室 ---- */
+  --kabe: #d6cfc0; /* 聚楽の壁 */
+  --kabe-oku: #c8c0af; /* 床の間の奥（一段暗い） */
+  --ki: #2a2320; /* 落し掛け・長押・床框 */
+
+  /* ---- 表装の比（本紙丈 = 1） ---- */
+  --r-hasso: 0.02;
+  --r-ten: 0.36;
+  --r-naka-ue: 0.16;
+  --r-ichi-ue: 0.056;
+  --r-ichi-shita: 0.045;
+  --r-naka-shita: 0.16;
+  --r-chi: 0.24;
+  --r-jiku: 0.03;
+
+  --ease: cubic-bezier(0.22, 1, 0.36, 1);
+
+  --fjp: var(--hyogu-mincho), "Hiragino Mincho ProN", "Yu Mincho", YuMincho,
+    "Noto Serif JP", serif;
+  --flatin: var(--hyogu-latin), "Hiragino Mincho ProN", Georgia, serif;
+
+  /* 寸法（本紙の丈）。ここだけで画面全体が拡縮する。
+     一幅の総幅は 軸先を含めて 本紙丈 × (縦横比 × 4/3 + 0.1) になるので、
+     狭い画面ではこの値が画面幅を超えないよう抑える */
+  --h-hero: min(360px, 80vw);
+  --h-work: min(392px, 92vw);
+  /* 床の間の間口 */
+  --toko-w: min(100%, calc(var(--h-hero) * 2.35));
+
+  min-height: 100svh;
+  /* 壁の土 — 柄ではなく地の粗さ */
+  background-color: var(--kabe);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0.12'/%3E%3C/filter%3E%3Crect width='180' height='180' filter='url(%23n)' opacity='0.16'/%3E%3C/svg%3E");
+  color: var(--sumi);
+  font-family: var(--fjp);
+  font-feature-settings: "palt" 1;
+  display: flex;
+  flex-direction: column;
+  overflow-x: clip;
+}
+
+.world :focus-visible {
+  outline: 2px solid var(--sumi);
+  outline-offset: 8px;
+}
+
+/* ==========================================================================
+   一幅 — 掛軸
+   ========================================================================== */
+
+.kake {
+  --w: calc(var(--h) * var(--paper)); /* 本紙幅 */
+  --hashira: calc(var(--w) / 6); /* 柱（左右の中回し） */
+  --W: calc(var(--w) + var(--hashira) * 2); /* 天地の幅 */
+
+  position: relative;
+  width: var(--W);
+  padding-top: calc(var(--h) * 0.075); /* 掛緒の分 */
+  transform-style: preserve-3d;
+  transition:
+    transform 620ms var(--ease),
+    filter 620ms var(--ease);
+  animation: unroll 900ms var(--ease) var(--delay, 0ms) backwards;
+}
+
+/* 掛ける = 巻きを解く */
+@keyframes unroll {
+  from {
+    clip-path: inset(0 -14% 92% -14%);
+    opacity: 0.75;
+  }
+  to {
+    clip-path: inset(0 -14% -10% -14%);
+    opacity: 1;
+  }
+}
+
+/* 折釘 */
+.kugi {
+  position: absolute;
+  top: calc(var(--h) * 0.012);
+  left: 50%;
+  width: 7px;
+  height: 7px;
+  margin-left: -3.5px;
+  border-radius: 50%;
+  background: linear-gradient(160deg, #6b5c4c, var(--koku));
+  box-shadow: 0 1px 2px rgb(26 24 21 / 0.5);
+}
+
+/* 掛緒 */
+.kakeo {
+  position: absolute;
+  top: calc(var(--h) * 0.02);
+  left: 0;
+  width: 100%;
+  height: calc(var(--h) * 0.055);
+  overflow: visible;
+}
+.kakeo path {
+  fill: none;
+  stroke: #4c4033;
+  stroke-width: 1.25;
+  opacity: 0.85;
+}
+
+/* 八双 */
+.hasso {
+  display: block;
+  height: calc(var(--h) * var(--r-hasso));
+  border-radius: 2px 2px 0 0;
+  background: linear-gradient(
+    180deg,
+    #6a5b4b 0%,
+    #453a30 34%,
+    var(--koku) 72%,
+    #171210 100%
+  );
+  box-shadow: 0 1px 0 rgb(0 0 0 / 0.25);
+}
+
+/* ---- 表装の本体 ---- */
+
+.jiku {
+  display: grid;
+  grid-template-columns: var(--hashira) var(--w) var(--hashira);
+  grid-template-rows:
+    calc(var(--h) * var(--r-ten))
+    calc(var(--h) * var(--r-naka-ue))
+    calc(var(--h) * var(--r-ichi-ue))
+    var(--h)
+    calc(var(--h) * var(--r-ichi-shita))
+    calc(var(--h) * var(--r-naka-shita))
+    calc(var(--h) * var(--r-chi));
+
+  /* 地は中回しの裂。天地と一文字だけがこの上に載る */
+  background-color: var(--naka);
+  background-image:
+    linear-gradient(
+      104deg,
+      rgb(255 255 255 / 0.16) 0%,
+      rgb(255 255 255 / 0) 42%,
+      rgb(31 42 68 / 0.1) 100%
+    ),
+    repeating-linear-gradient(
+      0deg,
+      rgb(255 255 255 / 0.07) 0 1px,
+      rgb(31 42 68 / 0.07) 1px 2px,
+      rgb(0 0 0 / 0) 2px 3px
+    ),
+    repeating-linear-gradient(
+      90deg,
+      rgb(255 255 255 / 0.05) 0 1px,
+      rgb(0 0 0 / 0) 1px 4px
+    );
+  box-shadow:
+    inset 1px 0 0 rgb(31 42 68 / 0.28),
+    inset -1px 0 0 rgb(31 42 68 / 0.28),
+    0 14px 26px -12px rgb(38 32 24 / 0.42),
+    0 3px 8px -4px rgb(38 32 24 / 0.3);
+  transition: box-shadow 620ms var(--ease);
+}
+
+/* 天（上）と地（下）— 同じ裂、丈だけ 3 : 2 */
+.ten,
+.chi {
+  grid-column: 1 / -1;
+  background-color: var(--ten);
+  background-image:
+    linear-gradient(
+      104deg,
+      rgb(255 255 255 / 0.1) 0%,
+      rgb(255 255 255 / 0) 46%,
+      rgb(0 0 0 / 0.16) 100%
+    ),
+    repeating-linear-gradient(
+      0deg,
+      rgb(255 255 255 / 0.055) 0 1px,
+      rgb(0 0 0 / 0.1) 1px 2px,
+      rgb(0 0 0 / 0) 2px 3px
+    ),
+    repeating-linear-gradient(
+      90deg,
+      rgb(255 255 255 / 0.04) 0 1px,
+      rgb(0 0 0 / 0) 1px 4px
+    );
+}
+.ten {
+  grid-row: 1;
+  position: relative;
+  box-shadow: inset 0 -1px 0 rgb(0 0 0 / 0.22);
+}
+.chi {
+  grid-row: 7;
+  box-shadow: inset 0 1px 0 rgb(0 0 0 / 0.22);
+}
+
+/* 風帯 — 一文字と同じ裂を二条、天に垂らす */
+.fuutai {
+  position: absolute;
+  top: 0;
+  width: calc(var(--h) * var(--r-ichi-ue));
+  height: calc(100% - var(--h) * 0.022);
+  background:
+    linear-gradient(
+      100deg,
+      #8d6f3c 0%,
+      #c2a163 30%,
+      var(--kin) 52%,
+      #cbab6e 72%,
+      #8b6d3a 100%
+    ),
+    var(--kin);
+  box-shadow:
+    0 2px 5px -1px rgb(0 0 0 / 0.4),
+    inset -1px 0 0 rgb(0 0 0 / 0.18);
+}
+.fuutai:nth-child(1) {
+  left: 26%;
+}
+.fuutai:nth-child(2) {
+  right: 26%;
+}
+
+/* 一文字 — 本紙の幅だけに掛かる細い金茶。上 H/18、下はその 0.8 */
+.ichimonjiUe,
+.ichimonjiShita {
+  grid-column: 2;
+  background:
+    linear-gradient(
+      100deg,
+      #8d6f3c 0%,
+      #c2a163 28%,
+      var(--kin) 50%,
+      #cbab6e 74%,
+      #8b6d3a 100%
+    ),
+    var(--kin);
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 0.22),
+    inset 0 -1px 0 rgb(0 0 0 / 0.2);
+}
+.ichimonjiUe {
+  grid-row: 3;
+}
+.ichimonjiShita {
+  grid-row: 5;
+}
+
+/* ---- 本紙 ---- */
+
+.honshi {
+  grid-column: 2;
+  grid-row: 4;
+  position: relative;
+  overflow: hidden;
+  /* 縦組みの本文は紙の右端から始まる。余白は左に残す */
+  display: flex;
+  justify-content: flex-end;
+  align-items: stretch;
+  padding: calc(var(--h) * 0.055) calc(var(--h) * 0.042);
+  background-color: var(--shi);
+  /* 簀の目（細）＋ 糸目（粗）＋ 繊維 */
+  background-image:
+    repeating-linear-gradient(
+      90deg,
+      rgb(26 24 21 / 0.028) 0 1px,
+      rgb(0 0 0 / 0) 1px 5px
+    ),
+    repeating-linear-gradient(
+      90deg,
+      rgb(26 24 21 / 0.045) 0 1px,
+      rgb(0 0 0 / 0) 1px 29px
+    ),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='p'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0.1'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23p)' opacity='0.11'/%3E%3C/svg%3E");
+  box-shadow:
+    inset 0 2px 5px -3px rgb(26 24 21 / 0.5),
+    inset 0 0 0 1px rgb(26 24 21 / 0.07);
+}
+
+/* 軸（軸木）と軸先 */
+.jikubou {
+  position: relative;
+  display: block;
+  height: calc(var(--h) * var(--r-jiku));
+  background: linear-gradient(
+    180deg,
+    #5e5044 0%,
+    #362c25 28%,
+    var(--koku) 62%,
+    #140f0d 100%
+  );
+  box-shadow: 0 8px 14px -8px rgb(38 32 24 / 0.55);
+}
+.jikusaki {
+  position: absolute;
+  top: 50%;
+  width: calc(var(--h) * 0.05);
+  height: calc(var(--h) * 0.052);
+  transform: translateY(-50%);
+  border-radius: 40% / 50%;
+  background: radial-gradient(
+    ellipse at 32% 30%,
+    #6d5c4c 0%,
+    #3a2f28 42%,
+    var(--koku) 68%,
+    #120d0b 100%
+  );
+  box-shadow: 0 3px 6px -2px rgb(38 32 24 / 0.5);
+}
+.jikusaki:nth-child(1) {
+  left: calc(var(--h) * -0.05);
+}
+.jikusaki:nth-child(2) {
+  right: calc(var(--h) * -0.05);
+}
+
+/* 掛け替えの所作 — 軸がわずかに前へ出る */
+.kakeLink {
+  display: block;
+  text-decoration: none;
+  color: inherit;
+  perspective: 1400px;
+}
+.kakeLink:hover .kake,
+.kakeLink:focus-visible .kake {
+  transform: translateY(-7px) scale(1.014);
+}
+.kakeLink:hover .jiku,
+.kakeLink:focus-visible .jiku {
+  box-shadow:
+    inset 1px 0 0 rgb(31 42 68 / 0.28),
+    inset -1px 0 0 rgb(31 42 68 / 0.28),
+    0 34px 46px -20px rgb(38 32 24 / 0.5),
+    0 8px 16px -8px rgb(38 32 24 / 0.34);
+}
+
+/* 白紙の幅（まだ掛けていない） */
+.kakeHakushi {
+  filter: grayscale(0.62);
+  opacity: 0.9;
+}
+.kakeHakushi .fuutai {
+  display: none;
+}
+
+/* ==========================================================================
+   本紙の中 — 縦組みが主、ラテンは控えめに
+   ========================================================================== */
+
+/* 題 → 説明 → 札 の順に、右から左へ流れる */
+.flow {
+  flex: 0 1 auto;
+  min-width: 0;
+  display: flex;
+  flex-direction: column; /* 縦組みでは主軸が右→左になる */
+  height: 100%;
+  gap: calc(var(--h) * 0.028);
+  writing-mode: vertical-rl;
+  text-orientation: mixed;
+  font-feature-settings: "vpal" 1, "vkrn" 1;
+}
+
+.category {
+  align-self: flex-start;
+  font-family: var(--flatin);
+  font-weight: 500;
+  font-size: max(10px, calc(var(--h) * 0.029));
+  letter-spacing: 0.22em;
+  color: var(--kin-ink);
+}
+
+.title {
+  align-self: flex-start;
+  margin: 0;
+  font-size: max(15px, calc(var(--h) * 0.05));
+  font-weight: 600;
+  line-height: 1.62;
+  letter-spacing: 0.04em;
+  color: var(--sumi);
+  max-height: 100%;
+}
+.titleLatin {
+  display: inline-block;
+  margin-block-start: 0.5em;
+  font-family: var(--flatin);
+  font-weight: 400;
+  font-size: 0.62em;
+  letter-spacing: 0.04em;
+  color: var(--sumi-2);
+}
+
+.body {
+  align-self: flex-start;
+  margin: 0;
+  max-height: 100%;
+  font-size: max(12px, calc(var(--h) * 0.037));
+  line-height: 1.95;
+  letter-spacing: 0.02em;
+  color: var(--sumi-2);
+}
+
+.tags {
+  align-self: flex-end; /* 縦組みの列の下端 = 奥付の位置 */
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  /* 縦組みでは row が上→下。札は一列に収める */
+  flex-direction: row;
+  gap: 1.4em;
+  font-family: var(--flatin);
+  font-size: max(10px, calc(var(--h) * 0.028));
+  letter-spacing: 0.14em;
+  color: var(--sumi-2);
+  border-inline-start: 1px solid rgb(168 135 78 / 0.55);
+  padding-inline-start: 0.85em;
+}
+
+.junbi {
+  align-self: flex-start;
+  margin: 0;
+  max-height: 100%;
+  font-size: max(13px, calc(var(--h) * 0.042));
+  line-height: 1.95;
+  letter-spacing: 0.03em;
+  color: var(--sumi-2);
+}
+.junbi span {
+  display: block;
+}
+
+/* ---- 主幅（床の間に掛かる一幅）---- */
+
+.honshiHero {
+  position: relative;
+  z-index: 1;
+  flex: 1 1 auto;
+  height: 100%;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  grid-template-areas:
+    "en   tagline"
+    ".    tagline"
+    "sig  tagline";
+  column-gap: calc(var(--h) * 0.03);
+}
+
+.tagline {
+  grid-area: tagline;
+  margin: 0;
+  writing-mode: vertical-rl;
+  text-orientation: mixed;
+  font-feature-settings: "vpal" 1, "vkrn" 1;
+  font-size: max(19px, calc(var(--h) * 0.066));
+  font-weight: 600;
+  line-height: 1.72;
+  letter-spacing: 0.06em;
+  color: var(--sumi);
+  max-height: 100%;
+}
+.tagline span {
+  display: block; /* 縦組みでは一句が一行として右から並ぶ */
+}
+
+.en {
+  grid-area: en;
+  margin: 0;
+  font-family: var(--flatin);
+  font-style: italic;
+  font-weight: 400;
+  font-size: max(12px, calc(var(--h) * 0.038));
+  letter-spacing: 0.05em;
+  color: var(--sumi-2);
+}
+
+.sig {
+  grid-area: sig;
+  display: flex;
+  align-items: flex-end;
+  gap: calc(var(--h) * 0.03);
+}
+
+.wordmark {
+  margin: 0;
+  font-family: var(--flatin);
+  font-weight: 400;
+  font-size: max(12px, calc(var(--h) * 0.036));
+  letter-spacing: 0.24em;
+  line-height: 1.2;
+  color: var(--sumi);
+  white-space: nowrap;
+}
+.showcase {
+  display: block;
+  margin-top: 0.55em;
+  font-style: italic;
+  font-size: 0.72em;
+  letter-spacing: 0.1em;
+  color: var(--sumi-2);
+}
+
+/* 落款印 — 朱はここ一箇所 */
+.rakkan {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: max(24px, calc(var(--h) * 0.072));
+  height: max(24px, calc(var(--h) * 0.072));
+  border-radius: 2px;
+  background: var(--shu);
+  color: var(--shi);
+  font-size: max(14px, calc(var(--h) * 0.044));
+  font-weight: 600;
+  transform: rotate(-1.4deg);
+  box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.14);
+  opacity: 0.94;
+}
+
+/* 本紙に載る絵（藍の墨流し）。文字の載る右側は残す */
+.wash {
+  position: absolute;
+  inset: 0;
+  background: url("/ink/hero.png") 32% center / 210% auto no-repeat;
+  mix-blend-mode: multiply;
+  opacity: 0.42;
+  -webkit-mask-image: radial-gradient(
+    ellipse 82% 62% at 24% 46%,
+    #000 0%,
+    rgb(0 0 0 / 0.55) 46%,
+    transparent 78%
+  );
+  mask-image: radial-gradient(
+    ellipse 82% 62% at 24% 46%,
+    #000 0%,
+    rgb(0 0 0 / 0.55) 46%,
+    transparent 78%
+  );
+}
+
+/* ==========================================================================
+   室 — 床の間・壁・地板
+   ========================================================================== */
+
+.toko {
+  position: relative;
+  display: grid;
+  justify-items: center;
+  padding: 0 clamp(16px, 5vw, 64px);
+}
+
+.otoshigake {
+  height: clamp(11px, 1.2vw, 17px);
+  width: var(--toko-w);
+  background: linear-gradient(
+    180deg,
+    #4c4036 0%,
+    #352c25 40%,
+    var(--ki) 78%,
+    #1a1512 100%
+  );
+  box-shadow:
+    0 10px 20px -10px rgb(38 32 24 / 0.5),
+    inset 0 1px 0 rgb(255 255 255 / 0.14);
+  border-radius: 1px;
+}
+
+.tokoOku {
+  width: var(--toko-w);
+  display: grid;
+  justify-items: center;
+  padding: 0 clamp(12px, 3vw, 40px);
+  background:
+    linear-gradient(
+      180deg,
+      rgb(26 24 21 / 0.16) 0%,
+      rgb(26 24 21 / 0.03) 14%,
+      rgb(26 24 21 / 0) 34%
+    ),
+    var(--kabe-oku);
+  box-shadow:
+    inset 14px 0 22px -18px rgb(26 24 21 / 0.55),
+    inset -14px 0 22px -18px rgb(26 24 21 / 0.55);
+}
+
+.tokobashira {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: calc(50% - var(--toko-w) / 2 - 8px);
+  width: 16px;
+  background: linear-gradient(
+    92deg,
+    #241d19 0%,
+    #4a3c30 26%,
+    #33291f 58%,
+    #1c1613 100%
+  );
+  border-radius: 3px;
+  box-shadow: 2px 0 10px -4px rgb(26 24 21 / 0.5);
+}
+
+.tokogamachi {
+  width: var(--toko-w);
+  height: clamp(10px, 1.2vw, 16px);
+  background: linear-gradient(
+    180deg,
+    #3d322a 0%,
+    var(--ki) 45%,
+    #16110f 100%
+  );
+  box-shadow: 0 6px 14px -8px rgb(38 32 24 / 0.55);
+}
+
+.kabe {
+  margin-top: clamp(56px, 9vh, 104px);
+  padding: 0 clamp(16px, 5vw, 64px) clamp(48px, 8vh, 88px);
+  display: grid;
+  justify-items: center;
+}
+
+.nageshi {
+  width: min(100%, 1120px);
+  height: clamp(8px, 0.9vw, 12px);
+  background: linear-gradient(
+    180deg,
+    #4a3e34 0%,
+    #322922 45%,
+    var(--ki) 80%,
+    #191412 100%
+  );
+  box-shadow:
+    0 10px 18px -12px rgb(38 32 24 / 0.5),
+    inset 0 1px 0 rgb(255 255 255 / 0.12);
+  border-radius: 1px;
+}
+
+.sanpuku {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: clamp(40px, 6vh, 72px);
+  padding-top: 0;
+}
+
+.jiita {
+  margin-top: auto;
+  padding: clamp(18px, 2.4vh, 26px) clamp(16px, 5vw, 64px);
+  background: linear-gradient(180deg, #3a2f28 0%, var(--ki) 22%, #17120f 100%);
+  box-shadow: inset 0 6px 14px -10px rgb(0 0 0 / 0.9);
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px 24px;
+}
+
+.note {
+  margin: 0;
+  font-size: 13px;
+  letter-spacing: 0.09em;
+  color: var(--shi); /* 13.2 : 1 */
+}
+
+.back {
+  font-size: 12.5px;
+  letter-spacing: 0.12em;
+  color: #ded6c6; /* 地板の上で 10.6 : 1 */
+  text-decoration: none;
+  border-bottom: 1px solid rgb(222 214 198 / 0.4);
+  padding-bottom: 2px;
+  transition: color 240ms var(--ease);
+}
+.back:hover {
+  color: #fff;
+}
+.jiita :focus-visible {
+  outline-color: var(--shi);
+  outline-offset: 4px;
+}
+
+/* ==========================================================================
+   広い画面 — 三幅を一本の長押から、右から左へ掛ける
+   ========================================================================== */
+
+@media (min-width: 721px) {
+  .world {
+    --h-hero: clamp(300px, 42vw, 400px);
+    --h-work: clamp(320px, 52vw, 420px);
+  }
+}
+
+@media (min-width: 1080px) {
+  .world {
+    --h-hero: clamp(300px, 25vw, 380px);
+    --h-work: clamp(300px, 26vw, 380px);
+  }
+  .sanpuku {
+    flex-direction: row-reverse; /* 右から左へ = 読みの順 */
+    align-items: flex-start;
+    justify-content: center;
+    gap: clamp(28px, 4.4vw, 72px);
+  }
+  .kabe {
+    padding-bottom: clamp(64px, 10vh, 120px);
+  }
+}
+
+/* 狭い画面では一幅ずつ、それぞれの長押に掛ける */
+@media (max-width: 1079px) {
+  .nageshi {
+    display: none;
+  }
+  .kake::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: -7%;
+    width: 114%;
+    height: clamp(7px, 1.4vw, 10px);
+    background: linear-gradient(
+      180deg,
+      #4a3e34 0%,
+      #322922 45%,
+      var(--ki) 80%,
+      #191412 100%
+    );
+    border-radius: 1px;
+    box-shadow: 0 8px 14px -10px rgb(38 32 24 / 0.5);
+  }
+  .tokoOku .kake::before {
+    display: none;
+  }
+  .kabe {
+    margin-top: clamp(40px, 6vh, 72px);
+  }
+}
+
+@media (max-width: 720px) {
+  .tokobashira {
+    display: none;
+  }
+  .tokoOku,
+  .otoshigake,
+  .tokogamachi {
+    width: 100%;
+  }
+  .jiita {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
+
+/* ==========================================================================
+   動きを抑える
+   ========================================================================== */
+
+@media (prefers-reduced-motion: reduce) {
+  .kake {
+    animation: none;
+    transition: none;
+  }
+  .kakeLink:hover .kake,
+  .kakeLink:focus-visible .kake {
+    transform: none;
+  }
+  .jiku,
+  .back {
+    transition: none;
+  }
+}

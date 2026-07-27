@@ -1,0 +1,1192 @@
+/*
+ * 青焼き — シアノタイプの図面
+ *
+ * 地は深いプルシアンブルー。線は白しかない。反転を絶対に崩さない。
+ * 画面の構造そのものが図面枠（外枠・区域記号・表題欄）で、
+ * 作品は枠の中の「部品」として輪郭線で描かれ、部品番号と引出線が付く。
+ *
+ * コントラスト実測（WCAG 2.1）:
+ *   #EAF0F7 on #16325C = 11.13:1 / on #0E2445 = 13.49:1
+ *   #A8BBD1 on #16325C =  6.50:1 / on #0E2445 =  7.88:1
+ *   #C25A4A on #0E2445 =  3.58:1（図形のみ。文字には使わない）
+ *   #E08476 on #0E2445 =  5.70:1（褪せた朱。注記の文字はこちら）
+ */
+
+.sheet {
+  --ground: #16325c;
+  --deep: #0e2445;
+  --deeper: #0b1c36;
+  --line: #eaf0f7;
+  --line-soft: #a8bbd1;
+  --rev: #c25a4a;
+  --rev-text: #e08476;
+  --paper: #d8dee6;
+
+  --m: clamp(10px, 1.8vw, 26px); /* 紙の縁から外枠まで */
+  --band: clamp(14px, 1.6vw, 22px); /* 区域記号の帯 */
+  --gut: clamp(34px, 3.6vw, 50px); /* 部品番号と引出線の余地 */
+
+  --jp: "Hiragino Kaku Gothic ProN", "Hiragino Sans", "Yu Gothic Medium",
+    "Noto Sans JP", sans-serif;
+  --ease: cubic-bezier(0.22, 1, 0.36, 1);
+
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  min-height: 100dvh;
+  padding: calc(var(--m) + var(--band));
+  background-color: var(--ground);
+  color: var(--line);
+  font-family: var(--aoyaki-mono), ui-monospace, "SFMono-Regular", monospace;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ─────────────────────────────────────────────
+   感光紙
+   ───────────────────────────────────────────── */
+
+/* 感光ムラ。焼き付けの濃淡が一様でない */
+.mottle {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  mix-blend-mode: overlay;
+  opacity: 0.55;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='560' height='560'%3E%3Cfilter id='m'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.009' numOctaves='4' seed='7' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='560' height='560' filter='url(%23m)'/%3E%3C/svg%3E");
+  background-size: 560px 560px;
+}
+
+/* 折り目。縦二本と横一本。白い筋の両側が沈む */
+.creases {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background-image:
+    linear-gradient(
+      90deg,
+      transparent calc(33.33% - 30px),
+      rgba(11, 28, 54, 0.26) calc(33.33% - 9px),
+      rgba(234, 240, 247, 0.1) 33.33%,
+      rgba(11, 28, 54, 0.22) calc(33.33% + 9px),
+      transparent calc(33.33% + 30px)
+    ),
+    linear-gradient(
+      90deg,
+      transparent calc(71% - 24px),
+      rgba(11, 28, 54, 0.2) calc(71% - 7px),
+      rgba(234, 240, 247, 0.07) 71%,
+      rgba(11, 28, 54, 0.17) calc(71% + 7px),
+      transparent calc(71% + 24px)
+    ),
+    linear-gradient(
+      180deg,
+      transparent calc(46% - 34px),
+      rgba(11, 28, 54, 0.22) calc(46% - 10px),
+      rgba(234, 240, 247, 0.08) 46%,
+      rgba(11, 28, 54, 0.18) calc(46% + 10px),
+      transparent calc(46% + 34px)
+    );
+}
+
+/* 縁の光焼け。四隅ほど白く抜ける */
+.burn {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background-image:
+    radial-gradient(
+      118% 88% at 50% 48%,
+      transparent 42%,
+      rgba(216, 222, 230, 0.07) 76%,
+      rgba(216, 222, 230, 0.17) 100%
+    ),
+    radial-gradient(46% 34% at 2% 1%, rgba(216, 222, 230, 0.13), transparent 72%),
+    radial-gradient(
+      40% 30% at 100% 100%,
+      rgba(216, 222, 230, 0.11),
+      transparent 72%
+    );
+}
+
+/* 紙の粒子 */
+.grain {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  pointer-events: none;
+  opacity: 0.05;
+  mix-blend-mode: soft-light;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23g)'/%3E%3C/svg%3E");
+}
+
+/* 紙の縁。感光しなかった白い端 */
+.edge {
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+  pointer-events: none;
+  background-image:
+    linear-gradient(
+      to right,
+      rgba(216, 222, 230, 0.34),
+      rgba(216, 222, 230, 0.08) 3px,
+      transparent 9px
+    ),
+    linear-gradient(
+      to left,
+      rgba(216, 222, 230, 0.34),
+      rgba(216, 222, 230, 0.08) 3px,
+      transparent 9px
+    ),
+    linear-gradient(
+      to bottom,
+      rgba(216, 222, 230, 0.3),
+      rgba(216, 222, 230, 0.07) 3px,
+      transparent 9px
+    ),
+    linear-gradient(
+      to top,
+      rgba(216, 222, 230, 0.3),
+      rgba(216, 222, 230, 0.07) 3px,
+      transparent 9px
+    );
+}
+
+/* 焼き付けの光が一度だけ走る */
+.sweep {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: 42%;
+  z-index: 5;
+  pointer-events: none;
+  mix-blend-mode: screen;
+  opacity: 0;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(216, 222, 230, 0.5) 50%,
+    transparent
+  );
+  animation: aoyaki-sweep 2400ms var(--ease) 120ms 1 both;
+}
+
+@keyframes aoyaki-sweep {
+  0% {
+    transform: translateX(-110%);
+    opacity: 0;
+  }
+  14% {
+    opacity: 0.11;
+  }
+  86% {
+    opacity: 0.11;
+  }
+  100% {
+    transform: translateX(238%);
+    opacity: 0;
+  }
+}
+
+/* ─────────────────────────────────────────────
+   図面枠
+   ───────────────────────────────────────────── */
+
+.frameOuter,
+.frameInner {
+  position: absolute;
+  z-index: 1;
+  pointer-events: none;
+  animation: aoyaki-draw 1000ms var(--ease) 80ms both;
+}
+
+.frameOuter {
+  inset: var(--m);
+  border: 1px solid rgba(234, 240, 247, 0.5);
+}
+
+.frameInner {
+  inset: calc(var(--m) + var(--band));
+  border: 1px solid rgba(234, 240, 247, 0.26);
+  animation-delay: 220ms;
+}
+
+@keyframes aoyaki-draw {
+  from {
+    clip-path: inset(0 100% 0 0);
+  }
+  to {
+    clip-path: inset(0 0 0 0);
+  }
+}
+
+@keyframes aoyaki-fade {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+}
+
+/* 区域記号 */
+.zoneTop,
+.zoneLeft {
+  position: absolute;
+  z-index: 1;
+  display: flex;
+  pointer-events: none;
+  font-size: clamp(7px, 0.62vw, 9px);
+  letter-spacing: 0.14em;
+  color: var(--line-soft);
+  animation: aoyaki-fade 900ms var(--ease) 420ms both;
+}
+
+.zoneTop {
+  top: var(--m);
+  left: calc(var(--m) + var(--band));
+  right: calc(var(--m) + var(--band));
+  height: var(--band);
+}
+
+.zoneLeft {
+  flex-direction: column;
+  left: var(--m);
+  top: calc(var(--m) + var(--band));
+  bottom: calc(var(--m) + var(--band));
+  width: var(--band);
+}
+
+.zoneTop span,
+.zoneLeft span {
+  flex: 1 1 0;
+  display: grid;
+  place-items: center;
+}
+
+.zoneTop span + span {
+  border-left: 1px solid rgba(234, 240, 247, 0.18);
+}
+
+.zoneLeft span + span {
+  border-top: 1px solid rgba(234, 240, 247, 0.18);
+}
+
+/* ─────────────────────────────────────────────
+   図版面
+   ───────────────────────────────────────────── */
+
+.plate {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  gap: clamp(30px, 4vw, 54px);
+  min-height: calc(100dvh - 2 * (var(--m) + var(--band)));
+  padding: clamp(24px, 3.4vw, 52px) clamp(18px, 3vw, 46px)
+    clamp(20px, 2.6vw, 36px);
+}
+
+/* ── 表題 ── */
+
+.head {
+  animation: aoyaki-fade 900ms var(--ease) 380ms both;
+}
+
+.headMeta {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 10px;
+  letter-spacing: 0.22em;
+  color: var(--line-soft);
+  text-transform: uppercase;
+}
+
+.headRule {
+  flex: 1;
+  height: 1px;
+  background: rgba(234, 240, 247, 0.25);
+}
+
+.headBlock {
+  width: fit-content;
+  max-width: 100%;
+  margin-top: clamp(20px, 3vw, 40px);
+}
+
+.markRow {
+  display: flex;
+  align-items: flex-start;
+  gap: clamp(10px, 1.4vw, 20px);
+}
+
+.mark {
+  margin: 0;
+  font-family: var(--aoyaki-cond), var(--aoyaki-mono), sans-serif;
+  font-weight: 200;
+  font-size: clamp(3.1rem, 12.2vw, 9.5rem);
+  line-height: 0.84;
+  letter-spacing: 0.045em;
+  text-transform: uppercase;
+  color: var(--line);
+}
+
+.markSub {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  margin-top: 0.7em;
+  font-size: clamp(9px, 0.78vw, 11px);
+  letter-spacing: 0.2em;
+  color: var(--line-soft);
+  white-space: nowrap;
+}
+
+.markSubLead {
+  display: block;
+  width: clamp(14px, 2vw, 30px);
+  height: 1px;
+  background: rgba(234, 240, 247, 0.4);
+}
+
+/* 寸法線。両端に 45 度の寸法補助線が立つ */
+.dimWrap {
+  position: relative;
+  margin-top: clamp(14px, 1.6vw, 22px);
+  padding-top: 15px;
+}
+
+.dimLine {
+  display: block;
+  height: 1px;
+  background: rgba(234, 240, 247, 0.45);
+}
+
+.dimLine::before,
+.dimLine::after {
+  content: "";
+  position: absolute;
+  bottom: -7px;
+  width: 1px;
+  height: 15px;
+  background: rgba(234, 240, 247, 0.55);
+  transform: rotate(45deg);
+}
+
+.dimLine::before {
+  left: 0;
+}
+
+.dimLine::after {
+  right: 0;
+}
+
+.dimLabel {
+  position: absolute;
+  left: 50%;
+  top: 0;
+  transform: translateX(-50%);
+  font-size: 10px;
+  letter-spacing: 0.28em;
+  color: var(--line-soft);
+}
+
+.headLower {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: clamp(24px, 4vw, 60px);
+}
+
+/* ── 凡例 ── */
+
+.legend {
+  display: grid;
+  gap: 9px;
+  min-width: 214px;
+  padding-bottom: 6px;
+}
+
+.legendHead {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 9px;
+  letter-spacing: 0.26em;
+  color: var(--line-soft);
+}
+
+.legendRule {
+  flex: 1;
+  height: 1px;
+  background: rgba(234, 240, 247, 0.28);
+}
+
+.legRow {
+  display: grid;
+  grid-template-columns: 34px 1fr;
+  align-items: center;
+  gap: 12px;
+  font-size: 9px;
+  letter-spacing: 0.14em;
+  color: var(--line-soft);
+}
+
+.legSample {
+  height: 1px;
+}
+
+.legSolid {
+  background: rgba(234, 240, 247, 0.85);
+}
+
+.legDash {
+  background: repeating-linear-gradient(
+    90deg,
+    rgba(234, 240, 247, 0.75) 0 5px,
+    transparent 5px 9px
+  );
+}
+
+.legRev {
+  justify-self: center;
+  width: 0;
+  height: 0;
+  border-left: 5px solid transparent;
+  border-right: 5px solid transparent;
+  border-bottom: 8px solid var(--rev);
+}
+
+.tagEn {
+  margin: clamp(24px, 3.4vw, 44px) 0 0;
+  font-family: var(--aoyaki-cond), var(--aoyaki-mono), sans-serif;
+  font-weight: 300;
+  font-size: clamp(1.5rem, 4.2vw, 3.1rem);
+  line-height: 1.05;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--line);
+}
+
+.tagJa {
+  margin: clamp(10px, 1.2vw, 16px) 0 0;
+  font-family: var(--jp);
+  font-weight: 300;
+  font-size: clamp(0.8rem, 1.1vw, 0.95rem);
+  letter-spacing: 0.16em;
+  line-height: 1.9;
+  color: var(--line-soft);
+}
+
+/* ── 一点鎖線（断面線）── */
+
+.chainWrap {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  animation: aoyaki-fade 900ms var(--ease) 520ms both;
+}
+
+.chainLabel {
+  font-size: 9px;
+  letter-spacing: 0.26em;
+  color: var(--line-soft);
+  white-space: nowrap;
+}
+
+.chain {
+  flex: 1;
+  height: 1px;
+  background: repeating-linear-gradient(
+    90deg,
+    rgba(234, 240, 247, 0.45) 0 15px,
+    transparent 15px 22px,
+    rgba(234, 240, 247, 0.45) 22px 25px,
+    transparent 25px 32px
+  );
+}
+
+/* ─────────────────────────────────────────────
+   部品
+   ───────────────────────────────────────────── */
+
+.parts {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: clamp(26px, 2.6vw, 34px);
+  padding-left: 24px;
+  animation: aoyaki-fade 1000ms var(--ease) 600ms both;
+}
+
+/* 全体寸法。部品の列に沿って走る */
+.vdim {
+  position: absolute;
+  left: 0;
+  top: 6px;
+  bottom: 6px;
+  width: 1px;
+  background: rgba(234, 240, 247, 0.3);
+}
+
+.vdim::before,
+.vdim::after {
+  content: "";
+  position: absolute;
+  left: -7px;
+  width: 15px;
+  height: 1px;
+  background: rgba(234, 240, 247, 0.45);
+  transform: rotate(45deg);
+}
+
+.vdim::before {
+  top: 0;
+}
+
+.vdim::after {
+  bottom: 0;
+}
+
+.part {
+  display: grid;
+  grid-template-columns: var(--gut) minmax(0, 1fr);
+  align-items: start;
+}
+
+.gutter {
+  position: relative;
+  align-self: stretch;
+  min-height: 56px;
+}
+
+/* 部品番号（風船） */
+.balloon {
+  position: absolute;
+  top: 15px;
+  left: 0;
+  width: 26px;
+  height: 26px;
+  display: grid;
+  place-items: center;
+  border: 1px solid rgba(234, 240, 247, 0.55);
+  border-radius: 50%;
+  background: var(--deep);
+  font-size: 10px;
+  letter-spacing: 0.04em;
+  color: var(--line);
+  transition: border-color 380ms var(--ease);
+}
+
+/* 引出線 */
+.leader {
+  position: absolute;
+  top: 28px;
+  left: 27px;
+  right: 0;
+  height: 1px;
+  background: rgba(234, 240, 247, 0.4);
+  transition: background-color 380ms var(--ease);
+}
+
+.partFrame {
+  --corner: rgba(234, 240, 247, 0.72);
+  position: relative;
+  display: grid;
+  grid-template-columns: clamp(118px, 13vw, 172px) minmax(0, 1fr);
+  gap: clamp(16px, 2.2vw, 30px);
+  padding: clamp(16px, 1.9vw, 26px);
+  border: 1px solid rgba(234, 240, 247, 0.42);
+  background-color: var(--deep);
+  color: inherit;
+  text-decoration: none;
+  transition:
+    border-color 420ms var(--ease),
+    background-color 420ms var(--ease),
+    box-shadow 420ms var(--ease);
+}
+
+.partFrame:is(:hover, :focus-visible) {
+  --corner: #eaf0f7;
+  border-color: rgba(234, 240, 247, 0.95);
+  background-color: var(--deeper);
+  box-shadow:
+    0 0 0 1px rgba(234, 240, 247, 0.16),
+    inset 0 0 70px rgba(168, 187, 209, 0.09);
+}
+
+.partFrame:focus-visible {
+  outline: 1px solid var(--line);
+  outline-offset: 3px;
+}
+
+.part:has(.partFrame:is(:hover, :focus-visible)) .balloon {
+  border-color: var(--line);
+}
+
+.part:has(.partFrame:is(:hover, :focus-visible)) .leader {
+  background-color: rgba(234, 240, 247, 0.85);
+}
+
+.partFrameVacant {
+  --corner: rgba(234, 240, 247, 0.38);
+  border-style: dashed;
+  border-color: rgba(234, 240, 247, 0.3);
+}
+
+/* 隅の補強記号 */
+.corners {
+  position: absolute;
+  inset: -1px;
+  pointer-events: none;
+  background-image:
+    linear-gradient(var(--corner), var(--corner)),
+    linear-gradient(var(--corner), var(--corner)),
+    linear-gradient(var(--corner), var(--corner)),
+    linear-gradient(var(--corner), var(--corner)),
+    linear-gradient(var(--corner), var(--corner)),
+    linear-gradient(var(--corner), var(--corner)),
+    linear-gradient(var(--corner), var(--corner)),
+    linear-gradient(var(--corner), var(--corner));
+  background-repeat: no-repeat;
+  background-size:
+    1px 13px,
+    13px 1px,
+    1px 13px,
+    13px 1px,
+    1px 13px,
+    13px 1px,
+    1px 13px,
+    13px 1px;
+  background-position:
+    left top,
+    left top,
+    right top,
+    right top,
+    left bottom,
+    left bottom,
+    right bottom,
+    right bottom;
+}
+
+/* 標本窓 — 光で焼いた実物の影 */
+.spec {
+  position: relative;
+  align-self: start;
+  overflow: hidden;
+  aspect-ratio: 4 / 3;
+  border: 1px solid rgba(234, 240, 247, 0.32);
+  background-color: var(--deeper);
+}
+
+.photogram {
+  position: absolute;
+  inset: 0;
+  background-image: var(--spec-img);
+  background-size: 190%;
+  background-position: 54% 46%;
+  /* 反転して焼く。紙は沈み、墨だけが白い線として抜ける = 感光の陰画 */
+  filter: invert(1) grayscale(1) contrast(1.45) brightness(1.05);
+  mix-blend-mode: screen;
+  opacity: 0.62;
+  transition: opacity 500ms var(--ease);
+}
+
+.partFrame:is(:hover, :focus-visible) .photogram {
+  opacity: 0.92;
+}
+
+/* 未着工の区画はハッチング */
+.specHatch {
+  border-style: dashed;
+  border-color: rgba(234, 240, 247, 0.24);
+  background-image: repeating-linear-gradient(
+    45deg,
+    transparent 0 8px,
+    rgba(234, 240, 247, 0.14) 8px 9px
+  );
+}
+
+.specLabel {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  padding: 3px 6px 4px;
+  background: rgba(11, 28, 54, 0.82);
+  font-size: 8px;
+  letter-spacing: 0.2em;
+  color: var(--line-soft);
+}
+
+.partBody {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.partHead {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.cat {
+  font-size: 10px;
+  letter-spacing: 0.34em;
+  color: var(--line);
+}
+
+.headDash {
+  flex: 1;
+  height: 1px;
+  background: rgba(234, 240, 247, 0.22);
+}
+
+.ref {
+  font-size: 9px;
+  letter-spacing: 0.18em;
+  color: var(--line-soft);
+}
+
+.partTitle {
+  margin: clamp(10px, 1.2vw, 15px) 0 0;
+  font-family: var(--jp);
+  font-weight: 400;
+  font-size: clamp(1.05rem, 1.7vw, 1.4rem);
+  line-height: 1.4;
+  letter-spacing: 0.1em;
+  color: var(--line);
+}
+
+.partDesc {
+  margin: clamp(8px, 1vw, 12px) 0 0;
+  max-width: 54ch;
+  font-family: var(--jp);
+  font-weight: 300;
+  font-size: clamp(0.78rem, 0.92vw, 0.855rem);
+  line-height: 2;
+  letter-spacing: 0.06em;
+  color: var(--line-soft);
+}
+
+.vacantText {
+  margin: clamp(12px, 1.4vw, 18px) 0 0;
+  font-family: var(--jp);
+  font-weight: 300;
+  font-size: clamp(0.8rem, 0.95vw, 0.875rem);
+  line-height: 1.9;
+  letter-spacing: 0.1em;
+  color: var(--line-soft);
+}
+
+/* 材料欄 */
+.mat {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 6px 12px;
+  margin-top: auto;
+  padding-top: clamp(14px, 1.6vw, 20px);
+  border-top: 1px solid rgba(234, 240, 247, 0.18);
+}
+
+.matLabel {
+  font-size: 9px;
+  letter-spacing: 0.2em;
+  color: var(--line-soft);
+}
+
+.matList {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0 10px;
+  min-width: 0;
+}
+
+.matItem {
+  position: relative;
+  padding-left: 11px;
+  font-size: clamp(9px, 0.72vw, 10.5px);
+  letter-spacing: 0.14em;
+  color: var(--line);
+}
+
+.matItem::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0.15em;
+  width: 1px;
+  height: 0.95em;
+  background: rgba(234, 240, 247, 0.35);
+}
+
+.matItem:first-child {
+  padding-left: 0;
+}
+
+.matItem:first-child::before {
+  display: none;
+}
+
+.matItemNone {
+  color: var(--line-soft);
+}
+
+.matDim {
+  margin-left: auto;
+  font-size: 9px;
+  letter-spacing: 0.2em;
+  color: var(--line-soft);
+}
+
+/* 注記（朱）。触れると現れ、引出線が部品を指す */
+.annot {
+  position: absolute;
+  right: clamp(20px, 2.4vw, 34px);
+  bottom: 100%;
+  display: flex;
+  align-items: flex-end;
+  gap: 9px;
+  opacity: 0;
+  transform: translateY(5px);
+  pointer-events: none;
+  transition:
+    opacity 380ms var(--ease),
+    transform 380ms var(--ease);
+}
+
+.partFrame:is(:hover, :focus-visible) .annot {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.annotText {
+  padding-bottom: 5px;
+  font-family: var(--jp);
+  font-size: 10px;
+  line-height: 1.4;
+  letter-spacing: 0.16em;
+  color: var(--rev-text);
+  white-space: nowrap;
+}
+
+/* 部品を指す引出線。先端が枠の上辺に触れる */
+.annotArrow {
+  position: relative;
+  display: block;
+  width: 1px;
+  height: 17px;
+  background: var(--rev);
+}
+
+.annotArrow::after {
+  content: "";
+  position: absolute;
+  bottom: -1px;
+  left: -3px;
+  border-top: 6px solid var(--rev);
+  border-left: 3.5px solid transparent;
+  border-right: 3.5px solid transparent;
+}
+
+/* ─────────────────────────────────────────────
+   脚注と表題欄
+   ───────────────────────────────────────────── */
+
+.foot {
+  margin-top: auto;
+  padding-top: clamp(24px, 3vw, 40px);
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: clamp(20px, 3vw, 44px);
+  flex-wrap: wrap;
+  animation: aoyaki-fade 1000ms var(--ease) 740ms both;
+}
+
+.footLeft {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.footNote {
+  font-family: var(--jp);
+  font-weight: 300;
+  font-size: 0.75rem;
+  letter-spacing: 0.16em;
+  line-height: 1.8;
+  color: var(--line-soft);
+}
+
+.back {
+  width: fit-content;
+  padding-bottom: 3px;
+  font-family: var(--jp);
+  font-size: 11px;
+  letter-spacing: 0.2em;
+  color: var(--line-soft);
+  text-decoration: none;
+  border-bottom: 1px solid rgba(168, 187, 209, 0.4);
+  transition:
+    color 300ms var(--ease),
+    border-color 300ms var(--ease);
+}
+
+.back:is(:hover, :focus-visible) {
+  color: var(--line);
+  border-color: var(--line);
+}
+
+.back:focus-visible {
+  outline: 1px solid var(--line);
+  outline-offset: 4px;
+}
+
+/* 表題欄（TITLE BLOCK） */
+.titleBlock {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  width: min(420px, 100%);
+  border: 1px solid rgba(234, 240, 247, 0.55);
+  background-color: var(--deep);
+}
+
+.tbCell {
+  position: relative;
+  min-width: 0;
+  padding: 8px 11px 9px;
+  border-top: 1px solid rgba(234, 240, 247, 0.28);
+  border-left: 1px solid rgba(234, 240, 247, 0.28);
+}
+
+.tbCell:nth-child(1),
+.tbCell:nth-child(2) {
+  border-top: 0;
+}
+
+.tbCell:nth-child(1),
+.tbCell:nth-child(3),
+.tbCell:nth-child(4) {
+  border-left: 0;
+}
+
+.tbName {
+  grid-column: span 2;
+  padding-bottom: 11px;
+}
+
+.tbRev {
+  grid-column: span 1;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.tbTitle {
+  grid-column: 1 / -1;
+}
+
+.tbKey {
+  display: block;
+  font-size: 7.5px;
+  letter-spacing: 0.24em;
+  color: var(--line-soft);
+}
+
+.tbVal {
+  display: block;
+  margin-top: 5px;
+  font-size: clamp(9.5px, 0.8vw, 11px);
+  letter-spacing: 0.12em;
+  color: var(--line);
+}
+
+.tbTitle .tbVal {
+  font-family: var(--jp);
+  font-weight: 300;
+  letter-spacing: 0.1em;
+}
+
+.tbMark {
+  display: block;
+  margin-top: 6px;
+  font-family: var(--aoyaki-cond), var(--aoyaki-mono), sans-serif;
+  font-weight: 400;
+  font-size: clamp(1.25rem, 2vw, 1.7rem);
+  line-height: 1;
+  letter-spacing: 0.16em;
+  color: var(--line);
+}
+
+.tbSub {
+  display: block;
+  margin-top: 5px;
+  font-size: 9px;
+  letter-spacing: 0.2em;
+  color: var(--line-soft);
+}
+
+/* 改訂記号 — 画面で唯一の朱の図形 */
+.tbRevMark {
+  margin-top: 8px;
+  width: 0;
+  height: 0;
+  border-left: 6px solid transparent;
+  border-right: 6px solid transparent;
+  border-bottom: 10px solid var(--rev);
+}
+
+.tbRevVal {
+  margin-top: 6px;
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  color: var(--rev-text);
+}
+
+/* ─────────────────────────────────────────────
+   応答
+   ───────────────────────────────────────────── */
+
+/* 触れない画面では注記を常に出す */
+@media (hover: none) {
+  .annot {
+    position: static;
+    grid-column: 1 / -1;
+    margin-top: 0;
+    opacity: 1;
+    transform: none;
+  }
+
+  .annotText {
+    padding-bottom: 0;
+    white-space: normal;
+  }
+
+  .annotArrow {
+    display: none;
+  }
+}
+
+@media (max-width: 900px) {
+  .sheet {
+    --gut: 34px;
+  }
+
+  .headLower {
+    display: block;
+  }
+
+  .legend {
+    display: none;
+  }
+
+  .parts {
+    padding-left: 0;
+  }
+
+  .vdim {
+    display: none;
+  }
+
+  .balloon {
+    top: 14px;
+    width: 22px;
+    height: 22px;
+    font-size: 9px;
+  }
+
+  .leader {
+    top: 25px;
+    left: 23px;
+  }
+
+  .partFrame {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 16px;
+  }
+
+  .spec {
+    aspect-ratio: 16 / 5;
+  }
+
+  .annot {
+    position: static;
+    grid-column: 1 / -1;
+    margin-top: 0;
+    opacity: 1;
+    transform: none;
+  }
+
+  .annotText {
+    padding-bottom: 0;
+    white-space: normal;
+  }
+
+  .annotArrow {
+    display: none;
+  }
+
+  .foot {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .titleBlock {
+    order: -1;
+    width: 100%;
+  }
+}
+
+/* 狭い紙では材料欄の縦罫が行頭に落ちるので、罫を外して間隔で分ける */
+@media (max-width: 560px) {
+  .matList {
+    gap: 2px 16px;
+  }
+
+  .matItem {
+    padding-left: 0;
+  }
+
+  .matItem::before {
+    display: none;
+  }
+}
+
+@media (max-width: 480px) {
+  .plate {
+    padding-left: 14px;
+    padding-right: 14px;
+  }
+
+  .zoneTop span:nth-child(n + 6),
+  .zoneLeft span:nth-child(n + 5) {
+    display: none;
+  }
+
+  .tagJa {
+    letter-spacing: 0.1em;
+  }
+
+  .annotText {
+    white-space: normal;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sweep {
+    display: none;
+  }
+
+  .sheet *,
+  .sheet *::before,
+  .sheet *::after {
+    animation: none !important;
+    transition-duration: 1ms !important;
+  }
+}

@@ -1,0 +1,984 @@
+/*
+ * 墨付けの板図 — 原寸で板に打った下図
+ *
+ * 規律: この世界に「装飾の線」は一本も無い。ここで引かれる線は必ず
+ *   ① 寸法線（+ 寸法補助線） ② 基準線（通り芯・心墨・地墨） ③ 番付
+ *   のいずれかである。角丸・影のぼかし・グラデーションの縁取りは使わない。
+ *   面（材）だけが陰（--kage）を落とす。陰はぼけない。木は硬いから。
+ *
+ * 寸法の実在: 総丈 3640 = 910 + 455 + 910 + 455 + 910。
+ *   この数字は grid-template-columns にそのまま fr で入っている。
+ *   板図に書かれた寸法が、この画面の実寸である。線が先、木があと。
+ */
+
+.board {
+  /* 白木の杉 */
+  --ita: #efe7d8;
+  /* 木裏の陰 */
+  --kage: #d9ceb8;
+  /* 墨線 — ita 上で 14.1:1 */
+  --sumi: #1c1a17;
+  /* 薄墨 — ita 上で 4.66:1（AA 本文可） */
+  --usu: #6b6459;
+  /* 朱の印 — ita 上で 4.87:1（AA 本文可） */
+  --shu: #b23a2c;
+  /* 鉛筆の芯 — 2.97:1。文字には決して使わない。線専用 */
+  --enpitsu: #8a8578;
+
+  --rail: 5rem;
+  --pad: clamp(1.125rem, 3.2vw, 3rem);
+  --cols: 910fr 455fr 910fr 455fr 910fr;
+
+  --f-mark-stack: var(--f-mark), "Archivo Narrow", ui-sans-serif, system-ui,
+    sans-serif;
+  --f-fig-stack: var(--f-fig), ui-monospace, "SFMono-Regular", Menlo,
+    var(--font-noto-sans-jp), monospace;
+
+  /* 杉の柾目。縦に流れる木理。周期を互いに素にして反復を隠す。
+     板と部材の両方が同じ木理を持つ（ただし各々が自分の原点を持つ）。
+     木理は kage 13% を超えない。超えると本文が AA を割る */
+  --woodgrain: repeating-linear-gradient(
+      90deg,
+      transparent 0 3px,
+      rgba(217, 206, 184, 0.13) 3px 4px,
+      transparent 4px 12px,
+      rgba(217, 206, 184, 0.08) 12px 13px,
+      transparent 13px 24px,
+      rgba(217, 206, 184, 0.11) 24px 25px,
+      transparent 25px 31px
+    ),
+    repeating-linear-gradient(
+      90deg,
+      transparent 0 61px,
+      rgba(138, 133, 120, 0.045) 61px 62px,
+      transparent 62px 149px
+    ),
+    repeating-linear-gradient(
+      90deg,
+      transparent 0 97px,
+      rgba(217, 206, 184, 0.1) 97px 99px,
+      transparent 99px 211px
+    );
+
+  /* 墨壺の糸が弾いた線。ところどころ糸が浮いてかすれる */
+  --snap: repeating-linear-gradient(
+    90deg,
+    var(--sumi) 0 37px,
+    rgba(28, 26, 23, 0.62) 37px 41px,
+    var(--sumi) 41px 97px,
+    rgba(28, 26, 23, 0.78) 97px 100px,
+    var(--sumi) 100px 173px,
+    rgba(28, 26, 23, 0.7) 173px 176px
+  );
+
+  position: relative;
+  min-height: 100dvh;
+  overflow: hidden;
+  background-color: var(--ita);
+  color: var(--sumi);
+  font-feature-settings: "palt" 1;
+}
+
+/* ─── 板そのものの木理 ────────────────────────────────────────────── */
+.grain {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background-image: var(--woodgrain);
+}
+
+/* ─── 板の縁（木口） ────────────────────────────────────────────────── */
+.edges {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  pointer-events: none;
+  background-image: linear-gradient(
+    90deg,
+    var(--kage) 0 5px,
+    rgba(28, 26, 23, 0.5) 5px 6px,
+    transparent 6px calc(100% - 6px),
+    rgba(28, 26, 23, 0.5) calc(100% - 6px) calc(100% - 5px),
+    var(--kage) calc(100% - 5px) 100%
+  );
+}
+
+.inner {
+  position: relative;
+  z-index: 1;
+  max-width: 1240px;
+  margin: 0 auto;
+  padding: clamp(26px, 3.6vw, 46px) var(--pad) 0;
+}
+
+/* ═══ 寸法線の原型 ══════════════════════════════════════════════════════
+   建築図の作法にならい、端は矢印でなく 45° の斜線（スラッシュ）。
+   寸法数字は線の上に、線を切らずに書く。 */
+.dimH {
+  position: relative;
+  height: 1px;
+  background-color: var(--dim-line, var(--sumi));
+}
+
+.dimH::before,
+.dimH::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  width: 12px;
+  height: 1px;
+  background-color: var(--dim-line, var(--sumi));
+}
+
+.dimH::before {
+  left: 0;
+  transform: translate(-50%, -50%) rotate(-45deg);
+}
+
+.dimH::after {
+  right: 0;
+  transform: translate(50%, -50%) rotate(-45deg);
+}
+
+.dimFig {
+  position: absolute;
+  left: 50%;
+  bottom: 100%;
+  transform: translateX(-50%);
+  margin-bottom: 5px;
+  white-space: nowrap;
+  font-family: var(--f-fig-stack);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  line-height: 1;
+  color: var(--sumi);
+}
+
+/* ═══ 天端の基準線と目盛 ════════════════════════════════════════════════ */
+/* 目盛は寸法欄（rail）の右から始まる。0〜3640 が段組みの実幅と一致するので、
+   下の寸法チェーン 910+455+910+455+910 がこの目盛にそのまま乗る */
+.scale {
+  margin-left: var(--rail);
+  margin-bottom: 4px;
+}
+
+.scaleTotal {
+  margin-bottom: 26px;
+}
+
+.scaleBar {
+  position: relative;
+  height: 30px;
+}
+
+.scaleTicks {
+  position: absolute;
+  inset: 0 0 auto;
+  height: 16px;
+  background-image:
+    var(--snap),
+    repeating-linear-gradient(
+      90deg,
+      var(--sumi) 0 1.25px,
+      transparent 1.25px 25%
+    ),
+    repeating-linear-gradient(
+      90deg,
+      var(--enpitsu) 0 1px,
+      transparent 1px 3.125%
+    );
+  background-size:
+    auto 1.5px,
+    100% 16px,
+    100% 9px;
+  background-position:
+    left top,
+    left top,
+    left top;
+  background-repeat: repeat-x, no-repeat, no-repeat;
+}
+
+/* 目盛の終端（repeating-gradient は右端を描かない） */
+.scaleBar::after {
+  content: "";
+  position: absolute;
+  right: 0;
+  top: 0;
+  width: 1.25px;
+  height: 16px;
+  background-color: var(--sumi);
+}
+
+.scaleFig {
+  position: absolute;
+  top: 20px;
+  font-family: var(--f-fig-stack);
+  font-size: 10.5px;
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  line-height: 1;
+  color: var(--usu);
+}
+
+/* ═══ 板面の段組み。一・二・三 ═══════════════════════════════════════════ */
+.sheet {
+  display: grid;
+  grid-template-columns: var(--rail) minmax(0, 1fr);
+  /* 段の丈もまた寸法である。1200 : 1800 : 400 は左の寸法欄に書いた数字と同じ比。
+     書いた寸法どおりに段が割れる。図が先、画面があと */
+  grid-template-rows: 1200fr 1800fr 400fr;
+  min-height: min(820px, 72vh);
+  margin-top: 30px;
+}
+
+.hero,
+.works,
+.foot {
+  position: relative;
+  grid-column: 2;
+}
+
+/* 段の基準線（通り芯・横）。番付の丸から板の右端まで走る */
+.hero::before,
+.works::before,
+.foot::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: calc(-1 * var(--rail));
+  right: 0;
+  height: 1px;
+  background-color: var(--enpitsu);
+}
+
+/* 段の番付。通り芯符号は丸で書く */
+.rowMark {
+  position: absolute;
+  top: 0;
+  left: calc(-1 * var(--rail));
+  transform: translateY(-50%);
+  z-index: 2;
+  display: grid;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  border: 1.25px solid var(--shu);
+  border-radius: 50%;
+  background-color: var(--ita);
+  color: var(--shu);
+  font-size: 12.5px;
+  font-weight: 500;
+  line-height: 1;
+}
+
+/* 段の丈（縦の寸法）。左の余白は余白ではなく寸法欄である */
+.dimV {
+  position: absolute;
+  top: 22px;
+  bottom: 22px;
+  left: calc(-1 * var(--rail) + 40px);
+  width: 1px;
+  background-color: var(--sumi);
+}
+
+.dimVFlush {
+  top: 0;
+  bottom: 0;
+}
+
+.dimV::before,
+.dimV::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  width: 1px;
+  height: 12px;
+  background-color: var(--sumi);
+}
+
+.dimV::before {
+  top: 0;
+  transform: translate(-50%, -50%) rotate(-45deg);
+}
+
+.dimV::after {
+  bottom: 0;
+  transform: translate(-50%, 50%) rotate(-45deg);
+}
+
+.dimVFig {
+  position: absolute;
+  left: 7px;
+  top: 50%;
+  transform: translateY(-50%) rotate(180deg);
+  writing-mode: vertical-rl;
+  font-family: var(--f-fig-stack);
+  font-size: 10.5px;
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  line-height: 1;
+  color: var(--usu);
+}
+
+/* ═══ 一段目 — ワードマーク ═══════════════════════════════════════════ */
+.hero {
+  display: grid;
+  grid-template-columns: var(--cols);
+  align-items: start;
+  padding: 34px 0 46px;
+}
+
+.heroMain {
+  grid-column: 1 / 4;
+  min-width: 0;
+}
+
+.wordRow {
+  display: flex;
+  align-items: flex-end;
+  flex-wrap: wrap;
+}
+
+.word {
+  margin: 0;
+  font-family: var(--f-mark-stack);
+  font-weight: 800;
+  font-variation-settings: "wdth" 80;
+  font-size: clamp(3.05rem, 8.5vw, 6.75rem);
+  line-height: 0.85;
+  letter-spacing: -0.015em;
+  color: var(--sumi);
+}
+
+/* Showcase は引出線の先に書かれた注記である */
+.sub {
+  position: relative;
+  margin-left: 56px;
+  padding-bottom: 0.42em;
+  white-space: nowrap;
+  font-family: var(--f-fig-stack);
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.26em;
+  line-height: 1;
+  color: var(--usu);
+}
+
+.sub::before {
+  content: "";
+  position: absolute;
+  left: -56px;
+  bottom: 0.92em;
+  width: 48px;
+  height: 1px;
+  background-color: var(--sumi);
+}
+
+/* 引出線の起点は朱の点で押さえる */
+.sub::after {
+  content: "";
+  position: absolute;
+  left: -58px;
+  bottom: calc(0.92em - 2px);
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background-color: var(--shu);
+}
+
+.tagEn {
+  margin: 30px 0 0;
+  font-family: var(--f-fig-stack);
+  font-size: clamp(11.5px, 1vw, 13.5px);
+  font-weight: 500;
+  letter-spacing: 0.22em;
+  line-height: 1.5;
+  color: var(--usu);
+}
+
+.tagJa {
+  position: relative;
+  margin: 16px 0 0;
+  padding-left: 22px;
+  max-width: 30em;
+  font-size: clamp(1rem, 1.45vw, 1.1875rem);
+  font-weight: 500;
+  line-height: 1.85;
+  letter-spacing: 0.02em;
+  color: var(--sumi);
+}
+
+.tagJaMark {
+  position: absolute;
+  left: 0;
+  top: 0.88em;
+  width: 13px;
+  height: 1.5px;
+  background-color: var(--shu);
+}
+
+/* ─── 表題欄 ───────────────────────────────────────────────────────── */
+.titleBlock {
+  grid-column: 5;
+  margin: 6px 0 0;
+  border: 1.25px solid var(--sumi);
+  background-color: var(--ita);
+  font-size: 10.5px;
+  line-height: 1.5;
+}
+
+.tbRow {
+  display: grid;
+  grid-template-columns: 4.2em minmax(0, 1fr);
+  border-top: 1px solid var(--sumi);
+}
+
+.tbRow:first-child {
+  border-top: 0;
+}
+
+.tbRow dt {
+  padding: 7px 6px;
+  border-right: 1px solid var(--sumi);
+  letter-spacing: 0.18em;
+  color: var(--usu);
+}
+
+.tbRow dd {
+  margin: 0;
+  padding: 7px 8px;
+  font-family: var(--f-fig-stack);
+  letter-spacing: 0.06em;
+  color: var(--sumi);
+}
+
+/* ═══ 二段目 — 刻む部材 ══════════════════════════════════════════════ */
+/* 材は書かれた丈（1800）いっぱいに立つ。寸法は飾りではなく、実際の高さ */
+.works {
+  display: flex;
+  flex-direction: column;
+  padding: 34px 0 44px;
+}
+
+.chain {
+  display: grid;
+  grid-template-columns: var(--cols);
+  align-items: end;
+  margin-bottom: 50px;
+}
+
+.piecesWrap {
+  position: relative;
+  flex: 1;
+}
+
+/* 通り芯（い・ろ・は）と寸法補助線。材が来る前から板の上にある線 */
+.axes {
+  position: absolute;
+  inset: -26px 0;
+  z-index: 0;
+  display: grid;
+  grid-template-columns: var(--cols);
+  pointer-events: none;
+}
+
+.axis {
+  position: relative;
+  border-left: 1px solid var(--enpitsu);
+}
+
+.aux {
+  border-left: 1px dashed var(--enpitsu);
+}
+
+.auxEnd {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  border-left: 1px dashed var(--enpitsu);
+}
+
+.axisMark {
+  position: absolute;
+  top: -13px;
+  left: -13px;
+  display: grid;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  border: 1.25px solid var(--shu);
+  border-radius: 50%;
+  background-color: var(--ita);
+  color: var(--shu);
+  font-size: 12.5px;
+  font-weight: 500;
+  line-height: 1;
+}
+
+.pieces {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: var(--cols);
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.piece {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+}
+
+/* 部材ごとの見付寸法。desktop では上のチェーンが担うので出さない */
+.pieceDim {
+  display: none;
+}
+
+/* ─── 材の面 ───────────────────────────────────────────────────────── */
+.face {
+  position: relative;
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  padding: 34px 20px 22px;
+  border: 1.25px solid var(--sumi);
+  background-color: var(--ita);
+  /* 材は板とは別の一枚。だから木理の原点も別に持つ */
+  background-image: var(--woodgrain);
+  color: var(--sumi);
+  text-decoration: none;
+  /* 木裏の陰。木は硬いので影はぼけない */
+  box-shadow: 7px 7px 0 var(--kage);
+}
+
+/* 小口（木の切り口）。木口面は年輪が立つので木理の向きが変わる */
+.kokuchi {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 11px;
+  border-bottom: 1px solid var(--sumi);
+  background-color: var(--kage);
+  background-image: repeating-linear-gradient(
+    90deg,
+    rgba(28, 26, 23, 0.1) 0 1px,
+    transparent 1px 7px,
+    rgba(28, 26, 23, 0.055) 7px 8px,
+    transparent 8px 19px
+  );
+}
+
+/* 心墨。触れたときに立つ朱の基準線 */
+.shinzumi {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: -1.25px;
+  width: 1.5px;
+  transform: scaleY(0);
+  transform-origin: top center;
+  background-color: var(--shu);
+}
+
+/* 材に書く番付。小口に捺す */
+.ban {
+  position: absolute;
+  top: -1.25px;
+  right: -1.25px;
+  z-index: 2;
+  display: grid;
+  place-items: center;
+  min-width: 44px;
+  height: 30px;
+  padding: 0 7px;
+  border: 1.5px solid var(--shu);
+  background-color: var(--ita);
+  color: var(--shu);
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  line-height: 1;
+}
+
+/* 朱肉の滲み */
+.ban::after {
+  content: "";
+  position: absolute;
+  inset: -3px;
+  z-index: -1;
+  background-color: var(--shu);
+  filter: blur(4px);
+  opacity: 0;
+}
+
+.banVoid {
+  border-style: dashed;
+  background-color: transparent;
+}
+
+.cat {
+  margin-bottom: 15px;
+  font-family: var(--f-fig-stack);
+  font-size: 10.5px;
+  font-weight: 500;
+  letter-spacing: 0.3em;
+  line-height: 1;
+  color: var(--usu);
+}
+
+.title {
+  margin: 0;
+  max-width: 22em;
+  font-size: clamp(1.0625rem, 1.45vw, 1.375rem);
+  font-weight: 700;
+  line-height: 1.42;
+  letter-spacing: -0.005em;
+  color: var(--sumi);
+  word-break: auto-phrase;
+}
+
+.desc {
+  margin: 13px 0 0;
+  /* 一行に流す字数は材の幅ではなく読みが決める */
+  max-width: 31em;
+  font-size: clamp(0.8125rem, 1vw, 0.875rem);
+  line-height: 1.92;
+  letter-spacing: 0.01em;
+  color: var(--usu);
+  word-break: auto-phrase;
+}
+
+.tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 20px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.tag {
+  padding: 3px 6px;
+  border: 1px solid var(--enpitsu);
+  background-color: var(--ita);
+  font-family: var(--f-fig-stack);
+  font-size: 10.5px;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  line-height: 1.4;
+  color: var(--sumi);
+}
+
+.cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  margin-top: auto;
+  padding-top: 24px;
+  font-size: 12.5px;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  line-height: 1;
+  color: var(--shu);
+}
+
+.ctaTick {
+  position: relative;
+  display: inline-block;
+  width: 16px;
+  height: 1.5px;
+  background-color: currentColor;
+}
+
+.ctaTick::before,
+.ctaTick::after {
+  content: "";
+  position: absolute;
+  right: 0;
+  top: 0;
+  width: 7px;
+  height: 1.5px;
+  transform-origin: right center;
+  background-color: currentColor;
+}
+
+.ctaTick::before {
+  transform: rotate(-38deg);
+}
+
+.ctaTick::after {
+  transform: rotate(38deg);
+}
+
+/* ─── 未刻の間（は通り）。線だけが先にある ────────────────────────── */
+/* 材はまだ無い。だが線はもう引かれている。だから輪郭は薄墨で確かに見える */
+.faceVoid {
+  border: 1.25px dashed var(--usu);
+  background-color: transparent;
+  background-image: none;
+  box-shadow: none;
+}
+
+.voidNote {
+  margin: 0;
+  max-width: 31em;
+  font-size: clamp(0.8125rem, 1vw, 0.875rem);
+  line-height: 1.92;
+  letter-spacing: 0.01em;
+  color: var(--usu);
+  word-break: auto-phrase;
+}
+
+.voidState {
+  margin-top: auto;
+  padding-top: 24px;
+  font-family: var(--f-fig-stack);
+  font-size: 10.5px;
+  font-weight: 500;
+  letter-spacing: 0.24em;
+  line-height: 1.4;
+  color: var(--usu);
+}
+
+/* ═══ 三段目 — 注記と地墨 ══════════════════════════════════════════════ */
+.foot {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 16px 28px;
+  padding: 30px 0 34px;
+}
+
+.note {
+  position: relative;
+  margin: 0;
+  padding-left: 22px;
+  font-size: 12.5px;
+  letter-spacing: 0.06em;
+  line-height: 1.7;
+  color: var(--usu);
+}
+
+.noteMark {
+  position: absolute;
+  left: 0;
+  top: 0.62em;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background-color: var(--shu);
+}
+
+.back {
+  font-family: var(--f-fig-stack);
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.16em;
+  line-height: 1;
+  color: var(--sumi);
+  text-decoration: none;
+  border-bottom: 1px solid var(--enpitsu);
+  padding-bottom: 4px;
+}
+
+.back:hover,
+.back:focus-visible {
+  color: var(--shu);
+  border-bottom-color: var(--shu);
+}
+
+/* 地墨。板の閉じ */
+.jizumi {
+  height: 1.5px;
+  margin-bottom: clamp(26px, 3.6vw, 44px);
+  background-image: var(--snap);
+  background-repeat: repeat-x;
+  background-size: auto 100%;
+}
+
+/* ═══ 触れる — 朱の印が捺される ═══════════════════════════════════════ */
+/* 材は動かない。印が捺され、心墨が立ち、陰がわずかに深くなるだけ */
+.face:not(.faceVoid):hover,
+.face:not(.faceVoid):focus-visible {
+  box-shadow: 10px 10px 0 var(--kage);
+}
+
+.face:not(.faceVoid):hover .ban,
+.face:not(.faceVoid):focus-visible .ban {
+  background-color: var(--shu);
+  color: var(--ita);
+}
+
+.face:not(.faceVoid):hover .ban::after,
+.face:not(.faceVoid):focus-visible .ban::after {
+  opacity: 0.34;
+}
+
+.face:not(.faceVoid):hover .shinzumi,
+.face:not(.faceVoid):focus-visible .shinzumi {
+  transform: scaleY(1);
+}
+
+.face:not(.faceVoid):hover .ctaTick,
+.face:not(.faceVoid):focus-visible .ctaTick {
+  width: 24px;
+}
+
+.face:focus-visible,
+.back:focus-visible {
+  outline: 2px solid var(--shu);
+  outline-offset: 4px;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .face,
+  .ban,
+  .ban::after,
+  .shinzumi,
+  .ctaTick,
+  .back {
+    transition:
+      transform 200ms cubic-bezier(0.2, 0.7, 0.3, 1),
+      box-shadow 200ms cubic-bezier(0.2, 0.7, 0.3, 1),
+      background-color 160ms linear,
+      border-color 160ms linear,
+      color 160ms linear,
+      opacity 220ms linear,
+      width 200ms cubic-bezier(0.2, 0.7, 0.3, 1);
+  }
+}
+
+/* ═══ 中盤（通りは 3 本のまま、寸法欄を詰める） ═══════════════════════ */
+@media (max-width: 1199px) {
+  .board {
+    --rail: 3.75rem;
+  }
+
+  .dimV {
+    left: calc(-1 * var(--rail) + 30px);
+  }
+
+  .face {
+    padding: 32px 16px 20px;
+  }
+
+  /* 幅が足りないので引出線は横から縦に振り替える。線の役目は変わらない */
+  .sub {
+    flex-basis: 100%;
+    margin-left: 2px;
+    margin-top: 20px;
+    padding-bottom: 0;
+  }
+
+  .sub::before {
+    left: 0;
+    bottom: auto;
+    top: -14px;
+    width: 1px;
+    height: 12px;
+  }
+
+  .sub::after {
+    left: -2px;
+    bottom: auto;
+    top: -19px;
+  }
+}
+
+/* ═══ 材を一列に積む ══════════════════════════════════════════════════ */
+@media (max-width: 959px) {
+  .board {
+    --rail: 2.5rem;
+  }
+
+  .sheet {
+    grid-template-rows: auto auto auto;
+    min-height: 0;
+  }
+
+  .rowMark {
+    width: 22px;
+    height: 22px;
+    font-size: 11px;
+  }
+
+  .dimV {
+    display: none;
+  }
+
+  .hero {
+    grid-template-columns: minmax(0, 1fr);
+    padding: 30px 0 40px;
+  }
+
+  .heroMain,
+  .titleBlock {
+    grid-column: 1;
+  }
+
+  /* 表題欄は図の隅に小さく収まるもの。画面幅いっぱいには広げない */
+  .titleBlock {
+    max-width: 17rem;
+    margin-top: 34px;
+    font-size: 10px;
+  }
+
+  .works {
+    padding: 30px 0 36px;
+  }
+
+  .chain,
+  .axes {
+    display: none;
+  }
+
+  .pieces {
+    grid-template-columns: minmax(0, 1fr);
+    height: auto;
+    row-gap: 52px;
+  }
+
+  .piece {
+    grid-column: 1 !important;
+  }
+
+  .pieceDim {
+    display: block;
+    margin-bottom: 24px;
+  }
+
+  /* 目盛は端と中央だけ残す */
+  .scaleFig:nth-child(3),
+  .scaleFig:nth-child(5) {
+    display: none;
+  }
+
+  .scaleTotal {
+    margin-bottom: 24px;
+  }
+}
+
+@media (max-width: 479px) {
+  .face {
+    padding: 32px 15px 20px;
+    box-shadow: 5px 5px 0 var(--kage);
+  }
+
+  .ban {
+    min-width: 40px;
+    height: 27px;
+    font-size: 12px;
+  }
+
+  .foot {
+    padding: 26px 0 30px;
+  }
+}
