@@ -46,73 +46,66 @@ function ring(
 
 const RECIPES: Recipe[] = [
   {
-    // ヒーロー: 藍一色の濃淡。深藍 → 灰青 → 紙白のトーンで組む
-    name: "hero",
+    // 潑墨: 画面いっぱいの濃い墨。ほぼ黒まで沈める
+    name: "sumi-dense",
     w: 2400,
     h: 1350,
-    dye: 0.05,
+    dye: 0.02,
     drops: [
-      ...ring(80, 0.30, 0.48, 0.15, 0.030, 1),
-      ...ring(70, 0.60, 0.54, 0.14, 0.028, 1),
-      ...ring(62, 0.84, 0.44, 0.12, 0.026, 1),
-      ...ring(44, 0.46, 0.80, 0.11, 0.024, 1),
-      ...ring(30, 0.14, 0.62, 0.10, 0.022, 1),
+      ...ring(110, 0.30, 0.48, 0.20, 0.036, 0),
+      ...ring(100, 0.62, 0.54, 0.19, 0.034, 0),
+      ...ring(90, 0.86, 0.44, 0.17, 0.032, 0),
+      ...ring(80, 0.46, 0.82, 0.16, 0.030, 0),
+      ...ring(70, 0.12, 0.60, 0.15, 0.028, 0),
     ],
     fans: [
-      { at: 0, strength: 1.4, phase: 0.4 },
-      { at: 40, strength: 1.0, phase: 2.4 },
-      { at: 90, strength: 0.6, phase: 4.6 },
+      { at: 0, strength: 1.2, phase: 0.4 },
+      { at: 40, strength: 0.8, phase: 2.4 },
     ],
     stirs: [
-      { at: 6, cx: 0.3, cy: 0.48, radius: 0.22, force: 0.05 },
-      { at: 24, cx: 0.62, cy: 0.54, radius: 0.2, force: -0.045 },
-      { at: 55, cx: 0.84, cy: 0.44, radius: 0.18, force: 0.04 },
-      { at: 95, cx: 0.5, cy: 0.6, radius: 0.34, force: 0.025 },
+      { at: 6, cx: 0.32, cy: 0.5, radius: 0.26, force: 0.05 },
+      { at: 30, cx: 0.66, cy: 0.5, radius: 0.24, force: -0.045 },
+      { at: 70, cx: 0.5, cy: 0.55, radius: 0.36, force: 0.03 },
+    ],
+    frames: 180,
+  },
+  {
+    // 巻子: 横に長く流れる墨絵
+    name: "sumi-wide",
+    w: 3200,
+    h: 900,
+    dye: 0.05,
+    drops: [
+      ...ring(46, 0.14, 0.5, 0.09, 0.030, 1),
+      ...ring(42, 0.34, 0.44, 0.08, 0.028, 0),
+      ...ring(44, 0.55, 0.56, 0.09, 0.028, 1),
+      ...ring(40, 0.76, 0.46, 0.08, 0.026, 0),
+      ...ring(34, 0.92, 0.54, 0.07, 0.024, 1),
+    ],
+    fans: [
+      { at: 0, strength: 2.2, phase: 0.3 },
+      { at: 50, strength: 1.4, phase: 0.3 },
+      { at: 110, strength: 0.8, phase: 0.3 },
+    ],
+    stirs: [
+      { at: 20, cx: 0.34, cy: 0.48, radius: 0.12, force: 0.04 },
+      { at: 60, cx: 0.72, cy: 0.52, radius: 0.11, force: -0.04 },
     ],
     frames: 210,
   },
   {
-    name: "sites",
-    w: 1600,
-    h: 1100,
-    dye: 0.05,
-    drops: [...ring(58, 0.5, 0.5, 0.13, 0.028, 1), ...ring(22, 0.46, 0.54, 0.06, 0.022, 1)],
-    fans: [
-      { at: 0, strength: 1.2, phase: 1.2 },
-      { at: 50, strength: 0.7, phase: 3.4 },
+    // 飛白: 紙が主。決定的な数筆だけ
+    name: "sumi-sparse",
+    w: 2000,
+    h: 1400,
+    dye: 0.22,
+    drops: [
+      ...ring(16, 0.38, 0.42, 0.05, 0.024, 0),
+      ...ring(10, 0.58, 0.62, 0.04, 0.020, 1),
     ],
-    stirs: [
-      { at: 8, cx: 0.5, cy: 0.5, radius: 0.2, force: 0.055 },
-      { at: 70, cx: 0.44, cy: 0.56, radius: 0.13, force: -0.04 },
-    ],
-    frames: 200,
-  },
-  {
-    // TOOLS は墨一色。灰の濃淡で硬く静かに
-    name: "tools",
-    w: 1600,
-    h: 1100,
-    dye: 0.06,
-    drops: [...ring(50, 0.48, 0.5, 0.13, 0.028, 0)],
-    fans: [
-      { at: 0, strength: 1.8, phase: 0.0 },
-      { at: 45, strength: 1.0, phase: 0.2 },
-    ],
-    stirs: [{ at: 20, cx: 0.5, cy: 0.5, radius: 0.24, force: 0.03 }],
-    frames: 190,
-  },
-  {
-    name: "games",
-    w: 1600,
-    h: 1100,
-    dye: 0.14,
-    drops: [...ring(20, 0.52, 0.5, 0.12, 0.020, 1)],
-    fans: [
-      { at: 0, strength: 1.0, phase: 3.1 },
-      { at: 40, strength: 0.6, phase: 0.7 },
-    ],
-    stirs: [{ at: 8, cx: 0.5, cy: 0.5, radius: 0.2, force: 0.04 }],
-    frames: 170,
+    fans: [{ at: 0, strength: 2.4, phase: 1.6 }],
+    stirs: [{ at: 10, cx: 0.45, cy: 0.5, radius: 0.14, force: 0.05 }],
+    frames: 150,
   },
 ];
 

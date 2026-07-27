@@ -1,0 +1,637 @@
+/* ==========================================================================
+   潑墨（はつぼく）— 画面が墨に沈む
+   --------------------------------------------------------------------------
+   構造 = 墨の量。
+
+   1. 地は /ink/sumi-dense.png の【中央の濃い帯】だけを拡大して全面に敷く。
+      端の紙白は画面外へ追い出す。トーンカーブ（contrast 2.45）で
+      墨は真黒へ潰し、元の白い筋だけを紙白の稲妻として残す。
+      floor #14140F の上に mix-blend-mode:screen で載せるので、
+      最も濃い墨は必ず #14140F、筋は紙白まで振り切る。
+
+   2. 墨は position:fixed。スクロールしても墨は動かない。
+      動くのは内容の方で、内容が墨の中を沈んでいく。
+
+   3. 文字は必ず「墨だまり」の上に置く。墨だまりは blur() で縁をぼかした
+      不定形の濃墨で、周囲の墨に溶けて継ぎ目が見えない。
+      これで白文字は元画像のどこに乗っても AA を割らない（実測 15.7:1）。
+
+   4. 作品は「墨を切り抜いた紙の窓」。触れると窓が広がり、墨が退く。
+
+   コントラスト実測（WCAG 2.1 相対輝度で計算）
+     紙白 #F4F1E8 / 墨だまり（α.945 が最悪の紙白の上に乗った場合 #161612）  16.1:1
+     紙白 #F4F1E8 / 同 α.80 まで劣化した縁                                 10.6:1
+     灰   #A9A79C / 墨だまり                                                8.4:1
+     墨   #14140F / 紙の窓 #F4F1E8                                         16.3:1
+     墨   #14140F / 紙の窓（閉じた状態 #EDE9DE）                            15.2:1
+     淡墨 #55534A / 紙の窓 #EDE9DE                                          6.3:1
+   ========================================================================== */
+
+.world {
+  /* ---- 墨と紙。色は一切使わない ---- */
+  --sumi-pool: 8, 8, 5; /* 墨だまりの原液 */
+  --sumi-0: #0a0a07;
+  --sumi-1: #14140f; /* 地の最も濃いところ */
+  --sumi-2: #1e1e18;
+  --sumi-3: #2a2a24;
+  --kami: #f4f1e8; /* 紙白 */
+  --kami-shut: #ede9de; /* 閉じている窓の紙（墨がまだ被っている） */
+  --hai: #a9a79c; /* 墨の上の副次 */
+  --tan: #55534a; /* 紙の上の副次（淡墨） */
+
+  --fj: var(--hb-mincho), "Hiragino Mincho ProN", "Yu Mincho", YuMincho,
+    "Noto Serif JP", serif;
+  --fl: var(--hb-label), ui-sans-serif, system-ui, sans-serif;
+
+  --ease: cubic-bezier(0.16, 1, 0.3, 1);
+  --gut: clamp(20px, 3vw, 48px);
+
+  position: relative;
+  /*
+   * 自前の重ね順を持つ。isolate が無いと z-index:-1 の墨が root へ抜け、
+   * .world 自身の不透明な地に上書きされて墨が消える。
+   */
+  isolation: isolate;
+  min-height: 100svh;
+  background: var(--sumi-1);
+  color: var(--kami);
+  font-family: var(--fj);
+}
+
+/* 框の世界の青いフォーカスリングを、この世界の中では墨と紙に置き換える */
+.world :focus-visible {
+  outline: 2px solid var(--kami);
+  outline-offset: 4px;
+}
+
+/* ==========================================================================
+   1. 地 — 画面いっぱいの墨
+   ========================================================================== */
+
+.ink {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  background: var(--sumi-1);
+  isolation: isolate;
+  pointer-events: none;
+}
+
+.ink > span {
+  position: absolute;
+  inset: 0;
+  display: block;
+}
+
+/*
+ * 濃い中心帯だけを使う。scale(1.24) で四隅の紙白を画面外へ出し、
+ * トーンカーブで墨を潰す。screen 合成なので黒は floor(#14140F) に落ちる。
+ */
+.inkField {
+  background: url("/ink/sumi-dense.png") center 46% / cover no-repeat;
+  /*
+   * トーンカーブ。ブラウザで実測して決めてある（canvas に同じ filter を
+   * かけ、画面と同じ切り取りのヒストグラムを取った）：
+   *   面積の 80%  … 底 rgb(18,18,18) に潰れる          = 濃い墨
+   *   面積の 14%  … 中間へ持ち上がる                  = 墨のむら
+   *   面積の 6%   … 200 超え、最大 rgb(236,231,221)    = 紙白の筋
+   * 最大値をわざと紙白 #F4F1E8 の手前で止め、白飛びさせない。
+   *
+   * 末尾の contrast(0.86) brightness(1.07) は「黒を #14140F まで持ち上げる」
+   * ためのもの。当初 mix-blend-mode:screen で床を敷いていたが、
+   * position:fixed + filter + transform + animation を持つ層に
+   * 混合モードまで載せると合成が重くなるので、同じ結果をカーブだけで出す。
+   * 実測: screen 版 floor rgb(20,20,20)/peak rgb(238,233,223) に対し
+   *       このカーブは floor rgb(18,18,18)/peak rgb(236,231,221)。
+   * blur(0.6px) は流体ソルバの走査線を消すためだけのもの。
+   */
+  filter: grayscale(1) brightness(0.68) contrast(2.55) sepia(0.18)
+    saturate(1.05) blur(0.6px) contrast(0.86) brightness(1.07);
+  transform: scale(1.24);
+  transform-origin: 52% 48%;
+  animation: hatsu 1600ms var(--ease) both;
+}
+
+/* 四周をさらに沈める。重心を画面の中央やや上に寄せる */
+.inkVignette {
+  background: radial-gradient(
+      128% 104% at 46% 42%,
+      rgba(10, 10, 7, 0) 34%,
+      rgba(10, 10, 7, 0.3) 72%,
+      rgba(10, 10, 7, 0.72) 100%
+    ),
+    linear-gradient(
+      to bottom,
+      rgba(10, 10, 7, 0.4) 0%,
+      rgba(10, 10, 7, 0) 18%,
+      rgba(10, 10, 7, 0) 78%,
+      rgba(10, 10, 7, 0.6) 100%
+    );
+}
+
+/* 紙の粒子。画像であることを消して墨と紙の物質に見せる */
+.inkGrain {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='180' height='180' filter='url(%23n)' opacity='0.5'/%3E%3C/svg%3E");
+  opacity: 0.07;
+}
+
+/* 潑ぐ。墨は画面の外から流れ込み、広がりきって止まる */
+@keyframes hatsu {
+  from {
+    opacity: 0;
+    transform: scale(1.62);
+    filter: grayscale(1) brightness(0.68) contrast(2.55) sepia(0.18)
+      saturate(1.05) blur(30px) contrast(0.86) brightness(1.07);
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* ==========================================================================
+   2. 墨だまり — 文字の下だけ墨を沈める層
+   --------------------------------------------------------------------------
+   矩形を blur() でぼかすので縁が羽根になり、周囲の墨に溶ける。
+   ::before が本体（α .945）、::after が周囲へ広がる暈し。
+   両者とも文字の実面積より必ず大きく取ってあるので、
+   文字が乗る場所の実効 α は 0.94 を下回らない。
+   ========================================================================== */
+
+.pool,
+.poolTight {
+  position: relative;
+  z-index: 0;
+  display: block;
+}
+
+.pool::before,
+.poolTight::before,
+.pool::after,
+.poolTight::after {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  pointer-events: none;
+}
+
+.pool::before {
+  inset: -56px -68px -62px -64px;
+  background: rgba(var(--sumi-pool), 0.945);
+  border-radius: 90px 34px 110px 30px;
+  filter: blur(44px);
+}
+
+.pool::after {
+  inset: -110px -150px -130px -130px;
+  background: rgba(var(--sumi-pool), 0.4);
+  border-radius: 40% 34% 46% 38% / 34% 44% 32% 42%;
+  filter: blur(84px);
+}
+
+.poolTight::before {
+  inset: -38px -46px -40px -44px;
+  background: rgba(var(--sumi-pool), 0.945);
+  border-radius: 56px 22px 64px 20px;
+  filter: blur(30px);
+}
+
+.poolTight::after {
+  inset: -78px -100px -84px -96px;
+  background: rgba(var(--sumi-pool), 0.4);
+  border-radius: 70px;
+  filter: blur(60px);
+}
+
+/* ==========================================================================
+   3. 紙面（内容）
+   ========================================================================== */
+
+/*
+ * .sheet は全幅の切り取り枠。墨だまりの羽根（blur した擬似要素）は
+ * スクロール可能領域を広げてしまうので、ここで画面幅に切る。
+ * 段組側に clip を掛けると本文欄の縁で羽根が切れて墨に縦の継ぎ目が出る。
+ * 画面端で切るぶんには継ぎ目は見えない。
+ * overflow-x:clip は overflow-y:visible と共存できる（hidden と違う）。
+ */
+.sheet {
+  position: relative;
+  z-index: 1;
+  overflow-x: clip;
+}
+
+.column {
+  max-width: 1240px;
+  margin-inline: auto;
+  padding: 0 var(--gut) clamp(56px, 9vh, 120px);
+}
+
+/* ---- 見出し ---- */
+
+.hero {
+  min-height: min(84svh, 780px);
+  display: flex;
+  align-items: center;
+  padding-block: clamp(72px, 14vh, 150px) clamp(40px, 8vh, 96px);
+}
+
+/* 墨だまりはワードマークの実幅に合わせる（文章はその中で短く折る） */
+.hero .pool {
+  width: fit-content;
+  max-width: 100%;
+  animation: rise 1100ms var(--ease) 380ms both;
+}
+
+.mark {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 0 clamp(14px, 2vw, 30px);
+}
+
+.wordmark {
+  font-family: var(--fj);
+  font-weight: 200;
+  font-size: clamp(2.3rem, 9.2vw, 7.25rem);
+  line-height: 0.95;
+  letter-spacing: 0.15em;
+  /* 字間を開けた分の右余りを詰める */
+  margin-right: -0.15em;
+  color: var(--kami);
+  text-wrap: nowrap;
+}
+
+.showcase {
+  font-family: var(--fl);
+  font-weight: 400;
+  font-size: clamp(0.6875rem, 1.1vw, 0.8125rem);
+  letter-spacing: 0.42em;
+  text-transform: uppercase;
+  color: var(--hai);
+  transform: translateY(-0.15em);
+}
+
+.tagEn {
+  margin-top: clamp(28px, 5vh, 56px);
+  font-family: var(--fj);
+  font-weight: 300;
+  font-size: clamp(1.375rem, 3.3vw, 2.5rem);
+  line-height: 1.3;
+  letter-spacing: 0.015em;
+  color: var(--kami);
+}
+
+.tagJa {
+  margin-top: clamp(12px, 1.6vh, 18px);
+  font-size: clamp(0.875rem, 1.35vw, 1.0625rem);
+  font-weight: 300;
+  line-height: 2;
+  letter-spacing: 0.08em;
+  color: var(--hai);
+}
+
+/* ---- 作品：墨の上の紙の窓 ---- */
+
+.works {
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  column-gap: var(--gut);
+}
+
+.slot {
+  min-width: 0;
+}
+
+/* 窓の位置は墨が決める。等間隔には並べない */
+.slotA {
+  grid-column: 1 / 8;
+}
+.slotB {
+  grid-column: 8 / 13;
+  margin-top: clamp(64px, 13vh, 168px);
+}
+.slotC {
+  grid-column: 2 / 10;
+  margin-top: clamp(56px, 11vh, 140px);
+}
+
+.window {
+  --o: 0; /* 窓の開き（0 = 閉じ, 1 = 開き） */
+  position: relative;
+  display: block;
+  isolation: isolate;
+  background: var(--kami-shut);
+  color: var(--sumi-1);
+  text-decoration: none;
+  transform: scale(calc(1 + 0.022 * var(--o)))
+    translateY(calc(-5px * var(--o)));
+  box-shadow:
+    0 0 0 1px rgba(244, 241, 232, calc(0.1 + 0.16 * var(--o))),
+    0 calc(26px + 18px * var(--o)) calc(52px + 34px * var(--o))
+      calc(-22px + 4px * var(--o)) rgba(0, 0, 0, 0.85),
+    0 0 calc(40px + 60px * var(--o)) rgba(10, 10, 7, 0.9);
+  transition:
+    transform 620ms var(--ease),
+    background-color 620ms var(--ease),
+    box-shadow 620ms var(--ease);
+  animation: cut 1200ms var(--ease) var(--delay) both;
+}
+
+.window:hover,
+.window:focus-visible {
+  --o: 1;
+  background: var(--kami);
+}
+
+.window:focus-visible {
+  outline: 2px solid var(--kami);
+  outline-offset: 6px;
+}
+
+/* 窓の外側の墨が紙にわずかに滲む。切り抜きが「貼った矩形」に見えないように */
+.window::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  box-shadow: inset 0 0 30px rgba(20, 20, 15, calc(0.16 - 0.1 * var(--o)));
+  transition: box-shadow 620ms var(--ease);
+}
+
+/*
+ * 紙に刷られた図版。地と同じ墨で刷ってある。
+ * multiply で重ねるのが要点 — 図版の紙地（ほぼ白）は窓の紙にそのまま吸われ、
+ * 墨の筆だけが残る。ここを不透明のまま置くと図版だけ白が浮き、
+ * 窓が「紙の窓」ではなく「白い板を貼った矩形」に見えてしまう。
+ * 窓には isolation:isolate があるので、混ざる相手は必ずこの窓の紙になる。
+ */
+.plate {
+  display: block;
+  height: clamp(120px, 21vw, 208px);
+  background: var(--plate) center 48% / cover no-repeat;
+  filter: grayscale(1) contrast(1.45);
+  mix-blend-mode: multiply;
+  transform: scale(calc(1 + 0.045 * var(--o)));
+  transform-origin: 50% 44%;
+  transition: transform 900ms var(--ease);
+}
+
+.paper {
+  display: block;
+  padding: clamp(18px, 2.2vw, 30px) clamp(20px, 2.4vw, 34px)
+    clamp(20px, 2.6vw, 32px);
+}
+
+.cat,
+.catDim {
+  display: block;
+  font-family: var(--fl);
+  font-weight: 400;
+  font-size: 0.6875rem;
+  letter-spacing: 0.44em;
+  text-transform: uppercase;
+}
+
+.cat {
+  color: var(--tan);
+}
+
+.title {
+  display: block;
+  margin-top: clamp(12px, 1.4vw, 18px);
+  font-family: var(--fj);
+  font-weight: 400;
+  font-size: clamp(1.0625rem, 1.65vw, 1.4375rem);
+  line-height: 1.5;
+  letter-spacing: 0.02em;
+  color: var(--sumi-1);
+}
+
+.desc {
+  display: block;
+  margin-top: clamp(9px, 1vw, 13px);
+  font-size: clamp(0.8125rem, 0.95vw, 0.875rem);
+  font-weight: 400;
+  line-height: 2;
+  letter-spacing: 0.03em;
+  color: var(--tan);
+}
+
+.tags {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  margin-top: clamp(16px, 1.9vw, 24px);
+  padding-top: clamp(12px, 1.4vw, 16px);
+  border-top: 1px solid rgba(20, 20, 15, 0.16);
+  gap: 0.55em 1.15em;
+}
+
+.tag {
+  font-family: var(--fl);
+  font-weight: 400;
+  font-size: 0.6875rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--tan);
+  white-space: nowrap;
+}
+
+.tag + .tag {
+  padding-left: 1.15em;
+  border-left: 1px solid rgba(20, 20, 15, 0.22);
+}
+
+/* ---- まだ切り抜かれていない窓 ---- */
+
+.uncut {
+  position: relative;
+  padding: clamp(26px, 3.6vw, 48px) 0 clamp(22px, 3vw, 38px);
+  animation: cut 1200ms var(--ease) 700ms both;
+}
+
+/* 切り込みだけが入っている。紙はまだ現れない */
+.score {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: min(58%, 240px);
+  height: 1px;
+  background: linear-gradient(
+    to right,
+    rgba(244, 241, 232, 0.55),
+    rgba(244, 241, 232, 0)
+  );
+}
+
+/* 墨だまりは文字の塊に合わせる。切り抜かれていない窓の幅には広げない */
+.uncut .poolTight {
+  width: fit-content;
+  max-width: 100%;
+}
+
+.catDim {
+  color: var(--hai);
+}
+
+.uncutNote {
+  display: block;
+  margin-top: clamp(12px, 1.4vw, 18px);
+  font-size: clamp(0.8125rem, 1.15vw, 0.9375rem);
+  font-weight: 300;
+  line-height: 2;
+  letter-spacing: 0.06em;
+  color: var(--hai);
+}
+
+/* ---- 足元 ---- */
+
+.foot {
+  margin-top: clamp(72px, 16vh, 190px);
+}
+
+.foot .poolTight {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 10px clamp(20px, 3vw, 40px);
+  width: fit-content;
+  max-width: 100%;
+  animation: rise 900ms var(--ease) 900ms both;
+}
+
+.footNote {
+  font-size: clamp(0.75rem, 1.05vw, 0.8125rem);
+  font-weight: 300;
+  line-height: 1.9;
+  letter-spacing: 0.09em;
+  color: var(--hai);
+}
+
+.back {
+  font-family: var(--fl);
+  font-size: 0.75rem;
+  font-weight: 400;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--kami);
+  text-decoration: none;
+  padding-bottom: 3px;
+  border-bottom: 1px solid rgba(244, 241, 232, 0.35);
+  transition: border-color 320ms var(--ease);
+}
+
+.back:hover {
+  border-bottom-color: var(--kami);
+}
+
+/* ==========================================================================
+   4. 登場 — 潑いだ墨が落ち着き、そこから窓が切られていく
+   ========================================================================== */
+
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(22px);
+  }
+}
+
+@keyframes cut {
+  from {
+    opacity: 0;
+    transform: translateY(30px) scale(0.985);
+  }
+}
+
+/* ==========================================================================
+   5. 375px — 墨は変わらない。窓が一列になるだけ
+   ========================================================================== */
+
+@media (max-width: 899px) {
+  .works {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .slotB,
+  .slotC {
+    margin-top: clamp(44px, 9vh, 88px);
+  }
+
+  .hero {
+    min-height: min(88svh, 720px);
+  }
+
+  .hero .pool {
+    max-width: 100%;
+  }
+
+  /*
+   * 墨だまりは必ず px で持つ。% だと上下の inset が要素の【高さ】に
+   * 対して解決されるので、文字数が少ない塊で不透明部が本文の内側へ
+   * 後退してしまう（375 で実測して踏んだ）。
+   * 右方向の張り出しは本文欄の余白（20px）より内側に留め、
+   * 横スクロールを出さない。
+   */
+  .pool::before {
+    inset: -44px -40px -46px -38px;
+    border-radius: 60px 22px 70px 20px;
+    filter: blur(30px);
+  }
+
+  .pool::after {
+    inset: -84px -80px -92px -78px;
+    filter: blur(58px);
+  }
+
+  .poolTight::before {
+    inset: -30px -36px -32px -34px;
+    border-radius: 42px 18px 48px 16px;
+    filter: blur(24px);
+  }
+
+  .poolTight::after {
+    inset: -58px -72px -62px -68px;
+    filter: blur(44px);
+  }
+
+  /*
+   * 縦長の画面ではさらに寄せて端の紙白を画面外へ追い出す。
+   * 併せて切り取りを右へずらす。中央のままだと画面上半分が
+   * ほぼ無地の濃墨になり、筋が一本も通らない。
+   */
+  .inkField {
+    background-position: 66% 50%;
+    transform: scale(1.34);
+  }
+}
+
+@media (max-width: 420px) {
+  .wordmark {
+    letter-spacing: 0.11em;
+    margin-right: -0.11em;
+  }
+}
+
+/* ==========================================================================
+   6. 動きを望まない人へ — 墨はもう落ちきっている
+   ========================================================================== */
+
+@media (prefers-reduced-motion: reduce) {
+  .world *,
+  .world *::before,
+  .world *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+
+  .window:hover,
+  .window:focus-visible {
+    transform: none;
+  }
+
+  .plate {
+    transform: none;
+  }
+}

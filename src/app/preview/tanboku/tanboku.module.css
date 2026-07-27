@@ -1,0 +1,565 @@
+/* ==========================================================================
+   淡墨（たんぼく）— 濃淡だけで階層を作る
+   --------------------------------------------------------------------------
+   この世界には色が一つも無い。線も一本も無い。角丸も、影も、枠も、罫も無い。
+   画面を成立させているのは墨の濃度 6 段だけ。
+
+     紙    #F5F2EA   L 0.889
+     極淡  #D8D4C9   L 0.659
+     淡墨  #A8A399   L 0.368
+     中墨  #6B675E   L 0.136
+     濃墨  #33302B   L 0.030
+     焦墨  #16150F   L 0.007
+
+   ── 構造の原理 ────────────────────────────────────────────────
+   ページ全体が一続きの墨のぼかしになっている。上端は紙、中央で墨が最も
+   深く沈み、下端でまた紙に戻る。区画（帯）はそれぞれ縦のグラデーション
+   一枚で塗られ、隣の帯と端点の濃度を必ず一致させてある。だから継ぎ目が
+   どこにも無い。境界は「線」ではなく「濃度が変わる速さ」だけで生まれる。
+
+   ── 濃度の梯子 ────────────────────────────────────────────────
+   見出し部から作品部へ降りる区間は、6 段の濃度そのものを踏み段にした。
+   各段は上 52% が正確な色で、残りで次の段へ滲む。世界の物差しを一度だけ
+   読者に見せてから、最後の段（焦墨）がそのまま作品の地になる。
+
+   ── 文字の階層（実測。すべて WCAG AA 4.5:1 以上）────────────
+   明るい地の上では墨を重ねる方向に、暗い地の上では墨を抜く方向に、
+   必ず同じ 3 段を使う。地から数えて 5 段・4 段・3 段離れた濃度。
+
+     地 = 紙    見出し 焦墨 16.35  本文 濃墨 11.74  補足 中墨  5.04
+     地 = 濃墨  見出し 紙   11.74  本文 極淡  8.87  補足 淡墨  5.23
+     地 = 焦墨  見出し 紙   16.35  本文 極淡 12.35  補足 淡墨  7.28
+     地 = 極淡  見出し 焦墨 12.35  本文 濃墨  8.87  （淡い地は 2 段しか
+                                                    持てない。これも濃度
+                                                    の物理なので従う）
+
+   淡墨(#A8A399) は紙の上では 2.24:1 しか出ない。だから淡墨は「暗い地の
+   上の補足」としてのみ使う。淡い色が淡いまま置ける場所は暗い地しか無い
+   ——それがこの世界の唯一の制約であり、構図の理由でもある。
+
+   ── 触れたとき ────────────────────────────────────────────────
+   作品の面は触れると一段濃くなる。地が沈むぶん文字のコントラストは必ず
+   上がる（劣化する組み合わせは存在しない）。同時に補足の淡墨が極淡へ
+   一段上がる。地は沈み、文字は浮く。
+   ========================================================================== */
+
+.world {
+  --paper: #f5f2ea;
+  --goku: #d8d4c9;
+  --tan: #a8a399;
+  --chu: #6b675e;
+  --no: #33302b;
+  --sho: #16150f;
+
+  /* 版面。段が下るごとに文字列が右へ退く（面の切れ目を線でなく位置で示す） */
+  --gutter: clamp(22px, 5.5vw, 104px);
+  --step: clamp(0px, 4.4vw, 88px);
+  --rung: clamp(46px, 5.2vh, 74px);
+
+  --ease: cubic-bezier(0.22, 1, 0.36, 1);
+  --fjp: var(--tanboku-mincho), "Hiragino Mincho ProN", "Yu Mincho", YuMincho,
+    "Noto Serif JP", "Shippori Mincho", serif;
+
+  position: relative;
+  isolation: isolate;
+  min-height: 100svh;
+  overflow-x: clip;
+  background-color: var(--paper);
+  color: var(--no);
+  font-family: var(--fjp);
+  font-weight: 400;
+  font-feature-settings: "palt" 1;
+}
+
+@media (max-width: 767px) {
+  .world {
+    --step: 0px;
+  }
+}
+
+/*
+ * 紙の目。大面積の淡いグラデーションは必ず縞（banding）を出すので、
+ * 装飾ではなく階調を成立させるために置く唯一の層。
+ */
+.world::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 6;
+  pointer-events: none;
+  opacity: 0.05;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)' opacity='0.5'/%3E%3C/svg%3E");
+}
+
+/* ---- 帯の共通。地が紙から滲み出てくる（唯一の登場モーション） ---- */
+
+.band {
+  position: relative;
+  isolation: isolate;
+  display: block;
+}
+
+/*
+ * 帯の丈は vh 由来なので端数を持つ。端数の境目には下地（紙）が 1px 覗いて、
+ * それがそのまま横一文字の白い罫に見えてしまう。1px だけ重ねて塞ぐ。
+ * 隣り合う帯は端点の濃度が一致しているので、重ねても絵は変わらない。
+ */
+.band + .band {
+  margin-top: -1px;
+}
+
+.band::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+  pointer-events: none;
+  background-color: var(--paper);
+  opacity: 0;
+  animation: soak 1150ms var(--ease) var(--delay, 0ms) backwards;
+}
+
+@keyframes soak {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+.inner {
+  position: relative;
+  z-index: 2;
+  flex: 1 1 auto;
+  min-width: 0;
+  padding-inline: var(--gutter);
+}
+
+/* ==========================================================================
+   一段目 — 紙。ここだけ墨が一滴も落ちていない
+   ========================================================================== */
+
+.head {
+  display: flex;
+  align-items: center;
+  min-height: clamp(400px, 62svh, 700px);
+  padding-block: clamp(64px, 10vh, 120px);
+  /* 左上にごく薄い明かり。紙より明るい方向にしか振らないので文字は必ず安全 */
+  background-image: radial-gradient(
+    128% 96% at 10% -6%,
+    #fbf9f4 0%,
+    var(--paper) 62%
+  );
+}
+
+.mark {
+  margin: 0;
+  font-size: clamp(2.6rem, 8.6vw, 5.75rem);
+  font-weight: 500;
+  line-height: 1;
+  letter-spacing: 0.2em;
+  /* 字間の最後の一つ分を版面に戻す */
+  margin-inline-end: -0.2em;
+  color: var(--sho);
+}
+
+.showcase {
+  display: block;
+  margin-top: clamp(14px, 1.6vh, 22px);
+  font-size: 0.6875rem;
+  font-weight: 400;
+  letter-spacing: 0.44em;
+  line-height: 1;
+  color: var(--chu);
+}
+
+.tagEn {
+  margin: clamp(48px, 7vh, 96px) 0 0;
+  font-size: 0.8125rem;
+  letter-spacing: 0.24em;
+  line-height: 1.8;
+  color: var(--chu);
+}
+
+.tagJa {
+  margin: clamp(14px, 1.8vh, 22px) 0 0;
+  max-width: 24em;
+  font-size: clamp(1.0625rem, 1.5vw, 1.375rem);
+  line-height: 2.05;
+  letter-spacing: 0.06em;
+  color: var(--no);
+}
+
+/* ==========================================================================
+   濃度の梯子 — 6 段。最後の段がそのまま作品の地になる
+   ========================================================================== */
+
+/*
+ * 段は 1 枚のグラデーションで塗る。踏み面（正確な濃度の平坦部）から蹴込み
+ * （次の濃度への滲み）へ移る所は smoothstep で微分連続にしてある。折れ点が
+ * 残ると Mach 帯が出て、それは目には「線」として見えてしまう。
+ * 停止色は 72 分割を丸めて書き出したもの（生成式は上の原理どおり）。
+ */
+.ladder {
+  display: flex;
+  flex-direction: column;
+  background-image: linear-gradient(
+    180deg,
+    #f5f2ea 0%,
+    #f5f2ea 11.11%,
+    #f4f1e9 12.5%,
+    #f1eee5 13.89%,
+    #ece9e0 15.28%,
+    #e7e3da 16.67%,
+    #e1ddd3 18.06%,
+    #dcd8ce 19.44%,
+    #d9d5ca 20.83%,
+    #d8d4c9 22.22%,
+    #d8d4c9 27.78%,
+    #d6d2c7 29.17%,
+    #d1cdc2 30.56%,
+    #c9c5ba 31.94%,
+    #c0bcb1 33.33%,
+    #b7b2a8 34.72%,
+    #afaaa0 36.11%,
+    #aaa59b 37.5%,
+    #a8a399 38.89%,
+    #a8a399 44.44%,
+    #a6a197 45.83%,
+    #9f9a90 47.22%,
+    #959087 48.61%,
+    #8a857c 50%,
+    #7e7a70 51.39%,
+    #747067 52.78%,
+    #6d6960 54.17%,
+    #6b675e 55.56%,
+    #6b675e 61.11%,
+    #69655c 62.5%,
+    #635f57 63.89%,
+    #5a564e 65.28%,
+    #4f4c45 66.67%,
+    #44413b 68.06%,
+    #3b3832 69.44%,
+    #35322d 70.83%,
+    #33302b 72.22%,
+    #33302b 77.78%,
+    #322f2a 79.17%,
+    #2f2c27 80.56%,
+    #2a2822 81.94%,
+    #25231d 83.33%,
+    #1f1d18 84.72%,
+    #1a1913 86.11%,
+    #171610 87.5%,
+    #16150f 88.89%,
+    #16150f 100%
+  );
+}
+
+/* 6 段は等高。踏み面の中心＝各段の中心なので、名はそこに置くだけでよい */
+.rung {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  flex: 0 0 auto;
+  height: var(--rung);
+  padding-inline: var(--gutter);
+}
+
+.rungLabel {
+  font-size: 0.65rem;
+  letter-spacing: 0.36em;
+  line-height: 1.75;
+}
+
+/* 各段の正確な色に対して AA を満たす側の墨で名を打つ */
+.onLight {
+  color: var(--sho);
+}
+.onDark {
+  color: var(--paper);
+}
+
+/* ==========================================================================
+   墨の谷 — 作品の面。二枚は線ではなく「濃度の腰（くびれ）」で分かれる
+   p1 は 焦墨→濃墨 で降り、p2 は 濃墨→焦墨 で戻る。境目の濃墨がいちばん
+   淡く、そこだけ文字を置かない。空白そのものが仕切りになる。
+   ========================================================================== */
+
+.plane {
+  display: flex;
+  min-height: clamp(340px, 54svh, 580px);
+  padding-block: clamp(48px, 7vh, 92px);
+  text-decoration: none;
+}
+
+.plane::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background-color: var(--sho);
+  opacity: 0;
+  transition: opacity 620ms var(--ease);
+}
+
+.plane:hover::before,
+.plane:focus-visible::before {
+  opacity: 0.62;
+}
+
+.p1 {
+  align-items: flex-start;
+  background-image: linear-gradient(
+    180deg,
+    #16150f 0%,
+    #16150f 38.89%,
+    #181711 44.44%,
+    #25231d 50%,
+    #312e29 55.56%,
+    #33302b 61.11%,
+    #33302b 100%
+  );
+}
+
+.p2 {
+  align-items: flex-end;
+  background-image: linear-gradient(
+    180deg,
+    #33302b 0%,
+    #33302b 38.89%,
+    #312e29 44.44%,
+    #25231d 50%,
+    #181711 55.56%,
+    #16150f 61.11%,
+    #16150f 100%
+  );
+}
+
+.p2 .inner {
+  margin-inline-start: var(--step);
+}
+
+/*
+ * ここに一度、用意された墨の図版（/ink/sumi-sparse.png）をごく薄く敷いてみた。
+ * 落とした理由を残しておく：どれだけ薄くしても図版は面の縁で必ず途切れ、
+ * その途切れが横一文字の線になる。線を一本も引かないという前提と両立しない。
+ * 画像は使わない。この世界の材料は濃度と、それを支える紙の目だけ。
+ */
+
+/* ---- 作品の文字。暗い地の上で墨を抜く方向に 3 段 ---- */
+
+.cat {
+  margin: 0;
+  font-size: 0.65rem;
+  letter-spacing: 0.42em;
+  line-height: 1;
+  color: var(--tan);
+  transition: color 620ms var(--ease);
+}
+
+.title {
+  margin: clamp(20px, 2.6vh, 32px) 0 0;
+  font-size: clamp(1.5rem, 3vw, 2.25rem);
+  font-weight: 500;
+  line-height: 1.55;
+  letter-spacing: 0.05em;
+  color: var(--paper);
+}
+
+.desc {
+  margin: clamp(20px, 2.4vh, 30px) 0 0;
+  max-width: 38em;
+  font-size: clamp(0.9375rem, 1.02vw, 1.0625rem);
+  line-height: 2.15;
+  letter-spacing: 0.04em;
+  color: var(--goku);
+}
+
+.tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6em 2.1em;
+  margin: clamp(26px, 3.2vh, 40px) 0 0;
+  padding: 0;
+  list-style: none;
+  font-size: 0.6875rem;
+  letter-spacing: 0.26em;
+  line-height: 1.6;
+  color: var(--tan);
+  transition: color 620ms var(--ease);
+}
+
+/* 触れると地は一段沈み、補足は一段浮く */
+.plane:hover .cat,
+.plane:hover .tags,
+.plane:focus-visible .cat,
+.plane:focus-visible .tags {
+  color: var(--goku);
+}
+
+.plane:focus-visible {
+  outline: 2px solid var(--paper);
+  outline-offset: -12px;
+}
+
+/* ==========================================================================
+   墨が乾いていく区間 — 焦墨から極淡へ。梯子と違い、名は打たない
+   ========================================================================== */
+
+.dry {
+  height: clamp(150px, 21vh, 268px);
+  background-image: linear-gradient(
+    180deg,
+    #16150f 0%,
+    #16150f 11.54%,
+    #171610 13.46%,
+    #191812 15.38%,
+    #1d1c16 17.31%,
+    #22211b 19.23%,
+    #282520 21.15%,
+    #2c2a25 23.08%,
+    #302e28 25%,
+    #33302b 26.92%,
+    #33302b 32.69%,
+    #37342f 34.62%,
+    #3e3b35 36.54%,
+    #47443d 38.46%,
+    #514d46 40.38%,
+    #5b574f 42.31%,
+    #635f57 44.23%,
+    #69655c 46.15%,
+    #6b675e 48.08%,
+    #6b675e 51.92%,
+    #6d6960 53.85%,
+    #746f66 55.77%,
+    #7d786f 57.69%,
+    #878379 59.62%,
+    #928e84 61.54%,
+    #9c978d 63.46%,
+    #a49f95 65.38%,
+    #a8a399 67.31%,
+    #a8a399 71.15%,
+    #a9a49a 73.08%,
+    #aca89d 75%,
+    #b3aea4 76.92%,
+    #bbb6ac 78.85%,
+    #c3bfb4 80.77%,
+    #ccc7bd 82.69%,
+    #d2cec3 84.62%,
+    #d7d3c8 86.54%,
+    #d8d4c9 88.46%,
+    #d8d4c9 100%
+  );
+}
+
+/* ==========================================================================
+   まだ墨の載っていない面 — 極淡。淡い地は階層を 2 段しか持てない
+   ========================================================================== */
+
+.p3 {
+  display: flex;
+  align-items: center;
+  min-height: clamp(220px, 34svh, 380px);
+  padding-block: clamp(48px, 7vh, 88px);
+  background-image: linear-gradient(
+    180deg,
+    #d8d4c9 0%,
+    #d8d4c9 58%,
+    #d9d5ca 61.5%,
+    #dad6cb 65%,
+    #ddd9ce 68.5%,
+    #e0dcd2 72%,
+    #e3dfd5 75.5%,
+    #e7e3da 79%,
+    #eae7de 82.5%,
+    #edeae1 86%,
+    #f0ede5 89.5%,
+    #f3f0e8 93%,
+    #f4f1e9 96.5%,
+    #f5f2ea 100%
+  );
+}
+
+.p3 .inner {
+  margin-inline-start: calc(var(--step) * 2);
+}
+
+.catDim {
+  color: var(--no);
+}
+
+.soon {
+  margin: clamp(20px, 2.6vh, 32px) 0 0;
+  max-width: 30em;
+  font-size: clamp(1.0625rem, 1.6vw, 1.375rem);
+  font-weight: 400;
+  line-height: 1.95;
+  letter-spacing: 0.05em;
+  color: var(--sho);
+}
+
+/* ==========================================================================
+   紙に戻る
+   ========================================================================== */
+
+.foot {
+  display: flex;
+  align-items: center;
+  min-height: clamp(180px, 26svh, 300px);
+  padding-block: clamp(48px, 7vh, 88px);
+  background-color: var(--paper);
+}
+
+.foot .inner {
+  margin-inline-start: calc(var(--step) * 2);
+}
+
+.note {
+  margin: 0;
+  font-size: 0.8125rem;
+  line-height: 1.9;
+  letter-spacing: 0.1em;
+  color: var(--chu);
+}
+
+.back {
+  margin: clamp(26px, 3.4vh, 40px) 0 0;
+  font-size: 0.75rem;
+  letter-spacing: 0.16em;
+  line-height: 1.8;
+}
+
+.backLink {
+  color: var(--no);
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.4em;
+  transition: color 400ms var(--ease);
+}
+
+.backLink:hover {
+  color: var(--sho);
+}
+
+.foot :focus-visible {
+  outline: 2px solid var(--sho);
+  outline-offset: 6px;
+}
+
+/* ==========================================================================
+   動きを望まない読者へ — 滲みも沈みも止める。濃度の配分だけが残る
+   ========================================================================== */
+
+@media (prefers-reduced-motion: reduce) {
+  .band::after {
+    animation: none;
+  }
+  .plane::before,
+  .cat,
+  .tags,
+  .backLink {
+    transition: none;
+  }
+}

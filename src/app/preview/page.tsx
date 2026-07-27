@@ -10,6 +10,45 @@ export const metadata: Metadata = {
   description: "トップページの視覚世界 6 案。内容は同一で、世界だけが違う",
 };
 
+/** 墨そのものに寄せた 5 案 */
+const SUMI_WORLDS = [
+  {
+    slug: "hatsuboku",
+    label: "潑墨",
+    latin: "Hatsuboku",
+    structure: "墨に沈む画面",
+    note: "画面がほぼ全面の濃い墨。紙白の筋が走り、墨の薄いところに文字が置かれる。",
+  },
+  {
+    slug: "takuhon",
+    label: "拓本",
+    latin: "Rubbing",
+    structure: "白と黒の反転",
+    note: "石碑を拓り取る。地は墨で真っ黒、文字と図が紙の白で抜ける。白が figure、墨が ground。",
+  },
+  {
+    slug: "kansu",
+    label: "巻子",
+    latin: "Handscroll",
+    structure: "横に流れる時間",
+    note: "右から左へ繰る絵巻。縦ではなく横スクロールが主で、上下を軸木が挟む。",
+  },
+  {
+    slug: "tanboku",
+    label: "淡墨",
+    latin: "Ink Gradation",
+    structure: "濃度だけの階層",
+    note: "色も罫線も使わず、紙・極淡・淡墨・中墨・濃墨・焦墨の 6 段階だけで構造を作る。",
+  },
+  {
+    slug: "hihaku",
+    label: "飛白",
+    latin: "Dry Brush",
+    structure: "かすれと余白",
+    note: "紙が 8 割。決定的な数筆と長い沈黙。朱の落款が画面に一つだけ。",
+  },
+];
+
 const WORLDS = [
   {
     slug: "tokonoma",
@@ -70,7 +109,39 @@ export default function PreviewIndex() {
         違うのは視覚世界だけなので、そのまま見比べられます。
       </p>
 
-      <ul className="mt-10 divide-y divide-neutral-200 border-y border-neutral-200">
+      <h2 className="mt-12 text-[0.8125rem] font-semibold tracking-[0.14em] text-neutral-500 uppercase">
+        墨に寄せた 5 案
+      </h2>
+      <ul className="mt-3 divide-y divide-neutral-200 border-y border-neutral-200">
+        {SUMI_WORLDS.map((w) => (
+          <li key={w.slug}>
+            <Link
+              href={`/preview/${w.slug}`}
+              className="group flex flex-col gap-1.5 py-5 transition-colors hover:bg-neutral-50"
+            >
+              <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
+                <span className="text-[1.0625rem] font-bold group-hover:underline">
+                  {w.label}
+                </span>
+                <span className="text-[0.8125rem] tracking-[0.12em] text-neutral-400 uppercase">
+                  {w.latin}
+                </span>
+                <span className="ml-auto text-[0.8125rem] text-neutral-500">
+                  構造 = {w.structure}
+                </span>
+              </div>
+              <p className="text-[0.875rem] leading-[1.8] text-neutral-600">
+                {w.note}
+              </p>
+            </Link>
+          </li>
+        ))}
+      </ul>
+
+      <h2 className="mt-12 text-[0.8125rem] font-semibold tracking-[0.14em] text-neutral-500 uppercase">
+        はじめの 6 案（印つけの文化圏から）
+      </h2>
+      <ul className="mt-3 divide-y divide-neutral-200 border-y border-neutral-200">
         {WORLDS.map((w) => (
           <li key={w.slug}>
             <Link
