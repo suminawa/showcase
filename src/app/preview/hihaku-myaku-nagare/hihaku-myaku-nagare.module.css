@@ -76,9 +76,14 @@
   /* ---- 湿りが行の上下へ漏れる量 ----
      水は境界を知らないので隣の余白へ少し漏らす。ただし隣の作品の文字は汚さない。
      --hi-void と同じ svh 基準に揃えてあるので、どの背丈でも必ず
-     漏れ幅 < 段差（13svh < 40svh、携帯でも 13svh < 26svh）になる。 */
-  --hi-flow-y: clamp(46px, 13svh, 150px);
-  --hi-flow-y2: clamp(34px, 9svh, 110px);
+     漏れ幅 < 段差（7svh < 40svh、携帯でも 6svh < 26svh）になる。
+
+     この値は一度大きすぎた。svh 基準ということは【背の低い窓ほど画面に占める
+     割合が上がる】ということで、568px の窓では 13svh ＝ 上下 148px と、
+     行の高さに匹敵する板が乗っていた。実測で紙が 66〜71% まで落ち、
+     法「紙が八割」を全画面幅で割っていた。7svh / 5svh まで詰めてある。 */
+  --hi-flow-y: clamp(30px, 7svh, 88px);
+  --hi-flow-y2: clamp(22px, 5svh, 64px);
 
   /* 列の隙間と紙の縁。筆脈が 12 列グリッドを逆算するために変数で持つ */
   --hi-gap: clamp(12px, 2vw, 28px);
@@ -661,18 +666,32 @@
 .flow {
   z-index: -1;
   inset-block: calc(-1 * var(--hi-flow-y)) calc(-1 * var(--hi-flow-y));
-  inset-inline: -52vw -16vw;
+  inset-inline: -22vw -7vw;
 
   background-image: url("/ink/sumi-wide.png");
-  /* 斑ひとつの内側だけを覗く倍率。下げると水玉が戻る（上の註を参照） */
-  background-size: 760% auto;
+  /*
+   * ここは二度失敗している。倍率は【低すぎても高すぎても】いけない。
+   *
+   *   210%（初手）＝素材をほぼ原寸で置く。丸い斑が原寸で並び、水ではなく
+   *                「しみ」に見えた。blur を足しても輪郭は消えない。
+   *   760%（二手目）＝斑ひとつの内側だけを覗く。連続にはなったが、
+   *                覗いているのが【均一に濃いところ】なので、斑と斑の間にあった
+   *                「紙が透ける隙間」ごと消えた。実測で紙が 71% まで落ちた ──
+   *                連続性を隙間と引き換えに買っていた。
+   *   440%（現在）＝斑が溶けて繋がりつつ、面の中に濃淡が残る位置。
+   *                隙間が紙として残るので、被覆率が跳ね上がらない。
+   *
+   * blur も同じ理由で 14px → 8px。大きな blur は墨を包絡の外へ運び出すので、
+   * 画面全体がうっすら濡れた状態になり、法「紙が八割」を静かに侵す。
+   */
+  background-size: 440% auto;
   background-position: -30vw 42%;
   /* 黒を持ち上げる。墨として濃いのではなく「湿っている」ところまで。
      sepia→saturate は原本の二筆と同じ手つきで紙の温度に寄せている。 */
-  filter: grayscale(1) contrast(0.9) brightness(1.03) sepia(0.34) saturate(0.5)
-    blur(14px);
+  filter: grayscale(1) contrast(0.94) brightness(1.03) sepia(0.34) saturate(0.5)
+    blur(8px);
 
-  mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1400 500' preserveAspectRatio='none'%3E%3Cfilter id='t' color-interpolation-filters='sRGB'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.0072 0.0089' numOctaves='5' seed='17'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 1 0 0 0 0'/%3E%3CfeComponentTransfer%3E%3CfeFuncA type='linear' slope='2.2' intercept='-0.62'/%3E%3C/feComponentTransfer%3E%3C/filter%3E%3CradialGradient id='a' gradientUnits='userSpaceOnUse' cx='455' cy='250' r='252' gradientTransform='translate(0 250) scale(1 0.952) translate(0 -250)'%3E%3Cstop offset='0' stop-color='%23fff' stop-opacity='1'/%3E%3Cstop offset='0.34' stop-color='%23fff' stop-opacity='0.9'/%3E%3Cstop offset='0.7' stop-color='%23fff' stop-opacity='0.44'/%3E%3Cstop offset='1' stop-color='%23fff' stop-opacity='0'/%3E%3C/radialGradient%3E%3CradialGradient id='b' gradientUnits='userSpaceOnUse' cx='871' cy='232' r='327' gradientTransform='translate(0 232) scale(1 0.642) translate(0 -232)'%3E%3Cstop offset='0' stop-color='%23fff' stop-opacity='0.86'/%3E%3Cstop offset='0.34' stop-color='%23fff' stop-opacity='0.774'/%3E%3Cstop offset='0.7' stop-color='%23fff' stop-opacity='0.378'/%3E%3Cstop offset='1' stop-color='%23fff' stop-opacity='0'/%3E%3C/radialGradient%3E%3CradialGradient id='d' gradientUnits='userSpaceOnUse' cx='1150' cy='278' r='240' gradientTransform='translate(0 278) scale(1 0.792) translate(0 -278)'%3E%3Cstop offset='0' stop-color='%23fff' stop-opacity='0.62'/%3E%3Cstop offset='0.34' stop-color='%23fff' stop-opacity='0.558'/%3E%3Cstop offset='0.7' stop-color='%23fff' stop-opacity='0.273'/%3E%3Cstop offset='1' stop-color='%23fff' stop-opacity='0'/%3E%3C/radialGradient%3E%3Cmask id='m'%3E%3Crect width='1400' height='500' fill='url(%23a)'/%3E%3Crect width='1400' height='500' fill='url(%23b)'/%3E%3Crect width='1400' height='500' fill='url(%23d)'/%3E%3C/mask%3E%3Cg mask='url(%23m)'%3E%3Crect x='-400' y='-300' width='2200' height='1100' filter='url(%23t)'/%3E%3C/g%3E%3C/svg%3E");
+  mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1400 500' preserveAspectRatio='none'%3E%3Cfilter id='t' color-interpolation-filters='sRGB'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.0072 0.0089' numOctaves='5' seed='17'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 1 0 0 0 0'/%3E%3CfeComponentTransfer%3E%3CfeFuncA type='linear' slope='2.2' intercept='-0.62'/%3E%3C/feComponentTransfer%3E%3C/filter%3E%3CradialGradient id='a' gradientUnits='userSpaceOnUse' cx='455' cy='250' r='252' gradientTransform='translate(0 250) scale(1 0.952) translate(0 -250)'%3E%3Cstop offset='0' stop-color='%23fff' stop-opacity='1'/%3E%3Cstop offset='0.34' stop-color='%23fff' stop-opacity='0.9'/%3E%3Cstop offset='0.7' stop-color='%23fff' stop-opacity='0.44'/%3E%3Cstop offset='1' stop-color='%23fff' stop-opacity='0'/%3E%3C/radialGradient%3E%3CradialGradient id='b' gradientUnits='userSpaceOnUse' cx='871' cy='232' r='327' gradientTransform='translate(0 232) scale(1 0.642) translate(0 -232)'%3E%3Cstop offset='0' stop-color='%23fff' stop-opacity='0.86'/%3E%3Cstop offset='0.34' stop-color='%23fff' stop-opacity='0.774'/%3E%3Cstop offset='0.7' stop-color='%23fff' stop-opacity='0.378'/%3E%3Cstop offset='1' stop-color='%23fff' stop-opacity='0'/%3E%3C/radialGradient%3E%3CradialGradient id='d' gradientUnits='userSpaceOnUse' cx='1150' cy='278' r='240' gradientTransform='translate(0 278) scale(1 0.792) translate(0 -278)'%3E%3Cstop offset='0' stop-color='%23fff' stop-opacity='0.62'/%3E%3Cstop offset='0.34' stop-color='%23fff' stop-opacity='0.558'/%3E%3Cstop offset='0.7' stop-color='%23fff' stop-opacity='0.273'/%3E%3Cstop offset='1' stop-color='%23fff' stop-opacity='0'/%3E%3C/radialGradient%3E%3Cmask id='m'%3E%3Crect width='1400' height='500' fill='url(%23a)'/%3E%3Crect width='1400' height='500' fill='url(%23b)'/%3E%3C/mask%3E%3Cg mask='url(%23m)'%3E%3Crect x='-400' y='-300' width='2200' height='1100' filter='url(%23t)'/%3E%3C/g%3E%3C/svg%3E");
   mask-position: -13vw 0;
 
   /* 離したとき：薄まりは 840ms、位置の戻りは 2600ms の「頭が寝た」曲線。
@@ -688,15 +707,15 @@
 .flowDeep {
   z-index: -2;
   inset-block: calc(-1 * var(--hi-flow-y2)) calc(-1 * var(--hi-flow-y2));
-  inset-inline: -28vw -12vw;
+  inset-inline: -14vw -6vw;
 
   background-image: url("/ink/sumi-wide.png");
-  /* 表層と同じ理（斑の内側だけを覗く）。底なので表層よりさらに大きく引き伸ばし、
-     視差が出るよう倍率を変えてある */
-  background-size: 1080% auto;
+  /* 表層と同じ理（斑が溶けて繋がり、かつ面の中に濃淡が残る位置）。
+     底なので表層より一段大きく引き伸ばし、視差が出るよう倍率を変えてある */
+  background-size: 620% auto;
   background-position: -2vw 44%;
   filter: grayscale(1) contrast(0.86) brightness(1.04) sepia(0.4) saturate(0.45)
-    blur(18px);
+    blur(11px);
 
   mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1400 500' preserveAspectRatio='none'%3E%3Cfilter id='t' color-interpolation-filters='sRGB'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.0026 0.0031' numOctaves='4' seed='29'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 1 0 0 0 0'/%3E%3CfeComponentTransfer%3E%3CfeFuncA type='linear' slope='1.7' intercept='-0.48'/%3E%3C/feComponentTransfer%3E%3C/filter%3E%3CradialGradient id='a' gradientUnits='userSpaceOnUse' cx='820' cy='280' r='520' gradientTransform='translate(0 280) scale(1 0.404) translate(0 -280)'%3E%3Cstop offset='0' stop-color='%23fff' stop-opacity='1'/%3E%3Cstop offset='0.34' stop-color='%23fff' stop-opacity='0.9'/%3E%3Cstop offset='0.7' stop-color='%23fff' stop-opacity='0.44'/%3E%3Cstop offset='1' stop-color='%23fff' stop-opacity='0'/%3E%3C/radialGradient%3E%3CradialGradient id='b' gradientUnits='userSpaceOnUse' cx='380' cy='215' r='330' gradientTransform='translate(0 215) scale(1 0.545) translate(0 -215)'%3E%3Cstop offset='0' stop-color='%23fff' stop-opacity='0.62'/%3E%3Cstop offset='0.34' stop-color='%23fff' stop-opacity='0.558'/%3E%3Cstop offset='0.7' stop-color='%23fff' stop-opacity='0.273'/%3E%3Cstop offset='1' stop-color='%23fff' stop-opacity='0'/%3E%3C/radialGradient%3E%3Cmask id='m'%3E%3Crect width='1400' height='500' fill='url(%23a)'/%3E%3Crect width='1400' height='500' fill='url(%23b)'/%3E%3C/mask%3E%3Cg mask='url(%23m)'%3E%3Crect x='-400' y='-300' width='2200' height='1100' filter='url(%23t)'/%3E%3C/g%3E%3C/svg%3E");
   mask-position: 0 0;
@@ -740,7 +759,7 @@
 
 .work:has(.entry):hover .flow,
 .work:has(.entry:focus-visible) .flow {
-  opacity: 0.34;
+  opacity: 0.28;
   /* 粒は 30vw、窓は 14vw。距離が違うので視差が出る＝「通り抜けた」に見える。
      縦（42%）は動かさない ── 窓が墨の帯から外れると濃さが揺らぐ */
   background-position: 0 42%;
@@ -753,7 +772,7 @@
 
 .work:has(.entry):hover .flowDeep,
 .work:has(.entry:focus-visible) .flowDeep {
-  opacity: 0.21;
+  opacity: 0.165;
   transition: opacity 1750ms cubic-bezier(0.25, 0.6, 0.3, 1);
   animation-play-state: running;
 }
@@ -864,8 +883,10 @@
      * 320×700 では一行＋漏れの板だけで画面の 6 割になり、広い紙と同じ漏れ幅では
      * 濡れた面が視野を占めすぎる。小さい紙では水も控えめに広がる。
      */
-    --hi-flow-y: clamp(40px, 10svh, 120px);
-    --hi-flow-y2: clamp(30px, 7svh, 90px);
+    /* 375×568 だけが最後まで八割を割っていた（74.86%）。背丈 568 では 6svh でも
+       上下 68px の板が乗る。4svh まで詰め、左右の張り出しと濃さも併せて削る */
+    --hi-flow-y: clamp(20px, 4svh, 52px);
+    --hi-flow-y2: clamp(15px, 3svh, 38px);
   }
 
   /* 縦長の紙では一筆を寝かせず、上半分を横切らせる */
@@ -928,7 +949,7 @@
    *   走る距離は広い紙と同じ 14vw のままで、視差の設計は変えていない。
    */
   .flow {
-    inset-inline: -30vw -14vw;
+    inset-inline: -19vw -7vw;
     mask-position: -5vw 0;
     /*
      * ★ 素材の当て方を横基準から縦基準へ替える。
@@ -940,11 +961,11 @@
      *   680% で板が切り出すのは素材の高さの約 15%。ここまで拡大して初めて
      *   水玉が消える ── 190% では実測で丸い斑が並んだままだった。
      */
-    background-size: auto 680%;
+    background-size: auto 400%;
   }
   .flowDeep {
-    inset-inline: -18vw -10vw;
-    background-size: auto 900%;
+    inset-inline: -12vw -5vw;
+    background-size: auto 520%;
   }
 
   /*
@@ -961,12 +982,12 @@
   .work:has(.entry):hover .flow,
   .work:has(.entry:focus-visible) .flow {
     mask-position: 9vw 0;
-    opacity: 0.25;
+    opacity: 0.165;
   }
 
   .work:has(.entry):hover .flowDeep,
   .work:has(.entry:focus-visible) .flowDeep {
-    opacity: 0.155;
+    opacity: 0.105;
   }
 }
 
