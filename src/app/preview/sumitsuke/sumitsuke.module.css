@@ -398,27 +398,6 @@
   color: var(--usu);
 }
 
-.tagJa {
-  position: relative;
-  margin: 16px 0 0;
-  padding-left: 22px;
-  max-width: 30em;
-  font-size: clamp(1rem, 1.45vw, 1.1875rem);
-  font-weight: 500;
-  line-height: 1.85;
-  letter-spacing: 0.02em;
-  color: var(--sumi);
-}
-
-.tagJaMark {
-  position: absolute;
-  left: 0;
-  top: 0.88em;
-  width: 13px;
-  height: 1.5px;
-  background-color: var(--shu);
-}
-
 /* ─── 表題欄 ───────────────────────────────────────────────────────── */
 .titleBlock {
   grid-column: 5;

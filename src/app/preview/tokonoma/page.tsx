@@ -148,11 +148,6 @@ export default function TokonomaPreview() {
             <span className={styles.hair} aria-hidden="true" />
             <p className={styles.taglineEn}>Things I&apos;ve built.</p>
           </div>
-
-          <div className={styles.vertical}>
-            <p className={styles.taglineJa}>口で説明するより、見た方が早い。</p>
-            <span className={styles.seal} aria-hidden="true" />
-          </div>
         </div>
 
         {/* 床柱。室と床を分かつ、風化した松の丸太 */}

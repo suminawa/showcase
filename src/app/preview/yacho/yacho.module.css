@@ -357,13 +357,6 @@
 
 /* ------------------------------------------------------------ 和欧混植 */
 
-.jp {
-  font-family: var(--font-noto-sans-jp), sans-serif;
-  font-size: var(--cell);
-  line-height: calc(var(--cell) * 2);
-  font-feature-settings: "palt" 0;
-}
-
 /* 欧文は 1 字 = 1/2 マス。折り返しで桁がずれないよう塊のまま送る */
 .lat {
   font-family: var(--font-plex-mono), ui-monospace, monospace;

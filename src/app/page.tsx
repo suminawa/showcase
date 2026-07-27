@@ -24,9 +24,6 @@ export default function Home() {
         <p className="mt-[clamp(10px,1.4vh,16px)] text-[1.0625rem] leading-[1.5] text-[color:var(--sumi-soft)]">
           Things I&apos;ve built.
         </p>
-        <p className="mt-[clamp(6px,0.8vh,10px)] text-[0.9375rem] leading-[1.9] text-[color:var(--sumi-soft)]">
-          口で説明するより、見た方が早い。
-        </p>
       </header>
 
       {/* 水盤。canvas は aria-hidden なので、読み上げ順は索引へ素通しになる */}

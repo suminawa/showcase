@@ -131,7 +131,6 @@ export default function AoyakiPreview() {
           <div className={s.headLower}>
             <div>
               <p className={s.tagEn}>{"Things I've built."}</p>
-              <p className={s.tagJa}>口で説明するより、見た方が早い。</p>
             </div>
 
             {/* 凡例 — 線の意味を図面の作法どおり明かす */}

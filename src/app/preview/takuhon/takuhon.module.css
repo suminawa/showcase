@@ -218,16 +218,6 @@
   padding-top: clamp(1.75rem, 4.5vw, 3rem);
 }
 
-.hibunJa {
-  margin: 0;
-  margin-block-end: clamp(0.9rem, 2vw, 1.5rem);
-  font-weight: 900;
-  font-size: clamp(1.22rem, 2.85vw, 2.3rem);
-  line-height: 2.1;
-  letter-spacing: 0.16em;
-  color: var(--rub);
-}
-
 .hibunLa {
   position: relative;
   z-index: 3;
@@ -650,7 +640,6 @@
 .showcase,
 .wordmark,
 .kaisen,
-.hibunJa,
 .hibunLa,
 .slab {
   animation: takuri 1100ms var(--ease) backwards;
@@ -667,9 +656,6 @@
 }
 .kaisen {
   animation-delay: 300ms;
-}
-.hibunJa {
-  animation-delay: 380ms;
 }
 .hibunLa {
   animation-delay: 520ms;
@@ -697,7 +683,6 @@
   .showcase,
   .wordmark,
   .kaisen,
-  .hibunJa,
   .hibunLa,
   .kekkaku,
   .slab,

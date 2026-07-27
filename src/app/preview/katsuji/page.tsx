@@ -101,11 +101,6 @@ export default function KatsujiPreview() {
             {/* 込め物 — 題字と標語のあいだ */}
             <div className={`${styles.furnH} ${styles.fa}`} aria-hidden="true" />
 
-            {/* 縦組みの込め物（題字の右） */}
-            <div className={`${styles.furnV} ${styles.fma}`} aria-hidden="true">
-              <span className={styles.picaV}>12</span>
-            </div>
-
             {/* 標語（欧文） */}
             <div className={`${styles.type} ${styles.tag}`}>
               <p className={styles.tagEn}>
@@ -116,11 +111,6 @@ export default function KatsujiPreview() {
 
             {/* 標語の行を埋める込め物 */}
             <div className={`${styles.furnEnd} ${styles.ftg}`} aria-hidden="true" />
-
-            {/* 標語（和文・縦組み） */}
-            <div className={`${styles.type} ${styles.jpa}`}>
-              <p className={styles.tagJa}>口で説明するより、見た方が早い。</p>
-            </div>
 
             {/* 木口の込め物 */}
             <div className={`${styles.furnEnd} ${styles.fna}`} aria-hidden="true" />

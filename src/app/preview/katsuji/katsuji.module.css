@@ -151,9 +151,9 @@
     20px;
   grid-template-areas:
     "ft ft   ft   ft   ft   ft   ft   ft   ft   ft   ft   ft   ft   ft"
-    "rl mark mark mark mark mark mark mark mark fma  jpa  jpa  fna  rr"
-    "rl fa   fa   fa   fa   fa   fa   fa   fa   fma  jpa  jpa  fna  rr"
-    "rl tag  tag  tag  tag  tag  tag  ftg  ftg  fma  jpa  jpa  fna  rr"
+    "rl mark mark mark mark mark mark mark mark fna  fna  fna  fna  rr"
+    "rl fa   fa   fa   fa   fa   fa   fa   fa   fna  fna  fna  fna  rr"
+    "rl tag  tag  tag  tag  tag  tag  ftg  ftg  fna  fna  fna  fna  rr"
     "rl fb   fb   fb   fb   fb   fb   fb   fb   fb   fb   fb   fb   rr"
     "rl w1   w1   w1   w1   w1   w1   w1   w1   w1   w1   w1   w1   rr"
     "rl fc   fc   fc   fc   fc   fc   fc   fc   fc   fc   fc   fc   rr"
@@ -282,8 +282,7 @@
 }
 
 /* 込め物に刻まれた寸法（パイカ）— 部材そのものの刻印 */
-.pica,
-.picaV {
+.pica {
   font-family: var(--kt-serif), ui-serif, Georgia, serif;
   font-size: 9px;
   font-weight: 600;
@@ -291,10 +290,6 @@
   color: var(--ink);
   text-shadow: 0 1px 0 rgba(255, 255, 255, 0.4);
   user-select: none;
-}
-.picaV {
-  writing-mode: vertical-rl;
-  letter-spacing: 0.1em;
 }
 
 .ft {
@@ -308,9 +303,6 @@
 }
 .fa {
   grid-area: fa;
-}
-.fma {
-  grid-area: fma;
 }
 .fna {
   grid-area: fna;
@@ -484,28 +476,6 @@
 /* 朱は二度刷り。版を替えてもう一度通す */
 .shu {
   color: var(--shu);
-}
-
-.jpa {
-  grid-area: jpa;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: clamp(16px, 2vw, 26px) clamp(10px, 1.2vw, 18px);
-}
-
-.tagJa {
-  margin: 0;
-  writing-mode: vertical-rl;
-  font-family: var(--kt-mincho), var(--font-noto-sans-jp), serif;
-  font-weight: 600;
-  font-size: clamp(0.95rem, 1.4vw, 1.2rem);
-  line-height: 2.1;
-  letter-spacing: 0.14em;
-  color: var(--ink);
-  text-shadow:
-    0 1px 0 rgba(255, 255, 255, 0.65),
-    0 -1px 0 rgba(19, 19, 22, 0.07);
 }
 
 /* ───────────────────────── 作品の組 ───────────────────────── */
@@ -977,14 +947,12 @@
 @media (max-width: 760px) {
   .forme {
     grid-template-columns: 15px minmax(0, 1fr) 15px;
-    grid-template-rows: 16px repeat(15, auto) 16px;
+    grid-template-rows: 16px repeat(13, auto) 16px;
     grid-template-areas:
       "ft   ft   ft"
       "rl   mark rr"
       "rl   fa   rr"
       "rl   tag  rr"
-      "rl   fma  rr"
-      "rl   jpa  rr"
       "rl   fb   rr"
       "rl   w1   rr"
       "rl   fc   rr"
@@ -1005,24 +973,6 @@
     display: none;
   }
 
-  /* 縦棒だった込め物を、横棒として組み直す */
-  .fma {
-    height: 14px;
-    flex-direction: row;
-    background-image:
-      repeating-linear-gradient(
-        90deg,
-        rgba(0, 0, 0, 0) 0 84px,
-        rgba(76, 60, 34, 0.85) 84px 85px,
-        rgba(226, 208, 172, 0.45) 85px 87px,
-        rgba(0, 0, 0, 0) 87px 88px
-      ),
-      linear-gradient(180deg, var(--wood-hi) 0%, var(--wood) 46%, var(--wood-dark) 100%);
-  }
-  .picaV {
-    display: none;
-  }
-
   .ffm {
     height: 12px;
   }
@@ -1035,17 +985,6 @@
   .fb,
   .fe {
     min-height: 18px;
-  }
-
-  /* 和文標語は横に寝かせる */
-  .tagJa {
-    writing-mode: horizontal-tb;
-    font-size: 1rem;
-    line-height: 1.95;
-  }
-  .jpa {
-    justify-content: flex-start;
-    padding: 16px;
   }
 
   .workLink {

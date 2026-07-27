@@ -479,30 +479,11 @@
   flex: 1 1 auto;
   height: 100%;
   display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
   grid-template-rows: auto minmax(0, 1fr) auto;
   grid-template-areas:
-    "en   tagline"
-    ".    tagline"
-    "sig  tagline";
-  column-gap: calc(var(--h) * 0.03);
-}
-
-.tagline {
-  grid-area: tagline;
-  margin: 0;
-  writing-mode: vertical-rl;
-  text-orientation: mixed;
-  font-feature-settings: "vpal" 1, "vkrn" 1;
-  font-size: max(19px, calc(var(--h) * 0.066));
-  font-weight: 600;
-  line-height: 1.72;
-  letter-spacing: 0.06em;
-  color: var(--sumi);
-  max-height: 100%;
-}
-.tagline span {
-  display: block; /* 縦組みでは一句が一行として右から並ぶ */
+    "en"
+    "."
+    "sig";
 }
 
 .en {

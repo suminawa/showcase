@@ -43,7 +43,7 @@
   --hi-sumi-3: #55514a; /* 7.1:1 */
   --hi-sumi-4: #6a665d; /* 5.2:1 */
   --hi-kasure: #8e8a80; /* 3.1:1 — 図版のかすれの色。文字には使わない */
-  --hi-shu: #a63a2e; /* 5.9:1 — 落款ひとつだけ。画面唯一の色 */
+  --hi-shu: #a63a2e; /* 落款の朱。画面で色を持つのはここ一箇所だけ */
 
   /* ---- 二段しかない字の寸法 ---- */
   --hi-tiny: clamp(0.8125rem, 0.75rem + 0.22vw, 0.9375rem); /* 13 → 15px */
@@ -238,55 +238,31 @@
   animation: hi-rise 1000ms var(--hi-brush) 1020ms both;
 }
 
-/* ==========================================================================
-   言葉 ── 大きな明朝の一行と、落款
-   ========================================================================== */
-
-.utterance {
-  position: relative;
-  z-index: 1;
-  grid-column: 3 / 13;
-  margin-top: var(--hi-void-lg);
-}
-
-.line {
-  font-family: var(--hi-serif-display);
-  font-size: clamp(1.75rem, 4.6vw, 3.5rem);
-  line-height: 1.7;
-  letter-spacing: 0.08em;
-  color: var(--hi-sumi);
-}
-
-.lineA,
-.lineB {
-  display: block;
-}
-
-/* 二行目だけを送る。読点で息を継いだあと、筆を置き直した位置 */
-.lineB {
-  margin-left: clamp(28px, 12vw, 190px);
-}
-
 /*
- * 落款。字ではなく図像なので「大と小しか使わない」規則の外に置く。
- * 画面全体でここだけが色を持つ。
+ * 落款。画面で唯一の色。字ではなく図像として扱うので、
+ * トラッキングと明朝の規則の外にある。英文の直後、さらに右へ送って
+ * 「筆を置いたあと、最後に捺す」順序を作る。
  */
 .seal {
-  display: inline-grid;
-  place-items: center;
-  width: clamp(1.8rem, 2.5vw, 2.3rem);
-  height: clamp(1.8rem, 2.5vw, 2.3rem);
-  margin-inline-start: 0.5em;
-  vertical-align: -0.08em;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: clamp(28px, 2.6vw, 34px);
+  height: clamp(28px, 2.6vw, 34px);
+  margin-top: clamp(18px, 3svh, 34px);
+  margin-left: clamp(28px, 20vw, 280px);
   background: var(--hi-shu);
   color: var(--hi-paper);
-  font-family: var(--hi-serif);
-  font-size: clamp(1.12rem, 1.55vw, 1.42rem);
-  font-weight: 500;
+  font-size: clamp(0.75rem, 1.1vw, 0.875rem);
   line-height: 1;
   letter-spacing: 0;
-  transform: rotate(-2.4deg);
-  box-shadow: inset 0 0 0 1px rgba(28, 26, 21, 0.08);
+  animation: hi-rise 900ms var(--hi-brush) 1320ms both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .seal {
+    animation: none;
+  }
 }
 
 /* ==========================================================================

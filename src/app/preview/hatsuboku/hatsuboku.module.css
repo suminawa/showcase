@@ -281,15 +281,6 @@
   color: var(--kami);
 }
 
-.tagJa {
-  margin-top: clamp(12px, 1.6vh, 18px);
-  font-size: clamp(0.875rem, 1.35vw, 1.0625rem);
-  font-weight: 300;
-  line-height: 2;
-  letter-spacing: 0.08em;
-  color: var(--hai);
-}
-
 /* ---- 作品：墨の上の紙の窓 ---- */
 
 .works {

@@ -115,7 +115,6 @@ export default function TakuhonPreview() {
         <div className={`${s.kai} ${s.kaisen}`} aria-hidden="true" />
 
         <div className={s.hibun}>
-          <p className={s.hibunJa}>口で説明するより、見た方が早い。</p>
           <div className={`${s.kai} ${s.kaisenTate}`} aria-hidden="true" />
           <p className={s.hibunLa}>{TAGLINE_EN}</p>
         </div>

@@ -1,6 +1,6 @@
 # Showcase
 
-Things I've built. 口で説明するより、見た方が早い。
+Things I've built.
 
 動くデモ・ツール・LP を一つずつ追加していくポートフォリオです。作品は SITES / TOOLS / GAMES のカテゴリに分けて並べています。
 

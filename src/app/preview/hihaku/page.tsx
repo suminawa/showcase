@@ -79,20 +79,11 @@ export default function HihakuPreview() {
         <p className={s.showcase}>Showcase</p>
         <h1 className={s.wordmark}>SUMINAWA</h1>
         <p className={s.en}>{"Things I've built."}</p>
+        {/* 落款。画面で色を持つのはここ一箇所だけ */}
+        <span className={s.seal} aria-hidden="true">
+          墨
+        </span>
       </header>
-
-      <section className={s.utterance} aria-label="tagline">
-        <p className={s.line}>
-          <span className={s.lineA}>口で説明するより、</span>
-          <span className={s.lineB}>
-            見た方が早い。
-            {/* 落款。文字ではなく図像として置く、画面唯一の色 */}
-            <span className={s.seal} aria-hidden="true">
-              墨
-            </span>
-          </span>
-        </p>
-      </section>
 
       <ol className={s.works}>
         {WORKS.map((w) => (

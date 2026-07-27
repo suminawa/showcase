@@ -366,17 +366,6 @@
 
 /* ─── 巻頭 ───────────────────────────────────────────────── */
 
-.taglineJa {
-  writing-mode: vertical-rl;
-  margin: 0;
-  height: min(100%, 20em);
-  font-weight: 500;
-  font-size: clamp(1.3rem, 4vh, 2.9rem);
-  line-height: 1.75;
-  letter-spacing: 0.09em;
-  color: var(--sumi);
-}
-
 /* 巻頭の左脇。ラテン一行と繰りの合図を、詞書の裾に揃えて置く */
 .kantoAside {
   align-self: flex-end;

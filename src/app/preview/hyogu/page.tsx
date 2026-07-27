@@ -111,11 +111,6 @@ export default function HyoguPreview() {
           <Kakejiku h="var(--h-hero)" paper={0.78}>
             <span className={s.wash} aria-hidden="true" />
             <div className={s.honshiHero}>
-              {/* 縦組みの改行位置は読点で決める（一行 = 一句） */}
-              <p className={s.tagline}>
-                <span>口で説明するより、</span>
-                <span>見た方が早い。</span>
-              </p>
               <p className={s.en}>Things I&rsquo;ve built.</p>
               <div className={s.sig}>
                 <h1 className={s.wordmark}>

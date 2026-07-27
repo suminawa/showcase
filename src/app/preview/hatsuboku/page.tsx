@@ -91,7 +91,6 @@ export default function HatsubokuPreview() {
                 <span className={s.showcase}>Showcase</span>
               </p>
               <h1 className={s.tagEn}>{"Things I've built."}</h1>
-              <p className={s.tagJa}>口で説明するより、見た方が早い。</p>
             </div>
           </header>
 

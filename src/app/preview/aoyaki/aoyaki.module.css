@@ -471,16 +471,6 @@
   color: var(--line);
 }
 
-.tagJa {
-  margin: clamp(10px, 1.2vw, 16px) 0 0;
-  font-family: var(--jp);
-  font-weight: 300;
-  font-size: clamp(0.8rem, 1.1vw, 0.95rem);
-  letter-spacing: 0.16em;
-  line-height: 1.9;
-  color: var(--line-soft);
-}
-
 /* ── 一点鎖線（断面線）── */
 
 .chainWrap {
@@ -1167,10 +1157,6 @@
   .zoneTop span:nth-child(n + 6),
   .zoneLeft span:nth-child(n + 5) {
     display: none;
-  }
-
-  .tagJa {
-    letter-spacing: 0.1em;
   }
 
   .annotText {

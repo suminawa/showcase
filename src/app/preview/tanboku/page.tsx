@@ -46,7 +46,6 @@ export default function TanbokuPreview() {
             <span className={s.showcase}>Showcase</span>
           </h1>
           <p className={s.tagEn}>{"Things I've built."}</p>
-          <p className={s.tagJa}>口で説明するより、見た方が早い。</p>
         </div>
       </header>
 

@@ -424,12 +424,11 @@ export default function KansuPreview() {
             aria-labelledby="kn-kanto"
           >
             <div className={styles.kotoba}>
-              <p id="kn-kanto" className={styles.taglineJa}>
-                口で説明するより、見た方が早い。
-              </p>
               <div className={styles.kantoAside}>
                 <div className={styles.kantoLatin}>
-                  <p className={styles.taglineEn}>{"Things I've built."}</p>
+                  <p id="kn-kanto" className={styles.taglineEn}>
+                    {"Things I've built."}
+                  </p>
                   <p className={styles.kantoNote}>右から左へ繰ります。</p>
                 </div>
                 <div

@@ -94,16 +94,10 @@ body:has(.root) {
 /* ---- 室 ---- */
 
 .room {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
-  grid-template-rows: auto 1fr;
-  column-gap: clamp(16px, 3vw, 44px);
-  padding: clamp(44px, 9vh, 108px) clamp(20px, 3vw, 52px) 0 var(--tk-pad);
+  padding: clamp(44px, 9vh, 108px) var(--tk-pad) 0;
 }
 
 .identity {
-  grid-column: 1;
-  grid-row: 1;
   min-width: 0;
 }
 
@@ -146,41 +140,6 @@ body:has(.root) {
   line-height: 1.35;
   letter-spacing: 0.015em;
   color: var(--tk-bronze);
-}
-
-/* ---- 縦組み。床柱に沿って一行だけ落とす ---- */
-
-.vertical {
-  grid-column: 2;
-  grid-row: 1 / -1;
-  align-self: end;
-  justify-self: end;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: clamp(16px, 2.4vh, 26px);
-  margin-bottom: clamp(20px, 6vh, 78px);
-}
-
-.taglineJa {
-  margin: 0;
-  writing-mode: vertical-rl;
-  text-orientation: mixed;
-  font-family: var(--tk-jp);
-  font-weight: 400;
-  font-size: clamp(0.8rem, 1.05vw, 1rem);
-  line-height: 1;
-  letter-spacing: 0.28em;
-  color: var(--tk-pine-deep);
-  font-feature-settings: "vpal" 1;
-}
-
-/* 落款。菖蒲のベタ角印 */
-.seal {
-  display: block;
-  width: clamp(10px, 1.1vw, 13px);
-  aspect-ratio: 1;
-  background: var(--tk-iris);
 }
 
 /* ---- 床柱 ── 風化した松の丸太 ---- */
@@ -805,12 +764,6 @@ body:has(.root) {
     grid-row: 1;
     padding: clamp(40px, 7vh, 72px) var(--tk-pad) clamp(34px, 5vh, 56px)
       clamp(18px, 5vw, 34px);
-  }
-
-  .vertical {
-    margin-bottom: 0;
-    align-self: start;
-    padding-top: 6px;
   }
 
   .alcove {

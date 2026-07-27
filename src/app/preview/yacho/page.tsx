@@ -474,11 +474,6 @@ export default function YachoPreview() {
                 <Field label="件名">
                   <span className={styles.tagEn}>{"Things I've built."}</span>
                 </Field>
-                <Field label="摘要">
-                  <span className={styles.jp}>
-                    口で説明するより、見た方が早い。
-                  </span>
-                </Field>
                 <Field label="観測者">
                   <Lat>SUMINAWA</Lat>
                 </Field>

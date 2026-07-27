@@ -127,10 +127,6 @@ export default function SumitsukePreview() {
               </div>
 
               <p className={s.tagEn}>{"Things I've built."}</p>
-              <p className={s.tagJa}>
-                <span className={s.tagJaMark} aria-hidden="true" />
-                口で説明するより、見た方が早い。
-              </p>
             </div>
 
             {/* 表題欄。図面がまず名乗るところ */}
