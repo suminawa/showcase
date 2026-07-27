@@ -227,11 +227,13 @@ export default function HihakuMitsuPreview() {
         <Myaku zone={s.zHead} at="head" />
         <p className={s.showcase}>Showcase</p>
         <h1 className={s.wordmark}>SUMINAWA</h1>
-        <p className={s.en}>{"Things I've built."}</p>
-        {/* 落款。画面で色を持つのはここ一箇所だけ */}
-        <span className={s.seal} aria-hidden="true">
-          墨
-        </span>
+        <p className={s.en}>
+          <span>{"Things I've built."}</span>
+          {/* 落款。画面で色を持つのはここ一箇所だけ。英文の右に捺す */}
+          <span className={s.seal} aria-hidden="true">
+            墨
+          </span>
+        </p>
       </header>
 
       <ol className={s.works}>

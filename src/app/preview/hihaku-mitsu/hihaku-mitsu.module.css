@@ -119,8 +119,8 @@
      濃い罫のマスクを水のマスクへ一致させる計算にも使うので変数で持つ */
   /* 水は脈の通る左の余白から差してくるが、画面の端まで洗う必要はない。
      52vw では薄い墨が全幅を覆って被覆率が跳ね上がった */
-  --hi-wet-l: 24vw;
-  --hi-wet-r: 8vw;
+  --hi-wet-l: 18vw;
+  --hi-wet-r: 6vw;
   /* 雲マスクの横位置。静止 → 触れた の二値。距離が背景の粒と違うので視差が出る */
   --hi-wet-x0: -13vw;
   --hi-wet-x1: 1vw;
@@ -554,7 +554,14 @@
 
 /* 英文は名乗りの真下に置かず、紙の中ほどまで送る。この段差が非対称の起点。
    送りは界線 2 行ぶん ── 空の罫が二本、字を待って残る */
+/*
+ * 英文と落款は同じ一行に載る。行の高さは line-height 2.3 × 小 ＝ ちょうど 1 pitch で、
+ * 界線はその 0.88 の位置に来る。落款を上寄せにしているのはそのため（下の註）。
+ */
 .en {
+  display: flex;
+  align-items: flex-start;
+  gap: clamp(14px, 1.6vw, 26px);
   font-size: var(--hi-tiny);
   line-height: 2.3;
   letter-spacing: 0.24em;
@@ -569,20 +576,30 @@
  * トラッキングと明朝の規則の外にある。料紙になったので、
  * 寸法は界線一行ぶんの正方形に揃えた ── 罫の一段に丁度嵌まる。
  */
+/*
+ * 落款。英文の右に捺す。画面で色を持つのはここ一箇所だけ。
+ *
+ * 界線に乗らないための寸法 ── 罫は各行の 0.88 行目に来るので、
+ *   上端 0.10 行 ／ 高さ 0.62 行 ／ 下端 0.72 行
+ * となり、罫との間に 0.16 行（pitch 34px なら約 5.4px）残る。
+ * 罫は feDisplacementMap で ±1.5px 揺れるので、この余裕は必要。
+ * 字ではなく図像なので「大と小の二段」の規則の外にあるが、
+ * 中の 墨 は小の帯（13〜15px）に収めてある。
+ */
 .seal {
+  flex: none;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   /* 図像なので触れない。他の装飾（.stroke / .trace / .myaku / .flow）は
      すべて pointer-events: none を持つのに、ここだけ落ちていた */
   pointer-events: none;
-  width: var(--hi-kei-pitch);
-  height: var(--hi-kei-pitch);
-  margin-top: var(--hi-kei-pitch);
-  margin-left: clamp(28px, 20vw, 280px);
+  width: calc(0.62 * var(--hi-kei-pitch));
+  height: calc(0.62 * var(--hi-kei-pitch));
+  margin-top: calc(0.1 * var(--hi-kei-pitch));
   background: var(--hi-shu);
   color: var(--hi-paper);
-  font-size: clamp(0.75rem, 1.1vw, 0.875rem);
+  font-size: clamp(0.6875rem, 0.95vw, 0.8125rem);
   line-height: 1;
   letter-spacing: 0;
   animation: hi-rise 900ms var(--hi-brush) 1320ms both;
@@ -697,8 +714,29 @@
   background-image: url("/ink/sumi-wide.png");
   background-size: 250% auto;
   background-position: -30vw 50%;
-  /* contrast(0.84) で黒を持ち上げる。墨として濃いのではなく「湿っている」ところまで */
-  filter: grayscale(1) contrast(0.86) brightness(1.02) sepia(0.34) saturate(0.5);
+  /*
+   * contrast で黒を持ち上げる。墨として濃いのではなく「湿っている」ところまで。
+   *
+   * 青墨（あおずみ）── 藍を含んだ墨。sepia で色を作り、hue-rotate で藍へ回す。
+   *
+   * saturate の値は一度低すぎた。0.5 では実測で【青が一画素も出なかった】──
+   * 水の画素 69,428 個のうち B > R になったのは 7 個（0.01%）だけ。
+   * 理由は合成の算術にある。
+   *
+   *   紙 #F6F3EB は R が B より 11 高い暖色で、水は紙を【暗くする】層である。
+   *   合成後に青が出る条件は  −11(1−a) + (ink_B − ink_R)·a > 0。
+   *   saturate(0.5) のインクは #959FB0（B−R = +27）なので a > 0.29 が要るが、
+   *   ピークの実効不透明度は 0.245 でわずかに届かない。
+   *
+   *   saturate(1) ではインクの B−R が +54 になり、閾値は a > 0.17 へ下がる。
+   *   結果、【濃い芯だけが青く出て、薄い裾は灰のまま】── 濃い墨は色を見せ、
+   *   薄めた墨は灰に見えるという、実際の墨と同じ挙動になる。
+   *
+   * ＊ 法「唯一の色は朱の落款ひとつ」との折り合い ── 青墨は墨の一種であって
+   *   別の色ではない。色が出るのは水が最も濃い芯だけで、画面の大半は灰のまま。
+   */
+  filter: grayscale(1) contrast(0.86) brightness(1.02) sepia(1)
+    hue-rotate(178deg) saturate(1);
   mask-position: var(--hi-wet-x0) 0;
 
   /* 離したとき：薄まりは 840ms、位置の戻りは 2600ms の「頭が寝た」曲線。
@@ -719,8 +757,9 @@
   background-image: url("/ink/sumi-wide.png");
   background-size: 350% auto;
   background-position: -2vw 44%;
-  filter: grayscale(1) contrast(0.72) brightness(1.05) sepia(0.4) saturate(0.45)
-    blur(2.5px);
+  /* 底は表層よりさらに淡い青墨（彩度 13%）。遠いものほど色を失う */
+  filter: grayscale(1) contrast(0.72) brightness(1.05) sepia(1)
+    hue-rotate(178deg) saturate(0.85) blur(2.5px);
   mask-position: 0 0;
 
   transition: opacity 900ms cubic-bezier(0.4, 0, 0.6, 1);
@@ -773,7 +812,9 @@
    :has(.entry) で、リンクを持たない「準備中」の行だけは濡れないようにしてある。 */
 .work:has(.entry):hover .flow,
 .work:has(.entry:focus-visible) .flow {
-  opacity: 0.2;
+  /* 濃さを上げたぶん、範囲（--hi-wet-l / -r）を締めて紙の予算を釣り合わせている。
+     広く薄く撒くより、狭く濃いほうが「濡れた」と読める */
+  opacity: 0.245;
   /* 粒は 30vw、窓は 14vw。距離が違うので視差が出る＝「通り抜けた」に見える */
   background-position: 0 50%;
   mask-position: var(--hi-wet-x1) 0;
@@ -785,7 +826,7 @@
 
 .work:has(.entry):hover .flowDeep,
 .work:has(.entry:focus-visible) .flowDeep {
-  opacity: 0.115;
+  opacity: 0.14;
   transition: opacity 1750ms cubic-bezier(0.25, 0.6, 0.3, 1);
   animation-play-state: running;
 }
@@ -961,18 +1002,18 @@
        板の高さを 1 pitch まで落とす ── 行そのものと、その上下の罫一本ずつは
        依然として覆うので、見どころ（濡れた範囲の罫が滲む）は残る。 */
     --hi-wet-y: var(--hi-kei-pitch);
-    --hi-wet-l: 15vw;
-    --hi-wet-r: 6vw;
+    --hi-wet-l: 12vw;
+    --hi-wet-r: 5vw;
   }
 
   .work:has(.entry):hover .flow,
   .work:has(.entry:focus-visible) .flow {
-    opacity: 0.145;
+    opacity: 0.175;
   }
 
   .work:has(.entry):hover .flowDeep,
   .work:has(.entry:focus-visible) .flowDeep {
-    opacity: 0.085;
+    opacity: 0.1;
   }
 }
 
@@ -982,8 +1023,8 @@
     --hi-void-lg: clamp(88px, 32svh, 260px);
     /* 縦長の紙では左に溜まる紙が細いので、水の左への開きを詰める。
        .flow と .work::after の両方がこの変数を見るので、二枚は必ず一致する */
-    --hi-wet-l: 18vw;
-    --hi-wet-r: 7vw;
+    --hi-wet-l: 14vw;
+    --hi-wet-r: 6vw;
     /* 一列に畳まれた紙では、一件の版面が画面幅のほぼ全部を占める。同じ濃さ・同じ広さの
        湿りを乗せると画面に対する墨の比率が跳ね上がるので（実測 紙 78.6% ＝八割割れ）、
        湿りの上下を 3 行から 2 行へ詰める。静止の罫（±3 行）より内側に収まるだけなので、
