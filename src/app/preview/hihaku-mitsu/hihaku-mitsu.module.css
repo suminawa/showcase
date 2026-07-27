@@ -1032,12 +1032,15 @@
 
   .work:has(.entry):hover .flow,
   .work:has(.entry:focus-visible) .flow {
-    opacity: 0.215;
+    /* 広い紙と同じ濃さへ揃える。0.215 では合成後に青が出る閾値 a>0.17 に
+       届かず、この帯だけ青が乗っていなかった（実測 B>R が水の 1.2%、
+       b* 最青 −1.7 で、広い紙の −4.0 に対して半分以下） */
+    opacity: 0.245;
   }
 
   .work:has(.entry):hover .flowDeep,
   .work:has(.entry:focus-visible) .flowDeep {
-    opacity: 0.125;
+    opacity: 0.14;
   }
 }
 
