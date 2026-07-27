@@ -140,11 +140,43 @@ const HIHAKU_LINES = [
   },
 ];
 
+/** 飛白の線を二つ以上組み合わせた 4 案 */
+const HIHAKU_COMBOS = [
+  {
+    slug: "hihaku-myaku-nagare",
+    label: "筆脈＋流れ",
+    latin: "Vein + Flow",
+    touch: "その行の紙が濡れる",
+    note: "静止時から在る縦の脈が構造、水が出来事。脈が通る左の余白から水が 1550ms かけて差し、離すと 840ms で薄まる。脈は 1px も動かない。",
+  },
+  {
+    slug: "hihaku-kei-nagare",
+    label: "界線＋流れ",
+    latin: "Ruled + Flow",
+    touch: "濡れた範囲の罫が滲む",
+    note: "水は自分の面を持たず、既に引かれた横罫に作用する。湿った範囲を通る罫だけが厚み 3px から 4〜5px に太り、墨が Δ75 から Δ146 になる。",
+  },
+  {
+    slug: "hihaku-myaku-kei",
+    label: "筆脈＋界線",
+    latin: "Vein + Ruled",
+    touch: "その行の界線が墨を得る",
+    note: "縦の脈を版面の左を限る匡郭として横罫と一組にし、格子を避けるため二本を交わらせていない。匡郭は静止したまま、触れた一行の罫だけが濃くなる。",
+  },
+  {
+    slug: "hihaku-mitsu",
+    label: "三つ",
+    latin: "All Three",
+    touch: "紙が濡れ、その罫が濃くなる",
+    note: "界線が料紙の地、筆脈がその上を降りる道筋で、二つとも静止。触れて動くのは水だけで、水の届いた範囲の界線が墨を倍にする。",
+  },
+];
+
 export default function PreviewIndex() {
   return (
     <main className="mx-auto min-h-svh max-w-3xl bg-white px-6 py-16 text-neutral-900">
       <h1 className="text-2xl font-bold tracking-tight">
-        トップページの世界 — 16 案
+        トップページの世界 — 20 案
       </h1>
       <p className="mt-3 text-[0.9375rem] leading-[1.9] text-neutral-600">
         どの案も
@@ -238,6 +270,41 @@ export default function PreviewIndex() {
                 </span>
                 <span className="ml-auto text-[0.8125rem] text-neutral-500">
                   線 = {w.line}
+                </span>
+              </div>
+              <p className="text-[0.875rem] leading-[1.8] text-neutral-600">
+                {w.note}
+              </p>
+            </Link>
+          </li>
+        ))}
+      </ul>
+
+      <h2 className="mt-12 text-[0.8125rem] font-semibold tracking-[0.14em] text-neutral-500 uppercase">
+        飛白 ── 線を組み合わせる 4 案
+      </h2>
+      <p className="mt-2 text-[0.8125rem] leading-[1.9] text-neutral-500">
+        4 件とも
+        一つ上の列にある線を二つ以上重ねた案です。どれも一方を静止した構造に固定し、
+        もう一方だけを触れたときの出来事に残してあるので、
+        触れて起きることは組み合わせても一つです。
+      </p>
+      <ul className="mt-3 divide-y divide-neutral-200 border-y border-neutral-200">
+        {HIHAKU_COMBOS.map((w) => (
+          <li key={w.slug}>
+            <Link
+              href={`/preview/${w.slug}`}
+              className="group flex flex-col gap-1.5 py-5 transition-colors hover:bg-neutral-50"
+            >
+              <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
+                <span className="text-[1.0625rem] font-bold group-hover:underline">
+                  {w.label}
+                </span>
+                <span className="text-[0.8125rem] tracking-[0.12em] text-neutral-400 uppercase">
+                  {w.latin}
+                </span>
+                <span className="ml-auto text-[0.8125rem] text-neutral-500">
+                  触れると = {w.touch}
                 </span>
               </div>
               <p className="text-[0.875rem] leading-[1.8] text-neutral-600">

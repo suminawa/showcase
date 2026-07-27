@@ -1,0 +1,770 @@
+/* ==========================================================================
+   界線＋流れ（かいせん・ながれ）— 濡れた紙では、罫が滲む   ［飛白 組み合わせ案 B］
+   --------------------------------------------------------------------------
+   施主の「筆脈と流れを足したら」「界線も結構好き」に対する、界線と流れの組み合わせ。
+   ただし **足し算ではない**。二つの CSS を並べて置いたものではない。
+
+   ── 何を解決したか（統合）───────────────────────────────────────
+   界線と流れは、どちらも【紙】の話である。筆の話ではない。
+   界線は紙にあらかじめ引かれた罫。流れは紙が濡れること。だから両者は
+   同じ素材の上で出会える ── そして濡れた紙では、そこに引かれた墨が滲む。
+
+   よってこの案では、流れは「行の背後に別の面を敷く」ことをやめた。
+   流れは【既に在る界線に作用する】。触れると、
+
+     ・その行のあたりの紙が湿る（極めて淡く、輪郭なく）
+     ・湿った範囲を通る界線だけが、滲んで太り、濃くなる
+     ・湿りの縁では罫がぼやけ、乾いた部分では元の細さのまま残る
+
+   水そのものはほとんど見えない。実測（1280×820）で、罫から離れた素の紙が沈む量は
+   最大 Δ 9/255（α 0.04）、版面の外の白い余白では最大 Δ 6/255 ── ほぼ知覚の下にある。
+   いっぽう罫は、厚み 3px → 4〜5px、墨 Δ 75 → 146 に変わり、さらに上下へ Δ34 の滲みが伸びる。
+   水が【形】を持って現れるのは罫の上だけである。
+   見えるのは水ではなく罫の変化 ── 二つは一つの現象になっている。
+
+   ── 役 ─────────────────────────────────────────────────────
+   界線 ＝ 構造。静止時から在り、紙の骨格（法1の起点の斜行）を目に見せる。
+          触れても、界線は自分からは何もしない。
+   流れ ＝ 出来事。触れたときだけ起きる。構造の【上】ではなく、構造【に】起きる。
+
+   ── 降格した側から削ったもの（ここが足し算でないことの実体）──────────
+   ■ 界線から削除
+     ・「触れると、その行の罫が版面いっぱいに墨を得る」というホバー表現を全廃した。
+       元の界線案（hihaku-kei）は .work::after に濃い罫を全幅で敷き、上から下へ
+       線形（1.0 / 0.55 / 0.19 / 0.04）に減衰させていた。その線形マスクは無い。
+       いま濃い罫が出るのは【水が来た所だけ】で、範囲を決めるのは水である。
+       界線は自分の出来事を一つも持たない。持っているのは形だけ。
+   ■ 流れから削除
+     ・二枚あった水の板（.flow / .flowDeep）を一枚にした。底の板は無い。
+     ・31s 周期の「底の揺れ」を廃止し、表層の粒がゆっくり漂う一本に畳んだ。
+     ・素材 sumi-dense.png（3.18MB）を捨て、sumi-sparse.png（0.24MB）にした。
+       流れ案の売りだった「流体ソルバが実際に計算した水面そのもの」という
+       素材上の根拠を、この案は手放している。理由は下の「素材」節。
+     ・水の不透明度を 0.31＋0.19 から 0.15 一枚へ落とした。
+       水はもう「行の背後に立つ面」ではない。紙が湿っているだけの状態にした。
+
+   ── 継承した禁則 ───────────────────────────────────────────
+   界線案は飛白の法3（罫・区切り線を持たない）を宣言のうえ破っている。この案も継承する。
+   ただし区切り線に見えたら負け ── 界線は分ける線ではなく、載せる線である。
+   大字 SUMINAWA の帯だけは罫を通さない（.mark::before の mask）。罫の間隔（約 34px）に
+   対して大字は 130px 超で、通すと「罫線ノートに書いた見出し」になる。元案の処置をそのまま引く。
+
+   ── 素材（sumi-dense を使わない理由）─────────────────────────
+   この案の水は「紙がうっすら灰を帯びる」ところまでしか濃くならない（実測 α 最大 0.04）。
+   水面の細部は一つも読めない ── 必要なのは連続した濃淡の斑だけである。
+   さらに sumi-sparse.png は入りの一筆（.ink）が既に読んでいる。同じ画を使えば
+   この案の水は【追加 0 バイト】で成立する。3.18MB を新たに読んで、
+   0.04 の alpha に潰して使うのは、この設計では正当化できない。
+
+   コントラスト（紙 #F6F3EB 上、実測値）
+     #1C1A15 15.5:1 / #3A3730 10.9:1 / #55514A 7.1:1 / #6A665D 5.2:1
+     #A63A2E  5.9:1（落款）  #8E8A80 3.1:1 → 図版専用。文字には使わない
+     界線（静止）墨 α 0.32 前後 ≒ 2.2:1 → 図版。文字より必ず下に沈む
+     触れた行の文字は #3A3730 / #1C1A15 へ濃くしてある。最悪の地（罫の滲みが最も濃い
+     Δ34 の点 ＝ 紙が #D4D1C9 相当まで沈む）の上でも 7.9:1 / 11.4:1 を保つ。
+     可読性は触れた側でむしろ上がる。
+   ========================================================================== */
+
+.paper {
+  /* ---- 紙と墨 ---- */
+  --hi-paper: #f6f3eb;
+  --hi-sumi: #1c1a15; /* 15.5:1 */
+  --hi-sumi-2: #3a3730; /* 10.9:1 */
+  --hi-sumi-3: #55514a; /* 7.1:1 */
+  --hi-sumi-4: #6a665d; /* 5.2:1 */
+  --hi-kasure: #8e8a80; /* 3.1:1 — 図版のかすれの色。文字には使わない */
+  --hi-shu: #a63a2e; /* 落款の朱。画面で色を持つのはここ一箇所だけ */
+
+  /* ---- 二段しかない字の寸法 ---- */
+  --hi-tiny: clamp(0.8125rem, 0.75rem + 0.22vw, 0.9375rem); /* 13 → 15px */
+  /* 名乗りだけは別に持つ。界線の版面の高さがこの値から決まるため */
+  --hi-mark-size: clamp(2.85rem, 12.6vw, 8.75rem);
+
+  /* ---- 界線 ---- */
+  /* 罫の間隔＝本文一行。以下すべての行送り・行間・落款の寸法がこの整数倍になる */
+  --hi-kei-pitch: calc(2.3 * var(--hi-tiny)); /* 約 30 → 34px */
+
+  /* ---- 水 ----
+     湿りが行の上下へ漏れる量。--hi-void と同じ svh 基準に揃えてあるので、
+     どの背丈でも必ず 漏れ幅 < 段差（10svh < 40svh、携帯でも 10svh < 26svh）になる。
+     隣の作品の文字は決して汚さない。 */
+  --hi-wet-y: clamp(40px, 10svh, 120px);
+  /* 差してくる 1550ms／薄まる 840ms。5 案で最も遅い時間の掛かり方を引き継ぐ */
+  --hi-mizu-in: 1550ms cubic-bezier(0.16, 0.62, 0.24, 1);
+  --hi-mizu-out: 840ms cubic-bezier(0.42, 0, 0.62, 1);
+  /* 離しても位置は 2600ms かけてしか戻らない。薄まりきる頃には殆ど動いていない
+     ── 退いて消えるのではなく、その場で薄まる */
+  --hi-mizu-ebb: 2600ms cubic-bezier(0.55, 0.02, 0.8, 0.2);
+
+  /* ---- 沈黙 ---- */
+  --hi-void: clamp(88px, 40svh, 380px);
+  --hi-void-lg: clamp(112px, 52svh, 500px);
+
+  --hi-brush: cubic-bezier(0.16, 1, 0.3, 1);
+  --hi-soak: 560ms cubic-bezier(0.25, 0.8, 0.3, 1);
+
+  --hi-serif:
+    var(--hi-mincho), "Hiragino Mincho ProN", "Yu Mincho", YuMincho,
+    "Noto Serif JP", serif;
+  --hi-serif-display:
+    var(--hi-display), "Hiragino Mincho ProN", "Yu Mincho", YuMincho,
+    "Noto Serif JP", serif;
+
+  position: relative;
+  isolation: isolate;
+  overflow-x: clip;
+  min-height: 100svh;
+  background: var(--hi-paper);
+  color: var(--hi-sumi);
+  font-family: var(--hi-serif);
+  font-feature-settings: "palt" 1;
+
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  column-gap: clamp(12px, 2vw, 28px);
+  align-content: start;
+  padding-inline: clamp(20px, 5.2vw, 96px);
+  padding-block: clamp(24px, 6svh, 72px) 0;
+}
+
+/* 紙の面はページ全体。オーバースクロールで框の黒が覗かないようにする。
+   :has で自分のページにいるときだけ効く（globals.css は触らない） */
+:global(body):has(.paper) {
+  background: #f6f3eb;
+}
+
+/* ==========================================================================
+   界線 ── 構造。乾いた紙に、字を書く前から引いてある
+   --------------------------------------------------------------------------
+   タイルは高さ 3 本ぶん（viewBox 300 = 3 × pitch）。罫は 88 / 188 / 288、
+   すなわち各行の上端から 0.88 行ぶん下 ── 小の明朝のベースラインの
+   約 6px 下に落ちる。字は罫の上に座り、y や p の下がりは罫を跨がない。
+   罫は border ではない。一本の横線を SVG で描き、feTurbulence →
+   feDisplacementMap で微かに波打たせ（画面上 ±1.5px）、左から右へ掠れて消す。
+   定規の線ではなく手の線。左端 150 単位だけ第二の勾配で墨溜まりを作る。
+   ========================================================================== */
+
+.paper {
+  /* 乾いた罫。墨の alpha 0.40 → 0。この一本が構造で、触れても動かない */
+  --hi-kei-line: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1200 300' preserveAspectRatio='none'%3E%3Cfilter id='k' filterUnits='userSpaceOnUse' x='-60' y='-40' width='1330' height='390' color-interpolation-filters='sRGB'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.0055 0.03' numOctaves='2' seed='17' result='n'/%3E%3CfeDisplacementMap in='SourceGraphic' in2='n' scale='9' xChannelSelector='R' yChannelSelector='G'/%3E%3C/filter%3E%3ClinearGradient id='g' gradientUnits='userSpaceOnUse' x1='0' y1='0' x2='1200' y2='0'%3E%3Cstop offset='0' stop-color='%231c1a15' stop-opacity='0.40'/%3E%3Cstop offset='0.05' stop-color='%231c1a15' stop-opacity='0.32'/%3E%3Cstop offset='0.32' stop-color='%231c1a15' stop-opacity='0.24'/%3E%3Cstop offset='0.6' stop-color='%231c1a15' stop-opacity='0.12'/%3E%3Cstop offset='0.82' stop-color='%231c1a15' stop-opacity='0.035'/%3E%3Cstop offset='1' stop-color='%231c1a15' stop-opacity='0'/%3E%3C/linearGradient%3E%3ClinearGradient id='p' gradientUnits='userSpaceOnUse' x1='0' y1='0' x2='150' y2='0'%3E%3Cstop offset='0' stop-color='%231c1a15' stop-opacity='0.30'/%3E%3Cstop offset='1' stop-color='%231c1a15' stop-opacity='0'/%3E%3C/linearGradient%3E%3Cg filter='url(%23k)' fill='none'%3E%3Cg stroke='url(%23g)' stroke-width='3.2'%3E%3Cpath d='M-20 88H1215'/%3E%3Cpath d='M-20 188H1215'/%3E%3Cpath d='M-20 288H1215'/%3E%3C/g%3E%3Cg stroke='url(%23p)' stroke-width='4.6' stroke-linecap='round'%3E%3Cpath d='M-8 88H150'/%3E%3Cpath d='M-8 188H150'/%3E%3Cpath d='M-8 288H150'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+
+  /* 濡れた罫。波形・位相・本数・左の墨溜まりの位置は乾いた罫と完全に同一。
+     違うのは三点だけ ──
+       ・芯が太る（stroke-width 3.2 → 5.0）
+       ・墨が濃くなる（alpha 0.40 → 0.95）そして右へ遠くまで届く
+       ・下へ 0.8 単位ずらした blur の層（stroke-width 7）が滲みの縁を作る。
+         滲みなので上下対称でなくてよい。紙の繊維は下へ引く。
+     この画は【水が来た範囲だけ】マスクで切り抜かれて現れる。全幅では出ない。 */
+  --hi-kei-line-wet: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1200 300' preserveAspectRatio='none'%3E%3Cfilter id='k' filterUnits='userSpaceOnUse' x='-60' y='-40' width='1330' height='390' color-interpolation-filters='sRGB'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.0055 0.03' numOctaves='2' seed='17' result='n'/%3E%3CfeDisplacementMap in='SourceGraphic' in2='n' scale='9' xChannelSelector='R' yChannelSelector='G'/%3E%3C/filter%3E%3Cfilter id='w' filterUnits='userSpaceOnUse' x='-60' y='-50' width='1330' height='410' color-interpolation-filters='sRGB'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.0055 0.03' numOctaves='2' seed='17' result='n'/%3E%3CfeDisplacementMap in='SourceGraphic' in2='n' scale='9' xChannelSelector='R' yChannelSelector='G' result='d'/%3E%3CfeGaussianBlur in='d' stdDeviation='1.4 1.7'/%3E%3C/filter%3E%3ClinearGradient id='g' gradientUnits='userSpaceOnUse' x1='0' y1='0' x2='1200' y2='0'%3E%3Cstop offset='0' stop-color='%231c1a15' stop-opacity='0.95'/%3E%3Cstop offset='0.05' stop-color='%231c1a15' stop-opacity='0.9'/%3E%3Cstop offset='0.3' stop-color='%231c1a15' stop-opacity='0.74'/%3E%3Cstop offset='0.55' stop-color='%231c1a15' stop-opacity='0.42'/%3E%3Cstop offset='0.75' stop-color='%231c1a15' stop-opacity='0.13'/%3E%3Cstop offset='0.88' stop-color='%231c1a15' stop-opacity='0'/%3E%3C/linearGradient%3E%3ClinearGradient id='b' gradientUnits='userSpaceOnUse' x1='0' y1='0' x2='1200' y2='0'%3E%3Cstop offset='0' stop-color='%231c1a15' stop-opacity='0.32'/%3E%3Cstop offset='0.3' stop-color='%231c1a15' stop-opacity='0.24'/%3E%3Cstop offset='0.6' stop-color='%231c1a15' stop-opacity='0.1'/%3E%3Cstop offset='0.85' stop-color='%231c1a15' stop-opacity='0'/%3E%3C/linearGradient%3E%3ClinearGradient id='p' gradientUnits='userSpaceOnUse' x1='0' y1='0' x2='150' y2='0'%3E%3Cstop offset='0' stop-color='%231c1a15' stop-opacity='0.8'/%3E%3Cstop offset='1' stop-color='%231c1a15' stop-opacity='0'/%3E%3C/linearGradient%3E%3Cg filter='url(%23w)' fill='none' stroke='url(%23b)' stroke-width='7'%3E%3Cpath d='M-20 88.8H1215'/%3E%3Cpath d='M-20 188.8H1215'/%3E%3Cpath d='M-20 288.8H1215'/%3E%3C/g%3E%3Cg filter='url(%23k)' fill='none'%3E%3Cg stroke='url(%23g)' stroke-width='5'%3E%3Cpath d='M-20 88H1215'/%3E%3Cpath d='M-20 188H1215'/%3E%3Cpath d='M-20 288H1215'/%3E%3C/g%3E%3Cg stroke='url(%23p)' stroke-width='7' stroke-linecap='round'%3E%3Cpath d='M-8 88H150'/%3E%3Cpath d='M-8 188H150'/%3E%3Cpath d='M-8 288H150'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+
+  /* 水の形。等方の乱流 × 三つの水たまりの包絡。
+     原本の墨（.ink / .trace）は baseFrequency x≪y の異方＝「筆の毛の割れ」。
+     こちらは画面上で等方＝「水の斑」。この一点が「筆ではない」ことの技術的な証拠。
+     mask-size: 320% 100% で敷くため、viewBox 上の x 周波数は約 2.85 倍に
+     前補正してある（viewBox 上で等方にすると、画面では横縞＝筆になってしまう）。
+     包絡は viewBox の上下辺で 0 に落ちるので、板の天地に境界の線は立たない。
+     左右は、罫そのものが板の左辺から始まり 0.88 で墨を失うので、
+     マスクの切り口には常に「描くものが無い領域」しか来ない。 */
+  --hi-mizu-shape: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1400 500' preserveAspectRatio='none'%3E%3Cfilter id='t' color-interpolation-filters='sRGB'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.0205 0.0072' numOctaves='5' seed='23'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 1 0 0 0 0'/%3E%3CfeComponentTransfer%3E%3CfeFuncA type='linear' slope='2.3' intercept='-0.66'/%3E%3C/feComponentTransfer%3E%3C/filter%3E%3CradialGradient id='a' gradientUnits='userSpaceOnUse' cx='740' cy='225' r='100' gradientTransform='translate(0 225) scale(1 1.85) translate(0 -225)'%3E%3Cstop offset='0' stop-color='%23fff' stop-opacity='1'/%3E%3Cstop offset='0.34' stop-color='%23fff' stop-opacity='0.9'/%3E%3Cstop offset='0.7' stop-color='%23fff' stop-opacity='0.44'/%3E%3Cstop offset='1' stop-color='%23fff' stop-opacity='0'/%3E%3C/radialGradient%3E%3CradialGradient id='b' gradientUnits='userSpaceOnUse' cx='855' cy='262' r='110' gradientTransform='translate(0 262) scale(1 1.55) translate(0 -262)'%3E%3Cstop offset='0' stop-color='%23fff' stop-opacity='0.88'/%3E%3Cstop offset='0.34' stop-color='%23fff' stop-opacity='0.79'/%3E%3Cstop offset='0.7' stop-color='%23fff' stop-opacity='0.39'/%3E%3Cstop offset='1' stop-color='%23fff' stop-opacity='0'/%3E%3C/radialGradient%3E%3CradialGradient id='d' gradientUnits='userSpaceOnUse' cx='680' cy='285' r='80' gradientTransform='translate(0 285) scale(1 1.7) translate(0 -285)'%3E%3Cstop offset='0' stop-color='%23fff' stop-opacity='0.62'/%3E%3Cstop offset='0.34' stop-color='%23fff' stop-opacity='0.56'/%3E%3Cstop offset='0.7' stop-color='%23fff' stop-opacity='0.27'/%3E%3Cstop offset='1' stop-color='%23fff' stop-opacity='0'/%3E%3C/radialGradient%3E%3Cmask id='m'%3E%3Crect width='1400' height='500' fill='url(%23a)'/%3E%3Crect width='1400' height='500' fill='url(%23b)'/%3E%3Crect width='1400' height='500' fill='url(%23d)'/%3E%3C/mask%3E%3Cg mask='url(%23m)'%3E%3Crect x='-400' y='-300' width='2200' height='1100' filter='url(%23t)'/%3E%3C/g%3E%3C/svg%3E");
+
+  /* 湿りの窓。板は紙の外まで張り出すので、包絡は四辺すべてで 0 に落とす */
+  --hi-mizu-damp: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1400 500' preserveAspectRatio='none'%3E%3Cfilter id='t' color-interpolation-filters='sRGB'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.0095 0.0075' numOctaves='5' seed='41'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 1 0 0 0 0'/%3E%3CfeComponentTransfer%3E%3CfeFuncA type='linear' slope='1.9' intercept='-0.56'/%3E%3C/feComponentTransfer%3E%3C/filter%3E%3CradialGradient id='a' gradientUnits='userSpaceOnUse' cx='820' cy='250' r='225' gradientTransform='translate(0 250) scale(1 0.82) translate(0 -250)'%3E%3Cstop offset='0' stop-color='%23fff' stop-opacity='1'/%3E%3Cstop offset='0.34' stop-color='%23fff' stop-opacity='0.9'/%3E%3Cstop offset='0.7' stop-color='%23fff' stop-opacity='0.44'/%3E%3Cstop offset='1' stop-color='%23fff' stop-opacity='0'/%3E%3C/radialGradient%3E%3CradialGradient id='b' gradientUnits='userSpaceOnUse' cx='980' cy='236' r='165' gradientTransform='translate(0 236) scale(1 0.68) translate(0 -236)'%3E%3Cstop offset='0' stop-color='%23fff' stop-opacity='0.72'/%3E%3Cstop offset='0.34' stop-color='%23fff' stop-opacity='0.65'/%3E%3Cstop offset='0.7' stop-color='%23fff' stop-opacity='0.32'/%3E%3Cstop offset='1' stop-color='%23fff' stop-opacity='0'/%3E%3C/radialGradient%3E%3CradialGradient id='d' gradientUnits='userSpaceOnUse' cx='675' cy='264' r='160' gradientTransform='translate(0 264) scale(1 0.72) translate(0 -264)'%3E%3Cstop offset='0' stop-color='%23fff' stop-opacity='0.58'/%3E%3Cstop offset='0.34' stop-color='%23fff' stop-opacity='0.52'/%3E%3Cstop offset='0.7' stop-color='%23fff' stop-opacity='0.26'/%3E%3Cstop offset='1' stop-color='%23fff' stop-opacity='0'/%3E%3C/radialGradient%3E%3Cmask id='m'%3E%3Crect width='1400' height='500' fill='url(%23a)'/%3E%3Crect width='1400' height='500' fill='url(%23b)'/%3E%3Crect width='1400' height='500' fill='url(%23d)'/%3E%3C/mask%3E%3Cg mask='url(%23m)'%3E%3Crect x='-400' y='-300' width='2200' height='1100' filter='url(%23t)'/%3E%3C/g%3E%3C/svg%3E");
+}
+
+/* すべての罫が共有する敷き方。z-index:-1 で必ず字の下へ沈む。
+   タイル高は 3 pitch だが罫は 1 pitch ごとなので、
+   敷き始めを pitch の整数倍ずらしても位相は狂わない ── これが重ね合わせの前提。
+   罫はすべて擬似要素なので DOM にもアクセシビリティツリーにも現れず、
+   pointer-events も持たない。 */
+.mark::before,
+.work::before,
+.work::after,
+.close::before {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  left: 0;
+  right: 0;
+  pointer-events: none;
+  background-image: var(--hi-kei-line);
+  background-repeat: repeat-y;
+  background-size: 100% calc(3 * var(--hi-kei-pitch));
+}
+
+/* ==========================================================================
+   墨 ── 二筆だけ（原本のまま。界線も水も紙の側の出来事で、墨は増やしていない）
+   ========================================================================== */
+
+/*
+ * 入りの一筆。sumi-sparse を紙幅より大きく引き伸ばし、右上へ抜けさせる。
+ * ラッパは transform も z-index も持たない（持つと mix-blend-mode が
+ * ここで隔離されて紙と混ざらなくなる）。傾きと合成は子だけが担当する。
+ */
+.stroke {
+  position: absolute;
+  top: -30svh;
+  right: -34vw;
+  /* 196svh の上限が要る。横長で背の低い紙のとき、一筆が名乗りの上へ降りてくるのを
+     この項だけが止める（背が低いほど筆は小さく、右上へ寄る） */
+  width: min(136vw, 1780px, 196svh);
+  aspect-ratio: 2000 / 1400;
+  pointer-events: none;
+}
+
+/*
+ * 飛白そのもの ── 筆の毛が割れて、墨の中を白い筋が走る。
+ * 割れ目は feTurbulence の極端な異方（x=0.0038 / y=0.1）で作る。横へ長く伸びた
+ * 縞状のノイズをアルファへ移し、slope 8 でほぼ二値化すると、等間隔でない・うねる・
+ * 端が千切れた筋になる。全体を -7deg 回して穂の進行方向に沿わせる。
+ * 穂先側から穂尻へ白のグラデーションを重ねて和を取り、墨を多く含んだ書き出しだけは
+ * 筋を埋めて残す。濡れて入り、乾いて抜ける ── 一筆の中に時間が入る。
+ */
+.ink {
+  position: absolute;
+  inset: 0;
+  background: url("/ink/sumi-sparse.png") no-repeat center / 100% 100%;
+  transform: rotate(-5.5deg);
+  transform-origin: 62% 46%;
+  mix-blend-mode: darken;
+  mask-repeat: no-repeat;
+  /* mask-composite の初期値は add。二枚は和で重なる */
+}
+
+/* 掠れ ── 飛んだ灰。中間調をそのまま残し、sepia で紙の温度に寄せる */
+.inkKasure {
+  filter: grayscale(1) brightness(0.95) contrast(1.52) sepia(0.34)
+    saturate(0.55);
+  opacity: 0.9;
+  /* 芯より筋を細く抜く（閾値 intercept -2.96）。黒の外に灰の縁が残る */
+  mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1200 800' preserveAspectRatio='none'%3E%3Cfilter id='h' color-interpolation-filters='sRGB'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.0038 0.1' numOctaves='4' seed='5'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 1 0 0 0 0'/%3E%3CfeComponentTransfer%3E%3CfeFuncA type='linear' slope='8' intercept='-2.96'/%3E%3C/feComponentTransfer%3E%3C/filter%3E%3ClinearGradient id='g' x1='0' y1='1' x2='0.9' y2='0.05'%3E%3Cstop offset='0.16' stop-color='%23fff' stop-opacity='1'/%3E%3Cstop offset='0.68' stop-color='%23fff' stop-opacity='0'/%3E%3C/linearGradient%3E%3Cg transform='rotate(-7 600 400)'%3E%3Crect x='-500' y='-500' width='2200' height='1800' filter='url(%23h)'/%3E%3C/g%3E%3Crect width='1200' height='800' fill='url(%23g)'/%3E%3C/svg%3E");
+  mask-size: 100% 100%;
+  animation: hi-sweep 1750ms var(--hi-brush) 60ms both;
+}
+
+/* 芯 ── 一番沈んだところだけを墨まで落とす。126〜232 を黒〜白へ引き伸ばす */
+.inkCore {
+  filter: grayscale(1) brightness(0.74) contrast(2.85) sepia(0.28)
+    saturate(0.62);
+  /* 同じ乱流・同じ seed。閾値だけ上げて（-3.68）筋を太く抜く */
+  mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1200 800' preserveAspectRatio='none'%3E%3Cfilter id='h' color-interpolation-filters='sRGB'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.0038 0.1' numOctaves='4' seed='5'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 1 0 0 0 0'/%3E%3CfeComponentTransfer%3E%3CfeFuncA type='linear' slope='8' intercept='-3.68'/%3E%3C/feComponentTransfer%3E%3C/filter%3E%3ClinearGradient id='g' x1='0' y1='1' x2='0.9' y2='0.05'%3E%3Cstop offset='0.14' stop-color='%23fff' stop-opacity='1'/%3E%3Cstop offset='0.6' stop-color='%23fff' stop-opacity='0'/%3E%3C/linearGradient%3E%3Cg transform='rotate(-7 600 400)'%3E%3Crect x='-500' y='-500' width='2200' height='1800' filter='url(%23h)'/%3E%3C/g%3E%3Crect width='1200' height='800' fill='url(%23g)'/%3E%3C/svg%3E");
+  mask-size: 100% 100%;
+  animation: hi-sweep 1450ms var(--hi-brush) 160ms both;
+}
+
+/*
+ * 筆が紙を離れる最後の掠れ。sumi-wide を横 3.7 倍に縮めて置くので、
+ * 元の大きな飛沫が細かい点に落ち、長く尾を引いた一条になる。
+ * 作品と結びの間の余白に置き、文字とは一切重ねない。
+ */
+.trace {
+  position: absolute;
+  right: -6vw;
+  bottom: clamp(190px, 38svh, 420px);
+  width: min(74vw, 900px);
+  aspect-ratio: 3200 / 900;
+  pointer-events: none;
+  background: url("/ink/sumi-wide.png") no-repeat center / 100% 100%;
+  filter: grayscale(1) brightness(1.08) contrast(1.5) sepia(0.3) saturate(0.5);
+  mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1200 400' preserveAspectRatio='none'%3E%3Cfilter id='h' color-interpolation-filters='sRGB'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.006 0.22' numOctaves='4' seed='3'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 1 0 0 0 0'/%3E%3CfeComponentTransfer%3E%3CfeFuncA type='linear' slope='8' intercept='-3.5'/%3E%3C/feComponentTransfer%3E%3C/filter%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='0'%3E%3Cstop offset='0' stop-color='%23fff' stop-opacity='1'/%3E%3Cstop offset='0.66' stop-color='%23fff' stop-opacity='0.3'/%3E%3Cstop offset='1' stop-color='%23fff' stop-opacity='0'/%3E%3C/linearGradient%3E%3Cmask id='m'%3E%3Crect width='1200' height='400' fill='url(%23g)'/%3E%3C/mask%3E%3Cg mask='url(%23m)' transform='rotate(-2.5 600 200)'%3E%3Crect x='-400' y='-400' width='2000' height='1200' filter='url(%23h)'/%3E%3C/g%3E%3C/svg%3E");
+  mask-size: 100% 100%;
+  mask-repeat: no-repeat;
+  mix-blend-mode: darken;
+  opacity: 0.7;
+  transform: rotate(2.5deg);
+}
+
+@keyframes hi-sweep {
+  from {
+    clip-path: inset(0 100% 0 0);
+  }
+  to {
+    clip-path: inset(0 -2% 0 0);
+  }
+}
+
+@keyframes hi-rise {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* ==========================================================================
+   名乗り ── 初画面はこれしか置かない
+   ========================================================================== */
+
+.mark {
+  position: relative;
+  z-index: 1;
+  grid-column: 1 / 13;
+  min-height: min(88svh, 760px);
+  display: grid;
+  align-content: end;
+  /* 界線の整数倍。ここが半端だと下から数えた罫の位相が狂う */
+  padding-bottom: calc(3 * var(--hi-kei-pitch));
+}
+
+/*
+ * 名乗りの版面に敷く界線。下端から数えて 0.3 / 1.3 / 2.3 …行ぶんの位置に罫が来るよう
+ * background-position を 100%（＝タイルの下端を要素の下端に合わせる）で留める。
+ * 名乗りの中身は下揃えなので、下から積んだ寸法（余白3行・落款1行・間1行・英文1行）が
+ * そのまま罫と一致する。「Showcase」は罫の上へ出す ── 柱題は匡郭の外に書くものだから。
+ *
+ * 大字の帯は罫を通さない。界線は【字を載せる】ための線であって、字を横切る線ではない。
+ * 罫の間隔（約 34px）は小の明朝 13〜15px に合わせて決まっているので、
+ * 高さ 130px 超の大字はどう置いても 3〜4 本を跨ぐ ── そうなった瞬間、
+ * 料紙ではなく罫線ノートに書いた見出しになる。実測でそう見えた。
+ * だから版面の上端から大字の分だけを完全に抜き、その少し下から罫を起こす。
+ */
+.mark::before {
+  bottom: 0;
+  height: calc(0.94 * var(--hi-mark-size) + 8 * var(--hi-kei-pitch));
+  background-position: 0 100%;
+  mask-image: linear-gradient(
+    to bottom,
+    transparent 0,
+    /* 大字の足元まで罫を出さない */ transparent
+      calc(0.94 * var(--hi-mark-size)),
+    #000 calc(0.94 * var(--hi-mark-size) + 1.6 * var(--hi-kei-pitch)),
+    #000 calc(100% - 1.9 * var(--hi-kei-pitch)),
+    transparent 100%
+  );
+}
+
+.showcase {
+  font-size: var(--hi-tiny);
+  line-height: 2.3;
+  letter-spacing: 0.34em;
+  color: var(--hi-sumi-4);
+  margin-bottom: clamp(12px, 2.2svh, 26px);
+  animation: hi-rise 1000ms var(--hi-brush) 620ms both;
+}
+
+.wordmark {
+  font-family: var(--hi-serif-display);
+  font-weight: 400;
+  /* 下限は 320px の紙で SUMINAWA 一行が収まる最大値（実測 263px < 280px） */
+  font-size: var(--hi-mark-size);
+  line-height: 0.94;
+  letter-spacing: 0.075em;
+  color: var(--hi-sumi);
+  animation: hi-rise 1200ms var(--hi-brush) 760ms both;
+}
+
+/* 英文は名乗りの真下に置かず、紙の中ほどまで送る。この段差が非対称の起点。
+   送りは界線 2 行ぶん ── 空の罫が二本、字を待って残る */
+.en {
+  font-size: var(--hi-tiny);
+  line-height: 2.3;
+  letter-spacing: 0.24em;
+  color: var(--hi-sumi-4);
+  margin-top: calc(2 * var(--hi-kei-pitch));
+  margin-left: clamp(28px, 20vw, 280px);
+  animation: hi-rise 1000ms var(--hi-brush) 1020ms both;
+}
+
+/*
+ * 落款。画面で唯一の色。字ではなく図像として扱うので、
+ * トラッキングと明朝の規則の外にある。料紙なので寸法は界線一行ぶんの正方形。
+ */
+.seal {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--hi-kei-pitch);
+  height: var(--hi-kei-pitch);
+  margin-top: var(--hi-kei-pitch);
+  margin-left: clamp(28px, 20vw, 280px);
+  background: var(--hi-shu);
+  color: var(--hi-paper);
+  font-size: clamp(0.75rem, 1.1vw, 0.875rem);
+  line-height: 1;
+  letter-spacing: 0;
+  animation: hi-rise 900ms var(--hi-brush) 1320ms both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .seal {
+    animation: none;
+  }
+}
+
+/* ==========================================================================
+   作品 ── 料紙の上の小さな一行。飾りは持たないが、罫の上には座る
+   ========================================================================== */
+
+.works {
+  position: relative;
+  z-index: 1;
+  grid-column: 6 / 13;
+  margin-top: var(--hi-void-lg);
+  list-style: none;
+  margin-block-end: 0;
+  padding: 0;
+}
+
+/* position: relative は罫と水の含みブロックにするため。
+   z-index は与えない ── 与えると .work 自身が積み重ね文脈になり、
+   z-index: -1/-2 の層が自分の背景の下ではなく文字の下へ潜れなくなる。 */
+.work {
+  position: relative;
+  display: grid;
+  grid-template-columns: clamp(70px, 7vw, 104px) minmax(0, 1fr);
+  column-gap: clamp(20px, 4vw, 72px);
+}
+
+.work + .work {
+  margin-top: var(--hi-void);
+}
+
+/*
+ * 一件ぶんの版面に敷く乾いた界線。字の上下へ 3 行ぶん延ばし、
+ * その端を 1.4 行かけて消す ── 空の罫が上下に一本半ずつ残る。
+ * 「まだ書かれていない行」が見えることで、罫は区切りではなく料紙になる。
+ * 上へ延ばす量は pitch の整数倍なので、位相は .work の上端基準のまま狂わない。
+ */
+.work::before {
+  top: calc(-3 * var(--hi-kei-pitch));
+  bottom: calc(-3 * var(--hi-kei-pitch));
+  background-position: 0 0;
+  mask-image: linear-gradient(
+    to bottom,
+    transparent 0,
+    #000 calc(1.4 * var(--hi-kei-pitch)),
+    #000 calc(100% - 1.4 * var(--hi-kei-pitch)),
+    transparent 100%
+  );
+}
+
+/* ==========================================================================
+   水 ── 出来事。ただし水は自分の面を持たない
+   --------------------------------------------------------------------------
+   ここが元の二案と決定的に違うところ。
+
+     流れ案 …… 行の背後に水の板を二枚敷き、その板そのものを見せていた。
+     界線案 …… 触れた行の罫が版面いっぱいに、上から線形に減衰して墨を得ていた。
+     この案 …… 板は見せない。罫は自分からは濃くならない。
+                【水が来た範囲の罫だけ】が滲んで太る。範囲を決めるのは水。
+
+   実装は二層しかない。
+
+   1) .work::after ── 濡れた界線。乾いた罫と同じ波形・同じ位相・同じ本数の
+      「滲んで太った罫」を、水の形（等方乱流 × 水たまりの包絡）で切り抜いて重ねる。
+      mask-position が左から右へ 1550ms かけて渡る＝水が差してくる。
+      渡り終えた所の罫は太く濃く、まだ乾いている所の罫は元の細さのまま。
+      湿りの縁では包絡が中間値になるので、罫は「途中まで太って、ぼやけて戻る」。
+      ★ 板の天地：包絡が上下辺で 0 に落ちるので境界の線は立たない。
+      ★ 板の左右：濡れた罫は左辺から始まり 0.88 で墨を失うので、
+        マスクの切り口には常に「描くものが無い領域」しか来ない。原理的に縁が出ない。
+
+   2) .wet ── 湿りそのもの。紙がうっすら灰を帯びる程度でしか出さない
+      （実測 Δ 最大 9/255 ≒ α 0.04）。これは主役ではなく、罫の変化に理由を与えるための地。
+      包絡の重心は版面の側に置いてある ── 白い余白のなかで水が独り立ちしないように
+      （余白での実測 Δ 最大 6/255）。
+      板の左右は必ず紙の外へ出し（overflow-x: clip で落ちる）、
+      天地は包絡が 0 に落ちるので、四辺のどこにも輪郭が立たない。
+
+   触れる単位は【作品の一行】。:has(.entry) で「行き先のある行」だけに限り、
+   準備中の一行は水を持たない。リンクの矩形ではなく行全体が触れる面なので、
+   分類名（SITES / TOOLS）の側が不感帯にならない。
+   :hover と :focus-visible には完全に同じ表現を与える。
+   ========================================================================== */
+
+/* 濡れた界線。位置・波形・位相は乾いた罫と一致し、濃さと太さと滲みだけが違う。
+   top を pitch の整数倍だけずらしているので、罫の位相は乾いた罫と 1px も狂わない。
+   レイアウトは一切動かさない（opacity と mask-position のみ）。 */
+.work::after {
+  top: calc(-1 * var(--hi-kei-pitch));
+  bottom: calc(-1 * var(--hi-kei-pitch));
+  background-image: var(--hi-kei-line-wet);
+  background-position: 0 0;
+  mask-image: var(--hi-mizu-shape);
+  mask-repeat: no-repeat;
+  /* 横 320%。水の形は板よりずっと大きく、その大半は板の外（左）で待っている */
+  mask-size: 320% 100%;
+  /* 静止時：水は版面の左の外。まだ一本も濡れていない */
+  mask-position: 108% 0;
+  opacity: 0;
+  transition:
+    opacity var(--hi-mizu-out),
+    mask-position var(--hi-mizu-ebb);
+}
+
+/* 湿りそのもの。板は紙の外まで張り出す。z-index: -2 ＝ 罫より下＝紙の側 */
+.wet {
+  position: absolute;
+  z-index: -2;
+  inset-block: calc(-1 * var(--hi-wet-y));
+  /* 左（斜行で溜まった白い紙）へ大きく、右へも紙の余白ぶん以上。
+     この二つの数字は意匠ではなく【縁を出さないための拘束】である */
+  inset-inline: -52vw -16vw;
+  pointer-events: none;
+  opacity: 0;
+
+  background-image: url("/ink/sumi-sparse.png");
+  background-repeat: no-repeat;
+  background-size: 260% auto;
+  background-position: 57% 55%;
+  /* sumi-sparse は九割が白紙で、墨は中央の一塊にしかない（実測）。
+     その塊の縁に窓を置き、brightness で沈めてから contrast で 0.40〜0.65 の
+     狭い帯へ伸ばす。結果は「灰の緩やかな勾配」── 斑は下の mask が作る。 */
+  filter: grayscale(1) brightness(0.6) contrast(2.2) sepia(0.42) saturate(0.5);
+
+  mask-image: var(--hi-mizu-damp);
+  mask-repeat: no-repeat;
+  mask-size: 100% 100%;
+  mask-position: -9vw 0;
+
+  transition:
+    opacity var(--hi-mizu-out),
+    mask-position var(--hi-mizu-ebb);
+  /* 触れているあいだ、水の粒だけがゆっくり漂う。窓（mask）は動かないので
+     粒が窓を通り抜けていく＝視差が出る。alternate なので折り返しに継ぎ目が無い。
+     触れていないあいだは paused ＝ 離すとその場で凍る（位置が飛ばない） */
+  animation: hi-mizu 29s cubic-bezier(0.45, 0, 0.55, 1) infinite alternate both;
+  animation-play-state: paused;
+}
+
+@keyframes hi-mizu {
+  from {
+    background-position: 57% 55%;
+  }
+  to {
+    background-position: 50% 61%;
+  }
+}
+
+/* ---- 触れた（:hover と :focus-visible は完全に同じ）---------------------- */
+
+/* 水が差してくる。mask-position が 108% → 66%、板幅の約 0.92 倍を右へ渡る。
+   渡った所から順に、そこに在った罫が滲んで太る */
+.work:has(.entry):hover::after,
+.work:has(.entry:focus-visible)::after {
+  opacity: 1;
+  mask-position: 66% 0;
+  transition:
+    opacity 1450ms cubic-bezier(0.22, 0.68, 0.28, 1),
+    mask-position var(--hi-mizu-in);
+}
+
+.work:has(.entry):hover .wet,
+.work:has(.entry:focus-visible) .wet {
+  opacity: 0.085;
+  mask-position: 1vw 0;
+  transition:
+    opacity 1750ms cubic-bezier(0.25, 0.6, 0.3, 1),
+    mask-position var(--hi-mizu-in);
+  animation-play-state: running;
+}
+
+.cat {
+  font-size: var(--hi-tiny);
+  line-height: 2.3;
+  letter-spacing: 0.3em;
+  color: var(--hi-sumi-4);
+  transition: color var(--hi-soak);
+}
+
+/* 行間も界線一行ぶん。題と本文の間に、空の罫が一本きり残る */
+.entry {
+  display: grid;
+  row-gap: var(--hi-kei-pitch);
+  text-decoration: none;
+  color: inherit;
+}
+
+.title {
+  font-size: var(--hi-tiny);
+  font-weight: 500;
+  line-height: 2.3;
+  letter-spacing: 0.14em;
+  color: var(--hi-sumi-3);
+  transition: color var(--hi-soak);
+}
+
+.desc {
+  font-size: var(--hi-tiny);
+  line-height: 2.3;
+  letter-spacing: 0.05em;
+  color: var(--hi-sumi-4);
+  max-width: 30em;
+  transition: color var(--hi-soak);
+}
+
+/* 折り返しても罫の上に戻れるよう、行の間隔は line-height だけに任せる */
+.tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0 clamp(1rem, 2.4vw, 2.1rem);
+  font-size: var(--hi-tiny);
+  line-height: 2.3;
+  letter-spacing: 0.18em;
+  color: var(--hi-sumi-4);
+  transition: color var(--hi-soak);
+}
+
+/*
+ * 触れると墨が一段濃くなる。触れる単位は行なので、分類名も一緒に濃くする。
+ * 濡れた罫の滲みが最も濃い点（実測 Δ34、紙が #D4D1C9 相当まで沈む）の上で
+ *   #6A665D  3.4:1 ← 落ちる。だから据え置きにはできない
+ *   #3A3730  7.9:1 ← これを採る（題は #1C1A15 で 11.4:1）
+ */
+.work:has(.entry):hover .cat,
+.work:has(.entry:focus-visible) .cat,
+.work:has(.entry):hover .desc,
+.work:has(.entry:focus-visible) .desc,
+.work:has(.entry):hover .tags,
+.work:has(.entry:focus-visible) .tags {
+  color: var(--hi-sumi-2);
+}
+
+.work:has(.entry):hover .title,
+.work:has(.entry:focus-visible) .title {
+  color: var(--hi-sumi);
+}
+
+.empty {
+  font-size: var(--hi-tiny);
+  line-height: 2.3;
+  letter-spacing: 0.05em;
+  color: var(--hi-sumi-4);
+  max-width: 30em;
+}
+
+/* ==========================================================================
+   結び ── 起点（1 列目）へ戻る。罫の左端も起点へ戻る
+   ========================================================================== */
+
+.close {
+  position: relative;
+  z-index: 1;
+  grid-column: 1 / 8;
+  margin-top: var(--hi-void-lg);
+  padding-bottom: clamp(64px, 18svh, 180px);
+}
+
+.close::before {
+  top: calc(-3 * var(--hi-kei-pitch));
+  bottom: calc(2 * var(--hi-kei-pitch));
+  background-position: 0 0;
+  mask-image: linear-gradient(
+    to bottom,
+    transparent 0,
+    #000 calc(1.4 * var(--hi-kei-pitch)),
+    #000 calc(100% - 1.4 * var(--hi-kei-pitch)),
+    transparent 100%
+  );
+}
+
+.closeLine {
+  font-size: var(--hi-tiny);
+  line-height: 2.3;
+  letter-spacing: 0.1em;
+  color: var(--hi-sumi-4);
+}
+
+.back {
+  display: inline-block;
+  margin-top: calc(2 * var(--hi-kei-pitch));
+  font-size: var(--hi-tiny);
+  line-height: 2.3;
+  letter-spacing: 0.2em;
+  color: var(--hi-sumi-3);
+  text-decoration: none;
+  transition: color var(--hi-soak);
+}
+
+.back:hover,
+.back:focus-visible {
+  color: var(--hi-sumi);
+}
+
+/* 罫は敷いたが、それは字の下地。フォーカスの輪は紙から充分に離して細く引く */
+.paper a:focus-visible {
+  outline: 1px solid var(--hi-sumi);
+  outline-offset: clamp(10px, 1.6vw, 18px);
+}
+
+/* ==========================================================================
+   小さい紙
+   ========================================================================== */
+
+@media (max-width: 1023px) {
+  .works {
+    grid-column: 3 / 13;
+  }
+  .close {
+    grid-column: 1 / 11;
+  }
+}
+
+@media (max-width: 767px) {
+  .paper {
+    --hi-void: clamp(72px, 26svh, 210px);
+    --hi-void-lg: clamp(88px, 32svh, 260px);
+  }
+
+  /* 縦長の紙では一筆を寝かせず、上半分を横切らせる */
+  .stroke {
+    top: -8svh;
+    right: -48vw;
+    width: 168vw;
+  }
+
+  /* 縦長の紙では結びが下に詰まる。最後の掠れはその上の余白へ逃がす */
+  .trace {
+    right: -14vw;
+    width: 92vw;
+    bottom: clamp(250px, 44svh, 330px);
+  }
+
+  .mark {
+    min-height: 84svh;
+  }
+
+  /* 12 列では刻めない幅なので、起点の斜行は padding で保つ */
+  .works,
+  .close {
+    grid-column: 1 / 13;
+  }
+  .works {
+    padding-left: 9vw;
+  }
+
+  /* 一列になったぶん、分類と題は隣り合う罫に落ちる。行間は罫に任せる */
+  .work {
+    grid-template-columns: minmax(0, 1fr);
+    row-gap: 0;
+  }
+
+  /* 縦長の紙では左に溜まる紙が細いので、水の左への開きを詰める。
+     板の左右端は依然として紙の外（overflow-x: clip の先）に出る */
+  .wet {
+    inset-inline: -30vw -14vw;
+  }
+}
+
+/* ==========================================================================
+   動きを望まない人へ ── 走らせずに、置いてある状態から始める
+   --------------------------------------------------------------------------
+   界線はもともと紙に引いてあるもので、アニメーションを一つも持たない。
+   水も、動きが消えたときに何が残るかを確かめてある：
+     .work::after … mask-position 66%（＝渡り終えた位置）が即座に出る。
+                    つまり「濡れた範囲の罫が滲んで太っている紙」がそのまま静止画になる。
+     .wet         … animation が消えるので基底値 background-position 57% 55% の静止形。
+   どちらも単独で成立する。動きが無くても
+   「触れた行の紙が濡れ、その範囲の罫だけが太った」ことは一目で分かる。
+   ========================================================================== */
+
+@media (prefers-reduced-motion: reduce) {
+  .paper *,
+  .paper *::before,
+  .paper *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+}
