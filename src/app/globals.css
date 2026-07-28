@@ -25,7 +25,7 @@
 
   /*
    * 水盤の世界（ハブ）の定数。仕様 §2-0。
-   * body の地にも要る（body:has(.world-basin)）ので :root に置く。
+   * body の地にも要るので :root に置く。
    * 框の世界のトークンとは名前が重ならないので、作品ページには一切影響しない。
    */
   --paper: #f6f3ed; /* PAPER 定数と完全同値 */
@@ -67,10 +67,11 @@
   --color-ink-soft: var(--ink-soft);
   --color-marble-fg: var(--marble-fg);
   --color-marble-fg-soft: var(--marble-fg-soft);
-  --font-sans: var(--font-noto-sans-jp), ui-sans-serif, system-ui,
-    "Hiragino Sans", sans-serif;
-  --font-display: var(--font-big-shoulders), var(--font-noto-sans-jp),
+  --font-sans:
+    var(--font-noto-sans-jp), ui-sans-serif, system-ui, "Hiragino Sans",
     sans-serif;
+  --font-display:
+    var(--font-big-shoulders), var(--font-noto-sans-jp), sans-serif;
 }
 
 body {
@@ -94,7 +95,8 @@ body {
 
 .pane-reeded {
   background-color: var(--glass);
-  background-image: var(--glass-sheen),
+  background-image:
+    var(--glass-sheen),
     repeating-linear-gradient(
       90deg,
       rgba(27, 27, 30, 0) 0px,
@@ -129,7 +131,8 @@ body {
  */
 .pane-marble {
   background-color: #0c1424;
-  background-image: var(--glass-sheen-color),
+  background-image:
+    var(--glass-sheen-color),
     linear-gradient(
       100deg,
       rgba(12, 20, 36, 0.95) 0%,
@@ -139,7 +142,11 @@ body {
     url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 600 400'%3E%3Cfilter id='w' x='-25%25' y='-25%25' width='150%25' height='150%25'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.0045' numOctaves='3' seed='11' result='n'/%3E%3CfeDisplacementMap in='SourceGraphic' in2='n' scale='38' xChannelSelector='R' yChannelSelector='G'/%3E%3C/filter%3E%3Cg filter='url(%23w)' fill='none' stroke='%232f4f8f' stroke-width='6'%3E%3Ccircle cx='300' cy='200' r='30'/%3E%3Ccircle cx='300' cy='200' r='52'/%3E%3Ccircle cx='300' cy='200' r='69'/%3E%3Ccircle cx='300' cy='200' r='84'/%3E%3Ccircle cx='300' cy='200' r='96'/%3E%3Ccircle cx='300' cy='200' r='108'/%3E%3Ccircle cx='300' cy='200' r='118'/%3E%3Ccircle cx='300' cy='200' r='128'/%3E%3Ccircle cx='300' cy='200' r='137'/%3E%3Ccircle cx='300' cy='200' r='145'/%3E%3Ccircle cx='300' cy='200' r='153'/%3E%3Ccircle cx='300' cy='200' r='161'/%3E%3Ccircle cx='300' cy='200' r='168'/%3E%3Ccircle cx='300' cy='200' r='175'/%3E%3C/g%3E%3C/svg%3E"),
     var(--glass-noise);
   background-size: auto, auto, cover, auto;
-  background-position: center, center, 82% center, center;
+  background-position:
+    center,
+    center,
+    82% center,
+    center;
 }
 
 .pane-marble.pane-lit:hover {
@@ -196,104 +203,5 @@ body {
   }
   .pane-flood-in {
     animation: none;
-  }
-}
-
-/* ==========================================================================
-   水盤の世界（ハブ）— 憶えている染料の水盤と、紙白の余白の索引
-   仕様: .superpowers/docs/specs/2026-07-27-ink-basin-hub-spec.md
-
-   框（.pane*）の世界は作品ページ 2 枚が使い続けるので当面併存する。
-   この .world-basin スコープは框のトークンを一つも上書きしない。
-   枠線・罫線・角丸・背景色の切り替え・チップ・カード・gap による区切りは
-   一つも使わない。構造は縦の余白のリズムだけが作る。
-   ========================================================================== */
-
-/* body の既定は框の黒（gap から覗く前提）。水盤の面だけ紙白に差し替える */
-body:has(.world-basin) {
-  background: var(--paper);
-}
-
-main.world-basin {
-  min-height: 100svh;
-  background: var(--paper);
-  color: var(--sumi);
-  font-family: var(--font-source-sans-3), var(--font-noto-sans-jp),
-    ui-sans-serif, system-ui, "Hiragino Sans", sans-serif;
-
-  display: grid;
-  padding: clamp(28px, 4vh, 56px) clamp(28px, 4vw, 72px);
-  /* モバイル（<1024px）: 単一カラム、通常フロー。水盤は sticky にしない */
-  grid-template-columns: 1fr;
-  grid-template-areas:
-    "head"
-    "water"
-    "index"
-    "verbs";
-  row-gap: clamp(28px, 4vh, 44px);
-}
-
-.basin-head {
-  grid-area: head;
-}
-.basin-index {
-  grid-area: index;
-}
-.basin-verbs {
-  grid-area: verbs;
-}
-
-/* canvas は position:absolute; inset:0 でこのセルに収まる（InkBasin の既定） */
-.basin-water {
-  grid-area: water;
-  position: relative;
-  overflow: hidden;
-}
-
-/*
- * モバイルの水盤は全幅。正方が基本だが、縦スクロールの妨げにならないよう
- * 44svh で頭を抑える（幅を明示しないと aspect-ratio が stretch に勝ってしまう）。
- */
-@media (max-width: 1023px) {
-  .basin-water {
-    width: 100%;
-    aspect-ratio: 1 / 1;
-    max-height: 44svh;
-  }
-}
-
-/* デスクトップ（≥1024px）: 左に余白の索引、右に水盤。canvas は左列にかからない */
-@media (min-width: 1024px) {
-  main.world-basin {
-    grid-template-columns: clamp(300px, 30vw, 400px) 1fr;
-    grid-template-rows: auto 1fr auto;
-    grid-template-areas:
-      "head  water"
-      "index water"
-      "verbs water";
-    column-gap: clamp(32px, 4vw, 72px);
-    row-gap: 0;
-  }
-  .basin-head {
-    margin-bottom: clamp(40px, 6vh, 72px);
-  }
-  .basin-verbs {
-    margin-top: clamp(28px, 4vh, 44px);
-  }
-}
-
-/* フォーカスリングは必ず紙の側に出す（框の世界の内側 3px 反転を打ち消す） */
-.world-basin :focus-visible {
-  outline: 2px solid var(--sumi);
-  outline-offset: 3px;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .world-basin,
-  .world-basin *,
-  .world-basin *::before,
-  .world-basin *::after {
-    animation: none !important;
-    transition: none !important;
   }
 }

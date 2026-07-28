@@ -6,10 +6,10 @@ Things I've built.
 
 ## Projects
 
-| カテゴリ | 作品 | 概要 |
-| --- | --- | --- |
-| SITES | [墨流し — Suminagashi](/src/app/projects/suminagashi) | 藍と墨が水面で渦を巻く WebGL2 の GPU 流体。かき混ぜて、墨を落として、模様を PNG 保存できる |
-| TOOLS | [見積もりシミュレーター](/src/app/projects/quote-simulator) | 作業条件を入れると見積もりの内訳と合計がその場で見える電卓 |
+| カテゴリ | 作品                                                        | 概要                                                                                       |
+| -------- | ----------------------------------------------------------- | ------------------------------------------------------------------------------------------ |
+| SITES    | [墨流し — Suminagashi](/src/app/projects/suminagashi)       | 藍と墨が水面で渦を巻く WebGL2 の GPU 流体。かき混ぜて、墨を落として、模様を PNG 保存できる |
+| TOOLS    | [見積もりシミュレーター](/src/app/projects/quote-simulator) | 作業条件を入れると見積もりの内訳と合計がその場で見える電卓                                 |
 
 ## Tech Stack
 

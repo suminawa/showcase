@@ -448,34 +448,28 @@
   mask-image: var(--myaku-kasure-head);
 }
 
-/* 作品の区間。作品欄（7 列幅）の左外へ、その 5/7 ぶんだけ張り出す。
-   罫は .work の内側（left:0 right:0）にしか無いので、脈と罫は一度も交差しない */
-.zW1,
-.zW2,
-.zW3 {
+/*
+ * 作品の区間。作品欄（7 列幅）の左外へ、その 5/7 ぶんだけ張り出す。
+ * 罫は .work の内側（left:0 right:0）にしか無いので、脈と罫は一度も交差しない。
+ *
+ * 行数に依存しない。作品がレジストリで増えれば段も増えるので、
+ * 区間ごとの個別指定は持たず、違いは
+ *   ・一つめだけ上の間が広い（.works の margin が 52svh、以降は .work の 40svh）
+ *   ・引かれる時刻（--myaku-draw-delay）は行ごとに JSX から渡す
+ * の二点だけにしてある。
+ */
+.zWork {
   --myaku-band: calc((5 * 100% + 5 * var(--hi-gap)) / 7);
+  --myaku-draw: 900ms;
   left: calc(-1 * var(--myaku-band));
   width: var(--myaku-band);
   bottom: 0;
+  top: calc(-1 * var(--hi-void));
 }
 
-/* 一つめは上の間が 52svh（.works の margin）。以降は 40svh（.work の margin） */
-.zW1 {
-  top: calc(-1 * var(--hi-void-lg));
+.zWorkFirst {
   --myaku-draw: 1000ms;
-  --myaku-draw-delay: 1120ms;
-}
-
-.zW2 {
-  top: calc(-1 * var(--hi-void));
-  --myaku-draw: 900ms;
-  --myaku-draw-delay: 1340ms;
-}
-
-.zW3 {
-  top: calc(-1 * var(--hi-void));
-  --myaku-draw: 820ms;
-  --myaku-draw-delay: 1540ms;
+  top: calc(-1 * var(--hi-void-lg));
 }
 
 /*
@@ -1006,9 +1000,7 @@
   .zHead {
     width: calc((100% + var(--hi-gap)) / 6);
   }
-  .zW1,
-  .zW2,
-  .zW3,
+  .zWork,
   .zTail {
     --myaku-band: calc((100% + var(--hi-gap)) / 5);
   }
@@ -1110,9 +1102,7 @@
     left: calc(-0.85 * var(--hi-pad));
     width: calc(9vw + 0.85 * var(--hi-pad));
   }
-  .zW1,
-  .zW2,
-  .zW3 {
+  .zWork {
     --myaku-band: calc(9vw + 0.85 * var(--hi-pad));
     left: calc(-9vw - 0.85 * var(--hi-pad));
   }
