@@ -42,3 +42,6 @@ next-env.d.ts
 
 # SDD scratch
 .superpowers/
+
+# 設計ツールの作業ファイル（ローカル専用）
+/.impeccable/

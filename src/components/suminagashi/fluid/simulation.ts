@@ -327,18 +327,38 @@ export class FluidSimulation {
     if (!gl.getExtension("EXT_color_buffer_float")) return;
     this.linearFiltering = !!gl.getExtension("OES_texture_float_linear");
 
-    this.compilePrograms();
-    this.initGeometry();
-    this.idmap = this.createFBO(
-      ID_MAP_SIZE,
-      ID_MAP_SIZE,
-      gl.RGBA8,
-      gl.RGBA,
-      gl.NEAREST,
-      gl.UNSIGNED_BYTE,
-    );
-    this.resize();
-    this.supported = true;
+    /*
+     * ここから先は投げうる ── compileShader / linkProgram は失敗を throw で返す。
+     *
+     * context が取れても【シェーダのコンパイルやリンクだけが失敗する】環境は実在する
+     * （古い / 制限されたドライバ、GPU のブラックリスト、リモートデスクトップ経由など）。
+     * そのとき例外が constructor を抜けると、これを呼んでいる useEffect ごと投げ、
+     * React はツリーを落とす ── 作品ページが白紙になる。
+     *
+     * 支援できないことは supported = false で伝えれば足りる。呼び出し側は
+     * それを見てフロストペインで正直に伝える設計になっている（偽の代替表現は出さない）。
+     * だから例外はここで受け止め、掴んだ GL 資源だけ返して終わる。
+     */
+    try {
+      this.compilePrograms();
+      this.initGeometry();
+      this.idmap = this.createFBO(
+        ID_MAP_SIZE,
+        ID_MAP_SIZE,
+        gl.RGBA8,
+        gl.RGBA,
+        gl.NEAREST,
+        gl.UNSIGNED_BYTE,
+      );
+      this.resize();
+      this.supported = true;
+    } catch (error) {
+      if (process.env.NODE_ENV !== "production") {
+        console.warn("[fluid] GL の初期化に失敗したので非対応として扱う", error);
+      }
+      this.destroy();
+      this.supported = false;
+    }
   }
 
   // ---- 公開 API ----

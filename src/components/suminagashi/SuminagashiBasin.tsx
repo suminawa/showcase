@@ -53,7 +53,10 @@ export function SuminagashiBasin() {
   });
 
   const pointersRef = useRef(
-    new Map<number, { x: number; y: number; startX: number; startY: number; moved: boolean }>(),
+    new Map<
+      number,
+      { x: number; y: number; startX: number; startY: number; moved: boolean }
+    >(),
   );
 
   /** 直接操作の直後だけシミュレーションを動かすための猶予（reduced-motion 用） */
@@ -168,9 +171,7 @@ export function SuminagashiBasin() {
 
       // reduced-motion: 操作していない間は完全に静止させる（染料の減衰も止める）
       const idle =
-        loop.reducedMotion &&
-        loop.entranceDone &&
-        now > loop.interactionUntil;
+        loop.reducedMotion && loop.entranceDone && now > loop.interactionUntil;
       if (!idle) {
         engine.step(dt);
         engine.render();
@@ -292,10 +293,7 @@ export function SuminagashiBasin() {
     const url = URL.createObjectURL(blob);
     const anchor = document.createElement("a");
     anchor.href = url;
-    const stamp = new Date()
-      .toISOString()
-      .replace(/[-:]/g, "")
-      .slice(0, 13);
+    const stamp = new Date().toISOString().replace(/[-:]/g, "").slice(0, 13);
     anchor.download = `suminagashi-${stamp}.png`;
     anchor.click();
     // 同期で revoke すると一部ブラウザでダウンロードが落ちるため 1 拍置く
@@ -328,7 +326,10 @@ export function SuminagashiBasin() {
         />
       </div>
       <div className="flex flex-wrap items-center gap-1 sm:gap-1.5">
-        <div className="inline-grid grid-flow-col gap-[3px] bg-bar p-[3px]">
+        {/* 狭い紙では一列に 5 つ並べると 1 ボタン 57px まで痩せ、ラベルが折り返して
+            高さが倍（59px → 117px）になる。560px 未満は 3 列 × 2 段に折り、
+            余る 1 マスは「保存」で埋める（空マスは框の黒が覗いて欠けて見える） */}
+        <div className="inline-grid grid-cols-3 gap-[3px] bg-bar p-[3px] min-[560px]:grid-cols-5">
           <BasinButton onClick={dropInkRandom}>墨を落とす</BasinButton>
           <BasinButton
             onClick={() => {
@@ -347,7 +348,12 @@ export function SuminagashiBasin() {
             静める
           </BasinButton>
           <BasinButton onClick={restart}>流し直す</BasinButton>
-          <BasinButton onClick={save}>保存</BasinButton>
+          <BasinButton
+            onClick={save}
+            className="col-span-2 min-[560px]:col-span-1"
+          >
+            保存
+          </BasinButton>
         </div>
         <p className="pane px-4 py-2.5 text-[0.8125rem] text-ink-soft">
           気に入った模様は「保存」で PNG になります
@@ -386,15 +392,19 @@ function runInstantEntrance(engine: FluidSimulation) {
 function BasinButton({
   onClick,
   children,
+  className = "",
 }: {
   onClick: () => void;
   children: React.ReactNode;
+  className?: string;
 }) {
   return (
     <button
       type="button"
       onClick={onClick}
-      className="pane pane-lit px-4 py-2.5 text-[0.8125rem] font-medium transition-[background-color,box-shadow] duration-500 ease-[var(--ease-glass)] active:bg-glass-frost motion-reduce:transition-none"
+      /* 狭い紙は左右の詰めを浅くする。3 列に折っても「墨を落とす」が一行に収まる幅を残す。
+         min-h-11（44px）は指で押す下限。一行のときの自然高は 39.5px しか無い */
+      className={`pane pane-lit min-h-11 px-3 py-2.5 text-[0.8125rem] font-medium transition-[background-color,box-shadow] duration-500 ease-[var(--ease-glass)] active:bg-glass-frost min-[560px]:px-4 motion-reduce:transition-none ${className}`}
     >
       {children}
     </button>

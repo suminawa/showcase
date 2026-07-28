@@ -272,7 +272,7 @@
 .ink {
   position: absolute;
   inset: 0;
-  background: url("/ink/sumi-sparse.png") no-repeat center / 100% 100%;
+  background: url("/ink/sumi-sparse.webp") no-repeat center / 100% 100%;
   transform: rotate(-5.5deg);
   transform-origin: 62% 46%;
   mix-blend-mode: darken;
@@ -305,7 +305,7 @@
  * 筆が紙を離れる最後の掠れ。sumi-wide を横 3.7 倍に縮めて置くので、
  * 元の大きな飛沫が細かい点に落ち、長く尾を引いた一条になる。
  * ＊この画は水（.flow / .flowDeep）と共有している。だから流れを足しても
- *   追加のダウンロードは 1 バイトも起きない（sumi-dense.png は使わない）。
+ *   追加のダウンロードは 1 バイトも起きない。
  */
 .trace {
   position: absolute;
@@ -314,7 +314,7 @@
   width: min(74vw, 900px);
   aspect-ratio: 3200 / 900;
   pointer-events: none;
-  background: url("/ink/sumi-wide.png") no-repeat center / 100% 100%;
+  background: url("/ink/sumi-wide.webp") no-repeat center / 100% 100%;
   filter: grayscale(1) brightness(1.08) contrast(1.5) sepia(0.3) saturate(0.5);
   mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1200 400' preserveAspectRatio='none'%3E%3Cfilter id='h' color-interpolation-filters='sRGB'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.006 0.22' numOctaves='4' seed='3'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 1 0 0 0 0'/%3E%3CfeComponentTransfer%3E%3CfeFuncA type='linear' slope='8' intercept='-3.5'/%3E%3C/feComponentTransfer%3E%3C/filter%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='0'%3E%3Cstop offset='0' stop-color='%23fff' stop-opacity='1'/%3E%3Cstop offset='0.66' stop-color='%23fff' stop-opacity='0.3'/%3E%3Cstop offset='1' stop-color='%23fff' stop-opacity='0'/%3E%3C/linearGradient%3E%3Cmask id='m'%3E%3Crect width='1200' height='400' fill='url(%23g)'/%3E%3C/mask%3E%3Cg mask='url(%23m)' transform='rotate(-2.5 600 200)'%3E%3Crect x='-400' y='-400' width='2000' height='1200' filter='url(%23h)'/%3E%3C/g%3E%3C/svg%3E");
   mask-size: 100% 100%;
@@ -703,9 +703,9 @@
      0.88 + 整数 pitch の位置に線が来るので、二枚は 1px も狂わずに重なる。
 
    ■ 素材
-     水の画は /ink/sumi-wide.png ── 結びの掠れ（.trace）が静止時から
+     水の画は /ink/sumi-wide.webp ── 結びの掠れ（.trace）が静止時から
      読んでいる画と同一。流れを足しても追加のダウンロードが発生しない。
-     hihaku-nagare の sumi-dense.png（3.18MB）はこの案では使わない。
+     濃い墨の素材（かつて 3.18MB あった sumi-dense）は使わない ── 削除済み。
      密度が足りない分は background-size を大きく取り、粒の粗い側を拾っている。
    ========================================================================== */
 
@@ -731,7 +731,7 @@
   inset-block: calc(-1 * var(--hi-wet-y)) calc(-1 * var(--hi-wet-y));
   inset-inline: calc(-1 * var(--hi-wet-l)) calc(-1 * var(--hi-wet-r));
 
-  background-image: url("/ink/sumi-wide.png");
+  background-image: url("/ink/sumi-wide.webp");
   background-size: 250% auto;
   background-position: -30vw 50%;
   /*
@@ -774,7 +774,7 @@
   inset-block: calc(-1 * var(--hi-wet-y2)) calc(-1 * var(--hi-wet-y2));
   inset-inline: -28vw -12vw;
 
-  background-image: url("/ink/sumi-wide.png");
+  background-image: url("/ink/sumi-wide.webp");
   background-size: 350% auto;
   background-position: -2vw 44%;
   /* 底は表層よりさらに淡い青墨（彩度 13%）。遠いものほど色を失う */

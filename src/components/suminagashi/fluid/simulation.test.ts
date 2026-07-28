@@ -103,8 +103,12 @@ describe("palette の既定値（後方互換の要）", () => {
     const expected = [
       ...INK_ABSORPTION.carbon,
       ...INK_ABSORPTION.indigo,
-      0, 0, 0,
-      0, 0, 0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
     ];
     expect(self.palette).toHaveLength(12);
     expected.forEach((value, i) => {
@@ -112,7 +116,9 @@ describe("palette の既定値（後方互換の要）", () => {
     });
 
     sim.setPalette([[1, 0, 0]]);
-    expect(Array.from(self.palette)).toEqual([1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]);
+    expect(Array.from(self.palette)).toEqual([
+      1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    ]);
   });
 });
 
@@ -166,15 +172,33 @@ describe("sampleIdMap", () => {
   });
 
   it("u は列。左右も取り違えない", () => {
-    const buf = makeIdBuffer(size, (_row, col) => [col < half ? 1 : 2, 255, 255]);
+    const buf = makeIdBuffer(size, (_row, col) => [
+      col < half ? 1 : 2,
+      255,
+      255,
+    ]);
     expect(sampleIdMap(buf, size, 0.1, 0.5)?.species).toBe(1);
     expect(sampleIdMap(buf, size, 0.9, 0.5)?.species).toBe(2);
   });
 
   it("空の水域（総濃度 < 0.05）は null", () => {
-    expect(sampleIdMap(makeIdBuffer(size, () => [0, 0, 0]), size, 0.5, 0.5)).toBeNull();
+    expect(
+      sampleIdMap(
+        makeIdBuffer(size, () => [0, 0, 0]),
+        size,
+        0.5,
+        0.5,
+      ),
+    ).toBeNull();
     // density = 10/255 ≈ 0.039 < 0.05
-    expect(sampleIdMap(makeIdBuffer(size, () => [1, 255, 10]), size, 0.5, 0.5)).toBeNull();
+    expect(
+      sampleIdMap(
+        makeIdBuffer(size, () => [1, 255, 10]),
+        size,
+        0.5,
+        0.5,
+      ),
+    ).toBeNull();
   });
 
   it("混ざりきった水域（占有率 < 0.45）は null", () => {
@@ -182,7 +206,12 @@ describe("sampleIdMap", () => {
     const buf = makeIdBuffer(size, () => [1, 100, 255]);
     expect(sampleIdMap(buf, size, 0.5, 0.5)).toBeNull();
     // 0.45 を超えれば拾える
-    const ok = sampleIdMap(makeIdBuffer(size, () => [1, 130, 255]), size, 0.5, 0.5);
+    const ok = sampleIdMap(
+      makeIdBuffer(size, () => [1, 130, 255]),
+      size,
+      0.5,
+      0.5,
+    );
     expect(ok?.species).toBe(1);
     expect(ok?.dominance).toBeGreaterThanOrEqual(0.45);
     expect(ok?.density).toBeCloseTo(1, 5);
@@ -215,5 +244,85 @@ describe("centroidFromIdMap", () => {
   it("居ない species は null", () => {
     const buf = makeIdBuffer(size, () => [0, 255, 255]);
     expect(centroidFromIdMap(buf, size, 3)).toBeNull();
+  });
+});
+
+/*
+ * GL の初期化が途中で失敗する環境を作り、例外が外へ出ないことを固定する。
+ *
+ * context が取れてもシェーダのコンパイル/リンクだけが落ちる環境は実在し
+ * （古い・制限されたドライバ、GPU のブラックリスト、リモートデスクトップ経由）、
+ * そこで constructor が投げると呼び出し元の useEffect ごと落ちて作品ページが白紙になる。
+ * 支援できないことは supported = false で伝えれば足りる、という契約をここで守らせる。
+ */
+function stubCanvas(
+  overrides: Record<string, unknown> = {},
+): HTMLCanvasElement {
+  const gl = {
+    // EXT_color_buffer_float が無いと constructor はここで諦める。取れる側にする
+    getExtension: (name: string) =>
+      name === "EXT_color_buffer_float" ? {} : null,
+    createShader: () => ({}),
+    shaderSource: () => {},
+    compileShader: () => {},
+    // ← 失敗させる本体。compileShader が throw する経路に入る
+    getShaderParameter: () => false,
+    getShaderInfoLog: () => "stubbed compile failure",
+    createProgram: () => ({}),
+    attachShader: () => {},
+    linkProgram: () => {},
+    getProgramParameter: () => false,
+    getProgramInfoLog: () => "stubbed link failure",
+    deleteProgram: () => {},
+    deleteShader: () => {},
+    ...overrides,
+  };
+  return {
+    getContext: () => gl,
+    width: 300,
+    height: 150,
+    clientWidth: 300,
+    clientHeight: 150,
+  } as unknown as HTMLCanvasElement;
+}
+
+describe("GL 初期化の失敗を外へ出さない", () => {
+  it("シェーダのコンパイルが失敗しても throw せず、supported が false になる", () => {
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
+
+    let engine: FluidSimulation | undefined;
+    expect(() => {
+      engine = new FluidSimulation(stubCanvas());
+    }).not.toThrow();
+    expect(engine?.supported).toBe(false);
+
+    warn.mockRestore();
+  });
+
+  it("リンクが失敗しても同じ（コンパイルは通るがリンクで落ちる環境）", () => {
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
+
+    let engine: FluidSimulation | undefined;
+    expect(() => {
+      engine = new FluidSimulation(
+        stubCanvas({ getShaderParameter: () => true }),
+      );
+    }).not.toThrow();
+    expect(engine?.supported).toBe(false);
+
+    warn.mockRestore();
+  });
+
+  it("context that fails to come up も従来どおり supported = false", () => {
+    const canvas = { getContext: () => null } as unknown as HTMLCanvasElement;
+    expect(() => new FluidSimulation(canvas)).not.toThrow();
+    expect(new FluidSimulation(canvas).supported).toBe(false);
+  });
+
+  it("destroy() は初期化に失敗したあとでも投げない", () => {
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
+    const engine = new FluidSimulation(stubCanvas());
+    expect(() => engine.destroy()).not.toThrow();
+    warn.mockRestore();
   });
 });
