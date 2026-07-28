@@ -1,207 +1,62 @@
 @import "tailwindcss";
 
 /*
- * Showcase — The Glazier's Partition
- * 框（bar）= レイアウトの黒いグリッド。ペイン = 框に嵌まるガラス。
- * 線は框だけ / 色はペイン全面 / 動きは「灯る」だけ。詳細は DESIGN.md。
+ * Showcase — 料紙（りょうし）
+ *
+ * サイトは一つの世界で通す。界線を敷いた紙の上に、名乗りと作品が載る。
+ * 枠・角丸・背景色の切り替え・チップ・カードは一つも使わない。構造を作るのは
+ * 縦の余白（すべて界線の間隔の整数倍）と、墨の濃淡だけ。詳細は DESIGN.md。
+ *
+ * このファイルが持つのは【面をまたいで共有するものだけ】── 色と、地と、
+ * 折り返しの規則。各面の文法はそれぞれの CSS Modules に閉じている。
+ *   トップ       src/app/page.module.css
+ *   作品ページ   src/app/projects/projects.module.css
+ *   水盤の周り   src/components/suminagashi/basin.module.css
+ *   帳面         src/components/quote-simulator/quote.module.css
  */
 
 :root {
-  --bar: #1b1b1e;
-  --glass: #f4f2ed;
-  --glass-bright: #fcfbf8;
-  --glass-frost: #edebe4;
-  --cobalt: #1b3fb4;
-  --cobalt-deep: #142e85;
-  --amber: #c9860e;
-  --amber-bright: #d9930f;
-  --amber-ink: #332707;
-  --oxblood: #8c2a2c;
-  --ink: #1b1b1e;
-  --ink-soft: #5c5a52;
-  /* 陳列窓（pane-marble）上の文字。世界ごとに地が反転するのでトークン化する */
-  --marble-fg: #f4f2ed;
-  --marble-fg-soft: #c6d0ea;
+  /*
+   * ---- 料紙の色 ----
+   * 面をまたいで共有する唯一の出どころ。各面は --hi-* / --rp-* という
+   * 自前の名前で別名を付けて使う ── 名前を面ごとに閉じておくと、
+   * どこかの面だけ色を変えたくなったときに他を巻き込まない。
+   *
+   * コントラスト（紙 #F6F3EB 上、実測値）
+   *   #1C1A15 15.5:1 / #3A3730 10.9:1 / #55514A 7.1:1 / #6A665D 5.2:1
+   *   #A63A2E  5.9:1（朱）  #8E8A80 3.1:1 → 図版専用。文字には使わない
+   */
+  --ryoushi-paper: #f6f3eb;
+  --ryoushi-sumi: #1c1a15;
+  --ryoushi-sumi-2: #3a3730;
+  --ryoushi-sumi-3: #55514a;
+  --ryoushi-sumi-4: #6a665d;
+  --ryoushi-kasure: #8e8a80;
+  --ryoushi-shu: #a63a2e;
 
   /*
-   * 水盤の世界（ハブ）の定数。仕様 §2-0。
-   * body の地にも要るので :root に置く。
-   * 框の世界のトークンとは名前が重ならないので、作品ページには一切影響しない。
+   * ---- 作品「墨流し」の水盤の中で使う色 ----
+   * これは【作品の色】であって紙の色ではない。だから料紙に寄せていない ──
+   * 額装が変わっても、掛かっている絵は変わらない。
+   * PAPER は流体ソルバの定数と完全同値（減法混色の基準値）。
    */
-  --paper: #f6f3ed; /* PAPER 定数と完全同値 */
-  --sumi: #14171b; /* 本文。paper 上で 16.4:1 */
-  --sumi-soft: #5a564c; /* 二次。paper 上で 6.7:1 */
-  --ai: #224372; /* 藍のスウォッチ。paper 上で 9.0:1 */
-
-  --glass-noise: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)' opacity='0.055'/%3E%3C/svg%3E");
-  --glass-sheen: linear-gradient(
-    133deg,
-    rgba(255, 255, 255, 0.5) 0%,
-    rgba(255, 255, 255, 0) 38%,
-    rgba(27, 27, 30, 0.04) 100%
-  );
-  --glass-sheen-color: linear-gradient(
-    133deg,
-    rgba(255, 255, 255, 0.24) 0%,
-    rgba(255, 255, 255, 0) 45%,
-    rgba(0, 0, 0, 0.06) 100%
-  );
-
-  --ease-glass: cubic-bezier(0.22, 1, 0.36, 1);
+  --paper: #f6f3ed;
+  --sumi: #14171b; /* paper 上で 16.4:1 */
+  --sumi-soft: #5a564c; /* paper 上で 6.7:1 */
+  --ai: #224372; /* 藍。paper 上で 9.0:1 */
 
   color-scheme: light;
 }
 
 @theme inline {
-  --color-bar: var(--bar);
-  --color-glass: var(--glass);
-  --color-glass-bright: var(--glass-bright);
-  --color-glass-frost: var(--glass-frost);
-  --color-cobalt: var(--cobalt);
-  --color-cobalt-deep: var(--cobalt-deep);
-  --color-amber: var(--amber);
-  --color-amber-bright: var(--amber-bright);
-  --color-amber-ink: var(--amber-ink);
-  --color-oxblood: var(--oxblood);
-  --color-ink: var(--ink);
-  --color-ink-soft: var(--ink-soft);
-  --color-marble-fg: var(--marble-fg);
-  --color-marble-fg-soft: var(--marble-fg-soft);
   --font-sans:
     var(--font-noto-sans-jp), ui-sans-serif, system-ui, "Hiragino Sans",
     sans-serif;
-  --font-display:
-    var(--font-big-shoulders), var(--font-noto-sans-jp), sans-serif;
 }
 
 body {
-  background: var(--bar);
-  color: var(--ink);
+  background: var(--ryoushi-paper);
+  color: var(--ryoushi-sumi);
   /* 小書きカナ・長音符が行頭に来る折り返しを禁じる（既定は緩い） */
   line-break: strict;
-}
-
-/* ---- Panes（ガラス） ---- */
-
-.pane {
-  background-color: var(--glass);
-  background-image: var(--glass-sheen), var(--glass-noise);
-}
-
-.pane-frost {
-  background-color: var(--glass-frost);
-  background-image: var(--glass-sheen), var(--glass-noise), var(--glass-noise);
-}
-
-.pane-reeded {
-  background-color: var(--glass);
-  background-image:
-    var(--glass-sheen),
-    repeating-linear-gradient(
-      90deg,
-      rgba(27, 27, 30, 0) 0px,
-      rgba(27, 27, 30, 0) 7px,
-      rgba(27, 27, 30, 0.07) 7px,
-      rgba(27, 27, 30, 0.07) 8px,
-      rgba(255, 255, 255, 0.5) 8px,
-      rgba(255, 255, 255, 0.5) 9px
-    ),
-    var(--glass-noise);
-}
-
-.pane-cobalt {
-  background-color: var(--cobalt);
-  background-image: var(--glass-sheen-color), var(--glass-noise);
-}
-
-.pane-amber {
-  background-color: var(--amber);
-  background-image: var(--glass-sheen-color), var(--glass-noise);
-}
-
-.pane-oxblood {
-  background-color: var(--oxblood);
-  background-image: var(--glass-sheen-color), var(--glass-noise);
-}
-
-/*
- * 藍のマーブルガラス（墨流しの陳列窓）。作品そのものを写した窓なので、
- * 乱数のシミではなく本物と同じ同心円を描き、乱流で揺らす。
- * 輪の間隔は sqrt(滴数) = 実際の墨流しの育ち方に一致させてある。
- */
-.pane-marble {
-  background-color: #0c1424;
-  background-image:
-    var(--glass-sheen-color),
-    linear-gradient(
-      100deg,
-      rgba(12, 20, 36, 0.95) 0%,
-      rgba(12, 20, 36, 0.88) 30%,
-      rgba(12, 20, 36, 0) 60%
-    ),
-    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 600 400'%3E%3Cfilter id='w' x='-25%25' y='-25%25' width='150%25' height='150%25'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.0045' numOctaves='3' seed='11' result='n'/%3E%3CfeDisplacementMap in='SourceGraphic' in2='n' scale='38' xChannelSelector='R' yChannelSelector='G'/%3E%3C/filter%3E%3Cg filter='url(%23w)' fill='none' stroke='%232f4f8f' stroke-width='6'%3E%3Ccircle cx='300' cy='200' r='30'/%3E%3Ccircle cx='300' cy='200' r='52'/%3E%3Ccircle cx='300' cy='200' r='69'/%3E%3Ccircle cx='300' cy='200' r='84'/%3E%3Ccircle cx='300' cy='200' r='96'/%3E%3Ccircle cx='300' cy='200' r='108'/%3E%3Ccircle cx='300' cy='200' r='118'/%3E%3Ccircle cx='300' cy='200' r='128'/%3E%3Ccircle cx='300' cy='200' r='137'/%3E%3Ccircle cx='300' cy='200' r='145'/%3E%3Ccircle cx='300' cy='200' r='153'/%3E%3Ccircle cx='300' cy='200' r='161'/%3E%3Ccircle cx='300' cy='200' r='168'/%3E%3Ccircle cx='300' cy='200' r='175'/%3E%3C/g%3E%3C/svg%3E"),
-    var(--glass-noise);
-  background-size: auto, auto, cover, auto;
-  background-position:
-    center,
-    center,
-    82% center,
-    center;
-}
-
-.pane-marble.pane-lit:hover {
-  background-color: #14213c;
-  box-shadow: inset 0 0 90px 10px rgba(255, 255, 255, 0.14);
-}
-
-/* ---- 灯り（インタラクション） ---- */
-
-.pane-lit {
-  transition:
-    background-color 600ms var(--ease-glass),
-    box-shadow 600ms var(--ease-glass);
-}
-
-.pane-lit:hover {
-  background-color: var(--glass-bright);
-  box-shadow: inset 0 0 90px 10px rgba(255, 255, 255, 0.55);
-}
-
-.pane-amber.pane-lit:hover {
-  background-color: var(--amber-bright);
-  box-shadow: inset 0 0 90px 10px rgba(255, 255, 255, 0.28);
-}
-
-/* Featured ペインのロード時 flood（唯一の登場モーション） */
-@keyframes pane-flood {
-  from {
-    background-color: var(--glass);
-  }
-}
-
-.pane-flood-in {
-  animation: pane-flood 1100ms var(--ease-glass) 250ms backwards;
-}
-
-/* ---- フォーカス ---- */
-
-:focus-visible {
-  outline: 3px solid var(--cobalt);
-  outline-offset: -3px;
-}
-
-.on-color:focus-visible,
-.on-color :focus-visible {
-  outline-color: #ffffff;
-}
-
-/* ---- Reduced motion ---- */
-
-@media (prefers-reduced-motion: reduce) {
-  .pane-lit {
-    transition: none;
-  }
-  .pane-flood-in {
-    animation: none;
-  }
 }

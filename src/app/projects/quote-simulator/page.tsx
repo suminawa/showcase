@@ -1,17 +1,25 @@
 /*
- * THESIS: 見積もりという実務タスクを、同じパーティション壁の文法で操作する。
- * 表現はタスクを曇らせない（Operate）。
- * OWN-WORLD: 框グリッド + ガラスペイン。選択 = コバルト flood、出力 = アンバーの
- * サマリーペイン。線は框だけ、角丸 0、動きは灯りとカウントのみ。
- * STORY: 触るたびにガラスが染まり、右の琥珀ペインで合計が追従する。
- * 「動く・気持ちいい・実務が分かっている」を体感させる。
- * FIRST VIEWPORT: 上帯 = 戻りペイン + タイトルペイン + オックスブラッドの色ノート。
- * 左 = 入力ペイン群（縦積み）、右 = sticky なアンバーサマリー（合計が主役）。
- * FORM: glazier colorfield partition — ハブと同一世界の Operate 面。
+ * THESIS: 見積もりという実務を、料紙の上の【帳面】として扱う（Operate）。
+ *   表現がタスクを曇らせてはいけないので、料紙の法のうち「紙が八割」「動くのは一つ」は
+ *   持ち込まない。引き継ぐのは、字が大と小の二段しか無いこと・箱を持たないこと・
+ *   線は手の線であることの三つだけ。
+ * OWN-WORLD: 枠も罫も背景色の切り替えも置かない。構造は縦の余白（すべて界線の
+ *   間隔の整数倍）と、字の濃さだけが作る。数字だけが「大」の帯に立つ。
+ * COLOR: 朱に役を一つ与えている ── 【朱は選ばれていることの印】。
+ *   単価方式の選択とオプションのチェックにだけ点く。朱入れも捺印も、もともと
+ *   「決めた」ことを示す色だった。墨は書かれたもの、朱は決めたもの。
+ *   ＊ 朱を強調や注意に使い始めるとこの理屈は壊れる。選択以外に使わないこと。
+ * STORY: 触れた数だけ朱が点り、右の合計が追いつく。
+ * FIRST VIEWPORT: 頭（戻り・名乗り・一行）、左に記入、右に内訳と合計。
+ * FORM: 料紙（作品ページ）— 文法は DESIGN.md
  */
 import type { Metadata } from "next";
 import Link from "next/link";
+
 import { QuoteSimulator } from "@/components/quote-simulator/QuoteSimulator";
+
+import { fontVars } from "../fonts";
+import s from "../projects.module.css";
 
 export const metadata: Metadata = {
   title: "見積もりシミュレーター",
@@ -21,24 +29,30 @@ export const metadata: Metadata = {
 
 export default function QuoteSimulatorPage() {
   return (
-    <main className="grid min-h-svh grid-cols-1 content-start gap-1 p-2 sm:gap-1.5 sm:p-3 lg:grid-cols-12">
-      <Link
-        href="/"
-        className="pane pane-lit flex items-center px-[clamp(20px,3vw,40px)] py-4 font-display text-[0.8125rem] font-semibold tracking-[0.14em] uppercase lg:[grid-column:1/3]"
-      >
-        ← Showcase
-      </Link>
-      <div className="pane flex flex-wrap items-baseline gap-x-5 gap-y-1 px-[clamp(20px,3vw,40px)] py-4 lg:[grid-column:3/8]">
-        <h1 className="text-[1.0625rem] leading-snug font-bold">
-          見積もりシミュレーター
-        </h1>
-        <p className="text-[0.8125rem] text-ink-soft">
-          条件を入れると、その場で内訳が見えます
-        </p>
+    <main className={`${s.paper} ${fontVars}`}>
+      {/* 入りの一筆。紙の右上を掠めて画面外へ抜ける。帳面には一度も掛からない */}
+      <div className={s.stroke} aria-hidden="true">
+        <span className={`${s.ink} ${s.inkKasure}`} />
+        <span className={`${s.ink} ${s.inkCore}`} />
       </div>
-      <div aria-hidden="true" className="pane-oxblood hidden lg:block lg:[grid-column:8/13]" />
 
-      <QuoteSimulator />
+      <header className={s.head}>
+        <Link href="/" className={s.back}>
+          <span className={s.seal} aria-hidden="true">
+            墨
+          </span>
+          Showcase へ戻る
+        </Link>
+        <h1 className={s.title}>
+          見積もりシミュレーター
+          <span className={s.latin}>Quote</span>
+        </h1>
+        <p className={s.lede}>条件を入れると、その場で内訳が見えます</p>
+      </header>
+
+      <div className={s.work}>
+        <QuoteSimulator />
+      </div>
     </main>
   );
 }

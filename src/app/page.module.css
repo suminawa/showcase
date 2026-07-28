@@ -93,13 +93,14 @@
 
 .paper {
   /* ---- 紙と墨 ---- */
-  --hi-paper: #f6f3eb;
-  --hi-sumi: #1c1a15; /* 15.5:1 */
-  --hi-sumi-2: #3a3730; /* 10.9:1 */
-  --hi-sumi-3: #55514a; /* 7.1:1 */
-  --hi-sumi-4: #6a665d; /* 5.2:1 */
-  --hi-kasure: #8e8a80; /* 3.1:1 — 図版のかすれの色。文字には使わない */
-  --hi-shu: #a63a2e; /* 落款の朱。画面で色を持つのはここ一箇所だけ */
+  /* 値の出どころは globals.css の :root（--ryoushi-*）。作品ページと共有する */
+  --hi-paper: var(--ryoushi-paper);
+  --hi-sumi: var(--ryoushi-sumi); /* 15.5:1 */
+  --hi-sumi-2: var(--ryoushi-sumi-2); /* 10.9:1 */
+  --hi-sumi-3: var(--ryoushi-sumi-3); /* 7.1:1 */
+  --hi-sumi-4: var(--ryoushi-sumi-4); /* 5.2:1 */
+  --hi-kasure: var(--ryoushi-kasure); /* 3.1:1 — 図版専用。文字には使わない */
+  --hi-shu: var(--ryoushi-shu); /* 落款の朱。画面で色を持つのはここ一箇所だけ */
 
   /* ---- 二段しかない字の寸法 ---- */
   --hi-tiny: clamp(0.8125rem, 0.75rem + 0.22vw, 0.9375rem); /* 13 → 15px */

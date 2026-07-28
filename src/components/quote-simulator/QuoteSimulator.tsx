@@ -9,6 +9,7 @@ import {
   type QuoteInput,
 } from "@/lib/quote";
 import { QuoteSummary } from "./QuoteSummary";
+import c from "./quote.module.css";
 
 const initialInput: QuoteInput = {
   mode: "hourly",
@@ -30,8 +31,6 @@ const UNIT_CHOICES: { value: EffortUnit; label: string }[] = [
   { value: "days", label: "日" },
 ];
 
-const PANE_PAD = "p-[clamp(20px,3vw,36px)]";
-
 export function QuoteSimulator() {
   const [input, setInput] = useState<QuoteInput>(initialInput);
   const breakdown = calculateQuote(input);
@@ -48,27 +47,23 @@ export function QuoteSimulator() {
     }));
 
   return (
-    <div className="contents">
-      <form
-        className="flex flex-col gap-1 sm:gap-1.5 lg:[grid-column:1/8]"
-        onSubmit={(event) => event.preventDefault()}
-      >
-        <fieldset className={`pane ${PANE_PAD}`}>
-          <legend className="float-left mb-4 text-sm font-bold">
-            単価方式
-          </legend>
-          <div className="clear-left">
-            <SegmentedControl
-              label="単価方式"
-              choices={MODE_CHOICES}
-              value={input.mode}
-              onChange={(mode) => update({ mode })}
-            />
-          </div>
+    <div className={c.layout}>
+      <form className={c.form} onSubmit={(event) => event.preventDefault()}>
+        <fieldset className={c.group}>
+          <legend className={c.legend}>単価方式</legend>
+          <SegmentedControl
+            label="単価方式"
+            choices={MODE_CHOICES}
+            value={input.mode}
+            onChange={(mode) => update({ mode })}
+          />
         </fieldset>
 
         {input.mode === "hourly" ? (
-          <div className={`pane ${PANE_PAD} space-y-7`}>
+          <div
+            className={c.group}
+            style={{ display: "grid", gap: "calc(1.2 * var(--rp-pitch))" }}
+          >
             <NumberField
               id="hourly-rate"
               label="時間単価"
@@ -84,24 +79,26 @@ export function QuoteSimulator() {
                 value={input.effort}
                 onChange={(value) => update({ effort: value })}
               />
-              <div className="mt-3">
+              <div style={{ marginTop: "calc(0.5 * var(--rp-pitch))" }}>
                 <SegmentedControl
                   label="工数の単位"
                   choices={UNIT_CHOICES}
                   value={input.effortUnit}
                   onChange={(effortUnit) => update({ effortUnit })}
-                  size="sm"
                 />
               </div>
               {input.effortUnit === "days" && (
-                <p className="mt-3 text-[0.8125rem] text-ink-soft">
+                <p
+                  className={c.note}
+                  style={{ marginTop: "calc(0.3 * var(--rp-pitch))" }}
+                >
                   1 日 = 8 時間で換算します
                 </p>
               )}
             </div>
           </div>
         ) : (
-          <div className={`pane ${PANE_PAD}`}>
+          <div className={c.group}>
             <NumberField
               id="fixed-price"
               label="一式金額"
@@ -112,13 +109,11 @@ export function QuoteSimulator() {
           </div>
         )}
 
-        <fieldset className={`pane ${PANE_PAD}`}>
-          <legend className="float-left mb-4 text-sm font-bold">
-            追加オプション
-          </legend>
-          <ul className="clear-left grid gap-[3px] bg-bar p-[3px]">
+        <fieldset className={c.group}>
+          <legend className={c.legend}>追加オプション</legend>
+          <ul className={c.options}>
             {QUOTE_OPTIONS.map((option) => (
-              <li key={option.id} className="grid">
+              <li key={option.id}>
                 <CheckRow
                   checked={input.selectedOptionIds.includes(option.id)}
                   onChange={() => toggleOption(option.id)}
@@ -131,27 +126,17 @@ export function QuoteSimulator() {
           </ul>
         </fieldset>
 
-        <div className={`pane ${PANE_PAD}`}>
-          <div className="grid bg-bar p-[3px]">
-            <CheckRow
-              checked={input.includeTax}
-              onChange={(checked) => update({ includeTax: checked })}
-            >
-              消費税（10%）を含める
-            </CheckRow>
-          </div>
+        <div className={c.group}>
+          <CheckRow
+            checked={input.includeTax}
+            onChange={(checked) => update({ includeTax: checked })}
+          >
+            消費税（10%）を含める
+          </CheckRow>
         </div>
-
-        <div aria-hidden="true" className="pane hidden min-h-6 flex-1 lg:block" />
       </form>
 
-      <div className="flex flex-col gap-1 sm:gap-1.5 lg:[grid-column:8/13]">
-        <QuoteSummary breakdown={breakdown} includeTax={input.includeTax} />
-        <div
-          aria-hidden="true"
-          className="pane-frost hidden min-h-6 flex-1 lg:block"
-        />
-      </div>
+      <QuoteSummary breakdown={breakdown} includeTax={input.includeTax} />
     </div>
   );
 }
@@ -162,13 +147,11 @@ function SegmentedControl<T extends string>({
   choices,
   value,
   onChange,
-  size = "md",
 }: {
   label: string;
   choices: { value: T; label: string }[];
   value: T;
   onChange: (value: T) => void;
-  size?: "md" | "sm";
 }) {
   const refs = useRef<(HTMLButtonElement | null)[]>([]);
 
@@ -202,11 +185,7 @@ function SegmentedControl<T extends string>({
   };
 
   return (
-    <div
-      role="radiogroup"
-      aria-label={label}
-      className="inline-grid grid-flow-col gap-[3px] bg-bar p-[3px]"
-    >
+    <div role="radiogroup" aria-label={label} className={c.segments}>
       {choices.map((choice, index) => {
         const checked = choice.value === value;
         return (
@@ -221,16 +200,12 @@ function SegmentedControl<T extends string>({
             tabIndex={checked ? 0 : -1}
             onClick={() => onChange(choice.value)}
             onKeyDown={(event) => onKeyDown(event, index)}
-            className={`${
-              checked
-                ? "pane-cobalt on-color text-white active:bg-cobalt-deep"
-                : "pane pane-lit active:bg-glass-frost"
-            } font-medium transition-[background-color,box-shadow] duration-500 ease-[var(--ease-glass)] motion-reduce:transition-none ${
-              size === "md"
-                ? "px-6 py-2.5 text-sm"
-                : "px-4 py-1.5 text-[0.8125rem]"
-            }`}
+            className={`${c.segment} ${checked ? c.segmentOn : ""}`}
           >
+            <span
+              aria-hidden="true"
+              className={`${c.mark} ${checked ? c.markOn : ""}`}
+            />
             {choice.label}
           </button>
         );
@@ -252,41 +227,20 @@ function CheckRow({
   children: React.ReactNode;
 }) {
   return (
-    <label
-      className={`${
-        checked
-          ? "pane-cobalt on-color text-white active:bg-cobalt-deep"
-          : "pane pane-lit cursor-pointer active:bg-glass-frost"
-      } flex items-center gap-4 px-4 py-3.5 transition-[background-color,box-shadow] duration-500 ease-[var(--ease-glass)] has-focus-visible:outline-3 has-focus-visible:-outline-offset-3 has-focus-visible:outline-cobalt has-checked:has-focus-visible:outline-white motion-reduce:transition-none`}
-    >
+    <label className={`${c.option} ${checked ? c.optionOn : ""}`}>
       <input
         type="checkbox"
         checked={checked}
         onChange={(event) => onChange(event.target.checked)}
-        className="sr-only"
+        className={c.srOnly}
       />
+      {/* 朱が点いていれば選ばれている。この面で朱はそれ以外の意味を持たない */}
       <span
         aria-hidden="true"
-        className={`grid size-5 shrink-0 place-items-center border-2 ${
-          checked ? "border-white bg-white" : "border-bar bg-glass-bright"
-        }`}
-      >
-        {checked && (
-          <svg viewBox="0 0 12 12" className="size-3 fill-none stroke-cobalt-deep stroke-[2.5]">
-            <path d="M2 6.5 5 9.5 10 3" />
-          </svg>
-        )}
-      </span>
-      <span className="flex-1 text-sm font-medium">{children}</span>
-      {trailing && (
-        <span
-          className={`font-display text-[0.8125rem] font-semibold tracking-[0.1em] ${
-            checked ? "text-white" : "text-ink-soft"
-          }`}
-        >
-          {trailing}
-        </span>
-      )}
+        className={`${c.mark} ${checked ? c.markOn : ""}`}
+      />
+      <span className={c.optionLabel}>{children}</span>
+      {trailing && <span className={c.trailing}>{trailing}</span>}
     </label>
   );
 }
@@ -305,11 +259,11 @@ function NumberField({
   onChange: (value: number) => void;
 }) {
   return (
-    <div>
-      <label htmlFor={id} className="text-sm font-bold">
+    <div className={c.field}>
+      <label htmlFor={id} className={c.fieldLabel}>
         {label}
       </label>
-      <div className="mt-2.5 flex items-center gap-3">
+      <div className={c.fieldRow}>
         <input
           id={id}
           type="number"
@@ -319,9 +273,9 @@ function NumberField({
           onChange={(event) =>
             onChange(event.target.value === "" ? 0 : Number(event.target.value))
           }
-          className="w-44 appearance-none border-2 border-bar bg-glass-bright px-3.5 py-2.5 text-right text-[1.0625rem] font-medium tabular-nums [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+          className={c.input}
         />
-        <span className="text-sm text-ink-soft">{suffix}</span>
+        <span className={c.suffix}>{suffix}</span>
       </div>
     </div>
   );

@@ -1,18 +1,11 @@
 import type { Metadata } from "next";
-import { Big_Shoulders, Noto_Sans_JP } from "next/font/google";
+import { Noto_Sans_JP } from "next/font/google";
 import "./globals.css";
 
 const notoSansJp = Noto_Sans_JP({
   subsets: ["latin"],
   display: "swap",
   variable: "--font-noto-sans-jp",
-});
-
-/** 框の世界（作品ページ 2 枚）のディスプレイ書体。トップは料紙の明朝を自前で持つ */
-const bigShoulders = Big_Shoulders({
-  subsets: ["latin"],
-  display: "swap",
-  variable: "--font-big-shoulders",
 });
 
 /*
@@ -54,9 +47,7 @@ export default function RootLayout({
 }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="ja">
-      <body
-        className={`${notoSansJp.variable} ${bigShoulders.variable} font-sans antialiased`}
-      >
+      <body className={`${notoSansJp.variable} font-sans antialiased`}>
         {children}
       </body>
     </html>

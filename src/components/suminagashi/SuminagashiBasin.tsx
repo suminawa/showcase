@@ -1,12 +1,12 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import Link from "next/link";
 import {
   FluidSimulation,
   ENTRANCE_DROPS,
   dropsBetween,
 } from "./fluid/simulation";
+import s from "./basin.module.css";
 
 type BasinState = "running" | "unsupported" | "contextlost";
 
@@ -313,51 +313,45 @@ export function SuminagashiBasin() {
 
   return (
     <>
-      <div className="pane relative min-h-[62svh] flex-1 overflow-hidden">
+      {/* 枠も影も置かない。水盤の地（#F6F3ED）は料紙（#F6F3EB）と青が 2 違うだけなので、
+          継ぎ目が消えて「紙の一部が濡れている」に見える */}
+      <div className={s.basin}>
         <canvas
           ref={canvasRef}
           role="img"
           aria-label="墨流しの水盤。ドラッグでかき混ぜ、タップで墨を落とせます"
-          className="absolute inset-0 h-full w-full touch-none"
+          className={s.canvas}
           onPointerDown={onPointerDown}
           onPointerMove={onPointerMove}
           onPointerUp={onPointerUp}
           onPointerCancel={onPointerUp}
         />
       </div>
-      <div className="flex flex-wrap items-center gap-1 sm:gap-1.5">
-        {/* 狭い紙では一列に 5 つ並べると 1 ボタン 57px まで痩せ、ラベルが折り返して
-            高さが倍（59px → 117px）になる。560px 未満は 3 列 × 2 段に折り、
-            余る 1 マスは「保存」で埋める（空マスは框の黒が覗いて欠けて見える） */}
-        <div className="inline-grid grid-cols-3 gap-[3px] bg-bar p-[3px] min-[560px]:grid-cols-5">
-          <BasinButton onClick={dropInkRandom}>墨を落とす</BasinButton>
-          <BasinButton
-            onClick={() => {
-              engineRef.current?.fan();
-              markInteraction();
-            }}
-          >
-            風を送る
-          </BasinButton>
-          <BasinButton
-            onClick={() => {
-              engineRef.current?.still();
-              markInteraction();
-            }}
-          >
-            静める
-          </BasinButton>
-          <BasinButton onClick={restart}>流し直す</BasinButton>
-          <BasinButton
-            onClick={save}
-            className="col-span-2 min-[560px]:col-span-1"
-          >
-            保存
-          </BasinButton>
-        </div>
-        <p className="pane px-4 py-2.5 text-[0.8125rem] text-ink-soft">
-          気に入った模様は「保存」で PNG になります
-        </p>
+      {/* 動詞は紙に書かれているだけ。ボタンの箱を持たないので、狭い紙では
+          そのまま折り返って二段になる ── 框のときのように痩せて潰れることがない */}
+      <div className={s.controls}>
+        <BasinButton onClick={dropInkRandom}>墨を落とす</BasinButton>
+        <BasinButton
+          onClick={() => {
+            engineRef.current?.fan();
+            markInteraction();
+          }}
+        >
+          風を送る
+        </BasinButton>
+        <BasinButton
+          onClick={() => {
+            engineRef.current?.still();
+            markInteraction();
+          }}
+        >
+          静める
+        </BasinButton>
+        <BasinButton onClick={restart}>流し直す</BasinButton>
+        <BasinButton onClick={save} className={s.save}>
+          保存
+        </BasinButton>
+        <p className={s.hint}>気に入った模様は「保存」で PNG になります</p>
       </div>
     </>
   );
@@ -402,9 +396,7 @@ function BasinButton({
     <button
       type="button"
       onClick={onClick}
-      /* 狭い紙は左右の詰めを浅くする。3 列に折っても「墨を落とす」が一行に収まる幅を残す。
-         min-h-11（44px）は指で押す下限。一行のときの自然高は 39.5px しか無い */
-      className={`pane pane-lit min-h-11 px-3 py-2.5 text-[0.8125rem] font-medium transition-[background-color,box-shadow] duration-500 ease-[var(--ease-glass)] active:bg-glass-frost min-[560px]:px-4 motion-reduce:transition-none ${className}`}
+      className={`${s.button} ${className}`}
     >
       {children}
     </button>
@@ -412,17 +404,5 @@ function BasinButton({
 }
 
 function FallbackPane({ message }: { message: string }) {
-  return (
-    <div className="pane-frost flex min-h-[62svh] flex-1 flex-col items-start justify-end gap-4 p-[clamp(20px,3vw,40px)]">
-      <p className="max-w-[46ch] text-[0.9375rem] leading-[1.9] text-ink-soft">
-        {message}
-      </p>
-      <Link
-        href="/"
-        className="font-display text-[0.8125rem] font-semibold tracking-[0.14em] uppercase underline underline-offset-4"
-      >
-        ← Showcase に戻る
-      </Link>
-    </div>
-  );
+  return <p className={s.fallback}>{message}</p>;
 }

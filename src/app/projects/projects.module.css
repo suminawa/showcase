@@ -1,0 +1,291 @@
+/* ==========================================================================
+   作品ページの料紙 ── トップと同じ紙の上に、作品を一点だけ載せる
+   --------------------------------------------------------------------------
+   トップ（src/app/page.module.css）と同じ世界だが、役の配り方が違う。
+
+     トップ   … 紙が主役。作品は一行ずつの索引で、触れた行が濡れる
+     作品ページ… 作品が主役。紙は【床の間】に退き、作品を載せる台になる
+
+   だから作品ページには持ち込まないものがある ──
+     × 筆脈       … 読み手が段から段へ移る道筋。ここには段が一つしか無い
+     × 流れ       … 索引の行に触れたことを示す出来事。ここに索引は無い
+     ○ 界線       … 紙の性格。ただし作品の版面には敷かない（作品を罫が横切らない）
+     ○ 墨の二筆   … 入りと結び。紙の縁で、作品には一度も掛からない
+     ○ 朱の落款   … 画面で唯一の色。戻りの導線を兼ねる
+
+   色の出どころは globals.css の :root（--ryoushi-*）。トップと共有している。
+   ========================================================================== */
+
+.paper {
+  /* 値はトップと同一。名前だけこの面のものにする */
+  --rp-paper: var(--ryoushi-paper);
+  --rp-sumi: var(--ryoushi-sumi); /* 15.5:1 */
+  --rp-sumi-2: var(--ryoushi-sumi-2); /* 10.9:1 */
+  --rp-sumi-3: var(--ryoushi-sumi-3); /* 7.1:1 */
+  --rp-sumi-4: var(--ryoushi-sumi-4); /* 5.2:1 */
+  --rp-shu: var(--ryoushi-shu);
+
+  /* 字は「大」と「小」の二段だけ。中間帯（20〜30px）を使わない */
+  --rp-tiny: clamp(0.8125rem, 0.75rem + 0.22vw, 0.9375rem); /* 13 → 15px */
+  --rp-large: clamp(1.75rem, 4.2vw, 3rem); /* 28 → 48px */
+
+  /* 界線の間隔＝本文一行。行送り・余白はすべてこの整数倍にする */
+  --rp-pitch: calc(2.3 * var(--rp-tiny)); /* 約 30 → 34px */
+
+  --rp-brush: cubic-bezier(0.16, 1, 0.3, 1);
+  --rp-soak: 560ms cubic-bezier(0.25, 0.8, 0.3, 1);
+
+  --rp-serif:
+    var(--rp-mincho), "Hiragino Mincho ProN", "Yu Mincho", YuMincho,
+    "Noto Serif JP", serif;
+  --rp-serif-display:
+    var(--rp-display), "Hiragino Mincho ProN", "Yu Mincho", YuMincho,
+    "Noto Serif JP", serif;
+
+  position: relative;
+  isolation: isolate;
+  overflow-x: clip;
+  min-height: 100svh;
+  background: var(--rp-paper);
+  color: var(--rp-sumi);
+  font-family: var(--rp-serif);
+  font-feature-settings: "palt" 1;
+
+  display: flex;
+  flex-direction: column;
+  gap: var(--rp-pitch);
+  padding: clamp(20px, 4svh, 44px) clamp(20px, 5.2vw, 96px)
+    clamp(28px, 6svh, 64px);
+}
+
+/* 紙の面はページ全体。オーバースクロールで框の黒が覗かないようにする */
+:global(body):has(.paper) {
+  background: var(--ryoushi-paper);
+}
+
+/* ==========================================================================
+   墨 ── 二筆。紙の縁にだけ置き、作品には一度も掛からない
+   ========================================================================== */
+
+/*
+ * 入りの一筆。右上を斜めに掠めて画面外へ抜ける。
+ * トップより小さく、上へ深く逃がしてある ── ここでは作品が主役なので、
+ * 墨は「同じ紙であること」を思い出させるだけの分量でよい。
+ */
+.stroke {
+  position: absolute;
+  top: -34svh;
+  right: -30vw;
+  width: min(92vw, 1180px, 150svh);
+  aspect-ratio: 2000 / 1400;
+  pointer-events: none;
+  /* ＊ ここに z-index も transform も置かないこと。置いた瞬間このラッパが
+     スタッキングコンテキストになり、子の mix-blend-mode: darken が
+     ここで隔離されて紙と混ざらなくなる（矩形が紙より明るく浮く）。
+     傾きと合成は子（.ink）だけが担当する。 */
+}
+
+.ink {
+  position: absolute;
+  inset: 0;
+  background: url("/ink/sumi-sparse.webp") no-repeat center / 100% 100%;
+  transform: rotate(-5.5deg);
+  transform-origin: 62% 46%;
+  mix-blend-mode: darken;
+  mask-repeat: no-repeat;
+  mask-size: 100% 100%;
+}
+
+/* 掠れ ── 飛んだ灰。中間調を残し、sepia で紙の温度に寄せる */
+.inkKasure {
+  filter: grayscale(1) brightness(0.95) contrast(1.52) sepia(0.34)
+    saturate(0.55);
+  opacity: 0.68;
+  mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1200 800' preserveAspectRatio='none'%3E%3Cfilter id='h' color-interpolation-filters='sRGB'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.0038 0.1' numOctaves='4' seed='5'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 1 0 0 0 0'/%3E%3CfeComponentTransfer%3E%3CfeFuncA type='linear' slope='8' intercept='-2.96'/%3E%3C/feComponentTransfer%3E%3C/filter%3E%3ClinearGradient id='g' x1='0' y1='1' x2='0.9' y2='0.05'%3E%3Cstop offset='0.16' stop-color='%23fff' stop-opacity='1'/%3E%3Cstop offset='0.68' stop-color='%23fff' stop-opacity='0'/%3E%3C/linearGradient%3E%3Cg transform='rotate(-7 600 400)'%3E%3Crect x='-500' y='-500' width='2200' height='1800' filter='url(%23h)'/%3E%3C/g%3E%3Crect width='1200' height='800' fill='url(%23g)'/%3E%3C/svg%3E");
+  animation: rp-sweep 1750ms var(--rp-brush) 60ms both;
+}
+
+/* 芯 ── 一番沈んだところだけを墨まで落とす */
+.inkCore {
+  filter: grayscale(1) brightness(0.74) contrast(2.85) sepia(0.28)
+    saturate(0.62);
+  opacity: 0.8;
+  mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1200 800' preserveAspectRatio='none'%3E%3Cfilter id='h' color-interpolation-filters='sRGB'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.0038 0.1' numOctaves='4' seed='5'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 1 0 0 0 0'/%3E%3CfeComponentTransfer%3E%3CfeFuncA type='linear' slope='8' intercept='-3.68'/%3E%3C/feComponentTransfer%3E%3C/filter%3E%3ClinearGradient id='g' x1='0' y1='1' x2='0.9' y2='0.05'%3E%3Cstop offset='0.14' stop-color='%23fff' stop-opacity='1'/%3E%3Cstop offset='0.6' stop-color='%23fff' stop-opacity='0'/%3E%3C/linearGradient%3E%3Cg transform='rotate(-7 600 400)'%3E%3Crect x='-500' y='-500' width='2200' height='1800' filter='url(%23h)'/%3E%3C/g%3E%3Crect width='1200' height='800' fill='url(%23g)'/%3E%3C/svg%3E");
+  animation: rp-sweep 1450ms var(--rp-brush) 160ms both;
+}
+
+@keyframes rp-sweep {
+  from {
+    clip-path: inset(0 100% 0 0);
+  }
+  to {
+    clip-path: inset(0 -2% 0 0);
+  }
+}
+
+@keyframes rp-rise {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* ==========================================================================
+   頭 ── 戻りの導線・名乗り・一行の説明。ここにだけ界線を敷く
+   ========================================================================== */
+
+.head {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  gap: calc(0.5 * var(--rp-pitch));
+  padding-bottom: calc(0.5 * var(--rp-pitch));
+}
+
+/*
+ * 頭の版面にだけ引く界線。作品の版面には敷かない ── 罫が作品を横切ると、
+ * 紙の支度と作品の中身が同じ層に見えてしまう。
+ * 罫は各行の 0.88 行目に来るので、字は罫の上に座り、y や p の下がりは跨がない。
+ * 波形は feTurbulence を feDisplacementMap に食わせた微かな揺れ（定規ではなく手の線）。
+ */
+.head::before {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  pointer-events: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1200 300' preserveAspectRatio='none'%3E%3Cfilter id='k' filterUnits='userSpaceOnUse' x='-60' y='-40' width='1330' height='390' color-interpolation-filters='sRGB'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.0055 0.03' numOctaves='2' seed='17' result='n'/%3E%3CfeDisplacementMap in='SourceGraphic' in2='n' scale='9' xChannelSelector='R' yChannelSelector='G'/%3E%3C/filter%3E%3ClinearGradient id='g' gradientUnits='userSpaceOnUse' x1='0' y1='0' x2='1200' y2='0'%3E%3Cstop offset='0' stop-color='%231c1a15' stop-opacity='0.30'/%3E%3Cstop offset='0.05' stop-color='%231c1a15' stop-opacity='0.24'/%3E%3Cstop offset='0.32' stop-color='%231c1a15' stop-opacity='0.18'/%3E%3Cstop offset='0.6' stop-color='%231c1a15' stop-opacity='0.09'/%3E%3Cstop offset='0.82' stop-color='%231c1a15' stop-opacity='0.03'/%3E%3Cstop offset='1' stop-color='%231c1a15' stop-opacity='0'/%3E%3C/linearGradient%3E%3ClinearGradient id='p' gradientUnits='userSpaceOnUse' x1='0' y1='0' x2='150' y2='0'%3E%3Cstop offset='0' stop-color='%231c1a15' stop-opacity='0.22'/%3E%3Cstop offset='1' stop-color='%231c1a15' stop-opacity='0'/%3E%3C/linearGradient%3E%3Cg filter='url(%23k)' fill='none'%3E%3Cg stroke='url(%23g)' stroke-width='3.2'%3E%3Cpath d='M-20 88H1215'/%3E%3Cpath d='M-20 188H1215'/%3E%3Cpath d='M-20 288H1215'/%3E%3C/g%3E%3Cg stroke='url(%23p)' stroke-width='4.6' stroke-linecap='round'%3E%3Cpath d='M-8 88H150'/%3E%3Cpath d='M-8 188H150'/%3E%3Cpath d='M-8 288H150'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+  background-repeat: repeat-y;
+  background-size: 100% calc(3 * var(--rp-pitch));
+  background-position: 0 0;
+  /* 上端は紙のまま始め、下端は作品へ渡す手前で消す */
+  mask-image: linear-gradient(
+    to bottom,
+    transparent 0,
+    #000 calc(0.7 * var(--rp-pitch)),
+    #000 calc(100% - 0.4 * var(--rp-pitch)),
+    transparent 100%
+  );
+}
+
+/*
+ * 戻りの導線。ボタンにも枠にもしない ── 落款の朱を先頭に置いた一行の字。
+ * 画面で色を持つのはここ一箇所だけなので、朱そのものが「戻れる」の目印になる。
+ */
+.back {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.75em;
+  justify-self: start;
+  font-size: var(--rp-tiny);
+  line-height: 2;
+  letter-spacing: 0.2em;
+  color: var(--rp-sumi-4);
+  text-decoration: none;
+  transition: color var(--rp-soak);
+  animation: rp-rise 900ms var(--rp-brush) 420ms both;
+}
+
+.back:hover,
+.back:focus-visible {
+  color: var(--rp-sumi);
+}
+
+/* 落款。朱の小さな正方形。界線に乗らないよう高さを 0.62 行に抑える */
+.seal {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  pointer-events: none;
+  width: calc(0.62 * var(--rp-pitch));
+  height: calc(0.62 * var(--rp-pitch));
+  background: var(--rp-shu);
+  color: var(--rp-paper);
+  font-size: clamp(0.6875rem, 0.95vw, 0.8125rem);
+  line-height: 1;
+  letter-spacing: 0;
+}
+
+.title {
+  font-family: var(--rp-serif-display);
+  font-weight: 400;
+  font-size: var(--rp-large);
+  line-height: 1.15;
+  letter-spacing: 0.06em;
+  color: var(--rp-sumi);
+  animation: rp-rise 1000ms var(--rp-brush) 560ms both;
+}
+
+/* 欧文の副題は名の右下に小さく添える。大と小のあいだを作らない */
+.latin {
+  margin-left: 0.9em;
+  font-size: var(--rp-tiny);
+  letter-spacing: 0.24em;
+  color: var(--rp-sumi-4);
+  vertical-align: 0.35em;
+}
+
+.lede {
+  font-size: var(--rp-tiny);
+  line-height: 2.3;
+  letter-spacing: 0.06em;
+  color: var(--rp-sumi-4);
+  max-width: 34em;
+  animation: rp-rise 1000ms var(--rp-brush) 700ms both;
+}
+
+/* ==========================================================================
+   作品の版面 ── 紙の上に載る一点。ここには罫も脈も通さない
+   ========================================================================== */
+
+.work {
+  position: relative;
+  z-index: 1;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: calc(0.5 * var(--rp-pitch));
+  min-height: 0;
+  animation: rp-rise 1100ms var(--rp-brush) 840ms both;
+}
+
+/* 罫を持たない世界なので、フォーカスの輪は紙から充分に離して細く引く */
+.paper a:focus-visible,
+.paper button:focus-visible,
+.paper input:focus-visible,
+.paper [role="radio"]:focus-visible {
+  outline: 1px solid var(--rp-sumi);
+  outline-offset: clamp(6px, 1vw, 12px);
+}
+
+@media (max-width: 767px) {
+  .paper {
+    gap: calc(0.75 * var(--rp-pitch));
+  }
+  .stroke {
+    top: -12svh;
+    right: -44vw;
+    width: 156vw;
+  }
+}
+
+/* ==========================================================================
+   一筆の勢いを望まない人へ ── 走らせずに、置いてある状態から始める
+   ========================================================================== */
+
+@media (prefers-reduced-motion: reduce) {
+  .paper *,
+  .paper *::before,
+  .paper *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+}

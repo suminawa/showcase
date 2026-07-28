@@ -1,15 +1,22 @@
 /*
- * THESIS: 作品そのものが体験。水盤が視界を占め、UI は框に退く（Experience）。
- * OWN-WORLD: 框グリッドの中に紙白の水盤。藍と墨のインクだけが色。
- * 操作ボタンは下帯の小ペイン（ミニ壁）。
+ * THESIS: 作品そのものが体験。紙は床の間に退き、水盤を載せる台になる（Experience）。
+ * OWN-WORLD: トップと同じ料紙。ただし役の配り方が違う ── ここでは紙が主役ではない。
+ *   界線は頭の版面にだけ敷き、作品の版面には一本も通さない。筆脈と流れは持ち込まない
+ *   （どちらも「段から段へ移る」「索引の行に触れる」ための仕掛けで、この面には段が一つしか無い）。
+ * COLOR: 紙は墨の濃淡だけ。唯一の色は朱の落款ひとつで、それが戻りの導線を兼ねる。
+ *   ＊ 水盤の中の藍と墨は【作品の色】であって紙の色ではない。だから料紙に寄せない ──
+ *     作品自体の色は作品のものである。額装が変わっても、掛かっている絵は変わらない。
  * STORY: 開くと墨が落ち、渦がかかり、模様が開く。触ると水面が応える。
- * 「CSS/JS がすごい」を流体そのもので証明する。
- * FIRST VIEWPORT: 上帯（戻り + タイトル）、中央に水盤（最大面積）、下帯に操作。
- * FORM: glazier colorfield partition の枠 × suminagashi の水盤（SITES 作品の内界）。
+ * FIRST VIEWPORT: 頭（戻り・名乗り・一行）と、その下いっぱいの水盤。
+ * FORM: 料紙（作品ページ）— 文法は DESIGN.md
  */
 import type { Metadata } from "next";
 import Link from "next/link";
+
 import { SuminagashiBasin } from "@/components/suminagashi/SuminagashiBasin";
+
+import { fontVars } from "../fonts";
+import s from "../projects.module.css";
 
 export const metadata: Metadata = {
   title: "墨流し — Suminagashi",
@@ -19,28 +26,30 @@ export const metadata: Metadata = {
 
 export default function SuminagashiPage() {
   return (
-    <main className="flex min-h-svh flex-col gap-1 p-2 sm:gap-1.5 sm:p-3">
-      <div className="grid grid-cols-1 gap-1 sm:gap-1.5 lg:grid-cols-12">
-        <Link
-          href="/"
-          className="pane pane-lit flex items-center px-[clamp(20px,3vw,40px)] py-4 font-display text-[0.8125rem] font-semibold tracking-[0.14em] uppercase lg:col-span-2"
-        >
-          ← Showcase
-        </Link>
-        <div className="pane flex flex-wrap items-baseline gap-x-5 gap-y-1 px-[clamp(20px,3vw,40px)] py-4 lg:col-span-10">
-          <h1 className="text-[1.0625rem] leading-snug font-bold">
-            墨流し
-            <span className="ml-3 font-display text-[0.8125rem] font-semibold tracking-[0.14em] uppercase">
-              Suminagashi
-            </span>
-          </h1>
-          <p className="text-[0.8125rem] text-ink-soft">
-            ドラッグでかき混ぜる・タップで墨を落とす
-          </p>
-        </div>
+    <main className={`${s.paper} ${fontVars}`}>
+      {/* 入りの一筆。紙の右上を掠めて画面外へ抜ける。水盤には一度も掛からない */}
+      <div className={s.stroke} aria-hidden="true">
+        <span className={`${s.ink} ${s.inkKasure}`} />
+        <span className={`${s.ink} ${s.inkCore}`} />
       </div>
 
-      <SuminagashiBasin />
+      <header className={s.head}>
+        <Link href="/" className={s.back}>
+          <span className={s.seal} aria-hidden="true">
+            墨
+          </span>
+          Showcase へ戻る
+        </Link>
+        <h1 className={s.title}>
+          墨流し
+          <span className={s.latin}>Suminagashi</span>
+        </h1>
+        <p className={s.lede}>ドラッグでかき混ぜる・タップで墨を落とす</p>
+      </header>
+
+      <div className={s.work}>
+        <SuminagashiBasin />
+      </div>
     </main>
   );
 }

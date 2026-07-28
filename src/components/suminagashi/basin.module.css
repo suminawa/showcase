@@ -1,0 +1,125 @@
+/* ==========================================================================
+   水盤の周り ── 額を外して、紙がそのまま濡れているように見せる
+   --------------------------------------------------------------------------
+   水盤の地は PAPER 定数 #F6F3ED、料紙は #F6F3EB。青が 2 違うだけで、
+   並べても継ぎ目が見えない。だから枠も影も罫も置かない ──
+   canvas をそのまま紙に置くと、【紙の一部が濡れて藍と墨を含んでいる】に見える。
+   框の世界ではここに黒い框が回っていたが、料紙では境界そのものを消すのが正しい。
+
+   操作の字は界線と同じ理屈で扱う。静止時は淡い一本を敷き、触れると墨を得る ──
+   トップで罫がやっていることを、そのまま操作にも通す。
+   ========================================================================== */
+
+.basin {
+  position: relative;
+  flex: 1;
+  min-height: 62svh;
+  overflow: hidden;
+}
+
+.canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  touch-action: none;
+}
+
+/* ==========================================================================
+   操作 ── ボタンに見せない。紙に書かれた動詞が並んでいるだけ
+   ========================================================================== */
+
+.controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0 clamp(20px, 3.4vw, 46px);
+}
+
+.button {
+  position: relative;
+  appearance: none;
+  border: 0;
+  background: none;
+  /* 指で押す下限。字は小のままで、当たりだけ広げる */
+  min-height: 44px;
+  padding: 0;
+  font: inherit;
+  font-size: var(--rp-tiny);
+  line-height: 2.4;
+  letter-spacing: 0.18em;
+  color: var(--rp-sumi-3);
+  cursor: pointer;
+  transition: color var(--rp-soak);
+}
+
+/*
+ * 動詞の下の一本。静止時は界線と同じ淡さで、触れると墨を得る。
+ * 下端は字のベースラインから 0.12 行下 ── 界線が本文に対して取るのと同じ間合い。
+ */
+.button::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: calc(0.5 * (44px - 2.4em) + 0.12 * var(--rp-pitch));
+  height: 1px;
+  background: currentColor;
+  opacity: 0.28;
+  transition:
+    opacity var(--rp-soak),
+    background-color var(--rp-soak);
+}
+
+.button:hover,
+.button:focus-visible {
+  color: var(--rp-sumi);
+}
+
+.button:hover::after,
+.button:focus-visible::after {
+  opacity: 1;
+}
+
+.button:active {
+  color: var(--rp-sumi-2);
+}
+
+/* 保存だけは出来事の側。触れると朱が差す ── 画面で色を持つ二つ目の場所になるが、
+   落款と同じ朱で、しかも押しているあいだだけ現れるので、色は増えていない */
+.save:hover,
+.save:focus-visible {
+  color: var(--rp-shu);
+}
+
+.hint {
+  font-size: var(--rp-tiny);
+  line-height: 2.4;
+  letter-spacing: 0.06em;
+  color: var(--rp-sumi-4);
+}
+
+/* ==========================================================================
+   動かせないとき ── 偽の代替表現は出さず、紙の上に一行だけ置く
+   ========================================================================== */
+
+.fallback {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  min-height: 40svh;
+  font-size: var(--rp-tiny);
+  line-height: 2.3;
+  letter-spacing: 0.06em;
+  color: var(--rp-sumi-4);
+  max-width: 34em;
+}
+
+@media (max-width: 767px) {
+  .basin {
+    min-height: 54svh;
+  }
+  .controls {
+    gap: 0 clamp(16px, 5vw, 28px);
+  }
+}

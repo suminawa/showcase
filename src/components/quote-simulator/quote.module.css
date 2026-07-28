@@ -1,0 +1,343 @@
+/* ==========================================================================
+   見積もりシミュレーター ── 料紙の上の帳面
+   --------------------------------------------------------------------------
+   Operate の面。表現がタスクを曇らせてはいけないので、料紙の法のうち
+   「紙が八割」「動くのは一つ」は持ち込まず、次の三つだけを引き継ぐ。
+
+     ・字は「大」と「小」の二段。中間帯（20〜30px）を使わない
+     ・箱を持たない。枠・角丸・背景色の切り替え・チップを一つも置かず、
+       構造は縦の余白（すべて --rp-pitch の整数倍）と、字の濃さだけが作る
+     ・線は手の線。罫は引くが、印刷の罫ではなく墨で引いた一本にする
+
+   ── 朱について（この面だけの拡張。DESIGN.md にも書く）────────────────
+   トップでは「唯一の色は朱の落款ひとつ」だった。この面では朱に役を一つ与える ──
+   【朱は選ばれていることの印】。単価方式の選択と、オプションのチェックにだけ点く。
+
+   これは法の破棄ではなく延長である。朱入れ（校正で朱を入れる）も、印を捺すのも、
+   もともと「決めた」ことを示す色だった。墨は書かれたもの、朱は決めたもの。
+   だから朱が点いている数だけが、この帳面で読み手が決めた数になる。
+   ＊ 朱を「強調」や「注意」に使い始めたら、この理屈は壊れる。選択以外に使わないこと。
+   ========================================================================== */
+
+.layout {
+  display: grid;
+  gap: calc(2 * var(--rp-pitch));
+  align-items: start;
+}
+
+@media (min-width: 1024px) {
+  .layout {
+    grid-template-columns: minmax(0, 1fr) minmax(300px, 24rem);
+    gap: calc(1.5 * var(--rp-pitch)) clamp(40px, 6vw, 96px);
+  }
+}
+
+.form {
+  display: grid;
+  gap: calc(1.5 * var(--rp-pitch));
+  border: 0;
+  margin: 0;
+  padding: 0;
+  min-width: 0;
+}
+
+/* ==========================================================================
+   一区切り ── 見出しと中身。囲まない
+   ========================================================================== */
+
+.group {
+  border: 0;
+  margin: 0;
+  padding: 0;
+  min-width: 0;
+}
+
+/* 見出しは小のまま。太らせず、字間を開けて「別の役の字」だと示す */
+.legend {
+  padding: 0;
+  margin-bottom: calc(0.5 * var(--rp-pitch));
+  font-size: var(--rp-tiny);
+  line-height: 2;
+  letter-spacing: 0.3em;
+  color: var(--rp-sumi-4);
+}
+
+/* ==========================================================================
+   選択 ── 朱が点いているものが、選ばれているもの
+   ========================================================================== */
+
+.segments {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0 clamp(20px, 3vw, 40px);
+}
+
+.segment {
+  position: relative;
+  appearance: none;
+  border: 0;
+  background: none;
+  padding: 0;
+  min-height: 44px;
+  font: inherit;
+  font-size: var(--rp-tiny);
+  line-height: 2.4;
+  letter-spacing: 0.14em;
+  color: var(--rp-sumi-4);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.7em;
+  transition: color var(--rp-soak);
+}
+
+.segment:hover,
+.segment:focus-visible {
+  color: var(--rp-sumi-2);
+}
+
+.segmentOn {
+  color: var(--rp-sumi);
+}
+
+/*
+ * 印。選ばれていないあいだは紙のまま（縁だけの淡い墨）で、選ばれると朱で満ちる。
+ * 大きさは 0.34 行 ── 小の字の高さに対して小さく、字の邪魔をしない。
+ */
+.mark {
+  flex: none;
+  width: calc(0.34 * var(--rp-pitch));
+  height: calc(0.34 * var(--rp-pitch));
+  box-shadow: inset 0 0 0 1px var(--rp-sumi-4);
+  background: transparent;
+  transition:
+    background-color var(--rp-soak),
+    box-shadow var(--rp-soak);
+}
+
+.markOn {
+  background: var(--rp-shu);
+  box-shadow: inset 0 0 0 1px var(--rp-shu);
+}
+
+/* ==========================================================================
+   オプション ── 一行ずつ。行を囲まず、行間だけで分ける
+   ========================================================================== */
+
+.options {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+}
+
+.option {
+  display: flex;
+  align-items: center;
+  gap: 0.9em;
+  min-height: 44px;
+  padding: calc(0.15 * var(--rp-pitch)) 0;
+  font-size: var(--rp-tiny);
+  line-height: 2.2;
+  letter-spacing: 0.06em;
+  color: var(--rp-sumi-3);
+  cursor: pointer;
+  transition: color var(--rp-soak);
+}
+
+.option:hover {
+  color: var(--rp-sumi-2);
+}
+
+.optionOn {
+  color: var(--rp-sumi);
+}
+
+.optionLabel {
+  flex: 1;
+}
+
+/* 割増の率。数字は本文より一段淡く、右に寄せて縦に揃える */
+.trailing {
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.1em;
+  color: var(--rp-sumi-4);
+}
+
+.optionOn .trailing {
+  color: var(--rp-sumi-3);
+}
+
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* ==========================================================================
+   記入欄 ── 枠を持たない。数字の下に一本引くだけ
+   ========================================================================== */
+
+.field {
+  display: grid;
+  gap: calc(0.3 * var(--rp-pitch));
+}
+
+.fieldLabel {
+  font-size: var(--rp-tiny);
+  line-height: 2;
+  letter-spacing: 0.14em;
+  color: var(--rp-sumi-4);
+}
+
+.fieldRow {
+  display: flex;
+  align-items: baseline;
+  gap: 0.8em;
+}
+
+/*
+ * 数字だけは大の帯に置く。この面で読み手が一番見るものだから。
+ * 枠は無く、下の一本だけが記入する場所を示す ── 帳面の罫と同じ理屈。
+ */
+.input {
+  appearance: none;
+  width: min(11ch, 100%);
+  border: 0;
+  border-bottom: 1px solid var(--rp-sumi-4);
+  border-radius: 0;
+  background: none;
+  padding: 0 0 calc(0.12 * var(--rp-pitch));
+  font: inherit;
+  font-family: var(--rp-serif-display);
+  font-size: var(--rp-large);
+  line-height: 1.2;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  color: var(--rp-sumi);
+  transition: border-color var(--rp-soak);
+}
+
+.input::-webkit-outer-spin-button,
+.input::-webkit-inner-spin-button {
+  appearance: none;
+  margin: 0;
+}
+
+.input:hover,
+.input:focus {
+  border-bottom-color: var(--rp-sumi);
+}
+
+/* 記入欄はフォーカスの輪を外に出さず、下の一本が濃くなることで示す
+   （枠の無い世界で輪だけが浮くと、そこだけ別の文法になる） */
+.input:focus-visible {
+  outline: none;
+  border-bottom-width: 2px;
+}
+
+.suffix {
+  font-size: var(--rp-tiny);
+  letter-spacing: 0.1em;
+  color: var(--rp-sumi-4);
+}
+
+.note {
+  font-size: var(--rp-tiny);
+  line-height: 2.2;
+  letter-spacing: 0.06em;
+  color: var(--rp-sumi-4);
+}
+
+/* ==========================================================================
+   出力 ── 帳面の右。合計だけが大で、他はすべて小
+   ========================================================================== */
+
+.summary {
+  min-width: 0;
+}
+
+@media (min-width: 1024px) {
+  .summary {
+    position: sticky;
+    top: calc(1.5 * var(--rp-pitch));
+  }
+}
+
+.summaryHead {
+  font-size: var(--rp-tiny);
+  line-height: 2;
+  letter-spacing: 0.3em;
+  color: var(--rp-sumi-4);
+  margin-bottom: calc(0.5 * var(--rp-pitch));
+}
+
+.rows {
+  display: grid;
+  gap: calc(0.25 * var(--rp-pitch));
+  margin: 0;
+}
+
+.row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 1.5em;
+  font-size: var(--rp-tiny);
+  line-height: 2.2;
+  letter-spacing: 0.06em;
+}
+
+.rowLabel {
+  color: var(--rp-sumi-4);
+}
+
+.rowValue {
+  margin: 0;
+  color: var(--rp-sumi-3);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.04em;
+}
+
+/*
+ * 合計。上に一本だけ引く ── この面で「まとめ」を意味する線はここ一本しか無い。
+ * 墨で引いた線なので、両端の濃さが違う（左が濃く、右へ掠れる）。
+ */
+.totalBlock {
+  margin-top: calc(0.75 * var(--rp-pitch));
+  padding-top: calc(0.5 * var(--rp-pitch));
+  background-image: linear-gradient(
+    to right,
+    var(--rp-sumi) 0%,
+    var(--rp-sumi-3) 34%,
+    var(--rp-sumi-4) 68%,
+    transparent 100%
+  );
+  background-repeat: no-repeat;
+  background-size: 100% 1px;
+  background-position: 0 0;
+}
+
+.totalLabel {
+  font-size: var(--rp-tiny);
+  line-height: 2;
+  letter-spacing: 0.14em;
+  color: var(--rp-sumi-4);
+}
+
+.total {
+  display: block;
+  margin-top: calc(0.2 * var(--rp-pitch));
+  font-family: var(--rp-serif-display);
+  font-size: var(--rp-large);
+  line-height: 1.2;
+  letter-spacing: 0.02em;
+  color: var(--rp-sumi);
+  font-variant-numeric: tabular-nums;
+}
