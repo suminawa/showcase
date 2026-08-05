@@ -232,6 +232,10 @@ export class FluidSimulation {
   private curlStrength = CURL_STRENGTH;
   /** 染料の拡散。上げると縁がほどけて霧になる */
   private dyeDissipation = DYE_DISSIPATION;
+  /** 滴の押し退けの強さ(0..1)。既定 0 = 押し退けず重なる */
+  private dropPush = 0;
+  /** 押しが届く範囲(滴半径の倍数)。dropPush > 0 のときだけ意味を持つ */
+  private dropPushReach = 3;
   private vao: WebGLVertexArrayObject | null = null;
   private vertexBuffer: WebGLBuffer | null = null;
 
@@ -495,7 +499,8 @@ export class FluidSimulation {
 
   /**
    * 一滴落とす。radius は水面に広がった滴の半径（UV 単位）。
-   * 既存の染料を面積保存で外へずらしてから、中心に滴を置く = 同心円が育つ。
+   * 押し退け（放射変位）は既定でゼロ ── 隣に落とした滴は先客を歪ませず、
+   * そのまま重なる。setDropPush で従来の同心円押しに戻せる。
    */
   splatSpecies(
     x: number,
@@ -511,15 +516,25 @@ export class FluidSimulation {
     if (!dye) return;
     const channel = species % SPECIES_PER_TEXTURE;
 
-    // 面積保存の押し退けは全テクスチャに掛ける（染料はひとつの水面なので）
-    for (const target of this.dyes) {
-      this.useProgram(this.programs.displace, target.texelSizeX, target.texelSizeY);
-      gl.uniform1i(this.programs.displace.uniforms.uTarget, target.read.attach(0));
-      gl.uniform1f(this.programs.displace.uniforms.uAspectRatio, aspect);
-      gl.uniform2f(this.programs.displace.uniforms.uPoint, x, y);
-      gl.uniform1f(this.programs.displace.uniforms.uAmount, radius * radius);
-      this.blitTo(target.write);
-      target.swap();
+    // 押し退けは全テクスチャに掛ける（染料はひとつの水面なので）。既定は掛けない
+    if (this.dropPush > 0) {
+      for (const target of this.dyes) {
+        this.useProgram(this.programs.displace, target.texelSizeX, target.texelSizeY);
+        gl.uniform1i(this.programs.displace.uniforms.uTarget, target.read.attach(0));
+        gl.uniform1f(this.programs.displace.uniforms.uAspectRatio, aspect);
+        gl.uniform2f(this.programs.displace.uniforms.uPoint, x, y);
+        gl.uniform1f(
+          this.programs.displace.uniforms.uAmount,
+          radius * radius * this.dropPush,
+        );
+        gl.uniform1f(this.programs.displace.uniforms.uInner, radius);
+        gl.uniform1f(
+          this.programs.displace.uniforms.uOuter,
+          radius * this.dropPushReach,
+        );
+        this.blitTo(target.write);
+        target.swap();
+      }
     }
 
     // 滴は 4 成分すべてを one-hot で置換する（他 species の濃度をきちんと消す）
@@ -577,6 +592,15 @@ export class FluidSimulation {
   }
 
   /** 渦強化と染料の拡散。既定は輪がくっきり残る値。上げるほど霧に近づく */
+  /**
+   * 滴の押し退けダイヤル。strength 1 + 大きな reach で従来の全域押し(同心円)、
+   * 0 で完全な重なり(既定)。中間 + 小さな reach は「至近だけ縁を押す」折衷。
+   */
+  setDropPush(strength: number, reach = 3): void {
+    this.dropPush = Math.min(1, Math.max(0, strength));
+    this.dropPushReach = Math.min(8, Math.max(1.05, reach));
+  }
+
   setViscosityDials(opts: { curl?: number; dyeDissipation?: number }): void {
     if (opts.curl !== undefined) this.curlStrength = opts.curl;
     if (opts.dyeDissipation !== undefined) this.dyeDissipation = opts.dyeDissipation;

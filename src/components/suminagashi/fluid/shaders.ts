@@ -58,10 +58,13 @@ void main () {
 }`;
 
 /**
- * 滴の着水による面積保存の放射変位。
+ * 滴の着水による放射変位。
  * 非圧縮ソルバは点からの正味の湧き出しを打ち消してしまうため、輪の成長は
  * 速度場ではなく染料そのものを外へずらして表現する（マーブリングの定石）。
- * 既存の染料は r_old = sqrt(r² − a) から読み直され、半径 sqrt(a) の空白が中心に開く。
+ * 既存の染料は r_old = sqrt(r² − a·w) から読み直される。
+ * w は uInner（全力）→ uOuter（ゼロ）へ減衰する局所化の重み ── 押しを滴の
+ * 近傍に閉じ込め、離れた模様を巻き込まない。w' ≤ 0 なので写像は単調のまま
+ * （折り返しは起きない）。uOuter を十分大きくすれば従来の全域押しと一致する。
  */
 export const displaceShader = /* glsl */ `#version 300 es
 precision highp float;
@@ -70,12 +73,15 @@ uniform sampler2D uTarget;
 uniform vec2 uPoint;
 uniform float uAspectRatio;
 uniform float uAmount;
+uniform float uInner;
+uniform float uOuter;
 out vec4 outColor;
 void main () {
   vec2 p = vUv - uPoint;
   p.x *= uAspectRatio;
   float r = length(p);
-  float rOld = sqrt(max(r * r - uAmount, 0.0));
+  float w = 1.0 - smoothstep(uInner, uOuter, r);
+  float rOld = sqrt(max(r * r - uAmount * w, 0.0));
   vec2 dir = r > 0.00001 ? p / r : vec2(0.0);
   vec2 src = uPoint + vec2(dir.x * rOld / uAspectRatio, dir.y * rOld);
   outColor = texture(uTarget, clamp(src, 0.0, 1.0));

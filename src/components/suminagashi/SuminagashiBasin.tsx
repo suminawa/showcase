@@ -86,6 +86,13 @@ export function SuminagashiBasin() {
     // 開幕の数フレームだけ描いて、素の水面(と地の色)を見せる
     loop.interactionUntil = performance.now() + 400;
 
+    // 比較用の隠しダイヤル(URL クエリ)。通常は押し退けゼロ = 滴は重なる。
+    // ?push=1 で従来の全域押し(同心円)、?push=0.5&reach=2 で至近だけの縁押し
+    const params = new URLSearchParams(window.location.search);
+    const push = Math.min(1, Math.max(0, Number(params.get("push")) || 0));
+    const reach = Math.min(8, Math.max(1.1, Number(params.get("reach")) || 3));
+    if (push > 0) engine.setDropPush(push, reach);
+
     const onFrame = (now: number) => {
       loop.raf = requestAnimationFrame(onFrame);
       if (loop.paused) return;
