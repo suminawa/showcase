@@ -71,43 +71,6 @@ export type IdSample = {
   density: number;
 };
 
-export type EntranceDrop = {
-  atMs: number;
-  x: number;
-  y: number;
-  ink: InkName;
-  radius: number;
-};
-
-/**
- * エントランス演出。本物の墨流しと同じ手順を再現する:
- * ほぼ同じ一点へ墨と藍を交互に落とすと、後の滴が先の滴を外へ押し広げ、
- * 同心円のリングが育つ。撫でるのはリングが出来てから（Basin 側の演出）。
- */
-export const ENTRANCE_DROPS: EntranceDrop[] = Array.from(
-  { length: 26 },
-  (_, index): EntranceDrop => {
-    // 手仕事のばらつき: 落とす位置をわずかにずらす（決定論的な擬似ランダム）
-    const jitter = Math.sin(index * 12.9898) * 0.007;
-    return {
-      atMs: 240 + index * 108,
-      x: 0.5 + jitter,
-      y: 0.5 + Math.cos(index * 7.233) * 0.006,
-      ink: index % 2 === 0 ? "carbon" : "indigo",
-      radius: DROP_RADIUS,
-    };
-  },
-);
-
-/** (prevMs, nowMs] に落ちるべき滴を返す */
-export function dropsBetween(
-  prevMs: number,
-  nowMs: number,
-  drops: EntranceDrop[] = ENTRANCE_DROPS,
-): EntranceDrop[] {
-  return drops.filter((drop) => drop.atMs > prevMs && drop.atMs <= nowMs);
-}
-
 /** タップ n 回目のインク。墨 1 : 藍 2 の繰り返し */
 export function pickInk(index: number): InkName {
   return index % 3 === 0 ? "carbon" : "indigo";

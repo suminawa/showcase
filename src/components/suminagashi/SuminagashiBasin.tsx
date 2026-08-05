@@ -1,11 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import {
-  FluidSimulation,
-  ENTRANCE_DROPS,
-  dropsBetween,
-} from "./fluid/simulation";
+import { FluidSimulation } from "./fluid/simulation";
 import s from "./basin.module.css";
 
 type BasinState = "running" | "unsupported" | "contextlost";
@@ -24,28 +20,19 @@ export function SuminagashiBasin() {
   const engineRef = useRef<FluidSimulation | null>(null);
   const [state, setState] = useState<BasinState>("running");
 
-  // 演出・ループ制御（re-render を避けるため ref に持つ）
+  // ループ制御（re-render を避けるため ref に持つ）
   const loopRef = useRef<{
     raf: number;
-    /** 演出の進行度。壁時計ではなく実際に描いたフレーム時間の積算 */
-    entranceMs: number;
-    prevEntranceMs: number;
     lastFrameMs: number;
     slowFrames: number;
-    entranceDone: boolean;
-    fanPhase: number;
     reducedMotion: boolean;
     paused: boolean;
     interactionUntil: number;
     touched: boolean;
   }>({
     raf: 0,
-    entranceMs: 0,
-    prevEntranceMs: -1,
     lastFrameMs: 0,
     slowFrames: 0,
-    entranceDone: false,
-    fanPhase: 0,
     reducedMotion: false,
     paused: false,
     interactionUntil: 0,
@@ -65,35 +52,13 @@ export function SuminagashiBasin() {
     loopRef.current.touched = true;
   }, []);
 
-  /** エントランスの渦: 輪の帯に沿って接線方向の力を回す */
-  const applyStir = useCallback((engine: FluidSimulation, strength = 1) => {
-    for (let i = 0; i < 10; i++) {
-      const angle = (i / 10) * Math.PI * 2;
-      const x = 0.5 + 0.2 * Math.cos(angle);
-      const y = 0.5 + 0.2 * Math.sin(angle);
-      engine.splatVelocity(
-        x,
-        y,
-        -Math.sin(angle) * 0.019 * strength,
-        Math.cos(angle) * 0.019 * strength,
-      );
-    }
-  }, []);
-
+  /** 流し直す = 無地の水面に戻す。次の一滴はまた手から */
   const restart = useCallback(() => {
     const engine = engineRef.current;
     if (!engine) return;
     engine.clearAll();
     const loop = loopRef.current;
-    loop.entranceMs = 0;
     loop.touched = false;
-    loop.prevEntranceMs = -1;
-    loop.entranceDone = false;
-    loop.fanPhase = Math.random() * Math.PI * 2;
-    if (loop.reducedMotion) {
-      runInstantEntrance(engine);
-      loop.entranceDone = true;
-    }
     loop.interactionUntil = performance.now() + 1200;
   }, []);
 
@@ -117,14 +82,9 @@ export function SuminagashiBasin() {
     loop.reducedMotion = window.matchMedia(
       "(prefers-reduced-motion: reduce)",
     ).matches;
-    loop.entranceMs = 0;
-    loop.prevEntranceMs = -1;
-    loop.fanPhase = Math.random() * Math.PI * 2;
-
-    if (loop.reducedMotion) {
-      runInstantEntrance(engine);
-      loop.entranceDone = true;
-    }
+    // 水面は無地で待つ。最初の一滴は見る人の手から。
+    // 開幕の数フレームだけ描いて、素の水面(と地の色)を見せる
+    loop.interactionUntil = performance.now() + 400;
 
     const onFrame = (now: number) => {
       loop.raf = requestAnimationFrame(onFrame);
@@ -147,31 +107,12 @@ export function SuminagashiBasin() {
       }
       loop.lastFrameMs = now;
 
-      // エントランス演出。壁時計ではなく描いたフレーム時間で進めるので、
-      // 背面タブで開かれても「見ないうちに終わっていた」が起きない
-      if (!loop.entranceDone) {
-        const elapsed = loop.entranceMs + dt * 1000;
-        for (const drop of dropsBetween(loop.prevEntranceMs, elapsed)) {
-          engine.splatInk(drop.x, drop.y, drop.ink, drop.radius);
-        }
-        // 輪が育ちきってから撫でる（滴は 3.0 秒あたりで打ち終わる）。
-        // 一撃ではなく数秒かけて風を通し、輪を羽根状に引き伸ばす
-        if (elapsed >= 3200 && elapsed < 4700) {
-          engine.fan(0.005, loop.fanPhase);
-        }
-        if (elapsed >= 3600 && elapsed < 5000) {
-          applyStir(engine, 0.003);
-        }
-        if (elapsed >= 5600) loop.entranceDone = true;
-        loop.prevEntranceMs = elapsed;
-        loop.entranceMs = elapsed;
-      } else if (!loop.reducedMotion) {
+      if (!loop.reducedMotion) {
         engine.applyDrift(now);
       }
 
-      // reduced-motion: 操作していない間は完全に静止させる（染料の減衰も止める）
-      const idle =
-        loop.reducedMotion && loop.entranceDone && now > loop.interactionUntil;
+      // reduced-motion: 操作していない間は完全に静止させる
+      const idle = loop.reducedMotion && now > loop.interactionUntil;
       if (!idle) {
         engine.step(dt);
         engine.render();
@@ -188,18 +129,10 @@ export function SuminagashiBasin() {
     const observer = new ResizeObserver(() => {
       // 解像度が本当に変わった時だけ作り直す（空振りの通知で演出が止まらないように）
       const changed = engine.resize();
-      // リサイズ時の染料はそのまま引き伸ばされる。まだ誰も触っていない演出中／
-      // 静止模様のうちは輪が楕円に歪むので、正しいサイズで作り直す
+      // 触られる前の水面は無地なので、サイズが変わったら素の水面を作り直すだけでいい
       if (!changed || loop.touched) return;
       engine.clearAll();
-      if (loop.reducedMotion) {
-        runInstantEntrance(engine);
-        return;
-      }
-      loop.entranceMs = 0;
-      loop.prevEntranceMs = -1;
-      loop.entranceDone = false;
-      loop.fanPhase = Math.random() * Math.PI * 2;
+      loop.interactionUntil = performance.now() + 400;
     });
     observer.observe(canvas);
 
@@ -220,7 +153,7 @@ export function SuminagashiBasin() {
       engine.destroy();
       engineRef.current = null;
     };
-  }, [applyStir]);
+  }, []);
 
   // ---- ポインタ操作 ----
 
@@ -355,32 +288,6 @@ export function SuminagashiBasin() {
       </div>
     </>
   );
-}
-
-/** reduced-motion: 全滴 + 渦を即時適用し、シミュレーションを進めて静的な模様を作る */
-function runInstantEntrance(engine: FluidSimulation) {
-  for (const drop of ENTRANCE_DROPS) {
-    engine.splatInk(drop.x, drop.y, drop.ink, drop.radius);
-  }
-  // 動きは見せずに、風と渦を通した後の完成形だけを作る
-  const phase = Math.PI * 0.4;
-  for (let frame = 0; frame < 130; frame++) {
-    if (frame < 90) engine.fan(0.005, phase);
-    if (frame >= 24 && frame < 108) {
-      for (let i = 0; i < 10; i++) {
-        const angle = (i / 10) * Math.PI * 2;
-        engine.splatVelocity(
-          0.5 + 0.2 * Math.cos(angle),
-          0.5 + 0.2 * Math.sin(angle),
-          -Math.sin(angle) * 0.019 * 0.003,
-          Math.cos(angle) * 0.019 * 0.003,
-        );
-      }
-    }
-    engine.step(1 / 60);
-  }
-  engine.still();
-  engine.render();
 }
 
 function BasinButton({

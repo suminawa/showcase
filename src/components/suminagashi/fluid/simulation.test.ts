@@ -2,7 +2,6 @@ import { describe, expect, it, vi } from "vitest";
 import {
   DEFAULT_PALETTE,
   DROP_RADIUS,
-  ENTRANCE_DROPS,
   FluidSimulation,
   ID_MAP_SIZE,
   INK_ABSORPTION,
@@ -10,42 +9,10 @@ import {
   UNDYED,
   centroidFromIdMap,
   correctRadius,
-  dropsBetween,
   pickInk,
   sampleIdMap,
   speciesOfInk,
 } from "./simulation";
-
-describe("entrance choreography", () => {
-  it("同心円が育つだけの滴数があり、時刻昇順、座標は 0..1 に収まる", () => {
-    // 同じ一点へ交互に落として輪を育てる演出なので、滴は多く必要
-    expect(ENTRANCE_DROPS.length).toBeGreaterThanOrEqual(12);
-    for (let i = 1; i < ENTRANCE_DROPS.length; i++) {
-      expect(ENTRANCE_DROPS[i].atMs).toBeGreaterThan(
-        ENTRANCE_DROPS[i - 1].atMs,
-      );
-    }
-    for (const drop of ENTRANCE_DROPS) {
-      expect(drop.x).toBeGreaterThan(0);
-      expect(drop.x).toBeLessThan(1);
-      expect(drop.y).toBeGreaterThan(0);
-      expect(drop.y).toBeLessThan(1);
-      expect(drop.radius).toBeGreaterThan(0);
-    }
-  });
-
-  it("dropsBetween は (prev, now] の滴だけ返す", () => {
-    const all = dropsBetween(-1, 10000);
-    expect(all).toEqual(ENTRANCE_DROPS);
-    expect(dropsBetween(-1, 0)).toEqual([]);
-    const first = ENTRANCE_DROPS[0];
-    expect(dropsBetween(first.atMs - 1, first.atMs)).toEqual([first]);
-    expect(dropsBetween(first.atMs, first.atMs)).toEqual([]);
-    const last = ENTRANCE_DROPS[ENTRANCE_DROPS.length - 1];
-    expect(dropsBetween(last.atMs - 1, last.atMs + 1000)).toEqual([last]);
-    expect(dropsBetween(last.atMs, last.atMs + 1000)).toEqual([]);
-  });
-});
 
 describe("ink", () => {
   it("pickInk は墨 1 : 藍 2 の繰り返し", () => {
