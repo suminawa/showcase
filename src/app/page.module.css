@@ -963,6 +963,23 @@
   color: var(--hi-sumi-4);
 }
 
+/* 依頼の窓口。.back と同じ文法(墨を得るのは color だけ)。文なので字間は .closeLine に合わせる */
+.contact {
+  display: inline-block;
+  margin-top: calc(2 * var(--hi-kei-pitch));
+  font-size: var(--hi-tiny);
+  line-height: 2.3;
+  letter-spacing: 0.1em;
+  color: var(--hi-sumi-3);
+  text-decoration: none;
+  transition: color var(--hi-soak);
+}
+
+.contact:hover,
+.contact:focus-visible {
+  color: var(--hi-sumi);
+}
+
 .back {
   display: inline-block;
   margin-top: calc(2 * var(--hi-kei-pitch));

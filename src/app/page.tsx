@@ -227,6 +227,9 @@ export default function Home() {
           delayMs={1120 + rows.length * 210}
         />
         <p className={s.closeLine}>すべての作品は、その場で実際に動きます。</p>
+        <a className={s.contact} href="mailto:hello@suminawa.dev">
+          依頼や相談は hello@suminawa.dev へ
+        </a>
       </footer>
     </main>
   );
