@@ -244,7 +244,10 @@ const DEFAULT_PRESSURE_ITERATIONS = 24;
 /** 渦強化。上げすぎると輪の縁が毛羽立つので、墨流しでは弱めに保つ */
 const CURL_STRENGTH = 1.4;
 const VELOCITY_DISSIPATION = 0.35;
-const DYE_DISSIPATION = 0.015;
+/* 染料は減衰させない ── 実際の墨流しでも、墨は薄まらずに引き伸ばされるだけ。
+   0.015 で放置数分の退色が視認できた(2026-08 の磨きで 0 に)。粘りの調整は
+   setViscosityDials の dyeDissipation で今も可能 */
+const DYE_DISSIPATION = 0;
 const SPLAT_FORCE = 5200;
 const BASE_SPLAT_RADIUS = 0.0022;
 const DEFAULT_MAX_DPR = 2;
