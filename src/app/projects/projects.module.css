@@ -221,16 +221,19 @@
   line-height: 1.15;
   letter-spacing: 0.06em;
   color: var(--rp-sumi);
+  /* 大字の行だけが pitch に量子化されていないと、端数が下の全行を罫からずらす。
+     端数はタイトル直下で吸収し、以降の行(lede)を罫の格子に返す */
+  padding-bottom: calc(round(up, 1.15em, var(--rp-pitch)) - 1.15em);
   animation: rp-rise 1000ms var(--rp-brush) 560ms both;
 }
 
-/* 欧文の副題は名の右下に小さく添える。大と小のあいだを作らない */
+/* 欧文の副題は名の右下に小さく添える。大と小のあいだを作らない。下端は大字と揃える */
 .latin {
   margin-left: 0.9em;
   font-size: var(--rp-tiny);
   letter-spacing: 0.24em;
   color: var(--rp-sumi-4);
-  vertical-align: 0.35em;
+  vertical-align: baseline;
 }
 
 .lede {
