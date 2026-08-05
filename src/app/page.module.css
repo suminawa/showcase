@@ -968,6 +968,9 @@
 .contact {
   display: inline-block;
   margin-top: var(--hi-kei-pitch);
+  /* 下にも空き罫 1 本 ── 書かれた最後の行で紙が終わらない。背の低い窓ではこれが無いと
+     下の罫がフェード帯に全部飲まれ、墨と同時に紙が切れて見える */
+  margin-bottom: var(--hi-kei-pitch);
   font-size: var(--hi-tiny);
   line-height: 2.3;
   letter-spacing: 0.1em;
