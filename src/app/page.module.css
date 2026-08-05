@@ -963,10 +963,11 @@
   color: var(--hi-sumi-4);
 }
 
-/* 依頼の窓口。.back と同じ文法(墨を得るのは color だけ)。文なので字間は .closeLine に合わせる */
+/* 依頼の窓口。ホバー文法は .back と同じ(墨を得るのは color だけ)。文なので字間は .closeLine に合わせる。
+   結語との間は空き罫 1 本 ── 読む行から押す行へ役が替わる一拍。それ以上離すと対句が切れる */
 .contact {
   display: inline-block;
-  margin-top: calc(2 * var(--hi-kei-pitch));
+  margin-top: var(--hi-kei-pitch);
   font-size: var(--hi-tiny);
   line-height: 2.3;
   letter-spacing: 0.1em;
