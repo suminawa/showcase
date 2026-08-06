@@ -179,6 +179,58 @@ void main () {
   outColor = mix(advected, texture(uRest, vUv), clamp(uHoming * uDt, 0.0, 1.0));
 }`;
 
+/**
+ * MacCormack 補正パス(染料の移流の二次精度化)。
+ * 前進移流 φ̂ⁿ⁺¹ を後退移流して φ̂ⁿ を得ると、往復で生じたずれ (φⁿ − φ̂ⁿ) が
+ * 数値誤差の見積もりになる。その半分を φ̂ⁿ⁺¹ に足し戻すことで、双線形補間の
+ * 数値拡散 ──「かき混ぜるほど墨がぼやけて薄くなる」── を大幅に減らす。
+ * 補正は過補正の縞(リンギング)を生みうるので、逆流点を囲む 4 texel の
+ * φⁿ の min/max に収める(GPU Gems 3 の定石)。texel 中心を直接叩くので
+ * フィルタ方式(LINEAR/NEAREST)に依らず同じ値が読める。
+ */
+export const macCormackShader = /* glsl */ `#version 300 es
+precision highp float;
+in vec2 vUv;
+uniform sampler2D uVelocity;
+uniform sampler2D uPhiN;
+uniform sampler2D uPhiHatN1;
+uniform sampler2D uPhiHatN;
+uniform vec2 uTexelSize;
+uniform vec2 uDyeTexelSize;
+uniform float uDt;
+out vec4 outColor;
+
+#ifdef MANUAL_FILTERING
+vec4 bilerp (sampler2D sam, vec2 uv, vec2 tsize) {
+  vec2 st = uv / tsize - 0.5;
+  vec2 iuv = floor(st);
+  vec2 fuv = fract(st);
+  vec4 a = texture(sam, (iuv + vec2(0.5, 0.5)) * tsize);
+  vec4 b = texture(sam, (iuv + vec2(1.5, 0.5)) * tsize);
+  vec4 c = texture(sam, (iuv + vec2(0.5, 1.5)) * tsize);
+  vec4 d = texture(sam, (iuv + vec2(1.5, 1.5)) * tsize);
+  return mix(mix(a, b, fuv.x), mix(c, d, fuv.x), fuv.y);
+}
+#endif
+
+void main () {
+#ifdef MANUAL_FILTERING
+  vec2 coord = vUv - uDt * bilerp(uVelocity, vUv, uTexelSize).xy * uTexelSize;
+#else
+  vec2 coord = vUv - uDt * texture(uVelocity, vUv).xy * uTexelSize;
+#endif
+  vec4 corrected = texture(uPhiHatN1, vUv)
+    + 0.5 * (texture(uPhiN, vUv) - texture(uPhiHatN, vUv));
+  vec2 iuv = floor(coord / uDyeTexelSize - 0.5);
+  vec4 a = texture(uPhiN, (iuv + vec2(0.5, 0.5)) * uDyeTexelSize);
+  vec4 b = texture(uPhiN, (iuv + vec2(1.5, 0.5)) * uDyeTexelSize);
+  vec4 c = texture(uPhiN, (iuv + vec2(0.5, 1.5)) * uDyeTexelSize);
+  vec4 d = texture(uPhiN, (iuv + vec2(1.5, 1.5)) * uDyeTexelSize);
+  vec4 lo = min(min(a, b), min(c, d));
+  vec4 hi = max(max(a, b), max(c, d));
+  outColor = clamp(corrected, lo, hi);
+}`;
+
 export const divergenceShader = /* glsl */ `#version 300 es
 precision mediump float;
 in vec2 vUv;

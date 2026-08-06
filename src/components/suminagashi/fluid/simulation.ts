@@ -15,6 +15,7 @@ import {
   copyShader,
   curlShader,
   displaceShader,
+  macCormackShader,
   displayShader,
   divergenceShader,
   dropShader,
@@ -247,6 +248,7 @@ export class FluidSimulation {
     drop: ProgramInfo;
     breeze: ProgramInfo;
     advection: ProgramInfo;
+    macCormack: ProgramInfo;
     divergence: ProgramInfo;
     curl: ProgramInfo;
     vorticity: ProgramInfo;
@@ -261,6 +263,8 @@ export class FluidSimulation {
   private dyes: DoubleFBO[] = [];
   /** 染料が「憶えている」配置。dyes と 1:1 で対応する */
   private rests: FBO[] = [];
+  /** MacCormack 移流の中間バッファ(前進の結果と後退の結果)。染料と同解像度 */
+  private dyeScratch: [FBO, FBO] | null = null;
   private pressure!: DoubleFBO;
   private divergence!: FBO;
   private curl!: FBO;
@@ -391,6 +395,17 @@ export class FluidSimulation {
     this.dyes = newDyes;
     this.rests = newRests;
 
+    // MacCormack の中間バッファは毎フレーム書き潰すので、内容の引き継ぎは不要
+    const oldScratch = this.dyeScratch;
+    this.dyeScratch = [
+      this.createFBO(dyeRes.w, dyeRes.h, gl.RGBA16F, gl.RGBA, filter),
+      this.createFBO(dyeRes.w, dyeRes.h, gl.RGBA16F, gl.RGBA, filter),
+    ];
+    if (oldScratch) {
+      this.destroyFBO(oldScratch[0]);
+      this.destroyFBO(oldScratch[1]);
+    }
+
     this.destroyDoubleFBO(oldVelocity);
     this.destroyDoubleFBO(oldPressure);
     this.destroyFBO(oldDivergence);
@@ -468,21 +483,62 @@ export class FluidSimulation {
     this.blitTo(this.velocity.write);
     this.velocity.swap();
 
-    // 7. advect dye
+    // 7. advect dye ── MacCormack(二次精度)。
+    // 前進→後退で数値誤差を測り、半分を足し戻す。双線形補間の数値拡散で
+    // 「かき混ぜるほど墨が薄くなる」のを潰す(退色バグの主犯その2)。
+    // 中間バッファが無い環境では従来の一次精度に落ちる
+    const scratch = this.dyeScratch;
     for (let i = 0; i < this.dyes.length; i++) {
       const dye = this.dyes[i];
+      if (!scratch) {
+        gl.uniform2f(advection.uniforms.uDyeTexelSize, dye.texelSizeX, dye.texelSizeY);
+        gl.uniform1i(advection.uniforms.uVelocity, this.velocity.read.attach(0));
+        gl.uniform1i(advection.uniforms.uSource, dye.read.attach(1));
+        gl.uniform1i(advection.uniforms.uRest, this.rests[i].attach(2));
+        gl.uniform1f(advection.uniforms.uHoming, this.homing);
+        gl.uniform1f(advection.uniforms.uDissipation, this.dyeDissipation);
+        this.blitTo(dye.write);
+        dye.swap();
+        continue;
+      }
+      const [forward, backward] = scratch;
+
+      // 7a. 前進: φⁿ → φ̂ⁿ⁺¹(homing と減衰はこのパスだけに掛ける)
       gl.uniform2f(advection.uniforms.uDyeTexelSize, dye.texelSizeX, dye.texelSizeY);
       gl.uniform1i(advection.uniforms.uVelocity, this.velocity.read.attach(0));
       gl.uniform1i(advection.uniforms.uSource, dye.read.attach(1));
       gl.uniform1i(advection.uniforms.uRest, this.rests[i].attach(2));
       gl.uniform1f(advection.uniforms.uHoming, this.homing);
+      gl.uniform1f(advection.uniforms.uDt, dt);
       gl.uniform1f(advection.uniforms.uDissipation, this.dyeDissipation);
+      this.blitTo(forward);
+
+      // 7b. 後退: φ̂ⁿ⁺¹ を -dt で戻して φ̂ⁿ(補助パスなので homing・減衰なし)
+      gl.uniform1i(advection.uniforms.uSource, forward.attach(1));
+      gl.uniform1f(advection.uniforms.uHoming, 0);
+      gl.uniform1f(advection.uniforms.uDt, -dt);
+      gl.uniform1f(advection.uniforms.uDissipation, 0);
+      this.blitTo(backward);
+      // 次のフレームの速度移流(6)が uDt を毎回設定し直すため、-dt は漏れない
+
+      // 7c. 補正 + リミッタ: (φⁿ, φ̂ⁿ⁺¹, φ̂ⁿ) → φⁿ⁺¹
+      const mc = this.programs.macCormack;
+      this.useProgram(mc, this.velocity.texelSizeX, this.velocity.texelSizeY);
+      gl.uniform2f(mc.uniforms.uDyeTexelSize, dye.texelSizeX, dye.texelSizeY);
+      gl.uniform1i(mc.uniforms.uVelocity, this.velocity.read.attach(0));
+      gl.uniform1i(mc.uniforms.uPhiN, dye.read.attach(1));
+      gl.uniform1i(mc.uniforms.uPhiHatN1, forward.attach(2));
+      gl.uniform1i(mc.uniforms.uPhiHatN, backward.attach(3));
+      gl.uniform1f(mc.uniforms.uDt, dt);
       this.blitTo(dye.write);
       dye.swap();
+
+      // 複数テクスチャの周回に備えて advection へ戻す
+      this.useProgram(advection, this.velocity.texelSizeX, this.velocity.texelSizeY);
     }
   }
 
-  /** 微弱な漂い: 中心の周りをゆっくり巡る点から接線方向の弱い力 */
+  /** かき混ぜ: ドラッグの移動量を力へ変換して注入する */
   splatVelocity(x: number, y: number, dx: number, dy: number): void {
     this.splatVelocityRaw(x, y, dx * SPLAT_FORCE, dy * SPLAT_FORCE, BASE_SPLAT_RADIUS);
   }
@@ -750,8 +806,13 @@ export class FluidSimulation {
     this.destroyDoubleFBO(this.pressure);
     for (const dye of this.dyes) this.destroyDoubleFBO(dye);
     for (const rest of this.rests) this.destroyFBO(rest);
+    if (this.dyeScratch) {
+      this.destroyFBO(this.dyeScratch[0]);
+      this.destroyFBO(this.dyeScratch[1]);
+    }
     this.dyes = [];
     this.rests = [];
+    this.dyeScratch = null;
     this.destroyFBO(this.divergence);
     this.destroyFBO(this.curl);
     this.destroyFBO(this.idmap);
@@ -802,6 +863,9 @@ export class FluidSimulation {
       breeze: this.createProgram(breezeShader),
       advection: this.createProgram(
         advectionShader.replace("#version 300 es\n", `#version 300 es\n${defines}`),
+      ),
+      macCormack: this.createProgram(
+        macCormackShader.replace("#version 300 es\n", `#version 300 es\n${defines}`),
       ),
       divergence: this.createProgram(divergenceShader),
       curl: this.createProgram(curlShader),
