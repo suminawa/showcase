@@ -114,11 +114,8 @@ export function SuminagashiBasin() {
       }
       loop.lastFrameMs = now;
 
-      if (!loop.reducedMotion) {
-        engine.applyDrift(now);
-      }
-
-      // reduced-motion: 操作していない間は完全に静止させる
+      // 水は自分からは動かない ── 動きはすべて見る人の手(かき混ぜ・風)から。
+      // 通常モードは step を回し続けて、渦の余韻が自然に減衰するのを見せる
       const idle = loop.reducedMotion && now > loop.interactionUntil;
       if (!idle) {
         engine.step(dt);

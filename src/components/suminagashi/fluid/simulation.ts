@@ -483,16 +483,6 @@ export class FluidSimulation {
   }
 
   /** 微弱な漂い: 中心の周りをゆっくり巡る点から接線方向の弱い力 */
-  applyDrift(timeMs: number): void {
-    if (!this.supported) return;
-    const angle = timeMs * 0.00012;
-    const cx = 0.5 + 0.22 * Math.cos(angle);
-    const cy = 0.5 + 0.22 * Math.sin(angle);
-    const dx = -Math.sin(angle) * 1.6;
-    const dy = Math.cos(angle) * 1.6;
-    this.splatVelocityRaw(cx, cy, dx, dy, BASE_SPLAT_RADIUS * 4);
-  }
-
   splatVelocity(x: number, y: number, dx: number, dy: number): void {
     this.splatVelocityRaw(x, y, dx * SPLAT_FORCE, dy * SPLAT_FORCE, BASE_SPLAT_RADIUS);
   }
