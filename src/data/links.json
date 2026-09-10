@@ -1,4 +1,9 @@
 {
-  "challenge": { "note": "" },
-  "s1": { "note": "", "booth": "" }
+  "challenge": {
+    "note": "https://note.com/suminawa/n/n666e0ef7c0d0"
+  },
+  "s1": {
+    "note": "",
+    "booth": ""
+  }
 }
