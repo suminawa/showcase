@@ -39,6 +39,14 @@ export const projects: Project[] = [
     tags: ["Next.js", "TypeScript", "Tailwind CSS"],
     category: "tools",
   },
+  {
+    slug: "30days",
+    title: "30日 — Thirty Days",
+    description:
+      "AIエージェントに全部やらせて、30日で1から稼げるだけ稼ぐ。売上・提案数・人間の介在時間を毎日ここに足す、公開の帳面。",
+    tags: ["Next.js", "TypeScript", "公開ログ"],
+    category: "tools",
+  },
 ];
 
 export function projectHref(project: Project): string {

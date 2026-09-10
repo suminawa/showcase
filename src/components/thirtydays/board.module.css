@@ -1,0 +1,25 @@
+/* 帳面 ── 見積もりシミュレーターと同じ法。字は大と小の二段、箱を持たない、罫は墨の一本 */
+.board { display: grid; gap: calc(1.5 * var(--rp-pitch)); min-width: 0; }
+
+.totalBlock { display: grid; gap: calc(0.25 * var(--rp-pitch)); }
+.totalLabel { margin: 0; font-size: var(--rp-tiny); letter-spacing: 0.3em; color: var(--rp-sumi-4); }
+.total {
+  margin: 0; font-family: var(--rp-serif); font-size: var(--rp-large); line-height: 1.15;
+  letter-spacing: 0.06em; font-variant-numeric: tabular-nums; color: var(--rp-sumi);
+}
+
+.stats { display: flex; flex-wrap: wrap; gap: 0 clamp(24px, 4vw, 56px); margin: 0; font-size: var(--rp-tiny); line-height: 2.2; }
+.stat { display: flex; gap: 0.75em; }
+.stat dt { color: var(--rp-sumi-4); }
+.stat dd { margin: 0; font-variant-numeric: tabular-nums; }
+
+.sparkline { display: block; width: 100%; height: calc(2 * var(--rp-pitch)); overflow: visible; }
+.sparkline path { fill: none; stroke: var(--rp-sumi); stroke-opacity: 0.85; stroke-width: 1.2; vector-effect: non-scaling-stroke; }
+
+.tableWrap { overflow-x: auto; }
+.table { width: 100%; border-collapse: collapse; font-size: var(--rp-tiny); line-height: 2; font-variant-numeric: tabular-nums; }
+.table th, .table td { padding: 0 0.6em; text-align: right; white-space: nowrap; border: 0; font-weight: 400; }
+.table th:first-child, .table td:first-child { text-align: left; padding-left: 0; }
+.table thead th { color: var(--rp-sumi-4); letter-spacing: 0.1em; }
+.table thead tr { border-bottom: 1px solid color-mix(in srgb, var(--rp-sumi) 30%, transparent); }
+.textCol { text-align: left !important; white-space: normal !important; min-width: 12em; color: var(--rp-sumi-3); }

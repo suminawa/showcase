@@ -27,7 +27,7 @@ describe("projects registry", () => {
     const sites = projectsByCategory("sites");
     expect(sites.map((p) => p.slug)).toEqual(["suminagashi"]);
     const tools = projectsByCategory("tools");
-    expect(tools.map((p) => p.slug)).toEqual(["quote-simulator"]);
+    expect(tools.map((p) => p.slug)).toEqual(["quote-simulator", "30days"]);
     expect(projectsByCategory("games")).toEqual([]);
   });
 
