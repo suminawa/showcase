@@ -18,7 +18,7 @@ import s from "../projects.module.css";
 
 export const metadata: Metadata = {
   title: "30日 — Thirty Days",
-  description: "AIエージェントに全部やらせて、30日で1から稼げるだけ稼ぐ。売上・提案数・人間の介在時間を毎日足す公開の帳面。",
+  description: "AIエージェントに全部やらせて、30日で1から稼げるだけ稼ぐ。売上・提案数・人間の介在時間を毎日足していく公開の帳面。",
 };
 
 export default function ThirtyDaysPage() {
