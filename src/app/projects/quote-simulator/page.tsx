@@ -17,6 +17,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 
 import { QuoteSimulator } from "@/components/quote-simulator/QuoteSimulator";
+import links from "@/data/links.json";
 
 import { fontVars } from "../fonts";
 import s from "../projects.module.css";
@@ -52,6 +53,21 @@ export default function QuoteSimulatorPage() {
 
       <div className={s.work}>
         <QuoteSimulator />
+        <p className={s.lede} style={{ marginTop: "calc(2 * var(--rp-pitch))" }}>
+          この電卓を自分のサイトに置ける版（¥1,980）
+          {links.s1.note && (
+            <>
+              {" ── "}
+              <a href={links.s1.note}>note</a>
+            </>
+          )}
+          {links.s1.booth && (
+            <>
+              {links.s1.note ? " / " : " ── "}
+              <a href={links.s1.booth}>BOOTH</a>
+            </>
+          )}
+        </p>
       </div>
     </main>
   );

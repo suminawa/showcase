@@ -32,7 +32,8 @@ Showcase は実際に動くデモ・ツール・モック LP を一つずつ追�
 - 見積もり計算仕様: 1 日 = 8 時間換算 / 消費税 10% 切り捨て / オプション 3 種（急ぎ +20%・修正無制限 +15%・土日祝 +10%）
 - 公開名義: **suminawa（スミナワ / 墨縄）**。GitHub は github.com/suminawa
 - 名乗り: wordmark「SUMINAWA」としてトップに掲出済み
-- 連絡手段: 決定 — hello@suminawa.dev を結びに掲載（2026-08-05）。外部リンクは引き続き載せない
+- 連絡手段: 決定 — hello@suminawa.dev を結びに掲載（2026-08-05）。第三者サイトへの外部リンクは載せない
+- 販売導線: 決定（2026-09-10）— 同一名義（suminawa）の note / BOOTH / X へのリンクは、作品の結びと 30日の帳面に限って載せてよい。URL は `src/data/links.json` に置き、空なら表示しない
 - カスタムドメイン: 取得済み — suminawa.dev（主）/ suminawa.com（.dev へリダイレクト）。2026-08-04 取得、Whois 公開代行の有効性は registrant / technical 両フィールドで確認済み
 
 ## Brand Commitments
