@@ -1,6 +1,16 @@
 {
   "startDate": "2026-09-10",
   "days": [
-    { "day": 0, "date": "2026-09-10", "revenue": 0, "proposals": 0, "replies": 0, "meetings": 0, "humanMinutes": 0, "release": "", "ai": "開店。運用基盤・出品文・提案ひな形・自動化を作成" }
+    {
+      "day": 0,
+      "date": "2026-09-10",
+      "revenue": 0,
+      "proposals": 1,
+      "replies": 0,
+      "meetings": 0,
+      "humanMinutes": 540,
+      "release": "ココナラへ3件出品",
+      "ai": "開店。運用基盤・出品文・提案ひな形・自動化を作成"
+    }
   ]
 }
