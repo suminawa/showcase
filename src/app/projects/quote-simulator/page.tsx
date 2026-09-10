@@ -58,13 +58,13 @@ export default function QuoteSimulatorPage() {
           {links.s1.note && (
             <>
               {" ── "}
-              <a href={links.s1.note}>note</a>
+              <a href={links.s1.note} className={s.textLink}>note</a>
             </>
           )}
           {links.s1.booth && (
             <>
               {links.s1.note ? " / " : " ── "}
-              <a href={links.s1.booth}>BOOTH</a>
+              <a href={links.s1.booth} className={s.textLink}>BOOTH</a>
             </>
           )}
         </p>

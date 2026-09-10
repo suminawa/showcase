@@ -28,18 +28,21 @@ export function Board({ board }: { board: BoardData }) {
         <div className={c.stat}><dt>人間の介在</dt><dd>平均 {t.avgHumanMinutes} 分 / 日</dd></div>
       </dl>
 
-      <svg
-        className={c.sparkline}
-        viewBox={`0 0 ${WIDTH} ${HEIGHT}`}
-        preserveAspectRatio="none"
-        role="img"
-        aria-label={`累計売上の推移。現在 ${formatYen(t.revenue)}`}
-      >
-        <path d={sparklinePath(cumulative, WIDTH, HEIGHT)} />
-      </svg>
+      {cumulative.length > 1 && (
+        <svg
+          className={c.sparkline}
+          viewBox={`0 0 ${WIDTH} ${HEIGHT}`}
+          preserveAspectRatio="none"
+          role="img"
+          aria-label={`累計売上の推移。現在 ${formatYen(t.revenue)}`}
+        >
+          <path d={sparklinePath(cumulative, WIDTH, HEIGHT)} />
+        </svg>
+      )}
 
       <div className={c.tableWrap}>
         <table className={c.table}>
+          <caption className={c.srOnly}>日ごとの記録</caption>
           <thead>
             <tr>
               <th scope="col">Day</th>

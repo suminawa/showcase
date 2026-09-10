@@ -45,7 +45,7 @@ export default function ThirtyDaysPage() {
           {links.challenge.note && (
             <>
               {" ── "}
-              <a href={links.challenge.note}>毎日の記事</a>
+              <a href={links.challenge.note} className={s.textLink}>毎日の記事</a>
             </>
           )}
         </p>

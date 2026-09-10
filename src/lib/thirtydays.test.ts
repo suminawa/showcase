@@ -35,4 +35,7 @@ describe("sparklinePath", () => {
   it("空なら空文字", () => {
     expect(sparklinePath([], 100, 20)).toBe("");
   });
+  it("負の値は 0 として床を張る", () => {
+    expect(sparklinePath([-5, 10], 100, 20)).toBe("M0.0,20.0 L100.0,0.0");
+  });
 });

@@ -198,6 +198,19 @@
   color: var(--rp-sumi);
 }
 
+/* 文中のリンク ── 字の下に一本。戻り・窓口と同じく、触れると墨が濃くなる */
+.textLink {
+  color: var(--rp-sumi-3);
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.35em;
+  transition: color 200ms var(--rp-brush);
+}
+.textLink:hover,
+.textLink:focus-visible {
+  color: var(--rp-sumi);
+}
+
 /* 落款。朱の小さな正方形。界線に乗らないよう高さを 0.62 行に抑える */
 .seal {
   display: inline-flex;

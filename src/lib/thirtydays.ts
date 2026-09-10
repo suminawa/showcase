@@ -49,6 +49,9 @@ export function sparklinePath(values: number[], width: number, height: number): 
   const max = Math.max(...values, 1);
   const stepX = values.length > 1 ? width / (values.length - 1) : 0;
   return values
-    .map((v, i) => `${i === 0 ? "M" : "L"}${(i * stepX).toFixed(1)},${(height - (v / max) * height).toFixed(1)}`)
+    .map((value, i) => {
+      const v = Math.max(value, 0);
+      return `${i === 0 ? "M" : "L"}${(i * stepX).toFixed(1)},${(height - (v / max) * height).toFixed(1)}`;
+    })
     .join(" ");
 }
