@@ -266,6 +266,18 @@
   pointer-events: none;
 }
 
+/* 「塗る」のあいだのカーソル。どこを触ってもマスを塗ると分かるように。
+   部屋の塗り（.planRoom の pointer）の上でも十字にするため、中の要素にも掛ける */
+.planPaint,
+.planPaint * {
+  cursor: crosshair;
+}
+
+/* 「塗る」のあいだは家具に触れない（触ってもマスを塗る） */
+.planItemLocked {
+  pointer-events: none;
+}
+
 .planName {
   fill: var(--d-fg);
   font-size: 26px;
@@ -279,6 +291,18 @@
   font-size: 20px;
   text-anchor: middle;
   pointer-events: none;
+}
+
+/* 360px 幅のスマホでは SVG が縮小されて描画され、ユーザー単位のままだと部屋名や広さが
+   8px 前後まで潰れて読めなくなる。狭い画面ではユーザー単位を大きくして補う */
+@media (max-width: 480px) {
+  .planName {
+    font-size: 40px;
+  }
+
+  .planArea {
+    font-size: 32px;
+  }
 }
 
 /* 家具の記号の上から最後に重ねて描くラベル。当たり判定を持たせず、下の操作を邪魔しない */
