@@ -1,0 +1,448 @@
+/*
+ * 見本: 店舗・サロンの LP。生成り地に深緑ひと色、見出しは明朝。
+ * 写真を一枚も使わない ── 色と余白と書体だけで店の空気を出すのが、この見本の見せどころ。
+ * 色はこの根で決め、共通部品（DemoFooter / DemoForm）は --d-* を継承する。
+ *
+ * ヒーローだけは背景に濃淡と粒が重なる。三層が全部重なった最悪の地 rgb(186,182,166) で
+ * --d-fg は 8.0:1、--d-brand は 4.8:1、--d-muted は 3.6:1 にしかならない。
+ * だからヒーローの中では --d-muted を使わない。.wash の不透明度と .field の opacity は
+ * その計算の前提なので、上げない。
+ */
+
+.page {
+  --d-bg: #f7f2e8; /* 生成り */
+  --d-fg: #23201a; /* 生成り地で 14.6:1 */
+  --d-muted: #5c5647; /* 生成り地で 6.5:1、--d-soft の上で 5.9:1 */
+  --d-brand: #1f4d3a; /* 深緑。生成り地で 8.6:1 */
+  --d-brand-ink: #123a2b; /* 生成り地で 11.3:1 */
+  --d-line: #ded5c3;
+  --d-soft: #efe7d6;
+  --d-surface: #fffdf8; /* 入力欄・品書きの面。墨の字で 16.0:1 */
+  --d-on-brand: #f7f2e8; /* 深緑の上の文字。8.6:1 */
+  --d-input-line: #7d7466; /* 入力欄の枠線。地の色で 3:1 以上 */
+  --d-serif: var(--d-mincho), "Hiragino Mincho ProN", "Yu Mincho", serif;
+
+  min-height: 100vh;
+  background: var(--d-bg);
+  color: var(--d-fg);
+  font-family: var(--font-sans);
+  line-height: 1.9;
+  overflow-x: clip;
+}
+
+/* 見本の根がある間だけ、html の地も見本の色にする（引っ張ったときの余白が料紙の色にならないように）。
+   トークンは .page に閉じているので、ここだけ値を直書きする */
+:global(html):has(.page) {
+  background: #f7f2e8;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  :global(html):has(.page) {
+    scroll-behavior: smooth;
+  }
+}
+
+.container {
+  width: min(100% - 2.5rem, 940px);
+  margin-inline: auto;
+}
+
+.page a:focus-visible,
+.page summary:focus-visible {
+  outline: 2px solid var(--d-brand-ink);
+  outline-offset: 2px;
+}
+
+/* ---- ヒーロー ---- */
+
+.hero {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  padding: 4.5rem 0 4rem;
+  border-bottom: 1px solid var(--d-line);
+}
+
+@media (min-width: 720px) {
+  .hero {
+    padding: 7rem 0 6rem;
+  }
+}
+
+/* ゆっくり動く濃淡。減速の設定のときは animation を付けない */
+.wash {
+  position: absolute;
+  inset: -25%;
+  z-index: -2;
+  background:
+    radial-gradient(38% 44% at 22% 30%, rgba(31, 77, 58, 0.1), transparent 70%),
+    radial-gradient(42% 40% at 78% 64%, rgba(31, 77, 58, 0.06), transparent 72%),
+    radial-gradient(34% 38% at 58% 8%, rgba(124, 106, 78, 0.08), transparent 70%);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .wash {
+    animation: wash 36s ease-in-out infinite alternate;
+  }
+}
+
+@keyframes wash {
+  from {
+    transform: translate3d(-2%, -1%, 0) scale(1.02);
+  }
+  to {
+    transform: translate3d(2%, 2%, 0) scale(1.09);
+  }
+}
+
+/* 紙の粒子（canvas）。濃さは半分に落とす ── 文字の後ろに来ても読めるように */
+.field {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  width: 100%;
+  height: 100%;
+  opacity: 0.5;
+}
+
+.eyebrow {
+  margin: 0 0 1.25rem;
+  font-size: 0.8125rem;
+  letter-spacing: 0.18em;
+  color: var(--d-brand);
+}
+
+.h1 {
+  margin: 0;
+  font-family: var(--d-serif);
+  font-weight: 600;
+  font-size: clamp(2.75rem, 11vw, 5rem);
+  line-height: 1.15;
+  letter-spacing: 0.06em;
+}
+
+.tagline {
+  margin: 1.5rem 0 0;
+  font-family: var(--d-serif);
+  font-weight: 500;
+  font-size: clamp(1.125rem, 3.4vw, 1.5rem);
+  line-height: 1.8;
+}
+
+/* ヒーローの補助の文。地に濃淡が重なるので --d-muted は使わず、字を小さくして差を付ける */
+.heroLead {
+  margin: 1rem 0 0;
+  max-width: 30em;
+  font-size: 0.9375rem;
+}
+
+.hours {
+  display: grid;
+  gap: 0.25rem;
+  margin: 2rem 0 0;
+  max-width: 28rem;
+  padding: 1rem 1.25rem;
+  border-left: 3px solid var(--d-brand);
+  background: color-mix(in srgb, var(--d-surface) 78%, transparent);
+  font-size: 0.9375rem;
+}
+
+.hoursLine,
+.hoursClosed {
+  margin: 0;
+}
+
+.openNowRow {
+  min-height: 1.6em;
+  margin: 0.25rem 0 0;
+}
+
+.openNow {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-weight: 700;
+  color: var(--d-fg);
+}
+
+.openNow::before {
+  content: "";
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 999px;
+  background: currentColor;
+}
+
+.openNow[data-open="true"] {
+  color: var(--d-brand);
+}
+
+.ctas {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin: 2rem 0 0;
+}
+
+/* ---- ボタン ---- */
+
+.primary,
+.secondary {
+  display: inline-block;
+  padding: 0.875rem 1.75rem;
+  border-radius: 999px;
+  font-size: 0.9375rem;
+  font-weight: 700;
+  text-align: center;
+  text-decoration: none;
+}
+
+.primary {
+  background: var(--d-brand);
+  color: var(--d-on-brand);
+}
+
+.primary:hover {
+  background: var(--d-brand-ink);
+}
+
+.secondary {
+  border: 1px solid var(--d-brand);
+  background: transparent;
+  color: var(--d-brand);
+}
+
+.secondary:hover {
+  background: var(--d-soft);
+}
+
+/* ---- 節 ---- */
+
+.section {
+  padding: 4rem 0;
+  scroll-margin-top: 1.5rem;
+}
+
+.section + .section {
+  border-top: 1px solid var(--d-line);
+}
+
+.soft {
+  background: var(--d-soft);
+}
+
+.h2 {
+  margin: 0 0 2rem;
+  font-family: var(--d-serif);
+  font-weight: 600;
+  font-size: clamp(1.5rem, 4.4vw, 2rem);
+  line-height: 1.5;
+  letter-spacing: 0.04em;
+}
+
+/* ---- こだわり 三つ ---- */
+
+.points {
+  display: grid;
+  gap: 1.75rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  counter-reset: point;
+}
+
+@media (min-width: 720px) {
+  .points {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2.5rem;
+  }
+}
+
+.point {
+  counter-increment: point;
+}
+
+.point::before {
+  content: counter(point, decimal-leading-zero);
+  display: block;
+  margin-bottom: 0.75rem;
+  font-family: var(--d-serif);
+  font-size: 1.25rem;
+  letter-spacing: 0.08em;
+  color: var(--d-brand);
+}
+
+.pointTitle {
+  margin: 0 0 0.5rem;
+  font-family: var(--d-serif);
+  font-weight: 600;
+  font-size: 1.125rem;
+  line-height: 1.7;
+}
+
+.pointBody {
+  margin: 0;
+  font-size: 0.9375rem;
+  color: var(--d-muted);
+}
+
+/* ---- 品書き ---- */
+
+.menu {
+  display: grid;
+  gap: 2.5rem;
+}
+
+@media (min-width: 860px) {
+  .menu {
+    grid-template-columns: 1fr 1fr;
+    gap: 3rem;
+  }
+}
+
+.h3 {
+  margin: 0 0 1.25rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid var(--d-line);
+  font-family: var(--d-serif);
+  font-weight: 600;
+  font-size: 1.125rem;
+  letter-spacing: 0.08em;
+}
+
+.items {
+  display: grid;
+  gap: 1.5rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.itemHead {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+  margin: 0;
+}
+
+.itemName {
+  font-family: var(--d-serif);
+  font-weight: 600;
+  font-size: 1.0625rem;
+}
+
+/* 品名と値段のあいだの点線。中身の無い飾りなので aria-hidden で読ませない */
+.itemLeader {
+  flex: 1 1 auto;
+  min-width: 1.5rem;
+  border-bottom: 1px dotted var(--d-line);
+  transform: translateY(-0.3em);
+}
+
+.itemPrice {
+  font-size: 0.9375rem;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.itemNote {
+  margin: 0.375rem 0 0;
+  font-size: 0.875rem;
+  line-height: 1.8;
+  color: var(--d-muted);
+}
+
+.menuNote {
+  margin: 2.5rem 0 0;
+  font-size: 0.875rem;
+  color: var(--d-muted);
+}
+
+/* ---- 席と過ごし方 ---- */
+
+.seats {
+  display: grid;
+  gap: 1.25rem;
+  max-width: 40rem;
+  margin: 0;
+}
+
+.seatRow {
+  display: grid;
+  gap: 0.25rem 1.5rem;
+  padding-bottom: 1.25rem;
+  border-bottom: 1px solid var(--d-line);
+}
+
+@media (min-width: 640px) {
+  .seatRow {
+    grid-template-columns: 5rem 1fr;
+  }
+}
+
+.seatRow dt {
+  font-family: var(--d-serif);
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  color: var(--d-brand);
+}
+
+.seatRow dd {
+  margin: 0;
+  color: var(--d-muted);
+}
+
+/* ---- 行き方 ---- */
+
+.access {
+  display: grid;
+  gap: 1rem;
+  max-width: 36rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  counter-reset: step;
+}
+
+.accessItem {
+  position: relative;
+  padding-left: 2.5rem;
+  counter-increment: step;
+  color: var(--d-muted);
+}
+
+.accessItem::before {
+  content: counter(step);
+  position: absolute;
+  top: 0.4rem;
+  left: 0;
+  display: grid;
+  place-items: center;
+  width: 1.625rem;
+  height: 1.625rem;
+  border: 1px solid var(--d-brand);
+  border-radius: 999px;
+  font-size: 0.75rem;
+  line-height: 1;
+  color: var(--d-brand);
+}
+
+/* ---- 予約 ---- */
+
+.reserve {
+  display: grid;
+  gap: 2rem;
+}
+
+@media (min-width: 880px) {
+  .reserve {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    align-items: start;
+    gap: 3rem;
+  }
+}
+
+.reserveLead {
+  margin: 0;
+  color: var(--d-muted);
+}
