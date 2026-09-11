@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { spacedWord } from "./spacedWord";
+import { spacedWord, trailingSpacedWord } from "./spacedWord";
 
 describe("spacedWord", () => {
   it("英数字だけの語は前後に半角スペースを置く", () => {
@@ -13,5 +13,10 @@ describe("spacedWord", () => {
   it("仮名や漢字で始まる語はスペースを足さずそのまま返す", () => {
     expect(spacedWord("粉とゆげ")).toBe("粉とゆげ");
     expect(spacedWord("ページ")).toBe("ページ");
+  });
+
+  it("trailingSpacedWord は英数字の語に後ろだけ半角スペースを置く（句点の直後用）", () => {
+    expect(trailingSpacedWord("Tabane Works")).toBe("Tabane Works ");
+    expect(trailingSpacedWord("粉とゆげ")).toBe("粉とゆげ");
   });
 });

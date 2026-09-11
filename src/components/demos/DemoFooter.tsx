@@ -1,6 +1,6 @@
 import Link from "next/link";
 
-import { spacedWord } from "./spacedWord";
+import { spacedWord, trailingSpacedWord } from "./spacedWord";
 import s from "./demo-shared.module.css";
 
 /**
@@ -19,7 +19,8 @@ export function DemoFooter({
   page?: string;
 }) {
   const pageLabel = spacedWord(page);
-  const brandLabel = spacedWord(brand);
+  // 句点「。」の直後に来るので、前には空白を置かない
+  const brandLabel = trailingSpacedWord(brand);
 
   return (
     <footer className={s.footer}>
