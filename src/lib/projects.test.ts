@@ -38,6 +38,8 @@ describe("projects registry", () => {
     expect(projectsByCategory("samples").map((p) => p.slug)).toEqual([
       "saas-lp",
       "shop-lp",
+      "construction-lp",
+      "corporate-site",
     ]);
     expect(projectsByCategory("games")).toEqual([]);
   });
@@ -50,11 +52,15 @@ describe("projects registry", () => {
   });
 
   it("見本の行はレジストリの題と説明をそのまま持つ", () => {
-    const [saas, shop] = projectsByCategory("samples");
+    const [saas, shop, construction, corporate] = projectsByCategory("samples");
     expect(saas.title).toBe("見本 — BtoB・SaaS の LP");
     expect(saas.tags).toContain("見本 LP");
     expect(shop.title).toBe("見本 — 店舗・サロンの LP");
     expect(projectHref(shop)).toBe("/demos/shop-lp");
+    expect(construction.title).toBe("見本 — 建設・工事の LP");
+    expect(projectHref(construction)).toBe("/demos/construction-lp");
+    expect(corporate.title).toBe("見本 — 会社案内サイト");
+    expect(projectHref(corporate)).toBe("/demos/corporate-site");
   });
 
   it("slug は作品と見本をまたいで重ならない", () => {
