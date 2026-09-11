@@ -1,0 +1,37 @@
+/*
+ * 見本: 建物ビューア。色はページの根（.page）が決める --d-* を使う。
+ * 3D の中の色（壁・屋根・空・地面）は house.ts にあり、ここには書かない。
+ */
+
+.canvas {
+  cursor: grab;
+}
+
+.canvas:active {
+  cursor: grabbing;
+}
+
+/* ---- 注記の吹き出し（drei の Html が canvas の上に出す DOM） ---- */
+
+.note {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.375rem;
+  padding: 0.25rem 0.625rem;
+  border-radius: 999px;
+  background: var(--d-fg);
+  color: var(--d-bg);
+  font-size: 0.75rem;
+  line-height: 1.5;
+  white-space: nowrap;
+  box-shadow: 0 2px 8px rgb(0 0 0 / 0.25);
+}
+
+.noteName {
+  font-weight: 700;
+}
+
+.noteArea {
+  opacity: 0.85;
+  font-variant-numeric: tabular-nums;
+}

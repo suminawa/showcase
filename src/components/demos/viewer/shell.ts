@@ -123,6 +123,7 @@ export function windowPanels(floor: Floor): Panel[] {
   return out;
 }
 
+/** 使う側は rotationY を内側の mesh に、scaleZ を外側の group に掛けること（回転 → z 方向拡大の順）。 */
 export type Roof = {
   /** 四角錐の外接円の半径（coneGeometry の radius） */
   radius: number;
