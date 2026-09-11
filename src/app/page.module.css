@@ -966,6 +966,47 @@
   transition: color var(--hi-soak);
 }
 
+/*
+ * 分類の頭の一行。分類名の右、その分類の最初の作品の上に座る。
+ * 字は作品の説明（.desc）と同じ「小」── 段の中に新しい字の寸法を増やさない。
+ * 一行（line-height 2.3 ＝ ちょうど 1 pitch）と下の間（1 pitch）の合計が
+ * pitch の整数倍なので、界線の位相はこの一行を足しても動かない。
+ * 置き場所は明示する ── .cat が 1 列目を取るので、自動配置に任せると
+ * 作品が次の段の 1 列目へ落ちる。
+ */
+.lead {
+  grid-column: 2;
+  grid-row: 1;
+  margin-bottom: var(--hi-kei-pitch);
+  font-size: var(--hi-tiny);
+  line-height: 2.3;
+  letter-spacing: 0.05em;
+  color: var(--hi-sumi-4);
+  max-width: 30em;
+  transition: color var(--hi-soak);
+}
+
+/* 頭の一行を持つ段では、水の板と濃い罫の上端を lead ぶん（一行 1 pitch と
+   下の間 1 pitch）下げて、作品の行に合わせる。lead の無い段と同じく
+   「作品の上 3 pitch」から濡れる。2 pitch は整数倍なので罫の位相は狂わない */
+.work:has(.lead) .flow,
+.work:has(.lead)::after {
+  top: calc(-1 * var(--hi-wet-y) + 2 * var(--hi-kei-pitch));
+}
+
+.work:has(.lead) .flowDeep {
+  top: calc(-1 * var(--hi-wet-y2) + 2 * var(--hi-kei-pitch));
+}
+
+/* 一行ぶん下へ送る。頭の一行を持つ段でだけ効く。
+   列も明示する ── 行だけを送ると、自動配置が空いている 1 列目（分類名の列）を
+   拾って、作品が罫の幅ぶんに痩せる */
+.lead + .entry,
+.lead + .empty {
+  grid-column: 2;
+  grid-row: 2;
+}
+
 /* 行間も界線一行ぶん。題と本文の間に、空の罫が一本きり残る */
 .entry {
   display: grid;
@@ -1014,9 +1055,11 @@
 .work:has(.entry):hover .desc,
 .work:has(.entry):hover .tags,
 .work:has(.entry):hover .cat,
+.work:has(.entry):hover .lead,
 .work:has(.entry:focus-visible) .desc,
 .work:has(.entry:focus-visible) .tags,
-.work:has(.entry:focus-visible) .cat {
+.work:has(.entry:focus-visible) .cat,
+.work:has(.entry:focus-visible) .lead {
   color: var(--hi-sumi-2);
 }
 
@@ -1204,6 +1247,17 @@
   .work {
     grid-template-columns: minmax(0, 1fr);
     row-gap: 0;
+  }
+
+  /* 一列では分類名が 1 行目を取る。頭の一行はその下、作品はさらに下の罫へ */
+  .lead {
+    grid-column: 1;
+    grid-row: 2;
+  }
+  .lead + .entry,
+  .lead + .empty {
+    grid-column: 1;
+    grid-row: 3;
   }
 
   .flowDeep {

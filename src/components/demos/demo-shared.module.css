@@ -56,6 +56,7 @@
 }
 
 .field input,
+.field select,
 .field textarea {
   font: inherit;
   padding: 0.75rem 0.875rem;
@@ -66,6 +67,7 @@
 }
 
 .field input:focus-visible,
+.field select:focus-visible,
 .field textarea:focus-visible {
   outline: 2px solid var(--d-brand);
   outline-offset: 1px;
@@ -74,6 +76,13 @@
 
 .field input::placeholder,
 .field textarea::placeholder {
+  color: var(--d-muted);
+}
+
+/* 選ぶ欄の「選んでください」は disabled の option なので ::placeholder が効かない。
+   required の select は未選択のあいだ :invalid なので、そこを目印にして
+   入力欄の placeholder と同じ薄さにする */
+.field select:invalid {
   color: var(--d-muted);
 }
 

@@ -1,0 +1,137 @@
+/*
+ * 見本「潮見計測」の部品（ヘッダーのリンク・波・お知らせ）。
+ * 色は枠の根（src/app/demos/corporate-site/corporate.module.css の .page）が --d-* で決める。
+ * ここには色を直書きしない。
+ */
+
+/* ---- ヘッダーのリンク ---- */
+
+.nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem 1.25rem;
+  margin-left: auto;
+  font-size: 0.9375rem;
+}
+
+.navLink {
+  position: relative;
+  padding: 0.25rem 0;
+  color: var(--d-muted);
+  text-decoration: none;
+}
+
+.navLink:hover {
+  color: var(--d-fg);
+}
+
+.navLink[aria-current="page"] {
+  color: var(--d-brand);
+  font-weight: 700;
+}
+
+.navLink[aria-current="page"]::after {
+  content: "";
+  position: absolute;
+  right: 0;
+  bottom: -0.125rem;
+  left: 0;
+  height: 2px;
+  background: var(--d-brand);
+}
+
+.navLink:focus-visible {
+  outline: 2px solid var(--d-brand-ink);
+  outline-offset: 3px;
+}
+
+/* ---- 波 ---- */
+
+@media (prefers-reduced-motion: no-preference) {
+  .wave,
+  .waveBack {
+    will-change: transform;
+    animation-timing-function: linear;
+    animation-iteration-count: infinite;
+  }
+
+  .wave {
+    animation-name: waveShift;
+  }
+
+  .waveBack {
+    animation-name: waveShiftBack;
+  }
+}
+
+/* 1 タイル（1200 単位）ぶんずらすと、波の形はちょうど元に戻る */
+@keyframes waveShift {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-1200px);
+  }
+}
+
+@keyframes waveShiftBack {
+  from {
+    transform: translateX(-1200px);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+/* ---- お知らせ ---- */
+
+.news {
+  display: grid;
+  gap: 0;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  max-width: 52rem;
+}
+
+.newsItem {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 0.25rem 0.875rem;
+  align-items: center;
+  padding: 1rem 0;
+  border-bottom: 1px solid var(--d-line);
+}
+
+@media (min-width: 720px) {
+  .newsItem {
+    grid-template-columns: 6.5rem 5rem 1fr;
+  }
+}
+
+.newsDate {
+  font-size: 0.875rem;
+  font-variant-numeric: tabular-nums;
+  color: var(--d-muted);
+}
+
+.newsTag {
+  justify-self: start;
+  padding: 0.125rem 0.625rem;
+  border: 1px solid var(--d-brand);
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--d-brand);
+}
+
+.newsTitle {
+  grid-column: 1 / -1;
+  font-weight: 700;
+}
+
+@media (min-width: 720px) {
+  .newsTitle {
+    grid-column: auto;
+  }
+}

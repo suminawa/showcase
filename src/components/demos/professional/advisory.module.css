@@ -1,0 +1,142 @@
+/*
+ * 顧問料の切替。saas-lp の料金表と同じ「押されているボタン」の形だが、
+ * あちらは払い方の切替、こちらは相手の切替なので、選んだプランだけを大きく出す。
+ * 色は書かない ── ページの根が決める --d-* だけを使う。
+ */
+
+.wrap {
+  display: grid;
+  gap: 1.5rem;
+  max-width: 34rem;
+}
+
+.switch {
+  display: flex;
+  padding: 0.25rem;
+  border: 1px solid var(--d-line);
+  border-radius: 999px;
+  background: var(--d-surface);
+}
+
+.switchButton {
+  flex: 1 1 0;
+  font: inherit;
+  font-size: 0.875rem;
+  font-weight: 600;
+  padding: 0.5rem 0.75rem;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--d-muted);
+  cursor: pointer;
+}
+
+.switchButton[aria-pressed="true"] {
+  background: var(--d-brand);
+  color: var(--d-on-brand);
+}
+
+.switchButton:focus-visible {
+  outline: 2px solid var(--d-brand-ink);
+  outline-offset: 2px;
+}
+
+.card {
+  display: grid;
+  gap: 0.75rem;
+  padding: 1.75rem;
+  border: 1px solid var(--d-line);
+  border-radius: 1rem;
+  background: var(--d-surface);
+}
+
+.name {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 700;
+}
+
+.audience {
+  margin: 0;
+  font-size: 0.875rem;
+  color: var(--d-muted);
+}
+
+/* 横の間は 0 ──「15,000 円」と「／月」を離さず続けて読ませる。
+   縦の間（ラベルと金額のあいだ）だけ残す */
+.price {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.375rem 0;
+  margin: 0.25rem 0 0;
+}
+
+/* 先頭の行のラベルは金額の上に置く（幅いっぱいで改行させる） */
+.priceLabel {
+  width: 100%;
+  font-size: 0.8125rem;
+  color: var(--d-muted);
+}
+
+.amount {
+  font-size: 2rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.unit {
+  font-size: 0.875rem;
+  color: var(--d-muted);
+}
+
+.lines {
+  display: grid;
+  gap: 0.375rem;
+  margin: 0;
+  padding: 0.75rem 0 0;
+  border-top: 1px solid var(--d-line);
+  list-style: none;
+  font-size: 0.9375rem;
+}
+
+.lines li {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.lineAmount {
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.yearly {
+  margin: 0;
+  padding: 0.75rem 1rem;
+  border-radius: 0.5rem;
+  background: var(--d-soft);
+  font-size: 0.9375rem;
+}
+
+.includes {
+  display: grid;
+  gap: 0.375rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: 0.9375rem;
+}
+
+.includes li::before {
+  content: "✓";
+  margin-right: 0.5rem;
+  color: var(--d-brand);
+  font-weight: 700;
+}
+
+.note {
+  margin: 0;
+  font-size: 0.875rem;
+  color: var(--d-muted);
+}

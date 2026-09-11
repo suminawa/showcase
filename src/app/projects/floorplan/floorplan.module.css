@@ -1,0 +1,45 @@
+/*
+ * 間取りシミュレーターの根。
+ *
+ * 紙は料紙のまま（背景はここで塗らない）── ツールの面は見積もりシミュレーターと
+ * 同じ地に載せる。この一枚が持つのは【道具の中の色と字】だけで、
+ * 道具の外（頭・戻り・一行）は projects.module.css の文法に従う。
+ *
+ * 色を料紙に寄せないのは水盤と同じ理屈で、道具自身の色は道具のものだから ──
+ * 藍鼠は図面の線と面を読み分けるための色で、額装が変わっても変わらない。
+ * 値は Viewer / PlanEditor（components/demos/viewer/viewer.module.css）が
+ * --d-* として読む。ここが唯一の出どころ。
+ *
+ * コントラスト … 各値は見本だったころ地 #EEF0F2 の上で測ってある
+ *   （#1A1E24 14.6:1 / #545B64 5.9:1 / #2F5F7A 6.0:1、#FFFFFF は #2F5F7A の上で 6.9:1）。
+ *   料紙 #F6F3EB は #EEF0F2 より明るい（相対輝度 0.897 > 0.869）ので、
+ *   地に直に載る字と線はどれもこの数値より濃く出る。下回るものは無い。
+ */
+
+.tool {
+  /* 地は料紙。塗らずに透かすので、--d-bg は「後ろにある紙の色」を指す
+     （viewer.module.css では、墨地の注記の吹き出しの字の色として読まれる） */
+  --d-bg: var(--ryoushi-paper);
+  --d-fg: #1a1e24;
+  --d-muted: #545b64;
+  --d-brand: #2f5f7a;
+  --d-brand-ink: #1d3f53;
+  --d-line: #d5d9de;
+  --d-soft: #e2e6ea;
+  --d-surface: #ffffff;
+  --d-on-brand: #ffffff;
+  --d-input-line: #8b91a0; /* 入力欄（部屋名の select）の枠線。地の色で 3:1 以上 */
+
+  /* 道具の字は明朝ではなく素の sans。図面の数字と部屋名が小さく並ぶ面なので、
+     頭の明朝はここで切る（境目は道具の枠ではなく、字そのものが示す）。
+     ＊ 見本のころは var(--font-sans) と書いていたが、あれは Tailwind の
+       @theme inline の名前で、:root には出ない（utility に畳まれるだけ）。
+       見本では body の font-sans をそのまま継いでいたので気づかなかった。
+       料紙の上では祖先が明朝なので、素通しにすると道具まで明朝になる ──
+       次の font 変数（next/font が body に載せる実体）を直に読む。 */
+  color: var(--d-fg);
+  font-family:
+    var(--font-noto-sans-jp), ui-sans-serif, system-ui, "Hiragino Sans",
+    sans-serif;
+  line-height: 1.8;
+}

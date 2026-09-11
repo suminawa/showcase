@@ -1,0 +1,478 @@
+/*
+ * 見本: 建設・工事の LP。白地にオレンジひと色（安全色）と墨の文字、ゴシック体。
+ * 見せどころは電話導線の強さ・スマホでの読みやすさ・価格の透明さ。
+ * 色はこの根で決め、共通部品（DemoFooter / DemoForm）と parts.module.css は --d-* を継承する。
+ *
+ * --d-accent は飾り専用（白地で 2.8:1）。文字と、意味のある境界には使わない（脈打つ輪のような飾りの縁は可）。
+ * ヒーローだけは地に斜めストライプ（0.08）と粒（canvas の opacity 0.5）が重なる。
+ * 最悪の地 rgb(249,205,167) で --d-fg は 11.78:1、--d-muted は 4.99:1、--d-brand-ink は 5.54:1、
+ * --d-brand は 3.83:1 にしかならない。だからヒーローの中で --d-brand を文字に使わない。
+ * .stripes の不透明度と .field の opacity はその計算の前提なので、上げない。
+ */
+
+.page {
+  --d-bg: #ffffff;
+  --d-fg: #1c1b18; /* 白地で 17.22:1 */
+  --d-muted: #5b564c; /* 白地で 7.29:1、--d-soft の上で 6.66:1 */
+  --d-brand: #b2450a; /* 白地で 5.60:1。白文字を載せても 5.60:1 */
+  --d-brand-ink: #8a3506; /* 白地で 8.10:1 */
+  --d-line: #e6e2da;
+  --d-soft: #fdf3ea;
+  --d-surface: #ffffff;
+  --d-on-brand: #ffffff;
+  --d-input-line: #8a8478; /* 白地で 3.72:1 ── 入力欄の枠線（WCAG 1.4.11） */
+  --d-accent: #f07a12; /* 飾り専用の明るいオレンジ */
+
+  min-height: 100vh;
+  background: var(--d-bg);
+  color: var(--d-fg);
+  font-family: var(--font-sans);
+  line-height: 1.8;
+  overflow-x: clip;
+}
+
+/* 見本の根がある間だけ、html の地も見本の色にする（CSS 変数は祖先に見えないので値を直書き） */
+:global(html):has(.page) {
+  background: #ffffff;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  :global(html):has(.page) {
+    scroll-behavior: smooth;
+  }
+}
+
+.container {
+  width: min(100% - 2.5rem, 1080px);
+  margin-inline: auto;
+}
+
+/* ---- ヘッダー ---- */
+
+.header {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  border-bottom: 1px solid var(--d-line);
+  background: color-mix(in srgb, var(--d-surface) 90%, transparent);
+  backdrop-filter: blur(8px);
+}
+
+.headerRow {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  min-height: 4rem;
+}
+
+.logo {
+  font-size: 1.0625rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  color: var(--d-fg);
+  text-decoration: none;
+}
+
+.nav {
+  display: none;
+  gap: 1.25rem;
+  margin-left: auto;
+  font-size: 0.9375rem;
+}
+
+.nav a {
+  color: var(--d-muted);
+  text-decoration: none;
+}
+
+.nav a:hover {
+  color: var(--d-fg);
+}
+
+@media (min-width: 860px) {
+  .nav {
+    display: flex;
+  }
+}
+
+.headerCall {
+  margin-left: auto;
+}
+
+@media (min-width: 860px) {
+  .headerCall {
+    margin-left: 0;
+  }
+}
+
+.page a:focus-visible,
+.page summary:focus-visible {
+  outline: 2px solid var(--d-brand-ink);
+  outline-offset: 2px;
+}
+
+.main {
+  scroll-margin-top: 5rem;
+}
+
+/* ---- ヒーロー ---- */
+
+.hero {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  padding: 3.5rem 0 3rem;
+  background: var(--d-soft);
+  border-bottom: 1px solid var(--d-line);
+}
+
+@media (min-width: 760px) {
+  .hero {
+    padding: 5.5rem 0 4.5rem;
+  }
+}
+
+/* 斜めのストライプ。安全色の帯を薄く敷く。濃さは上げない（コントラストの前提） */
+.stripes {
+  position: absolute;
+  inset: -20%;
+  z-index: -2;
+  background: repeating-linear-gradient(
+    -45deg,
+    color-mix(in srgb, var(--d-accent) 8%, transparent) 0 14px,
+    transparent 14px 34px
+  );
+}
+
+/* 粒（canvas）。濃さは半分に落とす ── 文字の後ろに来ても読めるように */
+.field {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  width: 100%;
+  height: 100%;
+  opacity: 0.5;
+}
+
+.eyebrow {
+  /* ヒーローの中なので --d-brand ではなく --d-brand-ink（重なった地で 5.54:1） */
+  margin: 0 0 1rem;
+  font-size: 0.875rem;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  color: var(--d-brand-ink);
+}
+
+.h1 {
+  margin: 0;
+  max-width: 18em;
+  font-size: clamp(1.875rem, 6.4vw, 3.25rem);
+  font-weight: 800;
+  line-height: 1.3;
+  letter-spacing: -0.01em;
+}
+
+.lead {
+  margin: 1.5rem 0 0;
+  max-width: 32em;
+  font-size: clamp(1rem, 1.6vw, 1.0625rem);
+}
+
+.heroMeta {
+  display: grid;
+  gap: 0.25rem;
+  margin: 1.75rem 0 0;
+  max-width: 28rem;
+  padding: 0.875rem 1.125rem;
+  border-left: 4px solid var(--d-brand);
+  background: color-mix(in srgb, var(--d-surface) 82%, transparent);
+  font-size: 0.9375rem;
+  font-weight: 700;
+}
+
+.heroMeta p {
+  margin: 0;
+}
+
+.ctas {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: start;
+  gap: 1rem;
+  margin: 2rem 0 0;
+}
+
+.fine {
+  margin: 1.25rem 0 0;
+  font-size: 0.8125rem;
+}
+
+/* ---- ボタン ---- */
+
+.secondary {
+  display: inline-block;
+  padding: 0.875rem 1.75rem;
+  border: 2px solid var(--d-brand);
+  border-radius: 999px;
+  background: var(--d-surface);
+  color: var(--d-brand);
+  font-size: 1.0625rem;
+  font-weight: 800;
+  text-align: center;
+  text-decoration: none;
+}
+
+.secondary:hover {
+  border-color: var(--d-brand-ink);
+  color: var(--d-brand-ink);
+}
+
+/* ---- 節 ---- */
+
+.section {
+  padding: 4rem 0;
+  scroll-margin-top: 5rem;
+}
+
+.section + .section {
+  border-top: 1px solid var(--d-line);
+}
+
+.soft {
+  background: var(--d-soft);
+}
+
+.h2 {
+  margin: 0 0 0.75rem;
+  font-size: clamp(1.5rem, 3.6vw, 2.125rem);
+  font-weight: 800;
+  line-height: 1.4;
+  letter-spacing: -0.01em;
+}
+
+.sectionLead {
+  margin: 0 0 2rem;
+  max-width: 34em;
+  color: var(--d-muted);
+}
+
+.h2 + .menu,
+.h2 + .steps,
+.h2 + .voices,
+.h2 + .faq {
+  margin-top: 2rem;
+}
+
+/* ---- 対応メニュー ---- */
+
+.menu {
+  display: grid;
+  gap: 1rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+@media (min-width: 640px) {
+  .menu {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 960px) {
+  .menu {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+.menuItem {
+  display: grid;
+  gap: 0.5rem;
+  align-content: start;
+  padding: 1.5rem;
+  border: 1px solid var(--d-line);
+  border-radius: 1rem;
+  background: var(--d-surface);
+}
+
+.menuName {
+  margin: 0.75rem 0 0;
+  font-size: 1.125rem;
+  font-weight: 800;
+}
+
+.menuPrice {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  color: var(--d-brand);
+}
+
+.menuNote {
+  margin: 0;
+  font-size: 0.875rem;
+  line-height: 1.8;
+  color: var(--d-muted);
+}
+
+.menuFoot {
+  margin: 2rem 0 0;
+  font-size: 0.875rem;
+  color: var(--d-muted);
+}
+
+/* ---- 作業の流れ ---- */
+
+.steps {
+  display: grid;
+  gap: 1rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  counter-reset: step;
+}
+
+@media (min-width: 760px) {
+  .steps {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+.step {
+  counter-increment: step;
+  padding: 1.5rem;
+  border: 1px solid var(--d-line);
+  border-radius: 1rem;
+  background: var(--d-surface);
+}
+
+.step::before {
+  content: counter(step);
+  display: inline-grid;
+  place-items: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  margin-bottom: 0.75rem;
+  border-radius: 999px;
+  background: var(--d-brand);
+  color: var(--d-on-brand);
+  font-weight: 800;
+}
+
+.stepTitle {
+  margin: 0 0 0.375rem;
+  font-size: 1.0625rem;
+  font-weight: 800;
+}
+
+.stepBody {
+  margin: 0;
+  font-size: 0.875rem;
+  line-height: 1.8;
+  color: var(--d-muted);
+}
+
+/* ---- お客様の声 ---- */
+
+.voices {
+  display: grid;
+  gap: 1rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+@media (min-width: 760px) {
+  .voices {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+.voice {
+  display: grid;
+  gap: 0.75rem;
+  align-content: start;
+  margin: 0;
+  padding: 1.5rem;
+  border-left: 4px solid var(--d-brand);
+  background: var(--d-surface);
+}
+
+.voiceBody {
+  margin: 0;
+  line-height: 1.9;
+}
+
+.voiceWho {
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: var(--d-muted);
+}
+
+/* ---- よくある質問 ---- */
+
+.faq {
+  display: grid;
+  gap: 0.5rem;
+  max-width: 48rem;
+}
+
+.faq details {
+  border: 1px solid var(--d-line);
+  border-radius: 0.75rem;
+  background: var(--d-surface);
+}
+
+.faq summary {
+  padding: 1rem 1.25rem;
+  font-weight: 700;
+  cursor: pointer;
+  list-style: none;
+}
+
+.faq summary::-webkit-details-marker {
+  display: none;
+}
+
+.faq summary::after {
+  content: "＋";
+  float: right;
+  color: var(--d-brand);
+}
+
+.faq details[open] summary::after {
+  content: "－";
+}
+
+.faq summary:focus-visible {
+  outline: 2px solid var(--d-brand-ink);
+  outline-offset: -2px;
+  border-radius: 0.75rem;
+}
+
+.faq details p {
+  margin: 0;
+  padding: 0 1.25rem 1rem;
+  color: var(--d-muted);
+}
+
+/* ---- 問い合わせ ---- */
+
+.contact {
+  display: grid;
+  gap: 2rem;
+}
+
+@media (min-width: 900px) {
+  .contact {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    align-items: start;
+    gap: 3rem;
+  }
+}
+
+.contactLead {
+  margin: 0;
+  color: var(--d-muted);
+}

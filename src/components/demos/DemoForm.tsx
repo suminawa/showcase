@@ -7,9 +7,18 @@ import s from "./demo-shared.module.css";
 export type DemoField = {
   name: string;
   label: string;
-  type?: "text" | "email" | "textarea" | "date" | "number";
+  type?:
+    | "text"
+    | "email"
+    | "tel"
+    | "textarea"
+    | "date"
+    | "number"
+    | "select";
   placeholder?: string;
   required?: boolean;
+  /** type: "select" のときの選択肢。先頭に placeholder の行が入る */
+  options?: string[];
 };
 
 /**
@@ -49,6 +58,22 @@ export function DemoForm({
                 required={field.required}
                 rows={4}
               />
+            ) : field.type === "select" ? (
+              <select
+                id={fieldId}
+                name={field.name}
+                required={field.required}
+                defaultValue=""
+              >
+                <option value="" disabled>
+                  {field.placeholder ?? "選んでください"}
+                </option>
+                {(field.options ?? []).map((option) => (
+                  <option key={option} value={option}>
+                    {option}
+                  </option>
+                ))}
+              </select>
             ) : (
               <input
                 id={fieldId}

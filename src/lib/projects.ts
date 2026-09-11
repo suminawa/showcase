@@ -1,6 +1,6 @@
 import { demoHref, demos } from "./demos";
 
-export type ProjectCategory = "tools" | "games" | "sites" | "samples";
+export type ProjectCategory = "sites" | "tools" | "games" | "challenge";
 
 export type Project = {
   slug: string;
@@ -17,25 +17,34 @@ export type Project = {
   href?: string;
 };
 
-/** 表示順もこの配列の順に従う */
-export const CATEGORIES: { id: ProjectCategory; label: string }[] = [
-  { id: "sites", label: "SITES" },
+/**
+ * 表示順もこの配列の順に従う。
+ * lead は分類の見出しの下に置く 1 行 ── その欄に並ぶものが何なのかを、
+ * 一件ずつの説明に書かずに一度だけ言う。持たない分類のほうが多い。
+ */
+export const CATEGORIES: {
+  id: ProjectCategory;
+  label: string;
+  lead?: string;
+}[] = [
+  { id: "sites", label: "SITES", lead: "どれも架空の会社で作った見本です。" },
   { id: "tools", label: "TOOLS" },
-  { id: "samples", label: "SAMPLES" },
   { id: "games", label: "GAMES" },
+  { id: "challenge", label: "CHALLENGE" },
 ];
 
-/** 見本はレジストリ（demos.ts）から SAMPLES 欄に写す。ハブは作品と同じ行として扱う */
-const sampleProjects: Project[] = demos.map((demo) => ({
+/** サイトはレジストリ（demos.ts）から SITES 欄に写す。ハブは作品と同じ行として扱う */
+const siteProjects: Project[] = demos.map((demo) => ({
   slug: demo.slug,
   title: demo.title,
   description: demo.description,
   tags: demo.tags,
-  category: "samples",
+  category: "sites",
   href: demoHref(demo),
 }));
 
 export const projects: Project[] = [
+  ...siteProjects,
   {
     slug: "suminagashi",
     title: "墨流し — Suminagashi",
@@ -44,7 +53,7 @@ export const projects: Project[] = [
     hubNote:
       "いま触っているこの水面が、その作品です。ここでは混ぜられるだけ。落として、風を送って、保存できるのは向こう側。粘りと渦のつまみも、作品の側にあります。",
     tags: ["WebGL2", "GLSL", "TypeScript"],
-    category: "sites",
+    category: "tools",
   },
   {
     slug: "quote-simulator",
@@ -55,14 +64,21 @@ export const projects: Project[] = [
     category: "tools",
   },
   {
+    slug: "floorplan",
+    title: "間取りシミュレーター",
+    description:
+      "間取りを描きかえ、家具を置き、3D で確かめる。マス目を塗るだけで廊下も L 字も描ける、住まいの検討用の道具。",
+    tags: ["React Three Fiber", "TypeScript"],
+    category: "tools",
+  },
+  {
     slug: "30days",
     title: "30日 — Thirty Days",
     description:
       "AIエージェントに全部やらせて、30日で1から稼げるだけ稼ぐ。売上・提案数・人間の介在時間を毎日足していく公開の帳面。",
     tags: ["Next.js", "TypeScript", "公開ログ"],
-    category: "tools",
+    category: "challenge",
   },
-  ...sampleProjects,
 ];
 
 export function projectHref(project: Project): string {

@@ -240,13 +240,16 @@
   animation: rp-rise 1000ms var(--rp-brush) 560ms both;
 }
 
-/* 欧文の副題は名の右下に小さく添える。大と小のあいだを作らない。下端は大字と揃える */
+/* 欧文の副題は名の下に、最初から一行で置く。名の右に続けるとせまい画面で
+   名が折り返した行の途中に欧文が落ちるため、幅に関わらず改行しておく。
+   行の高さは 1 pitch にして、下の lede が罫の格子から外れないようにする */
 .latin {
-  margin-left: 0.9em;
+  display: block;
+  margin-top: 0;
   font-size: var(--rp-tiny);
+  line-height: var(--rp-pitch);
   letter-spacing: 0.24em;
   color: var(--rp-sumi-4);
-  vertical-align: baseline;
 }
 
 .lede {
