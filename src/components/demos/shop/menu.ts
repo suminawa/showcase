@@ -70,9 +70,5 @@ export function menuByCategory(category: MenuCategory): MenuItem[] {
   return MENU.filter((item) => item.category === category);
 }
 
-const priceFormatter = new Intl.NumberFormat("ja-JP");
-
-/** 380 -> "380 円"。店の品書きなので通貨記号ではなく「円」で出す */
-export function formatPrice(price: number): string {
-  return `${priceFormatter.format(price)} 円`;
-}
+/** 380 -> "380 円"。店の品書きなので通貨記号ではなく「円」で出す（書式は共通のものを使う） */
+export { formatYenSuffix as formatPrice } from "@/lib/format";

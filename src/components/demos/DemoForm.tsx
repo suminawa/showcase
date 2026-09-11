@@ -7,7 +7,7 @@ import s from "./demo-shared.module.css";
 export type DemoField = {
   name: string;
   label: string;
-  type?: "text" | "email" | "textarea" | "date" | "number";
+  type?: "text" | "email" | "tel" | "textarea" | "date" | "number";
   placeholder?: string;
   required?: boolean;
 };
