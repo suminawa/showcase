@@ -149,7 +149,10 @@ export function Viewer() {
   }, []);
 
   useEffect(() => {
-    // plan が変わるたびに保存する。ただし書き出しは待ち時間のあと 1 回だけ
+    // plan が変わるたびに保存する。ただし書き出しは待ち時間のあと 1 回だけ。
+    // 待っている間に画面を離れる（タブを閉じる・他のページへ移る・スマホで
+    // アプリを裏に回す）と、待ち時間ぶんの変更が保存されない。pagehide と
+    // visibilitychange（hidden）でその場に書き出す（flush、下で登録）ことで防ぐ
     const save = () => {
       if (savedPlan.current !== plan) {
         const first = savedPlan.current === null;
@@ -174,8 +177,33 @@ export function Viewer() {
       }, SAVE_DELAY);
     };
     save();
-    // 次の変更が来た・画面を離れた。待っている時計は落とす（次の実行が積み直す）
+
+    // 時計が動いている間に画面を離れたら、待たずにその場で書き出す。
+    // 「最初に戻す」の直後は reset() 自身が時計と pendingSave を空にしているので、
+    // ここは何もせず、保存は空のままになる
+    const flush = () => {
+      if (saveTimer.current === null) return;
+      clearTimeout(saveTimer.current);
+      saveTimer.current = null;
+      const waiting = pendingSave.current;
+      pendingSave.current = null;
+      if (waiting !== null) writeStored(waiting);
+    };
+    // スマホでアプリを裏に回すときは pagehide より先に visibilitychange が来る
+    const onVisibility = () => {
+      if (document.hidden) flush();
+    };
+    window.addEventListener("pagehide", flush);
+    document.addEventListener("visibilitychange", onVisibility);
+
+    // 次の変更が来た・画面を離れた。待っている時計は落とす（次の実行が積み直す）。
+    // ここでは flush しない: plan が変わっただけなら pendingSave は次の実行に
+    // そのまま引き継がれ、取りこぼさない。毎回ここで書き出すと、なぞっている
+    // 最中の何十回もの変更のたびに同期の書き込みが走り、待ち時間で間引いた
+    // 意味が無くなる。画面を離れる場合は上の flush が別に拾う
     return () => {
+      window.removeEventListener("pagehide", flush);
+      document.removeEventListener("visibilitychange", onVisibility);
       if (saveTimer.current === null) return;
       clearTimeout(saveTimer.current);
       saveTimer.current = null;
