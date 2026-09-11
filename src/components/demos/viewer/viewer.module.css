@@ -36,6 +36,15 @@
   font-variant-numeric: tabular-nums;
 }
 
+/* スマホ幅では吹き出しが並んで重なるので、一回り詰める（Scene.tsx 側の distanceFactor と対） */
+@media (max-width: 480px) {
+  .note {
+    gap: 0.25rem;
+    padding: 0.125rem 0.4375rem;
+    font-size: 0.625rem;
+  }
+}
+
 /* ---- 操作のボタン ---- */
 
 .controls {

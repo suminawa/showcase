@@ -18,7 +18,6 @@
   --d-soft: #e2e6ea;
   --d-surface: #ffffff;
   --d-on-brand: #ffffff;
-  --d-input-line: #8b91a0; /* 入力欄の枠線。地の色で 3:1 以上 */
 
   min-height: 100vh;
   background: var(--d-bg);
@@ -107,12 +106,16 @@
 }
 
 .notes {
-  display: grid;
-  gap: 0.75rem;
   margin: 0;
   padding-left: 1.25rem;
   max-width: 44em;
+  list-style: disc;
   color: var(--d-muted);
+}
+
+/* display: grid だと <li> の既定マーカーが消えるので、行間は margin で取る */
+.notes li + li {
+  margin-top: 0.75rem;
 }
 
 .footer {

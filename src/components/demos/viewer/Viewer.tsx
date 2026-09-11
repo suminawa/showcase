@@ -40,7 +40,11 @@ function hasWebgl(): boolean {
   if (typeof window.WebGLRenderingContext === "undefined") return false;
   try {
     const canvas = document.createElement("canvas");
-    return Boolean(canvas.getContext("webgl2") ?? canvas.getContext("webgl"));
+    const ctx = canvas.getContext("webgl2") ?? canvas.getContext("webgl");
+    if (!ctx) return false;
+    // 判定専用のコンテキストなので、持ち続けずすぐ手放す
+    ctx.getExtension("WEBGL_lose_context")?.loseContext();
+    return true;
   } catch {
     return false;
   }
@@ -81,6 +85,8 @@ export function Viewer() {
   }, []);
 
   const planFloor = effectiveFloorMode(floorMode, "plan") === "2f" ? 2 : 1;
+  // 間取りでは全体でも 1F だけを描くので、押下状態は実際に見えている階に合わせる
+  const pressedFloorMode = effectiveFloorMode(floorMode, view);
 
   return (
     <div>
@@ -92,7 +98,7 @@ export function Viewer() {
               key={item.value}
               type="button"
               className={s.button}
-              aria-pressed={floorMode === item.value}
+              aria-pressed={pressedFloorMode === item.value}
               onClick={() => setFloorMode(item.value)}
             >
               {item.label}
@@ -159,7 +165,7 @@ export function Viewer() {
       {support === "none" ? (
         <div className={s.fallback}>
           <p className={s.fallbackText}>
-            お使いの環境では 3D（WebGL）を表示できません。同じ寸法の表から起こした平面図に切り替えました。
+            お使いの環境では 3D（WebGL）を表示できません。同じ寸法の表から起こした平面図に切り替えました。表示の途中で描画できなくなった場合も、この画面のままご覧いただけます。
           </p>
           <FloorPlan floor={planFloor} />
         </div>
@@ -172,6 +178,7 @@ export function Viewer() {
               lighting={lighting}
               wallColorId={wallColorId}
               reducedMotion={reducedMotion}
+              onContextLost={() => setSupport("none")}
             />
           ) : (
             <p className={s.loading}>建物を組み立てています…</p>

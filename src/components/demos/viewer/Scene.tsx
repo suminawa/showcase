@@ -10,6 +10,7 @@
 import { Html, OrbitControls } from "@react-three/drei";
 import { Canvas, useThree } from "@react-three/fiber";
 import { useEffect, useState } from "react";
+import { MOUSE, TOUCH } from "three";
 
 import {
   annotationPositions,
@@ -45,6 +46,8 @@ export type SceneProps = {
   wallColorId: WallColor["id"];
   /** 動きを減らす設定のとき true。自動回転と慣性を止める */
   reducedMotion: boolean;
+  /** WebGL のコンテキストを失ったときに呼ばれる。呼び出し側で平面図の代替表示に切り替える */
+  onContextLost?: () => void;
 };
 
 /*
@@ -181,6 +184,9 @@ function Annotations({
 }) {
   const mode = effectiveFloorMode(floorMode, view);
   const notes = annotationPositions(visibleRooms(rooms, mode));
+  // 幅の狭いスマホでは吹き出しを詰めないと注記どうしが重なるので、距離係数を小さくして縮める
+  const width = useThree((state) => state.size.width);
+  const distanceFactor = width < 480 ? 11 : 16;
   return (
     <>
       {notes.map((note) => (
@@ -188,7 +194,7 @@ function Annotations({
           key={note.id}
           position={note.position}
           center
-          distanceFactor={16}
+          distanceFactor={distanceFactor}
           zIndexRange={[20, 0]}
           pointerEvents="none"
         >
@@ -216,11 +222,14 @@ function CameraRig({
   view: ViewMode;
 }) {
   const camera = useThree((state) => state.camera);
+  const invalidate = useThree((state) => state.invalidate);
   useEffect(() => {
     const pose = cameraPose(floorMode, view);
     camera.position.set(pose.position[0], pose.position[1], pose.position[2]);
     camera.updateProjectionMatrix();
-  }, [camera, floorMode, view]);
+    // frameloop="demand" のときは、動かしただけでは描き直らないので明示的に起こす
+    invalidate();
+  }, [camera, invalidate, floorMode, view]);
   return null;
 }
 
@@ -230,10 +239,15 @@ export default function Scene({
   lighting,
   wallColorId,
   reducedMotion,
+  onContextLost,
 }: SceneProps) {
   // 最初はゆっくり回して立体だと分かるようにし、触られたら止める
   const [autoRotate, setAutoRotate] = useState(!reducedMotion);
   const pose = cameraPose(floorMode, view);
+  // 自動回転のときだけ毎フレーム描き直す。それ以外は操作や視点の置き直しのときだけ
+  // 描く「オンデマンド」にして、待機中の電力を使わない
+  const frameloop: "always" | "demand" =
+    autoRotate && !reducedMotion && view === "orbit" ? "always" : "demand";
 
   return (
     <Canvas
@@ -241,6 +255,13 @@ export default function Scene({
       dpr={[1, 2]}
       camera={INITIAL_CAMERA}
       gl={{ antialias: true }}
+      frameloop={frameloop}
+      onCreated={({ gl }) => {
+        gl.domElement.addEventListener("webglcontextlost", (event) => {
+          event.preventDefault();
+          onContextLost?.();
+        });
+      }}
     >
       <Stage lighting={lighting} />
       <House
@@ -261,6 +282,16 @@ export default function Scene({
         onStart={() => setAutoRotate(false)}
         enableRotate={view === "orbit"}
         enablePan={view === "plan"}
+        mouseButtons={
+          view === "plan"
+            ? { LEFT: MOUSE.PAN, MIDDLE: MOUSE.DOLLY, RIGHT: MOUSE.PAN }
+            : { LEFT: MOUSE.ROTATE, MIDDLE: MOUSE.DOLLY, RIGHT: MOUSE.PAN }
+        }
+        touches={
+          view === "plan"
+            ? { ONE: TOUCH.PAN, TWO: TOUCH.DOLLY_PAN }
+            : { ONE: TOUCH.ROTATE, TWO: TOUCH.DOLLY_PAN }
+        }
         minDistance={5}
         maxDistance={45}
         maxPolarAngle={Math.PI / 2.05}
