@@ -1,8 +1,9 @@
 "use client";
 
 /*
- * 見本: 編集できる間取り図。SVG で 1m = 100 単位。
- * 自分では状態を持たない（ドラッグの途中だけ ref に置く）。変更はすべて props のコールバックで親へ返す。
+ * 見本: 編集できる間取り図。SVG で 1m = 100 単位、マスは 0.5m。
+ * 間取りは自分では持たない（家具のドラッグの途中だけ ref に置く）。
+ * 変更はすべて props のコールバックで親へ返す。
  * 3D と同じ 1 つの状態を親（Viewer）が持っているので、動かしている最中も 3D がそのまま追いつく。
  */
 
@@ -23,22 +24,22 @@ import {
   type FurnitureId,
   type PlacedFurniture,
 } from "./furniture";
-import { HOUSE, type Floor } from "./house";
 import {
-  canMerge,
-  canSplit,
-  dividers,
-  FLOOR_RECT,
-  layoutRooms,
-  mergeRoom,
-  moveDivider,
+  CELL,
+  cellFromPoint,
+  COLS,
+  labelAnchor,
   renameRoom,
   ROOM_LABELS,
-  splitRoom,
-  type Divider,
-  type LayoutNode,
+  roomArea,
+  roomOfCell,
+  roomRects,
+  ROWS,
+  wallSegments,
+  type GridLayout,
   type RoomLabel,
-} from "./layout";
+} from "./grid";
+import { HOUSE, type Floor } from "./house";
 import { type PlanState } from "./plan-state";
 import s from "./viewer.module.css";
 
@@ -49,7 +50,7 @@ export type PlanEditorProps = {
   selectedId: string | null;
   onFloorChange: (floor: Floor) => void;
   onSelect: (id: string | null) => void;
-  onLayoutChange: (floor: Floor, node: LayoutNode) => void;
+  onLayoutChange: (floor: Floor, layout: GridLayout) => void;
   onFurnitureChange: (list: PlacedFurniture[]) => void;
   onReset: () => void;
 };
@@ -62,10 +63,20 @@ const FLOOR_TABS: { value: Floor; label: string }[] = [
   { value: 2, label: "2F" },
 ];
 
-/** ドラッグの途中の覚え書き。家具は「つかんだ点と中心のずれ」を覚えて、跳ばないようにする */
-type DragState =
-  | { kind: "divider"; id: string; axis: "x" | "z" }
-  | { kind: "furniture"; id: string; dx: number; dz: number };
+/** 0.5m ごとの薄い線。描くたびに組み立て直さないよう、いちど作って使い回す */
+const GRID_PATH = (() => {
+  const parts: string[] = [];
+  for (let col = 1; col < COLS; col++) {
+    parts.push(`M${col * CELL * SCALE} 0V${HOUSE.depth * SCALE}`);
+  }
+  for (let row = 1; row < ROWS; row++) {
+    parts.push(`M0 ${row * CELL * SCALE}H${HOUSE.width * SCALE}`);
+  }
+  return parts.join("");
+})();
+
+/** 家具をつかんだ点と中心のずれ。つかんだ瞬間に跳ばないよう覚えておく */
+type Grab = { id: string; dx: number; dz: number };
 
 export function PlanEditor({
   plan,
@@ -78,13 +89,14 @@ export function PlanEditor({
   onReset,
 }: PlanEditorProps) {
   const svgRef = useRef<SVGSVGElement | null>(null);
-  const drag = useRef<DragState | null>(null);
+  const grab = useRef<Grab | null>(null);
 
-  const tree = plan.floors[activeFloor];
-  const rooms = layoutRooms(tree, FLOOR_RECT);
-  const lines = dividers(tree, FLOOR_RECT);
+  const layout = plan.floors[activeFloor];
+  const rects = roomRects(layout);
+  const walls = wallSegments(layout);
   const items = furnitureOnFloor(plan.furniture, activeFloor);
-  const selectedRoom = rooms.find((room) => room.id === selectedId) ?? null;
+  const selectedRoom =
+    layout.rooms.find((room) => room.id === selectedId) ?? null;
   const selectedItem = items.find((item) => item.id === selectedId) ?? null;
 
   // Delete / Backspace でも選択中の家具を消す。入力中のキーは横取りしない
@@ -115,19 +127,32 @@ export function PlanEditor({
     return { x: point.x / SCALE, z: point.y / SCALE };
   }
 
-  function startDivider(event: ReactPointerEvent<SVGElement>, line: Divider) {
-    event.currentTarget.setPointerCapture(event.pointerId);
-    drag.current = { kind: "divider", id: line.id, axis: line.axis };
+  /**
+   * ポインタの下のマス。輪郭の外なら null。
+   * マスごとに当たり判定を付けず、SVG 1 つのハンドラで座標から決める（288 個の要素を作らない）。
+   */
+  function cellUnder(event: ReactPointerEvent<SVGElement>): number | null {
+    const at = planPoint(event);
+    if (!at) return null;
+    return cellFromPoint(at.x, at.z);
+  }
+
+  /** マスをタップすると、そのマスの部屋を選ぶ */
+  function handlePlanDown(event: ReactPointerEvent<SVGSVGElement>) {
+    const index = cellUnder(event);
+    if (index === null) return;
+    onSelect(roomOfCell(layout, index));
   }
 
   function startFurniture(
-    event: ReactPointerEvent<SVGElement>,
+    event: ReactPointerEvent<SVGGElement>,
     item: PlacedFurniture,
   ) {
+    // 家具をつかんだときは、下の部屋を選び直さない
+    event.stopPropagation();
     const at = planPoint(event);
     event.currentTarget.setPointerCapture(event.pointerId);
-    drag.current = {
-      kind: "furniture",
+    grab.current = {
       id: item.id,
       dx: at ? item.x - at.x : 0,
       dz: at ? item.z - at.z : 0,
@@ -135,34 +160,28 @@ export function PlanEditor({
     onSelect(item.id);
   }
 
-  function handleMove(event: ReactPointerEvent<SVGElement>) {
-    const state = drag.current;
-    if (!state) return;
+  function moveFurnitureTo(event: ReactPointerEvent<SVGGElement>) {
+    const held = grab.current;
+    if (!held) return;
+    event.stopPropagation();
     const at = planPoint(event);
     if (!at) return;
-    if (state.kind === "divider") {
-      onLayoutChange(
-        activeFloor,
-        moveDivider(tree, state.id, state.axis === "x" ? at.x : at.z),
-      );
-      return;
-    }
     onFurnitureChange(
-      moveFurniture(plan.furniture, state.id, at.x + state.dx, at.z + state.dz),
+      moveFurniture(plan.furniture, held.id, at.x + held.dx, at.z + held.dz),
     );
   }
 
-  function endDrag(event: ReactPointerEvent<SVGElement>) {
-    drag.current = null;
+  function endFurniture(event: ReactPointerEvent<SVGGElement>) {
+    grab.current = null;
     if (event.currentTarget.hasPointerCapture(event.pointerId)) {
       event.currentTarget.releasePointerCapture(event.pointerId);
     }
   }
 
   function placeFurniture(typeId: FurnitureId) {
-    // 部屋を選んでいればその中心、選んでいなければ床の中心に置く
+    // 部屋を選んでいればその部屋の名前が出る位置、選んでいなければ床の中心に置く
     const at: [number, number] = selectedRoom
-      ? [selectedRoom.x + selectedRoom.w / 2, selectedRoom.z + selectedRoom.d / 2]
+      ? labelAnchor(layout, selectedRoom.id)
       : [HOUSE.width / 2, HOUSE.depth / 2];
     const next = addFurniture(plan.furniture, typeId, activeFloor, at);
     onFurnitureChange(next);
@@ -185,31 +204,6 @@ export function PlanEditor({
             </button>
           ))}
         </div>
-        {selectedRoom && (
-          <label className={s.field}>
-            部屋
-            <select
-              className={s.select}
-              value={selectedRoom.label}
-              onChange={(event) =>
-                onLayoutChange(
-                  activeFloor,
-                  renameRoom(
-                    tree,
-                    selectedRoom.id,
-                    event.target.value as RoomLabel,
-                  ),
-                )
-              }
-            >
-              {ROOM_LABELS.map((label) => (
-                <option key={label} value={label}>
-                  {label}
-                </option>
-              ))}
-            </select>
-          </label>
-        )}
       </div>
 
       <svg
@@ -218,7 +212,38 @@ export function PlanEditor({
         viewBox={`-12 -12 ${HOUSE.width * SCALE + 24} ${HOUSE.depth * SCALE + 24}`}
         role="img"
         aria-label={`${activeFloor} 階の間取り図`}
+        onPointerDown={handlePlanDown}
       >
+        {/* 部屋の塗り → マス目の線 → 壁と輪郭 → 家具 → 部屋名、の順に重ねる */}
+        {rects.map((rect) => (
+          <rect
+            key={rect.id}
+            className={
+              rect.roomId === selectedId ? s.planRoomSelected : s.planRoom
+            }
+            x={rect.x * SCALE}
+            y={rect.z * SCALE}
+            width={rect.w * SCALE}
+            height={rect.d * SCALE}
+          />
+        ))}
+
+        <path className={s.planGrid} d={GRID_PATH} />
+
+        {walls.map((line) => {
+          const across = line.axis === "x";
+          return (
+            <line
+              key={line.id}
+              className={s.planWall}
+              x1={(across ? line.at : line.from) * SCALE}
+              y1={(across ? line.from : line.at) * SCALE}
+              x2={(across ? line.at : line.to) * SCALE}
+              y2={(across ? line.to : line.at) * SCALE}
+            />
+          );
+        })}
+
         <rect
           className={s.planOutline}
           x={0}
@@ -227,53 +252,15 @@ export function PlanEditor({
           height={HOUSE.depth * SCALE}
         />
 
-        {rooms.map((room) => (
-          <rect
-            key={room.id}
-            className={
-              room.id === selectedId ? s.planRoomSelected : s.planRoom
-            }
-            x={room.x * SCALE + 4}
-            y={room.z * SCALE + 4}
-            width={room.w * SCALE - 8}
-            height={room.d * SCALE - 8}
-            onClick={() => onSelect(room.id)}
-          />
-        ))}
-
-        {lines.map((line) => {
-          const across = line.axis === "x";
-          const x1 = (across ? line.at : line.from) * SCALE;
-          const x2 = (across ? line.at : line.to) * SCALE;
-          const y1 = (across ? line.from : line.at) * SCALE;
-          const y2 = (across ? line.to : line.at) * SCALE;
-          return (
-            <g key={line.id}>
-              <line className={s.planWall} x1={x1} y1={y1} x2={x2} y2={y2} />
-              <line
-                className={across ? s.planGrabX : s.planGrabZ}
-                x1={x1}
-                y1={y1}
-                x2={x2}
-                y2={y2}
-                onPointerDown={(event) => startDivider(event, line)}
-                onPointerMove={handleMove}
-                onPointerUp={endDrag}
-                onPointerCancel={endDrag}
-              />
-            </g>
-          );
-        })}
-
         {items.map((item) => (
           <g
             key={item.id}
             className={s.planItem}
             transform={`translate(${item.x * SCALE} ${item.z * SCALE}) rotate(${item.rotation})`}
             onPointerDown={(event) => startFurniture(event, item)}
-            onPointerMove={handleMove}
-            onPointerUp={endDrag}
-            onPointerCancel={endDrag}
+            onPointerMove={moveFurnitureTo}
+            onPointerUp={endFurniture}
+            onPointerCancel={endFurniture}
           >
             {furnitureType(item.type).glyph.rects.map((rect, index) => (
               <rect
@@ -290,57 +277,51 @@ export function PlanEditor({
           </g>
         ))}
 
-        {/* 家具の記号の上に重なっても読めるよう、部屋名と面積はすべての上に最後に描く */}
-        {rooms.map((room) => {
-          const cx = (room.x + room.w / 2) * SCALE;
-          const cy = (room.z + room.d / 2) * SCALE;
+        {/* 家具の記号の上に重なっても読めるよう、部屋名と広さはすべての上に最後に描く */}
+        {layout.rooms.map((room) => {
+          const area = roomArea(layout, room.id);
+          // まだ 1 マスも塗られていない部屋は、名前を出す場所が無いので出さない
+          if (area === 0) return null;
+          const [ax, az] = labelAnchor(layout, room.id);
           return (
             <g key={room.id} className={s.planLabels}>
-              <text className={s.planName} x={cx} y={cy - 6}>
+              <text className={s.planName} x={ax * SCALE} y={az * SCALE - 6}>
                 {room.label}
               </text>
-              <text className={s.planArea} x={cx} y={cy + 22}>
-                {room.area.toFixed(1)} m²
+              <text className={s.planArea} x={ax * SCALE} y={az * SCALE + 22}>
+                {area.toFixed(1)} m²
               </text>
             </g>
           );
         })}
       </svg>
 
+      {/* 部屋を選んでいないときは列ごと出さない（空の列が余白だけ作らないように） */}
       {selectedRoom && (
-        <div className={s.group} role="group" aria-label="選択中の部屋">
-          <span className={s.groupLabel}>部屋</span>
-          <button
-            type="button"
-            className={s.button}
-            disabled={!canSplit(tree, FLOOR_RECT, selectedRoom.id, "x")}
-            onClick={() =>
-              onLayoutChange(activeFloor, splitRoom(tree, selectedRoom.id, "x"))
-            }
-          >
-            分ける ↔
-          </button>
-          <button
-            type="button"
-            className={s.button}
-            disabled={!canSplit(tree, FLOOR_RECT, selectedRoom.id, "z")}
-            onClick={() =>
-              onLayoutChange(activeFloor, splitRoom(tree, selectedRoom.id, "z"))
-            }
-          >
-            分ける ↕
-          </button>
-          <button
-            type="button"
-            className={s.button}
-            disabled={!canMerge(tree)}
-            onClick={() => {
-              onLayoutChange(activeFloor, mergeRoom(tree, selectedRoom.id));
-              onSelect(null);
-            }}
-          >
-            つなげる
-          </button>
+        <div className={s.group} role="group" aria-label="部屋の操作">
+          <label className={s.field}>
+            部屋
+            <select
+              className={s.select}
+              value={selectedRoom.label}
+              onChange={(event) =>
+                onLayoutChange(
+                  activeFloor,
+                  renameRoom(
+                    layout,
+                    selectedRoom.id,
+                    event.target.value as RoomLabel,
+                  ),
+                )
+              }
+            >
+              {ROOM_LABELS.map((label) => (
+                <option key={label} value={label}>
+                  {label}
+                </option>
+              ))}
+            </select>
+          </label>
         </div>
       )}
 

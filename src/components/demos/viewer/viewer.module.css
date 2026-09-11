@@ -232,24 +232,38 @@
   touch-action: none;
 }
 
+/* 外周の輪郭。部屋の境目の壁と同じ太さにして、1 本の壁に見えるようにする */
 .planOutline {
   fill: none;
   stroke: var(--d-fg);
-  stroke-width: 6;
+  stroke-width: 10;
+  pointer-events: none;
 }
 
+/* 部屋の塗り。となりの部屋と継ぎ目なく並ぶので、境目は壁の線が受け持つ。
+   長方形に分けて描くため、継ぎ目に白い筋が出ないよう crispEdges にする */
 .planRoom {
   fill: var(--d-soft);
-  stroke: var(--d-muted);
-  stroke-width: 2;
+  shape-rendering: crispEdges;
   cursor: pointer;
 }
 
+/* 選択中の部屋。--d-brand を薄く敷いた #d1dce2 相当。
+   --d-fg で 12:1、--d-muted で 4.9:1 */
 .planRoomSelected {
-  fill: var(--d-soft);
-  stroke: var(--d-brand);
-  stroke-width: 6;
+  fill: var(--d-brand);
+  fill-opacity: 0.22;
+  shape-rendering: crispEdges;
   cursor: pointer;
+}
+
+/* 0.5m ごとの薄い線。塗る目安になるだけなので、輪郭より弱く */
+.planGrid {
+  fill: none;
+  stroke: var(--d-line);
+  stroke-width: 2;
+  stroke-opacity: 0.45;
+  pointer-events: none;
 }
 
 .planName {
@@ -277,21 +291,6 @@
   stroke-width: 10;
   stroke-linecap: square;
   pointer-events: none;
-}
-
-/* 当たり判定だけの太い線。透明でも stroke として拾わせる */
-.planGrabX {
-  stroke: transparent;
-  stroke-width: 24;
-  pointer-events: stroke;
-  cursor: ew-resize;
-}
-
-.planGrabZ {
-  stroke: transparent;
-  stroke-width: 24;
-  pointer-events: stroke;
-  cursor: ns-resize;
 }
 
 .planItem {

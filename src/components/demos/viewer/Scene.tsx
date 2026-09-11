@@ -13,6 +13,7 @@ import { useEffect, useState } from "react";
 import { MOUSE, TOUCH } from "three";
 
 import { furnitureOnFloor, lighten, partsInScene } from "./furniture";
+import { roomRects, wallSegments } from "./grid";
 import {
   cameraPose,
   FLOOR_TONE,
@@ -31,7 +32,6 @@ import {
   type ViewMode,
   type WallColor,
 } from "./house";
-import { FLOOR_RECT, layoutRooms } from "./layout";
 import { type PlanState } from "./plan-state";
 import {
   annotationPositions,
@@ -154,7 +154,7 @@ function House({
   return (
     <group>
       {visibleFloors(floorMode).map((floor) => {
-        const tree = plan.floors[floor];
+        const layout = plan.floors[floor];
         return (
           <group key={floor}>
             <Box panel={slabPanel(floor)} color={colors.trim} />
@@ -177,21 +177,23 @@ function House({
                   />
                 </mesh>
               ))}
-            {layoutRooms(tree, FLOOR_RECT).map((room) => (
+            {roomRects(layout).map((rect) => (
               <Box
-                key={room.id}
-                panel={roomSlab(room, floor)}
+                key={rect.id}
+                panel={roomSlab(rect, floor)}
                 color={
-                  floor === activeFloor && room.id === selectedId
+                  floor === activeFloor && rect.roomId === selectedId
                     ? SELECTED_FLOOR_TONE
                     : FLOOR_TONE[floor]
                 }
                 roughness={0.95}
               />
             ))}
-            {interiorWallPanels(tree, floor, cutaway).map((panel) => (
-              <Box key={panel.id} panel={panel} color={INTERIOR_TONE} />
-            ))}
+            {interiorWallPanels(wallSegments(layout), floor, cutaway).map(
+              (panel) => (
+                <Box key={panel.id} panel={panel} color={INTERIOR_TONE} />
+              ),
+            )}
             {furnitureOnFloor(plan.furniture, floor).flatMap((item) =>
               partsInScene(item).map((part) => (
                 <Box
@@ -239,7 +241,7 @@ function Annotations({
   if (showsRoof(floorMode)) return null;
   const distanceFactor = width < 480 ? 11 : 16;
   const notes = visibleFloors(floorMode).flatMap((floor) =>
-    annotationPositions(layoutRooms(plan.floors[floor], FLOOR_RECT), floor),
+    annotationPositions(plan.floors[floor], floor),
   );
   return (
     <>

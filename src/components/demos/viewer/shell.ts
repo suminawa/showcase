@@ -2,14 +2,15 @@
  * 見本: 家の外皮（床・外壁・窓・屋根）と、間取りから出る中身（部屋の床・内壁・注記）を組み立てる。
  * 返すのは「どこに、どの大きさの箱を置くか」だけ。3D の部品はそれを並べる。
  */
-import { HOUSE, type Floor, type Vec3 } from "./house";
 import {
-  dividers,
-  FLOOR_RECT,
+  labelAnchor,
+  roomArea,
   toScene,
-  type LayoutNode,
+  type Divider,
+  type GridLayout,
   type RoomRect,
-} from "./layout";
+} from "./grid";
+import { HOUSE, type Floor, type Vec3 } from "./house";
 
 export type Panel = {
   id: string;
@@ -32,16 +33,18 @@ export function slabPanel(floor: Floor): Panel {
   };
 }
 
-/** 部屋ごとの床。少しだけ縮めて置くと、継ぎ目がそのまま間取りの線に見える */
+/**
+ * 部屋ごとの床。1 つの部屋が複数の矩形に分かれるので、隙間は空けない ──
+ * 同じ部屋の矩形どうしが継ぎ目なく並ぶようにするため。部屋の境目は内壁が覆う。
+ */
 export function roomSlab(room: RoomRect, floor: Floor): Panel {
-  const gap = 0.12;
   const t = 0.06;
   const { base } = HOUSE.floors[floor];
   const [sx, sz] = toScene(room.x + room.w / 2, room.z + room.d / 2);
   return {
     id: `f${floor}-${room.id}-floor`,
     position: [sx, base + t / 2, sz],
-    size: [room.w - gap, t, room.d - gap],
+    size: [room.w, t, room.d],
   };
 }
 
@@ -81,9 +84,9 @@ export function wallPanels(floor: Floor, cutaway: boolean): Panel[] {
   ];
 }
 
-/** 間取りの分割線を、厚み 0.12m の内壁にする。高さは外壁と同じ決まり */
+/** 部屋の境目の壁（grid.ts の wallSegments）を、厚み 0.12m の内壁にする。高さは外壁と同じ決まり */
 export function interiorWallPanels(
-  node: LayoutNode,
+  lines: readonly Divider[],
   floor: Floor,
   cutaway: boolean,
 ): Panel[] {
@@ -91,7 +94,7 @@ export function interiorWallPanels(
   const h = cutaway ? Math.min(height, HOUSE.cutawayWallHeight) : height;
   const y = base + h / 2;
   const t = INTERIOR_WALL;
-  return dividers(node, FLOOR_RECT).map((line) => {
+  return lines.map((line) => {
     const middle = (line.from + line.to) / 2;
     const length = line.to - line.from;
     if (line.axis === "x") {
@@ -204,20 +207,22 @@ export type Annotation = {
 };
 
 /**
- * 注記はすべての部屋に出す。天井から 0.35m 下げると、
+ * 注記は部屋ごとに 1 つ。位置は labelAnchor（部屋のマスの重心にいちばん近いマスの中心）で、
+ * L 字の部屋でも名前が部屋の中に出る。天井から 0.35m 下げると、
  * 上から見ても横から見ても部屋の中に見える。
  */
 export function annotationPositions(
-  rooms: readonly RoomRect[],
+  layout: GridLayout,
   floor: Floor,
 ): Annotation[] {
   const { base, height } = HOUSE.floors[floor];
-  return rooms.map((room) => {
-    const [sx, sz] = toScene(room.x + room.w / 2, room.z + room.d / 2);
+  return layout.rooms.map((room) => {
+    const [ax, az] = labelAnchor(layout, room.id);
+    const [sx, sz] = toScene(ax, az);
     return {
       id: `f${floor}-${room.id}`,
       label: room.label,
-      area: room.area,
+      area: roomArea(layout, room.id),
       position: [sx, base + height - 0.35, sz] as Vec3,
     };
   });

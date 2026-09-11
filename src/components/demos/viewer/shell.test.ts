@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
+import { defaultLayout, roomRects, wallSegments } from "./grid";
 import { HOUSE } from "./house";
-import { defaultLayout, dividers, FLOOR_RECT, layoutRooms } from "./layout";
 import {
   annotationPositions,
   INTERIOR_WALL,
@@ -43,12 +43,13 @@ describe("床", () => {
     );
   });
 
-  it("部屋の床は部屋より少し小さく、床の高さに置く", () => {
-    const [ldk] = layoutRooms(defaultLayout(1), FLOOR_RECT);
+  it("部屋の床は部屋の矩形ちょうどの大きさで、床の高さに置く", () => {
+    const [ldk] = roomRects(defaultLayout(1));
     expect(ldk.label).toBe("LDK");
     const slab = roomSlab(ldk, 1);
-    expect(slab.size[0]).toBeLessThan(ldk.w);
-    expect(slab.size[2]).toBeLessThan(ldk.d);
+    // 同じ部屋の矩形どうしが継ぎ目なく並ぶよう、隙間は空けない
+    expect(slab.size[0]).toBe(ldk.w);
+    expect(slab.size[2]).toBe(ldk.d);
     // 床座標の中心が 3D の中心座標に写る
     expect(slab.position[0]).toBeCloseTo(ldk.x + ldk.w / 2 - HOUSE.width / 2, 6);
     expect(slab.position[2]).toBeCloseTo(ldk.z + ldk.d / 2 - HOUSE.depth / 2, 6);
@@ -57,12 +58,8 @@ describe("床", () => {
 
   it("部屋の床の id は階をまたいでも重複しない", () => {
     const ids = [
-      ...layoutRooms(defaultLayout(1), FLOOR_RECT).map((room) =>
-        roomSlab(room, 1),
-      ),
-      ...layoutRooms(defaultLayout(2), FLOOR_RECT).map((room) =>
-        roomSlab(room, 2),
-      ),
+      ...roomRects(defaultLayout(1)).map((rect) => roomSlab(rect, 1)),
+      ...roomRects(defaultLayout(2)).map((rect) => roomSlab(rect, 2)),
     ].map((panel) => panel.id);
     expect(new Set(ids).size).toBe(ids.length);
   });
@@ -106,11 +103,10 @@ describe("外壁", () => {
 });
 
 describe("内壁", () => {
-  it("分割線の本数だけ立ち、厚みは 0.12m", () => {
-    const tree = defaultLayout(1);
-    const walls = interiorWallPanels(tree, 1, false);
-    expect(walls).toHaveLength(dividers(tree, FLOOR_RECT).length);
-    expect(walls).toHaveLength(4);
+  it("境目の壁の本数だけ立ち、厚みは 0.12m", () => {
+    const layout = defaultLayout(1);
+    const walls = interiorWallPanels(wallSegments(layout), 1, false);
+    expect(walls).toHaveLength(3);
     for (const wall of walls) {
       expect(Math.min(wall.size[0], wall.size[2])).toBeCloseTo(INTERIOR_WALL, 6);
       expect(wall.size[1]).toBe(HOUSE.floors[1].height);
@@ -118,15 +114,15 @@ describe("内壁", () => {
     }
   });
 
-  it("最初の 1 枚は東西を分ける壁（南北に走る）", () => {
-    const [wall] = interiorWallPanels(defaultLayout(1), 1, false);
+  it("最初の 1 枚は東西を分ける壁（南北に走る）で、南北いっぱいに 1 本", () => {
+    const [wall] = interiorWallPanels(wallSegments(defaultLayout(1)), 1, false);
     expect(wall.size[0]).toBeCloseTo(INTERIOR_WALL, 6);
     expect(wall.size[2]).toBe(HOUSE.depth);
     expect(wall.position[0]).toBeCloseTo(5.5 - HOUSE.width / 2, 6);
   });
 
   it("断面のときは腰の高さで切る", () => {
-    const [wall] = interiorWallPanels(defaultLayout(2), 2, true);
+    const [wall] = interiorWallPanels(wallSegments(defaultLayout(2)), 2, true);
     expect(wall.size[1]).toBe(HOUSE.cutawayWallHeight);
     expect(wall.position[1] - wall.size[1] / 2).toBeCloseTo(
       HOUSE.floors[2].base,
@@ -136,8 +132,8 @@ describe("内壁", () => {
 
   it("id は階をまたいでも重複しない", () => {
     const ids = [
-      ...interiorWallPanels(defaultLayout(1), 1, false),
-      ...interiorWallPanels(defaultLayout(2), 2, false),
+      ...interiorWallPanels(wallSegments(defaultLayout(1)), 1, false),
+      ...interiorWallPanels(wallSegments(defaultLayout(2)), 2, false),
     ].map((panel) => panel.id);
     expect(new Set(ids).size).toBe(ids.length);
   });
@@ -195,14 +191,14 @@ describe("屋根", () => {
 });
 
 describe("注記", () => {
-  it("すべての部屋に出て、天井の 0.35m 下に置く", () => {
-    const rooms = layoutRooms(defaultLayout(2), FLOOR_RECT);
-    const notes = annotationPositions(rooms, 2);
+  it("部屋ごとに 1 つ、labelAnchor の位置に、天井の 0.35m 下に置く", () => {
+    const notes = annotationPositions(defaultLayout(2), 2);
     expect(notes).toHaveLength(4);
     expect(notes[0].label).toBe("主寝室");
     expect(notes[0].area).toBe(20);
-    expect(notes[0].position[0]).toBeCloseTo(2.5 - HOUSE.width / 2, 6);
-    expect(notes[0].position[2]).toBeCloseTo(2 - HOUSE.depth / 2, 6);
+    // 主寝室（x 0〜5、z 0〜4）の重心にいちばん近いマスの中心は (2.25, 1.75)
+    expect(notes[0].position[0]).toBeCloseTo(2.25 - HOUSE.width / 2, 6);
+    expect(notes[0].position[2]).toBeCloseTo(1.75 - HOUSE.depth / 2, 6);
     expect(notes[0].position[1]).toBeCloseTo(
       HOUSE.floors[2].base + HOUSE.floors[2].height - 0.35,
       6,
@@ -211,8 +207,8 @@ describe("注記", () => {
 
   it("id は階をまたいでも重複しない", () => {
     const ids = [
-      ...annotationPositions(layoutRooms(defaultLayout(1), FLOOR_RECT), 1),
-      ...annotationPositions(layoutRooms(defaultLayout(2), FLOOR_RECT), 2),
+      ...annotationPositions(defaultLayout(1), 1),
+      ...annotationPositions(defaultLayout(2), 2),
     ].map((note) => note.id);
     expect(new Set(ids).size).toBe(ids.length);
   });

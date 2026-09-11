@@ -8,9 +8,10 @@
  */
 
 import dynamic from "next/dynamic";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import { type PlacedFurniture } from "./furniture";
+import { type GridLayout } from "./grid";
 import {
   wallColors,
   type Floor,
@@ -19,7 +20,6 @@ import {
   type ViewMode,
   type WallColor,
 } from "./house";
-import { type LayoutNode } from "./layout";
 import { PlanEditor } from "./PlanEditor";
 import {
   defaultPlanState,
@@ -115,6 +115,8 @@ export function Viewer() {
   const [view, setView] = useState<ViewMode>("orbit");
   const [lighting, setLighting] = useState<LightingMode>("day");
   const [wallColorId, setWallColorId] = useState<WallColor["id"]>("plaster");
+  // 保存の読み込みが済んだか。済む前に書くと、まだ読んでいない既定値で保存データを上書きしてしまう
+  const loaded = useRef(false);
 
   useEffect(() => {
     // 描いたあとに調べる。サーバーとの食い違い（ハイドレーション）を避けるため
@@ -125,25 +127,31 @@ export function Viewer() {
       );
       const stored = readStored();
       if (stored) setPlan(stored);
+      loaded.current = true;
     };
     detect();
   }, []);
 
-  // pointermove の連打でも古い plan を読まないよう、関数形で直前の状態から作って書き込む
+  useEffect(() => {
+    // plan が変わるたびに保存する。読み込みが済む前はまだ書かない
+    const save = () => {
+      if (!loaded.current) return;
+      writeStored(plan);
+    };
+    save();
+  }, [plan]);
+
+  // pointermove の連打でも古い plan を読まないよう、関数形で直前の状態から作る（保存は上の effect が行う）
   const updatePlan = (updater: (prev: PlanState) => PlanState) => {
-    setPlan((prev) => {
-      const next = updater(prev);
-      writeStored(next);
-      return next;
-    });
+    setPlan(updater);
   };
 
-  const changeLayout = (floor: Floor, node: LayoutNode) => {
+  const changeLayout = (floor: Floor, layout: GridLayout) => {
     updatePlan((prev) => {
-      const floors: Record<Floor, LayoutNode> =
+      const floors: Record<Floor, GridLayout> =
         floor === 1
-          ? { 1: node, 2: prev.floors[2] }
-          : { 1: prev.floors[1], 2: node };
+          ? { 1: layout, 2: prev.floors[2] }
+          : { 1: prev.floors[1], 2: layout };
       return { ...prev, floors };
     });
   };
@@ -173,8 +181,9 @@ export function Viewer() {
 
   const changeActiveFloor = (floor: Floor) => {
     goToFloor(floor);
-    // 3D が 1 つの階だけを映しているときは、そちらも同じ階に合わせる（全体はそのまま）
-    if (floorMode !== "all") setFloorMode(floor === 1 ? "1f" : "2f");
+    // 間取り図のタブを押したら、3D が「全体」のときもその階に合わせる。
+    // 全体表示のままタブを押すと 3D に変化が見えず、壊れて見えるため
+    setFloorMode(floor === 1 ? "1f" : "2f");
   };
 
   return (

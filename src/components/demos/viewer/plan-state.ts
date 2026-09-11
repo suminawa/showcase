@@ -2,6 +2,7 @@
  * 見本: 間取りシミュレーターの状態（間取り + 家具）。ブラウザに保存する形でもある。
  * 保存先は localStorage だけで、サーバーへは送らない（読み書きの try/catch は Viewer.tsx）。
  * 古い保存データや壊れたデータで画面が落ちないよう、読み込みは必ずこの関数を通す。
+ * マス目に変えたので version は 2。鍵も v2 にして、分割木のころの保存データは読まない。
  */
 import {
   clampInside,
@@ -10,27 +11,29 @@ import {
   type FurnitureId,
   type PlacedFurniture,
 } from "./furniture";
-import { type Floor } from "./house";
 import {
+  CELL_COUNT,
   defaultLayout,
-  FLOOR_RECT,
-  normalize,
+  prune,
   ROOM_LABELS,
-  type LayoutNode,
+  type GridLayout,
+  type Room,
+  type RoomId,
   type RoomLabel,
-} from "./layout";
+} from "./grid";
+import { type Floor } from "./house";
 
 export type PlanState = {
-  version: 1;
-  floors: Record<Floor, LayoutNode>;
+  version: 2;
+  floors: Record<Floor, GridLayout>;
   furniture: PlacedFurniture[];
 };
 
-export const STORAGE_KEY = "suminawa-demo-3d-viewer:v1";
+export const STORAGE_KEY = "suminawa-demo-3d-viewer:v2";
 
 export function defaultPlanState(): PlanState {
   return {
-    version: 1,
+    version: 2,
     floors: { 1: defaultLayout(1), 2: defaultLayout(2) },
     furniture: defaultFurniture(),
   };
@@ -48,28 +51,32 @@ function isFiniteNumber(value: unknown): value is number {
   return typeof value === "number" && Number.isFinite(value);
 }
 
-function parseNode(value: unknown): LayoutNode | null {
+/**
+ * 部屋の表とマスの表を検証する。マスの数が違う・知らない id・知らない部屋名・
+ * id の重複のどれかがあれば null。通ったら prune を通して、マス 0 の部屋を落とす。
+ */
+function parseLayout(value: unknown): GridLayout | null {
   if (!isObject(value)) return null;
-  if (typeof value.id !== "string" || value.id === "") return null;
-  if (value.kind === "room") {
-    if (typeof value.label !== "string") return null;
-    if (!(ROOM_LABELS as readonly string[]).includes(value.label)) return null;
-    return { kind: "room", id: value.id, label: value.label as RoomLabel };
+  if (!Array.isArray(value.rooms) || !Array.isArray(value.cells)) return null;
+  if (value.cells.length !== CELL_COUNT) return null;
+  const rooms: Room[] = [];
+  const ids = new Set<RoomId>();
+  for (const entry of value.rooms) {
+    if (!isObject(entry)) return null;
+    if (typeof entry.id !== "string" || entry.id === "") return null;
+    if (ids.has(entry.id)) return null;
+    if (typeof entry.label !== "string") return null;
+    if (!(ROOM_LABELS as readonly string[]).includes(entry.label)) return null;
+    ids.add(entry.id);
+    rooms.push({ id: entry.id, label: entry.label as RoomLabel });
   }
-  if (value.kind !== "split") return null;
-  if (value.axis !== "x" && value.axis !== "z") return null;
-  if (!isFiniteNumber(value.at)) return null;
-  const first = parseNode(value.first);
-  const second = parseNode(value.second);
-  if (!first || !second) return null;
-  return {
-    kind: "split",
-    id: value.id,
-    axis: value.axis,
-    at: value.at,
-    first,
-    second,
-  };
+  if (rooms.length === 0) return null;
+  const cells: RoomId[] = [];
+  for (const cell of value.cells) {
+    if (typeof cell !== "string" || !ids.has(cell)) return null;
+    cells.push(cell);
+  }
+  return prune({ rooms, cells });
 }
 
 function parseItem(value: unknown): PlacedFurniture | null {
@@ -96,7 +103,7 @@ function parseItem(value: unknown): PlacedFurniture | null {
   });
 }
 
-/** JSON でない・形が違う・未知の label / type・数値でない座標なら null */
+/** JSON でない・形が違う・version が 2 でない・未知の label / type・数値でない座標なら null */
 export function parsePlanState(raw: string | null): PlanState | null {
   if (!raw) return null;
   let data: unknown;
@@ -106,10 +113,10 @@ export function parsePlanState(raw: string | null): PlanState | null {
     return null;
   }
   if (!isObject(data)) return null;
-  if (data.version !== 1) return null;
+  if (data.version !== 2) return null;
   if (!isObject(data.floors)) return null;
-  const first = parseNode(data.floors[1]);
-  const second = parseNode(data.floors[2]);
+  const first = parseLayout(data.floors[1]);
+  const second = parseLayout(data.floors[2]);
   if (!first || !second) return null;
   if (!Array.isArray(data.furniture)) return null;
   const furniture: PlacedFurniture[] = [];
@@ -118,13 +125,5 @@ export function parsePlanState(raw: string | null): PlanState | null {
     if (!item) return null;
     furniture.push(item);
   }
-  return {
-    version: 1,
-    // 保存したあとに最小辺の決まりを変えていても、読み込んだ時点で直す
-    floors: {
-      1: normalize(first, FLOOR_RECT),
-      2: normalize(second, FLOOR_RECT),
-    },
-    furniture,
-  };
+  return { version: 2, floors: { 1: first, 2: second }, furniture };
 }
