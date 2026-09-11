@@ -1,0 +1,68 @@
+/*
+ * ヒーローの背景に漂う淡い円。丸みのある医院の印象を、角丸と円だけで出す。
+ * 色そのものは書かず、ページの根が決めた --d-brand を薄めて使う。
+ * 三つが全部重なった地でも文字が読めるよう、濃さは 8% / 6% / 7% までにする。
+ * その地では --d-brand が 4.3:1 にしか届かないので、ヒーローの文字は --d-fg と
+ * --d-brand-ink だけを使う（ページ側の決まり）。この数字を上げない。
+ */
+
+.circle {
+  position: absolute;
+  border-radius: 999px;
+}
+
+.one {
+  width: 26rem;
+  height: 26rem;
+  top: -9rem;
+  right: -7rem;
+  background: color-mix(in srgb, var(--d-brand) 8%, transparent);
+}
+
+.two {
+  width: 18rem;
+  height: 18rem;
+  bottom: -7rem;
+  left: -5rem;
+  background: color-mix(in srgb, var(--d-brand) 6%, transparent);
+}
+
+.three {
+  width: 12rem;
+  height: 12rem;
+  top: 40%;
+  right: 22%;
+  background: color-mix(in srgb, var(--d-brand) 7%, transparent);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .one {
+    animation: floatA 30s ease-in-out infinite alternate;
+  }
+
+  .two {
+    animation: floatB 36s ease-in-out infinite alternate;
+  }
+
+  .three {
+    animation: floatA 24s ease-in-out infinite alternate-reverse;
+  }
+}
+
+@keyframes floatA {
+  from {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  to {
+    transform: translate3d(-3%, 4%, 0) scale(1.08);
+  }
+}
+
+@keyframes floatB {
+  from {
+    transform: translate3d(0, 0, 0) scale(1.04);
+  }
+  to {
+    transform: translate3d(4%, -3%, 0) scale(1);
+  }
+}

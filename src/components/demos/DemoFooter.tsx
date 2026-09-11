@@ -11,12 +11,15 @@ export function DemoFooter({
   brand,
   kind = "サービス",
   page = "LP",
+  entity = "会社",
 }: {
   brand: string;
   /** 「架空の〜」に入る語。店の見本なら "店"、建物なら "建物"。既定は "サービス" */
   kind?: string;
   /** 「この〜は」に入る語。LP でない見本（3D ビューアなど）は "ページ"。既定は "LP" */
   page?: string;
+  /** 「実在の〜ではありません」に入る語。医院の見本なら "医院"。既定は "会社" */
+  entity?: string;
 }) {
   const pageLabel = spacedWord(page);
   // 句点「。」の直後に来るので、前には空白を置かない
@@ -25,7 +28,7 @@ export function DemoFooter({
   return (
     <footer className={s.footer}>
       <p className={s.disclaimer}>
-        この{pageLabel}は suminawa の見本です。{brandLabel}は架空の{kind}で、実在の会社ではありません。
+        この{pageLabel}は suminawa の見本です。{brandLabel}は架空の{kind}で、実在の{entity}ではありません。
       </p>
       <p className={s.links}>
         <Link href="/">suminawa.dev の作品一覧へ</Link>
