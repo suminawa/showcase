@@ -11,6 +11,17 @@
       "humanMinutes": 540,
       "release": "ココナラへ3件出品",
       "ai": "開店。運用基盤・出品文・提案ひな形・自動化を作成"
+    },
+    {
+      "day": 1,
+      "date": "2026-09-11",
+      "revenue": 0,
+      "proposals": 10,
+      "replies": 0,
+      "meetings": 0,
+      "humanMinutes": 720,
+      "release": "3(lancersにココナラと同内容のものを出品)、見積もり電卓テンプレ v1.1（note・BOOTH、発売記念 ¥1,980）",
+      "ai": "期限アラート GAS と見積もり電卓 v1.1、見本 LP 2 本と間取り 3D"
     }
   ]
 }
