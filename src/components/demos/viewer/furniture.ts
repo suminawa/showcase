@@ -4,7 +4,7 @@
  * 箱の位置は「家具の中心を原点、y は床から」で書く。回転と階の高さは partsInScene が掛ける。
  */
 import { HOUSE, type Floor, type Vec3 } from "./house";
-import { snap, toScene } from "./layout";
+import { snap, toScene } from "./grid";
 
 export type FurnitureId =
   | "bed"
