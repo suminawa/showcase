@@ -35,7 +35,7 @@ describe("demos registry", () => {
   it("3d-viewer は建築・不動産の見本", () => {
     const viewer = demoBySlug("3d-viewer");
     expect(viewer?.industry).toBe("建築・不動産");
-    expect(viewer?.title).toBe("見本 — 3D ビューア（建物）");
+    expect(viewer?.title).toBe("見本 — 間取りシミュレーター（3D）");
     expect(viewer?.tags).toContain("React Three Fiber");
   });
 });

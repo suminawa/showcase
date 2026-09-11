@@ -1,6 +1,6 @@
 /**
  * 見本（業種別デモ）のレジストリ。
- * 提案文から来た人が触る 1 ページ LP や 3D ビューア。ハブの SAMPLES 欄はここから組む。
+ * 提案文から来た人が触る 1 ページ LP や間取りシミュレーター。ハブの SAMPLES 欄はここから組む。
  * 見本を足すときに触るのは、このファイルと src/app/demos/<slug>/ だけ。
  */
 export type DemoSlug = "saas-lp" | "shop-lp" | "3d-viewer";
@@ -35,10 +35,10 @@ export const demos: readonly Demo[] = [
   },
   {
     slug: "3d-viewer",
-    title: "見本 — 3D ビューア（建物）",
+    title: "見本 — 間取りシミュレーター（3D）",
     industry: "建築・不動産",
     description:
-      "2 階建ての家をブラウザで回して見る見本。階の切替、間取り、昼夜の照明、外壁の色を切り替えられます。",
+      "間取りを描きかえ、家具を置き、3D で確かめる見本。壁を動かすと隣の部屋が伸び縮みします。",
     tags: ["React Three Fiber", "TypeScript", "見本 3D"],
   },
 ];
