@@ -257,19 +257,31 @@
   cursor: pointer;
 }
 
-/* キーボードで選べるのは部屋ごとに 1 枚目の矩形だけ。他のボタンと同じ囲みを出す */
-.planRoom:focus-visible,
-.planRoomSelected:focus-visible {
-  outline: 2px solid var(--d-brand-ink);
-  outline-offset: 2px;
+/* キーボードで選べるのは部屋ごとに 1 枚。塗りも当たり判定も持たない矩形が受け持つ
+   （PlanEditor が壁より上に重ねて、囲みが壁に隠れないようにしている） */
+.planFocus {
+  fill: none;
+  pointer-events: none;
 }
 
-/* 0.5m ごとの薄い線。塗る目安になるだけなので、輪郭より弱く */
+/* 囲みの太さは画面の px で決める。ユーザー単位（outline や素の stroke-width）だと
+   viewBox の縮尺が掛かり、幅 400px ほどの間取り図では 1px を割って見えなくなる */
+.planFocus:focus-visible {
+  outline: none;
+  stroke: var(--d-brand-ink);
+  stroke-width: 3px;
+  vector-effect: non-scaling-stroke;
+}
+
+/* 0.5m ごとの薄い線。塗る目安になるだけなので、輪郭より弱く。
+   --d-line は部屋の塗り（--d-soft）と 1.06:1 でほとんど見えないので、
+   入力欄の枠と同じ --d-input-line を薄く敷く。太さは画面の px で決める */
 .planGrid {
   fill: none;
-  stroke: var(--d-line);
-  stroke-width: 2;
-  stroke-opacity: 0.45;
+  stroke: var(--d-input-line);
+  stroke-opacity: 0.5;
+  stroke-width: 1px;
+  vector-effect: non-scaling-stroke;
   pointer-events: none;
 }
 

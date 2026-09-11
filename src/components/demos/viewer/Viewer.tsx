@@ -62,8 +62,12 @@ function hasWebgl(): boolean {
 }
 
 /* 保存はブラウザの localStorage だけ。使えない環境（プライベート表示・容量超過）でも
-   編集は続けられるよう、読み書きはすべて try/catch で包む。中身は 2KB ほどなので、
-   ドラッグのたびに書いても重くならない */
+   編集は続けられるよう、読み書きはすべて try/catch で包む。中身は 6KB ほど
+   （288 マス × 2 階ぶんの部屋 id）で、なぞるあいだに何十回も変わる。
+   書き出しは同期なので、SAVE_DELAY だけ待ってまとめて 1 回にする */
+
+/** 最後の変更から、これだけ経ってから書き出す（ms） */
+const SAVE_DELAY = 300;
 
 /** 分割木のころの鍵。もう読まないので、見かけたらそのまま消す */
 const OLD_STORAGE_KEY = "suminawa-demo-3d-viewer:v1";
@@ -127,6 +131,9 @@ export function Viewer() {
   const savedPlan = useRef<PlanState | null>(null);
   // 「最初に戻す」のあと 1 回だけ保存を見送る印。消した直後に既定値を書き戻さないため
   const skipNextSave = useRef(false);
+  // 書き出しを待っている plan と、その時計。同じ plan で effect が走り直しても取りこぼさない
+  const pendingSave = useRef<PlanState | null>(null);
+  const saveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
     // 描いたあとに調べる。サーバーとの食い違い（ハイドレーション）を避けるため
@@ -142,22 +149,37 @@ export function Viewer() {
   }, []);
 
   useEffect(() => {
-    // plan が変わるたびに保存する
+    // plan が変わるたびに保存する。ただし書き出しは待ち時間のあと 1 回だけ
     const save = () => {
-      if (savedPlan.current === plan) return;
-      const first = savedPlan.current === null;
-      savedPlan.current = plan;
-      // 初回は見送る。保存を読み終えて入れ直したときに、この effect がもう一度走る。
-      // 読むものが無ければ plan は動かないので、ただ訪れただけでは保存を作らない
-      if (first) return;
-      // 「最初に戻す」で消した直後。既定値を書き戻さず、次の編集から保存を再開する
-      if (skipNextSave.current) {
-        skipNextSave.current = false;
-        return;
+      if (savedPlan.current !== plan) {
+        const first = savedPlan.current === null;
+        savedPlan.current = plan;
+        // 初回は見送る。保存を読み終えて入れ直したときに、この effect がもう一度走る。
+        // 読むものが無ければ plan は動かないので、ただ訪れただけでは保存を作らない
+        if (first) return;
+        // 「最初に戻す」で消した直後。既定値を書き戻さず、次の編集から保存を再開する
+        if (skipNextSave.current) {
+          skipNextSave.current = false;
+          return;
+        }
+        pendingSave.current = plan;
       }
-      writeStored(plan);
+      // 待っているものを積み直す。下の後始末で時計を落としているので、ここで必ず掛け直す
+      const waiting = pendingSave.current;
+      if (waiting === null) return;
+      saveTimer.current = setTimeout(() => {
+        saveTimer.current = null;
+        pendingSave.current = null;
+        writeStored(waiting);
+      }, SAVE_DELAY);
     };
     save();
+    // 次の変更が来た・画面を離れた。待っている時計は落とす（次の実行が積み直す）
+    return () => {
+      if (saveTimer.current === null) return;
+      clearTimeout(saveTimer.current);
+      saveTimer.current = null;
+    };
   }, [plan]);
 
   // pointermove の連打でも古い plan を読まないよう、setPlan は関数形で直前の状態から作る
@@ -170,16 +192,25 @@ export function Viewer() {
           : { 1: prev.floors[1], 2: layout };
       return { ...prev, floors };
     });
+    // 全体は屋根で中が見えないので、最初の編集でその階の断面へ移す
+    if (floorMode === "all") setFloorMode(floor === 1 ? "1f" : "2f");
   };
 
   const changeFurniture = (list: PlacedFurniture[]) => {
     setPlan((prev) => ({ ...prev, furniture: list }));
+    // 家具も同じ。全体のままでは置いても動かしても 3D に何も見えない
+    if (floorMode === "all") setFloorMode(activeFloor === 1 ? "1f" : "2f");
   };
 
   const reset = () => {
-    // 既定値に戻し、保存も消す。この setPlan で走る保存は skipNextSave が 1 回だけ止めるので、
-    // 「最初に戻す」のあとブラウザには何も残らない
+    // 既定値に戻し、保存も消す。この setPlan で走る保存は skipNextSave が 1 回だけ止め、
+    // 待っている書き出しはここで落とすので、「最初に戻す」のあとブラウザには何も残らない
     skipNextSave.current = true;
+    if (saveTimer.current !== null) {
+      clearTimeout(saveTimer.current);
+      saveTimer.current = null;
+    }
+    pendingSave.current = null;
     setPlan(defaultPlanState());
     setSelectedId(null);
     clearStored();
