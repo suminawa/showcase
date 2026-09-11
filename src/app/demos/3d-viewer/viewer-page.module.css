@@ -1,0 +1,124 @@
+/*
+ * 見本: 3D ビューアのページ。淡い灰の地に藍鼠 1 色。
+ * 料紙（トップ・作品ページ）の文法はここには持ち込まない ── 見本は「相手の業種の画面」であって、
+ * suminawa の紙ではない。色はこの根で決め、Viewer と DemoFooter は --d-* を継承する。
+ *
+ * コントラスト（地 #eef0f2 上の実測）
+ *   #1a1e24 14.6:1 / #545b64 5.9:1 / #2f5f7a 6.0:1
+ *   #ffffff は #2f5f7a の上で 6.9:1
+ */
+
+.page {
+  --d-bg: #eef0f2;
+  --d-fg: #1a1e24;
+  --d-muted: #545b64;
+  --d-brand: #2f5f7a;
+  --d-brand-ink: #1d3f53;
+  --d-line: #d5d9de;
+  --d-soft: #e2e6ea;
+  --d-surface: #ffffff;
+  --d-on-brand: #ffffff;
+  --d-input-line: #8b91a0; /* 入力欄（部屋名の select）の枠線。地の色で 3:1 以上 */
+
+  min-height: 100vh;
+  background: var(--d-bg);
+  color: var(--d-fg);
+  font-family: var(--font-sans);
+  line-height: 1.8;
+  overflow-x: clip;
+}
+
+/* 見本の根がある間だけ、html の地も見本の色にする（引っ張ったときの余白が料紙の色にならないように）。
+   トークンは .page に閉じているので、ここだけ値を直書きする */
+:global(html):has(.page) {
+  background: #eef0f2;
+}
+
+.container {
+  width: min(100% - 2.5rem, 1080px);
+  margin-inline: auto;
+  padding-top: 3rem;
+}
+
+.eyebrow {
+  margin: 0 0 0.75rem;
+  font-size: 0.875rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: var(--d-brand);
+}
+
+.h1 {
+  margin: 0;
+  font-size: clamp(1.75rem, 4.6vw, 2.75rem);
+  font-weight: 800;
+  line-height: 1.25;
+  letter-spacing: -0.01em;
+}
+
+.lead {
+  margin: 1rem 0 0;
+  max-width: 36em;
+  color: var(--d-muted);
+}
+
+.section {
+  margin-top: 3rem;
+}
+
+.h2 {
+  margin: 0 0 1.5rem;
+  font-size: clamp(1.25rem, 2.8vw, 1.75rem);
+  font-weight: 800;
+  line-height: 1.35;
+}
+
+.points {
+  display: grid;
+  gap: 1rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+@media (min-width: 720px) {
+  .points {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+.card {
+  padding: 1.25rem 1.5rem;
+  border: 1px solid var(--d-line);
+  border-radius: 1rem;
+  background: var(--d-surface);
+}
+
+.cardTitle {
+  margin: 0 0 0.375rem;
+  font-size: 1.0625rem;
+  font-weight: 700;
+}
+
+.cardBody {
+  margin: 0;
+  font-size: 0.9375rem;
+  color: var(--d-muted);
+}
+
+.notes {
+  margin: 0;
+  padding-left: 1.25rem;
+  max-width: 44em;
+  list-style: disc;
+  color: var(--d-muted);
+}
+
+/* display: grid だと <li> の既定マーカーが消えるので、行間は margin で取る */
+.notes li + li {
+  margin-top: 0.75rem;
+}
+
+.footer {
+  margin-top: 3rem;
+}

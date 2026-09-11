@@ -36,11 +36,6 @@ describe("projects registry", () => {
     const tools = projectsByCategory("tools");
     expect(tools.map((p) => p.slug)).toEqual(["quote-simulator", "30days"]);
     const samples = projectsByCategory("samples").map((p) => p.slug);
-    expect(samples.slice(0, 2)).toEqual(["saas-lp", "shop-lp"]);
-    expect(samples).toContain("professional-lp");
-    expect(samples).toContain("clinic-lp");
-    // 既存 4 件（前のプランで足された construction-lp / corporate-site）の並びも
-    // 崩れていないことを合わせて確かめる（置き換えでカバレッジを落とさない）。
     expect(samples).toEqual([
       "saas-lp",
       "shop-lp",
@@ -48,6 +43,7 @@ describe("projects registry", () => {
       "corporate-site",
       "professional-lp",
       "clinic-lp",
+      "3d-viewer",
     ]);
     expect(projectsByCategory("games")).toEqual([]);
   });
@@ -55,8 +51,9 @@ describe("projects registry", () => {
   it("projectHref は /projects/<slug>、見本は /demos/<slug> を返す", () => {
     const [first] = projectsByCategory("sites");
     expect(projectHref(first)).toBe("/projects/suminagashi");
-    const [sample] = projectsByCategory("samples");
-    expect(projectHref(sample)).toBe("/demos/saas-lp");
+    const samples = projectsByCategory("samples");
+    expect(projectHref(samples[0])).toBe("/demos/saas-lp");
+    expect(projectHref(samples[samples.length - 1])).toBe("/demos/3d-viewer");
   });
 
   it("見本の行はレジストリの題と説明をそのまま持つ", () => {

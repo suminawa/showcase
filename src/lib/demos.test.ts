@@ -2,16 +2,8 @@ import { describe, expect, it } from "vitest";
 import { demoBySlug, demoHref, demos } from "./demos";
 
 describe("demos registry", () => {
-  it("saas-lp と shop-lp が先頭にあり、あとから足した見本も並んでいる", () => {
+  it("見本が順に登録されている（先頭 saas-lp、末尾 3d-viewer）", () => {
     const slugs = demos.map((d) => d.slug);
-    expect(slugs.slice(0, 2)).toEqual(["saas-lp", "shop-lp"]);
-    expect(slugs).toContain("professional-lp");
-    expect(slugs).toContain("clinic-lp");
-    expect(slugs.indexOf("professional-lp")).toBeLessThan(
-      slugs.indexOf("clinic-lp"),
-    );
-    // 既存 4 件（前のプランで足された construction-lp / corporate-site）の並びも
-    // 崩れていないことを合わせて確かめる（置き換えでカバレッジを落とさない）。
     expect(slugs).toEqual([
       "saas-lp",
       "shop-lp",
@@ -19,7 +11,9 @@ describe("demos registry", () => {
       "corporate-site",
       "professional-lp",
       "clinic-lp",
+      "3d-viewer",
     ]);
+    expect(new Set(slugs).size).toBe(slugs.length);
   });
 
   it("demoHref は /demos/<slug> を返す", () => {
@@ -57,5 +51,15 @@ describe("demos registry", () => {
     for (const d of demos) {
       expect(d.title.startsWith("見本 — ")).toBe(true);
     }
+  });
+
+  it("3d-viewer は建築・不動産の見本", () => {
+    const viewer = demoBySlug("3d-viewer");
+    expect(viewer?.industry).toBe("建築・不動産");
+    expect(viewer?.title).toBe("見本 — 間取りシミュレーター（3D）");
+    expect(viewer?.description).toBe(
+      "間取りを描きかえ、家具を置き、3D で確かめる見本。マス目を塗るだけで廊下も L 字も描けます。",
+    );
+    expect(viewer?.tags).toContain("React Three Fiber");
   });
 });

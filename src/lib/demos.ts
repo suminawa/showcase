@@ -1,6 +1,6 @@
 /**
  * 見本（業種別デモ）のレジストリ。
- * 提案文から来た人が触る 1 ページ LP や 3D ビューア。ハブの SAMPLES 欄はここから組む。
+ * 提案文から来た人が触る 1 ページ LP や間取りシミュレーター。ハブの SAMPLES 欄はここから組む。
  * 見本を足すときに触るのは、このファイルと src/app/demos/<slug>/ だけ。
  */
 export type DemoSlug =
@@ -9,7 +9,8 @@ export type DemoSlug =
   | "construction-lp"
   | "corporate-site"
   | "professional-lp"
-  | "clinic-lp";
+  | "clinic-lp"
+  | "3d-viewer";
 
 export type Demo = {
   slug: DemoSlug;
@@ -70,6 +71,14 @@ export const demos: readonly Demo[] = [
     description:
       "架空の歯科医院「月白歯科クリニック」の 1 ページ。診療時間の表と Web 予約まで動く見本。",
     tags: ["Next.js", "TypeScript", "見本 LP"],
+  },
+  {
+    slug: "3d-viewer",
+    title: "見本 — 間取りシミュレーター（3D）",
+    industry: "建築・不動産",
+    description:
+      "間取りを描きかえ、家具を置き、3D で確かめる見本。マス目を塗るだけで廊下も L 字も描けます。",
+    tags: ["React Three Fiber", "TypeScript", "見本 3D"],
   },
 ];
 
