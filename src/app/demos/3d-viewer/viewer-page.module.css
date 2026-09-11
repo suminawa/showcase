@@ -18,6 +18,7 @@
   --d-soft: #e2e6ea;
   --d-surface: #ffffff;
   --d-on-brand: #ffffff;
+  --d-input-line: #8b91a0; /* 入力欄（部屋名の select）の枠線。地の色で 3:1 以上 */
 
   min-height: 100vh;
   background: var(--d-bg);

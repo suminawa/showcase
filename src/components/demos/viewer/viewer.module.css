@@ -1,6 +1,6 @@
 /*
- * 見本: 建物ビューア。色はページの根（.page）が決める --d-* を使う。
- * 3D の中の色（壁・屋根・空・地面）は house.ts にあり、ここには書かない。
+ * 見本: 間取りシミュレーター。色はページの根（.page）が決める --d-* を使う。
+ * 3D の中の色（壁・屋根・空・地面・家具）は house.ts / furniture.ts にあり、ここには書かない。
  */
 
 .canvas {
@@ -101,6 +101,15 @@
   outline-offset: 2px;
 }
 
+.button:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.button:disabled:hover {
+  border-color: var(--d-line);
+}
+
 .swatch {
   display: inline-block;
   width: 0.75rem;
@@ -111,7 +120,19 @@
   vertical-align: -0.05em;
 }
 
-/* ---- 3D の枠 ---- */
+/* ---- 3D と間取り図を並べる ---- */
+
+.workspace {
+  display: grid;
+  gap: 1rem;
+  align-items: start;
+}
+
+@media (min-width: 960px) {
+  .workspace {
+    grid-template-columns: 3fr 2fr;
+  }
+}
 
 .stage {
   position: relative;
@@ -143,11 +164,12 @@
   color: var(--d-muted);
 }
 
-/* ---- WebGL が無いときの平面図 ---- */
+/* ---- WebGL が使えないときの断り ---- */
 
 .fallback {
   display: grid;
-  gap: 1rem;
+  place-items: center;
+  min-height: 12rem;
   padding: 1.25rem;
   border: 1px solid var(--d-line);
   border-radius: 1rem;
@@ -160,9 +182,54 @@
   color: var(--d-muted);
 }
 
+/* ---- 編集できる間取り図 ---- */
+
+.editor {
+  display: grid;
+  gap: 0.75rem;
+  padding: 1rem;
+  border: 1px solid var(--d-line);
+  border-radius: 1rem;
+  background: var(--d-surface);
+}
+
+.editorRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.field {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  font-size: 0.8125rem;
+  font-weight: 700;
+  color: var(--d-muted);
+}
+
+.select {
+  font: inherit;
+  font-size: 0.875rem;
+  padding: 0.375rem 0.5rem;
+  border: 1px solid var(--d-input-line);
+  border-radius: 0.5rem;
+  background: var(--d-surface);
+  color: var(--d-fg);
+}
+
+.select:focus-visible {
+  outline: 2px solid var(--d-brand-ink);
+  outline-offset: 2px;
+}
+
+/* 指でなぞったときに画面がスクロールしないよう、SVG の中では既定の動きを止める */
 .plan {
+  display: block;
   width: 100%;
   height: auto;
+  touch-action: none;
 }
 
 .planOutline {
@@ -175,17 +242,69 @@
   fill: var(--d-soft);
   stroke: var(--d-muted);
   stroke-width: 2;
+  cursor: pointer;
+}
+
+.planRoomSelected {
+  fill: var(--d-soft);
+  stroke: var(--d-brand);
+  stroke-width: 6;
+  cursor: pointer;
 }
 
 .planName {
   fill: var(--d-fg);
-  font-size: 30px;
+  font-size: 26px;
   font-weight: 700;
   text-anchor: middle;
+  pointer-events: none;
 }
 
 .planArea {
   fill: var(--d-muted);
-  font-size: 24px;
+  font-size: 20px;
   text-anchor: middle;
+  pointer-events: none;
+}
+
+.planWall {
+  stroke: var(--d-fg);
+  stroke-width: 10;
+  stroke-linecap: square;
+  pointer-events: none;
+}
+
+/* 当たり判定だけの太い線。透明でも stroke として拾わせる */
+.planGrabX {
+  stroke: transparent;
+  stroke-width: 24;
+  pointer-events: stroke;
+  cursor: ew-resize;
+}
+
+.planGrabZ {
+  stroke: transparent;
+  stroke-width: 24;
+  pointer-events: stroke;
+  cursor: ns-resize;
+}
+
+.planItem {
+  cursor: grab;
+}
+
+.planItem:active {
+  cursor: grabbing;
+}
+
+.planGlyph {
+  fill: var(--d-surface);
+  stroke: var(--d-muted);
+  stroke-width: 3;
+}
+
+.planGlyphSelected {
+  fill: var(--d-surface);
+  stroke: var(--d-brand);
+  stroke-width: 6;
 }
