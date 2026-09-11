@@ -1,0 +1,132 @@
+.wrap {
+  display: grid;
+  gap: 1.5rem;
+}
+
+.toggle {
+  display: inline-flex;
+  justify-self: center;
+  padding: 0.25rem;
+  border: 1px solid var(--d-line);
+  border-radius: 999px;
+  background: var(--d-surface);
+}
+
+.toggleButton {
+  font: inherit;
+  font-size: 0.875rem;
+  font-weight: 600;
+  padding: 0.5rem 1rem;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--d-muted);
+  cursor: pointer;
+}
+
+.toggleButton[aria-pressed="true"] {
+  background: var(--d-brand);
+  color: var(--d-on-brand);
+}
+
+.toggleButton:focus-visible {
+  outline: 2px solid var(--d-brand-ink);
+  outline-offset: 2px;
+}
+
+.plans {
+  display: grid;
+  gap: 1rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+@media (min-width: 720px) {
+  .plans {
+    grid-template-columns: repeat(3, 1fr);
+    align-items: stretch;
+  }
+}
+
+.plan {
+  position: relative;
+  display: grid;
+  gap: 0.75rem;
+  align-content: start;
+  padding: 1.5rem;
+  border: 1px solid var(--d-line);
+  border-radius: 1rem;
+  background: var(--d-surface);
+}
+
+.recommended {
+  border-color: var(--d-brand);
+  box-shadow: 0 0 0 1px var(--d-brand);
+}
+
+.badge {
+  position: absolute;
+  top: -0.75rem;
+  left: 1.5rem;
+  padding: 0.125rem 0.625rem;
+  border-radius: 999px;
+  background: var(--d-brand);
+  color: var(--d-on-brand);
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+.name {
+  margin: 0;
+  font-size: 1.125rem;
+  font-weight: 700;
+}
+
+.price {
+  display: flex;
+  align-items: baseline;
+  gap: 0.25rem;
+  margin: 0;
+}
+
+.amount {
+  font-size: 2rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  font-variant-numeric: tabular-nums;
+}
+
+.unit {
+  font-size: 0.875rem;
+  color: var(--d-muted);
+}
+
+.audience {
+  margin: 0;
+  font-size: 0.875rem;
+  color: var(--d-muted);
+}
+
+.features {
+  display: grid;
+  gap: 0.375rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: 0.9375rem;
+}
+
+.features li::before {
+  content: "✓";
+  margin-right: 0.5rem;
+  color: var(--d-brand);
+  font-weight: 700;
+}
+
+.note {
+  margin: 0;
+  text-align: center;
+  font-size: 0.875rem;
+  color: var(--d-muted);
+}
