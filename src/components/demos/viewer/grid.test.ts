@@ -5,12 +5,14 @@ import {
   cellAt,
   CELL_COUNT,
   cellFromPoint,
+  cellsAlong,
   COLS,
   colRowOf,
   defaultLayout,
   FLOOR_RECT,
   labelAnchor,
   nextRoomId,
+  PAINT_STEP,
   paintCell,
   paintCells,
   prune,
@@ -229,6 +231,65 @@ describe("wallSegments", () => {
       cells: Array.from({ length: CELL_COUNT }, () => "room-1"),
     };
     expect(wallSegments(single)).toEqual([]);
+  });
+});
+
+describe("cellsAlong", () => {
+  it("刻みはマスより十分細かい", () => {
+    expect(PAINT_STEP).toBe(0.125);
+    expect(PAINT_STEP).toBeLessThan(CELL);
+  });
+
+  it("横になぞると、通った列のマスを順に拾う", () => {
+    const cells = cellsAlong({ x: 0.25, z: 0.25 }, { x: 1.75, z: 0.25 });
+    expect([...new Set(cells)]).toEqual([
+      cellAt(0, 0),
+      cellAt(1, 0),
+      cellAt(2, 0),
+      cellAt(3, 0),
+    ]);
+  });
+
+  it("縦になぞると、通った行のマスを順に拾う", () => {
+    const cells = cellsAlong({ x: 0.25, z: 0.25 }, { x: 0.25, z: 1.75 });
+    expect([...new Set(cells)]).toEqual([
+      cellAt(0, 0),
+      cellAt(0, 1),
+      cellAt(0, 2),
+      cellAt(0, 3),
+    ]);
+  });
+
+  it("マスの角を斜めに越えたら、角を挟む両側のマスも足す", () => {
+    // (0.5, 0.5) の角をかすめる短い斜めの線。すり抜けないよう 4 マスすべてを塗る
+    const cells = new Set(cellsAlong({ x: 0.4, z: 0.4 }, { x: 0.6, z: 0.6 }));
+    expect(cells).toEqual(
+      new Set([cellAt(0, 0), cellAt(1, 0), cellAt(0, 1), cellAt(1, 1)]),
+    );
+  });
+
+  it("長い斜めの線でも、途中のマスが抜けない", () => {
+    const cells = new Set(cellsAlong({ x: 0.25, z: 0.25 }, { x: 2.25, z: 2.25 }));
+    for (const step of [0, 1, 2, 3, 4]) {
+      expect(cells.has(cellAt(step, step))).toBe(true);
+    }
+  });
+
+  it("輪郭の外から入る線・外へ出る線は、中のマスだけを返す", () => {
+    expect([
+      ...new Set(cellsAlong({ x: -1, z: 0.25 }, { x: 0.75, z: 0.25 })),
+    ]).toEqual([cellAt(0, 0), cellAt(1, 0)]);
+    expect([
+      ...new Set(cellsAlong({ x: 8.75, z: 0.25 }, { x: 9.5, z: 0.25 })),
+    ]).toEqual([cellAt(17, 0)]);
+    // 外を大きくまたいでも、返るのは必ず盤の中のマス
+    const across = cellsAlong({ x: -2, z: -2 }, { x: 11, z: 10 });
+    expect(across.length).toBeGreaterThan(0);
+    expect(across.every((index) => index >= 0 && index < CELL_COUNT)).toBe(true);
+  });
+
+  it("両端とも外なら何も返さない", () => {
+    expect(cellsAlong({ x: -2, z: -2 }, { x: -1, z: -1 })).toEqual([]);
   });
 });
 

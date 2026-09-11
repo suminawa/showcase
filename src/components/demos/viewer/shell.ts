@@ -210,20 +210,26 @@ export type Annotation = {
  * 注記は部屋ごとに 1 つ。位置は labelAnchor（部屋のマスの重心にいちばん近いマスの中心）で、
  * L 字の部屋でも名前が部屋の中に出る。天井から 0.35m 下げると、
  * 上から見ても横から見ても部屋の中に見える。
+ * まだ 1 マスも塗られていない部屋（「新しい部屋」の直後）は出さない ──
+ * 置く場所が無く、labelAnchor が返す床の真ん中に「0.0 m²」が浮いてしまうため。
  */
 export function annotationPositions(
   layout: GridLayout,
   floor: Floor,
 ): Annotation[] {
   const { base, height } = HOUSE.floors[floor];
-  return layout.rooms.map((room) => {
+  const out: Annotation[] = [];
+  for (const room of layout.rooms) {
+    const area = roomArea(layout, room.id);
+    if (area === 0) continue;
     const [ax, az] = labelAnchor(layout, room.id);
     const [sx, sz] = toScene(ax, az);
-    return {
+    out.push({
       id: `f${floor}-${room.id}`,
       label: room.label,
-      area: roomArea(layout, room.id),
+      area,
       position: [sx, base + height - 0.35, sz] as Vec3,
-    };
-  });
+    });
+  }
+  return out;
 }

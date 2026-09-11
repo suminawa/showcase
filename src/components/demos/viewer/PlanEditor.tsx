@@ -28,9 +28,8 @@ import {
 import {
   addRoom,
   CELL,
-  cellAt,
   cellFromPoint,
-  colRowOf,
+  cellsAlong,
   COLS,
   labelAnchor,
   paintCells,
@@ -90,16 +89,18 @@ const GRID_PATH = (() => {
 })();
 
 /**
- * なぞる線を補間するときの刻み幅（m）。マス（0.5m）より十分細かく取ることで、
- * 指で速くなぞって pointermove の間隔が空いても、通った線の上のマスを飛ばさない。
+ * なぞっている最中の覚え書き。通ったマスをすべて覚えておく。at は補間の起点（床座標 m）。
+ * pointerId を持たせて、2 本目の指の pointermove や pointerup を取り違えないようにする。
  */
-const PAINT_STEP = CELL / 4;
+type Stroke = {
+  pointerId: number;
+  room: RoomId;
+  cells: number[];
+  at: { x: number; z: number };
+};
 
-/** なぞっている最中の覚え書き。通ったマスをすべて覚えておく。at は補間の起点（床座標 m） */
-type Stroke = { room: RoomId; cells: number[]; at: { x: number; z: number } };
-
-/** 家具をつかんだ点と中心のずれ。つかんだ瞬間に跳ばないよう覚えておく */
-type Grab = { id: string; dx: number; dz: number };
+/** 家具をつかんだ点と中心のずれ。つかんだ瞬間に跳ばないよう覚えておく。pointerId は Stroke と同じ理由 */
+type Grab = { pointerId: number; id: string; dx: number; dz: number };
 
 /**
  * setPointerCapture は環境によっては例外を投げる。取れなくても pointermove 自体は
@@ -131,6 +132,15 @@ export function PlanEditor({
 
   const layout = plan.floors[activeFloor];
   const rects = roomRects(layout);
+  // 広さは読み上げにも部屋名にも要る。矩形ごとに数え直さず、描くたびに部屋ごとへ 1 回だけ数える
+  const areas = new Map<RoomId, number>(
+    layout.rooms.map((room) => [room.id, roomArea(layout, room.id)]),
+  );
+  // 同じ部屋が何枚もの長方形に分かれるので、キーボードの的は部屋ごとに 1 枚目だけにする
+  const firstRectIds = new Map<RoomId, string>();
+  for (const rect of rects) {
+    if (!firstRectIds.has(rect.roomId)) firstRectIds.set(rect.roomId, rect.id);
+  }
   const walls = wallSegments(layout);
   const items = furnitureOnFloor(plan.furniture, activeFloor);
   const selectedRoom =
@@ -168,36 +178,12 @@ export function PlanEditor({
   }
 
   /**
-   * from から to（床座標 m）までを細かく刻んで、通ったマスをすべて拾う。
-   * to だけを見ると、速くなぞったときに間の細いマスを塗り落とす。
-   * マス目を斜めにまたいだ刻みでは、角を挟む両側のマスも足す
-   * （そうしないと、角だけで接する 2 マスの間を対角線ですり抜けてしまう）。
+   * Delete / Backspace を受けられるよう、触った時点で編集画面へフォーカスを移す。
+   * pointerdown の既定の動きを止めないと、ブラウザがフォーカスを body へ移してしまう。
    */
-  function cellsAlong(
-    from: { x: number; z: number },
-    to: { x: number; z: number },
-  ): number[] {
-    const dx = to.x - from.x;
-    const dz = to.z - from.z;
-    const steps = Math.max(1, Math.ceil(Math.hypot(dx, dz) / PAINT_STEP));
-    const found: number[] = [];
-    const start = cellFromPoint(from.x, from.z);
-    let prev = start === null ? null : colRowOf(start);
-    for (let i = 1; i <= steps; i++) {
-      const t = i / steps;
-      const index = cellFromPoint(from.x + dx * t, from.z + dz * t);
-      if (index === null) {
-        prev = null;
-        continue;
-      }
-      const [col, row] = colRowOf(index);
-      if (prev && prev[0] !== col && prev[1] !== row) {
-        found.push(cellAt(prev[0], row), cellAt(col, prev[1]));
-      }
-      found.push(index);
-      prev = [col, row];
-    }
-    return found;
+  function focusEditor(event: ReactPointerEvent<SVGElement>) {
+    event.preventDefault();
+    svgRef.current?.focus({ preventScroll: true });
   }
 
   /**
@@ -206,6 +192,9 @@ export function PlanEditor({
    * 「選ぶ」モードなら選択を外す。
    */
   function handlePlanDown(event: ReactPointerEvent<SVGSVGElement>) {
+    // すでに塗っている・家具をつかんでいる最中なら、2 本目の指は受けない
+    if (stroke.current || grab.current) return;
+    focusEditor(event);
     const at = planPoint(event);
     const index = at ? cellFromPoint(at.x, at.z) : null;
     if (!at || index === null) {
@@ -220,13 +209,22 @@ export function PlanEditor({
     const target = selectedRoom ? selectedRoom.id : roomOfCell(layout, index);
     if (!selectedRoom) onSelect(target);
     captureQuietly(event.currentTarget, event.pointerId);
-    stroke.current = { room: target, cells: [index], at };
-    onLayoutChange(activeFloor, paintCells(layout, [index], target));
+    stroke.current = {
+      pointerId: event.pointerId,
+      room: target,
+      cells: [index],
+      at,
+    };
+    // すでにその部屋のマスなら layout は変わらない。同じものを送り返さない
+    const painted = paintCells(layout, [index], target);
+    if (painted !== layout) onLayoutChange(activeFloor, painted);
   }
 
   function handlePlanMove(event: ReactPointerEvent<SVGSVGElement>) {
     const active = stroke.current;
-    if (!active) return;
+    if (!active || active.pointerId !== event.pointerId) return;
+    // ボタンを離したのを取りこぼしたまま動いている（画面の外で離した等）。なぞり足さない
+    if (event.buttons === 0) return;
     const at = planPoint(event);
     if (!at) return;
     const along = cellsAlong(active.at, at);
@@ -243,10 +241,23 @@ export function PlanEditor({
   }
 
   function handlePlanUp(event: ReactPointerEvent<SVGSVGElement>) {
+    const active = stroke.current;
+    if (!active || active.pointerId !== event.pointerId) return;
     stroke.current = null;
     if (event.currentTarget.hasPointerCapture(event.pointerId)) {
       event.currentTarget.releasePointerCapture(event.pointerId);
     }
+  }
+
+  /**
+   * SVG の外へ出た。capture が取れていれば離した合図はこのあと必ず届くので、そのまま続ける。
+   * 取れていない環境だけ、ここでなぞりを終える（外で離されると気づけないため）。
+   */
+  function handlePlanLeave(event: ReactPointerEvent<SVGSVGElement>) {
+    const active = stroke.current;
+    if (!active || active.pointerId !== event.pointerId) return;
+    if (event.currentTarget.hasPointerCapture(event.pointerId)) return;
+    stroke.current = null;
   }
 
   function startFurniture(
@@ -255,9 +266,13 @@ export function PlanEditor({
   ) {
     // 家具をつかんだときは、下の部屋を選び直さない
     event.stopPropagation();
+    // すでに塗っている・別の家具をつかんでいる最中なら、2 本目の指は受けない
+    if (stroke.current || grab.current) return;
+    focusEditor(event);
     const at = planPoint(event);
     captureQuietly(event.currentTarget, event.pointerId);
     grab.current = {
+      pointerId: event.pointerId,
       id: item.id,
       dx: at ? item.x - at.x : 0,
       dz: at ? item.z - at.z : 0,
@@ -267,7 +282,7 @@ export function PlanEditor({
 
   function moveFurnitureTo(event: ReactPointerEvent<SVGGElement>) {
     const held = grab.current;
-    if (!held) return;
+    if (!held || held.pointerId !== event.pointerId) return;
     event.stopPropagation();
     const at = planPoint(event);
     if (!at) return;
@@ -277,6 +292,8 @@ export function PlanEditor({
   }
 
   function endFurniture(event: ReactPointerEvent<SVGGElement>) {
+    const held = grab.current;
+    if (!held || held.pointerId !== event.pointerId) return;
     grab.current = null;
     if (event.currentTarget.hasPointerCapture(event.pointerId)) {
       event.currentTarget.releasePointerCapture(event.pointerId);
@@ -338,34 +355,50 @@ export function PlanEditor({
         viewBox={`-12 -12 ${HOUSE.width * SCALE + 24} ${HOUSE.depth * SCALE + 24}`}
         role="group"
         aria-label={`${activeFloor} 階の間取り図`}
+        /* 触ったら Delete / Backspace が届くよう、フォーカスを置ける先にする。
+           Tab では止まらない（部屋の矩形が順番に受け持つ） */
+        tabIndex={-1}
         onPointerDown={handlePlanDown}
         onPointerMove={handlePlanMove}
         onPointerUp={handlePlanUp}
         onPointerCancel={handlePlanUp}
+        onPointerLeave={handlePlanLeave}
         onLostPointerCapture={handlePlanUp}
       >
         {/* 部屋の塗り → マス目の線 → 壁と輪郭 → 家具 → 部屋名、の順に重ねる */}
-        {rects.map((rect) => (
-          <rect
-            key={rect.id}
-            className={
-              rect.roomId === selectedId ? s.planRoomSelected : s.planRoom
-            }
-            x={rect.x * SCALE}
-            y={rect.z * SCALE}
-            width={rect.w * SCALE}
-            height={rect.d * SCALE}
-            tabIndex={0}
-            role="button"
-            aria-pressed={rect.roomId === selectedId}
-            aria-label={`${rect.label} ${roomArea(layout, rect.roomId).toFixed(1)} m²`}
-            onKeyDown={(event) => {
-              if (event.key !== "Enter" && event.key !== " ") return;
-              event.preventDefault();
-              onSelect(rect.roomId);
-            }}
-          />
-        ))}
+        {rects.map((rect) => {
+          const selected = rect.roomId === selectedId;
+          // 1 枚目だけがキーボードの的。残りは同じ見た目のただの塗りで、
+          // タップは SVG のハンドラが受ける（同じ部屋で何度も Tab が止まらないように）
+          const target = firstRectIds.get(rect.roomId) === rect.id;
+          return (
+            <rect
+              key={rect.id}
+              className={selected ? s.planRoomSelected : s.planRoom}
+              x={rect.x * SCALE}
+              y={rect.z * SCALE}
+              width={rect.w * SCALE}
+              height={rect.d * SCALE}
+              tabIndex={target ? 0 : undefined}
+              role={target ? "button" : undefined}
+              aria-pressed={target ? selected : undefined}
+              aria-label={
+                target
+                  ? `${rect.label} ${(areas.get(rect.roomId) ?? 0).toFixed(1)} m²`
+                  : undefined
+              }
+              onKeyDown={
+                target
+                  ? (event) => {
+                      if (event.key !== "Enter" && event.key !== " ") return;
+                      event.preventDefault();
+                      onSelect(rect.roomId);
+                    }
+                  : undefined
+              }
+            />
+          );
+        })}
 
         <path className={s.planGrid} d={GRID_PATH} />
 
@@ -421,16 +454,18 @@ export function PlanEditor({
 
         {/* 家具の記号の上に重なっても読めるよう、部屋名と広さはすべての上に最後に描く */}
         {layout.rooms.map((room) => {
-          const area = roomArea(layout, room.id);
+          const area = areas.get(room.id) ?? 0;
           // まだ 1 マスも塗られていない部屋は、名前を出す場所が無いので出さない
           if (area === 0) return null;
           const [ax, az] = labelAnchor(layout, room.id);
           return (
             <g key={room.id} className={s.planLabels}>
-              <text className={s.planName} x={ax * SCALE} y={az * SCALE - 6}>
+              {/* 2 行の上下の振り分けは CSS の font-size（44 / 40 単位）に合わせた値。
+                  重ならず、2 行の塊が labelAnchor の点をだいたい挟むようにする */}
+              <text className={s.planName} x={ax * SCALE} y={az * SCALE - 10}>
                 {room.label}
               </text>
-              <text className={s.planArea} x={ax * SCALE} y={az * SCALE + 22}>
+              <text className={s.planArea} x={ax * SCALE} y={az * SCALE + 37}>
                 {area.toFixed(1)} m²
               </text>
             </g>

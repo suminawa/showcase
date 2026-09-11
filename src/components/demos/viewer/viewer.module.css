@@ -257,6 +257,13 @@
   cursor: pointer;
 }
 
+/* キーボードで選べるのは部屋ごとに 1 枚目の矩形だけ。他のボタンと同じ囲みを出す */
+.planRoom:focus-visible,
+.planRoomSelected:focus-visible {
+  outline: 2px solid var(--d-brand-ink);
+  outline-offset: 2px;
+}
+
 /* 0.5m ごとの薄い線。塗る目安になるだけなので、輪郭より弱く */
 .planGrid {
   fill: none;
@@ -278,9 +285,13 @@
   pointer-events: none;
 }
 
+/* 部屋名と広さの大きさはユーザー単位（viewBox は 924 × 824）。SVG は幅いっぱいに縮んで
+   描かれるので、実際の大きさは縮尺しだいで決まる。360px 幅のスマホでおよそ 0.31、
+   PC でも横に 2 分割（.workspace の 3fr 2fr）するのでおよそ 0.36 にしかならない。
+   どちらでも 12px を割らない値を 1 つだけ置く（画面幅で切り替えない） */
 .planName {
   fill: var(--d-fg);
-  font-size: 26px;
+  font-size: 44px;
   font-weight: 700;
   text-anchor: middle;
   pointer-events: none;
@@ -288,21 +299,9 @@
 
 .planArea {
   fill: var(--d-muted);
-  font-size: 20px;
+  font-size: 40px;
   text-anchor: middle;
   pointer-events: none;
-}
-
-/* 360px 幅のスマホでは SVG が縮小されて描画され、ユーザー単位のままだと部屋名や広さが
-   8px 前後まで潰れて読めなくなる。狭い画面ではユーザー単位を大きくして補う */
-@media (max-width: 480px) {
-  .planName {
-    font-size: 40px;
-  }
-
-  .planArea {
-    font-size: 32px;
-  }
 }
 
 /* 家具の記号の上から最後に重ねて描くラベル。当たり判定を持たせず、下の操作を邪魔しない */

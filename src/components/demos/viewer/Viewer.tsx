@@ -65,8 +65,13 @@ function hasWebgl(): boolean {
    編集は続けられるよう、読み書きはすべて try/catch で包む。中身は 2KB ほどなので、
    ドラッグのたびに書いても重くならない */
 
+/** 分割木のころの鍵。もう読まないので、見かけたらそのまま消す */
+const OLD_STORAGE_KEY = "suminawa-demo-3d-viewer:v1";
+
 function readStored(): PlanState | null {
   try {
+    // 読めない形式が残っていても意味が無いので、同じ try の中でついでに片づける
+    window.localStorage.removeItem(OLD_STORAGE_KEY);
     return parsePlanState(window.localStorage.getItem(STORAGE_KEY));
   } catch {
     return null;
@@ -115,8 +120,13 @@ export function Viewer() {
   const [view, setView] = useState<ViewMode>("orbit");
   const [lighting, setLighting] = useState<LightingMode>("day");
   const [wallColorId, setWallColorId] = useState<WallColor["id"]>("plaster");
-  // 保存の読み込みが済んだか。済む前に書くと、まだ読んでいない既定値で保存データを上書きしてしまう
-  const loaded = useRef(false);
+  // 下の effect が扱い終えた plan。初回はまだ保存を読む前なので null で、そのときは書かない。
+  // detect の中で「読み終えた」と立ててしまうと、同じ回に走る初回の保存が
+  // まだ読んでいない既定値を書いてしまうので、印は effect の側で付ける。
+  // 同じ plan で走り直したとき（開発時の二重実行）も、ここで止まる
+  const savedPlan = useRef<PlanState | null>(null);
+  // 「最初に戻す」のあと 1 回だけ保存を見送る印。消した直後に既定値を書き戻さないため
+  const skipNextSave = useRef(false);
 
   useEffect(() => {
     // 描いたあとに調べる。サーバーとの食い違い（ハイドレーション）を避けるため
@@ -127,27 +137,33 @@ export function Viewer() {
       );
       const stored = readStored();
       if (stored) setPlan(stored);
-      loaded.current = true;
     };
     detect();
   }, []);
 
   useEffect(() => {
-    // plan が変わるたびに保存する。読み込みが済む前はまだ書かない
+    // plan が変わるたびに保存する
     const save = () => {
-      if (!loaded.current) return;
+      if (savedPlan.current === plan) return;
+      const first = savedPlan.current === null;
+      savedPlan.current = plan;
+      // 初回は見送る。保存を読み終えて入れ直したときに、この effect がもう一度走る。
+      // 読むものが無ければ plan は動かないので、ただ訪れただけでは保存を作らない
+      if (first) return;
+      // 「最初に戻す」で消した直後。既定値を書き戻さず、次の編集から保存を再開する
+      if (skipNextSave.current) {
+        skipNextSave.current = false;
+        return;
+      }
       writeStored(plan);
     };
     save();
   }, [plan]);
 
-  // pointermove の連打でも古い plan を読まないよう、関数形で直前の状態から作る（保存は上の effect が行う）
-  const updatePlan = (updater: (prev: PlanState) => PlanState) => {
-    setPlan(updater);
-  };
-
+  // pointermove の連打でも古い plan を読まないよう、setPlan は関数形で直前の状態から作る
+  // （保存は上の effect が行う）
   const changeLayout = (floor: Floor, layout: GridLayout) => {
-    updatePlan((prev) => {
+    setPlan((prev) => {
       const floors: Record<Floor, GridLayout> =
         floor === 1
           ? { 1: layout, 2: prev.floors[2] }
@@ -157,10 +173,13 @@ export function Viewer() {
   };
 
   const changeFurniture = (list: PlacedFurniture[]) => {
-    updatePlan((prev) => ({ ...prev, furniture: list }));
+    setPlan((prev) => ({ ...prev, furniture: list }));
   };
 
   const reset = () => {
+    // 既定値に戻し、保存も消す。この setPlan で走る保存は skipNextSave が 1 回だけ止めるので、
+    // 「最初に戻す」のあとブラウザには何も残らない
+    skipNextSave.current = true;
     setPlan(defaultPlanState());
     setSelectedId(null);
     clearStored();

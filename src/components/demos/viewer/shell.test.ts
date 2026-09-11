@@ -1,5 +1,13 @@
 import { describe, expect, it } from "vitest";
-import { defaultLayout, roomRects, wallSegments } from "./grid";
+import {
+  addRoom,
+  cellAt,
+  defaultLayout,
+  paintCells,
+  roomRects,
+  wallSegments,
+  type GridLayout,
+} from "./grid";
 import { HOUSE } from "./house";
 import {
   annotationPositions,
@@ -13,6 +21,19 @@ import {
   WINDOW,
   windowPanels,
 } from "./shell";
+
+/**
+ * 同じ部屋が 2 枚の長方形に分かれる間取り。2F の主寝室（room-1）の北側を
+ * 子ども部屋へ 1m ぶん食い込ませて L 字にする。
+ * roomRects は北の帯（z 0〜0.5）と残り（z 0.5〜4）の 2 枚に分ける。
+ */
+function twoRectRoom(): GridLayout {
+  return paintCells(
+    defaultLayout(2),
+    [cellAt(10, 0), cellAt(11, 0)],
+    "room-1",
+  );
+}
 
 describe("spread", () => {
   it("端の余白を半分ずつ残して等間隔に並べる", () => {
@@ -54,6 +75,21 @@ describe("床", () => {
     expect(slab.position[0]).toBeCloseTo(ldk.x + ldk.w / 2 - HOUSE.width / 2, 6);
     expect(slab.position[2]).toBeCloseTo(ldk.z + ldk.d / 2 - HOUSE.depth / 2, 6);
     expect(slab.position[1] - slab.size[1] / 2).toBeCloseTo(0, 6);
+  });
+
+  it("同じ部屋が 2 枚に分かれても、床は継ぎ目なく隣り合う", () => {
+    const layout = twoRectRoom();
+    const rects = roomRects(layout).filter((rect) => rect.roomId === "room-1");
+    expect(rects).toHaveLength(2);
+    const [north, south] = rects.map((rect) => roomSlab(rect, 2));
+    // 北の板の南端と、南の板の北端がちょうど同じ線に乗る（隙間も重なりも無い）
+    expect(north.position[2] + north.size[2] / 2).toBeCloseTo(
+      south.position[2] - south.size[2] / 2,
+      9,
+    );
+    // 高さも厚みも同じなので段差にならない
+    expect(north.position[1]).toBe(south.position[1]);
+    expect(north.size[1]).toBe(south.size[1]);
   });
 
   it("部屋の床の id は階をまたいでも重複しない", () => {
@@ -203,6 +239,15 @@ describe("注記", () => {
       HOUSE.floors[2].base + HOUSE.floors[2].height - 0.35,
       6,
     );
+  });
+
+  it("まだ 1 マスも塗られていない部屋には吹き出しを出さない", () => {
+    const { layout, id } = addRoom(defaultLayout(1), "収納");
+    const notes = annotationPositions(layout, 1);
+    // 「新しい部屋」を足しただけでは、床の真ん中に 0.0 m² の吹き出しを出さない
+    expect(notes).toHaveLength(5);
+    expect(notes.map((note) => note.id)).not.toContain(`f1-${id}`);
+    expect(notes.every((note) => note.area > 0)).toBe(true);
   });
 
   it("id は階をまたいでも重複しない", () => {

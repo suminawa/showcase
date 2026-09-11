@@ -102,6 +102,51 @@ export function roomOfCell(layout: GridLayout, index: number): RoomId {
   return layout.cells[index];
 }
 
+/**
+ * なぞる線を補間するときの刻み幅（m）。マス（0.5m）より十分細かく取ることで、
+ * 指で速くなぞって pointermove の間隔が空いても、通った線の上のマスを飛ばさない。
+ */
+export const PAINT_STEP = CELL / 4;
+
+/**
+ * from から to（床座標 m）までを PAINT_STEP ごとに刻んで、通ったマスを順に返す。
+ * to だけを見ると、速くなぞったときに間の細いマスを塗り落とす。
+ * 同じマスが何度も出るので、呼ぶ側で重複を落とすこと。輪郭の外の刻みは返さない。
+ *
+ * マス目を斜めにまたいだ刻みでは、角を挟む両側のマスも足す。
+ * そうしないと、角だけで接する 2 マスの間を対角線がすり抜けてしまう。
+ * つまり線が角をかすめただけでも両側を塗る（supercover）ので、
+ * 斜めになぞると 1 マス多めに付くことがある。塗り残しよりは塗りすぎを取る。
+ */
+export function cellsAlong(
+  from: { x: number; z: number },
+  to: { x: number; z: number },
+): number[] {
+  const dx = to.x - from.x;
+  const dz = to.z - from.z;
+  const steps = Math.max(1, Math.ceil(Math.hypot(dx, dz) / PAINT_STEP));
+  const found: number[] = [];
+  // 直前の刻みのマス。線の起点から数えはじめる（最初の刻みとの間も角を見るため）
+  const start = cellFromPoint(from.x, from.z);
+  let prev = start === null ? null : colRowOf(start);
+  for (let i = 1; i <= steps; i++) {
+    const t = i / steps;
+    const index = cellFromPoint(from.x + dx * t, from.z + dz * t);
+    if (index === null) {
+      // 輪郭の外へ出た。戻ってくるまで角の判定はしない
+      prev = null;
+      continue;
+    }
+    const [col, row] = colRowOf(index);
+    if (prev && prev[0] !== col && prev[1] !== row) {
+      found.push(cellAt(prev[0], row), cellAt(col, prev[1]));
+    }
+    found.push(index);
+    prev = [col, row];
+  }
+  return found;
+}
+
 /** マスを 1 つも持たない部屋を消す。部屋が 1 つも無くなるなら消さない */
 export function prune(layout: GridLayout): GridLayout {
   const used = new Set(layout.cells);
