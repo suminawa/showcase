@@ -1,0 +1,465 @@
+/*
+ * 見本: 士業・研修の LP。白地に深い緑ひと色、見出しは明朝、本文はゴシック。
+ * 料紙（トップ・作品ページ）の文法はここには持ち込まない ── 見本は「相手の業種の LP」であって、
+ * suminawa の紙ではない。色はこの根で決め、共通部品は --d-* を継承する。
+ *
+ * ヒーローには罫線が重なる。横罫 9% と縦罫 6% が交わった最悪の地 rgb(221,231,227) でも
+ * --d-fg 13.1:1 / --d-muted 5.2:1 / --d-brand 6.2:1 あるので、ヒーローの中でも --d-muted を使ってよい。
+ * 罫の濃さ（heroRules.module.css の 9% / 6%）はその計算の前提なので、上げない。
+ */
+
+.page {
+  --d-bg: #ffffff;
+  --d-fg: #1b201d; /* 白地で 16.5:1 */
+  --d-muted: #54605a; /* 白地で 6.6:1、--d-soft の上で 6.1:1 */
+  --d-brand: #1f5c43; /* 深い緑。白地で 7.9:1 */
+  --d-brand-ink: #123f2e; /* 白地で 11.8:1 */
+  --d-line: #dde5e0;
+  --d-soft: #f2f7f4;
+  --d-surface: #ffffff; /* 入力欄・カードの面 */
+  --d-on-brand: #ffffff; /* 深い緑の上の文字。7.9:1 */
+  --d-input-line: #7d8a83; /* 入力欄の枠線。白地で 3.6:1（WCAG 1.4.11） */
+  --d-serif: var(--d-mincho), "Hiragino Mincho ProN", "Yu Mincho", serif;
+
+  min-height: 100vh;
+  background: var(--d-bg);
+  color: var(--d-fg);
+  font-family: var(--font-sans);
+  line-height: 1.85;
+  overflow-x: clip;
+}
+
+/* --d-bg は .page 自身の変数で祖先の html には見えない。
+   オーバースクロールの下にハブのクリーム色が透けないよう、値をここに直書きする */
+:global(html):has(.page) {
+  background: #ffffff;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  /* :global(html) 単体だと見本を離れたあとも smooth-scroll が残るので、
+     .page（このページ自身のクラスなので hashed される）を持つ間だけに絞る */
+  :global(html):has(.page) {
+    scroll-behavior: smooth;
+  }
+}
+
+.main {
+  scroll-margin-top: 4.5rem; /* #top が固定ヘッダーの下に隠れないように */
+}
+
+.container {
+  width: min(100% - 2.5rem, 1020px);
+  margin-inline: auto;
+}
+
+/* ---- ヘッダー ---- */
+
+.header {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  border-bottom: 1px solid var(--d-line);
+  background: color-mix(in srgb, var(--d-surface) 90%, transparent);
+  backdrop-filter: blur(8px);
+}
+
+.headerRow {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  min-height: 3.75rem;
+}
+
+.brand {
+  font-family: var(--d-serif);
+  font-weight: 600;
+  font-size: 1.0625rem;
+  letter-spacing: 0.06em;
+  color: var(--d-fg);
+  text-decoration: none;
+}
+
+.nav {
+  display: none;
+  gap: 1.25rem;
+  margin-left: auto;
+  font-size: 0.9375rem;
+}
+
+.nav a {
+  color: var(--d-muted);
+  text-decoration: none;
+}
+
+.nav a:hover {
+  color: var(--d-fg);
+}
+
+@media (min-width: 860px) {
+  .nav {
+    display: flex;
+  }
+}
+
+.headerCta {
+  margin-left: auto;
+}
+
+@media (min-width: 860px) {
+  .headerCta {
+    margin-left: 0;
+  }
+}
+
+.page a:focus-visible,
+.page summary:focus-visible {
+  outline: 2px solid var(--d-brand-ink);
+  outline-offset: 2px;
+}
+
+/* ---- ボタン ---- */
+
+.primary,
+.secondary {
+  display: inline-block;
+  padding: 0.875rem 1.75rem;
+  border-radius: 0.5rem;
+  font-size: 0.9375rem;
+  font-weight: 700;
+  text-align: center;
+  text-decoration: none;
+}
+
+.primary {
+  background: var(--d-brand);
+  color: var(--d-on-brand);
+}
+
+.primary:hover {
+  background: var(--d-brand-ink);
+}
+
+.secondary {
+  border: 1px solid var(--d-brand);
+  background: transparent;
+  color: var(--d-brand);
+}
+
+.secondary:hover {
+  background: var(--d-soft);
+}
+
+.small {
+  padding: 0.5rem 1rem;
+  font-size: 0.875rem;
+}
+
+/* ---- ヒーロー ---- */
+
+.hero {
+  position: relative;
+  isolation: isolate;
+  padding: 4.5rem 0 4rem;
+  border-bottom: 1px solid var(--d-line);
+}
+
+@media (min-width: 720px) {
+  .hero {
+    padding: 6.5rem 0 5.5rem;
+  }
+}
+
+/* 罫線の入れ物。流れた罫がヒーローの外へ出ないよう、ここで切り取る */
+.rulesLayer {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  overflow: hidden;
+}
+
+.eyebrow {
+  margin: 0 0 1.25rem;
+  font-size: 0.8125rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  color: var(--d-brand);
+}
+
+.h1 {
+  margin: 0;
+  max-width: 18em;
+  font-family: var(--d-serif);
+  font-weight: 600;
+  font-size: clamp(1.75rem, 5.6vw, 3rem);
+  line-height: 1.4;
+  letter-spacing: 0.02em;
+}
+
+.lead {
+  margin: 1.75rem 0 0;
+  max-width: 32em;
+  font-size: clamp(1rem, 1.6vw, 1.0625rem);
+  color: var(--d-muted);
+}
+
+.ctas {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin: 2rem 0 0;
+}
+
+.fine {
+  margin: 1rem 0 0;
+  font-size: 0.8125rem;
+  color: var(--d-muted);
+}
+
+/* ---- 節 ---- */
+
+.section {
+  padding: 4rem 0;
+  scroll-margin-top: 4.5rem;
+}
+
+.section + .section {
+  border-top: 1px solid var(--d-line);
+}
+
+.soft {
+  background: var(--d-soft);
+}
+
+.h2 {
+  margin: 0 0 2rem;
+  font-family: var(--d-serif);
+  font-weight: 600;
+  font-size: clamp(1.375rem, 4vw, 1.875rem);
+  line-height: 1.5;
+  letter-spacing: 0.03em;
+}
+
+/* ---- こまりごと・サービス（3 枚組） ---- */
+
+.grid3 {
+  display: grid;
+  gap: 1rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+@media (min-width: 780px) {
+  .grid3 {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+.card {
+  padding: 1.5rem;
+  border: 1px solid var(--d-line);
+  border-radius: 0.75rem;
+  background: var(--d-surface);
+}
+
+.cardTitle {
+  margin: 0 0 0.5rem;
+  font-family: var(--d-serif);
+  font-weight: 600;
+  font-size: 1.125rem;
+  line-height: 1.6;
+}
+
+.cardBody {
+  margin: 0;
+  font-size: 0.9375rem;
+  color: var(--d-muted);
+}
+
+.icon {
+  display: block;
+  width: 2.25rem;
+  height: 2.25rem;
+  margin-bottom: 1rem;
+  color: var(--d-brand);
+}
+
+/* ---- 料金 ---- */
+
+.pricingNote {
+  margin: 1.5rem 0 0;
+  max-width: 34rem;
+  font-size: 0.875rem;
+  color: var(--d-muted);
+}
+
+/* ---- 流れ 4 ステップ ---- */
+
+.steps {
+  display: grid;
+  gap: 1rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  counter-reset: step;
+}
+
+@media (min-width: 780px) {
+  .steps {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+.step {
+  counter-increment: step;
+  padding: 1.5rem;
+  border: 1px solid var(--d-line);
+  border-radius: 0.75rem;
+  background: var(--d-surface);
+}
+
+.step::before {
+  content: counter(step);
+  display: inline-grid;
+  place-items: center;
+  width: 2rem;
+  height: 2rem;
+  margin-bottom: 0.75rem;
+  border-radius: 999px;
+  background: var(--d-brand);
+  color: var(--d-on-brand);
+  font-weight: 700;
+}
+
+.stepTitle {
+  margin: 0 0 0.375rem;
+  font-weight: 700;
+  font-size: 1rem;
+}
+
+.stepBody {
+  margin: 0;
+  font-size: 0.875rem;
+  color: var(--d-muted);
+}
+
+/* ---- 事例 ---- */
+
+.cases {
+  display: grid;
+  gap: 1rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+@media (min-width: 780px) {
+  .cases {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+.case {
+  display: grid;
+  gap: 0.75rem;
+  align-content: start;
+  padding: 1.5rem;
+  border-left: 3px solid var(--d-brand);
+  background: var(--d-surface);
+}
+
+.caseRow {
+  display: grid;
+  gap: 0.125rem;
+  margin: 0;
+}
+
+.caseTerm {
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: var(--d-brand);
+}
+
+.caseBody {
+  margin: 0;
+  font-size: 0.9375rem;
+}
+
+.caseResult {
+  color: var(--d-muted);
+}
+
+.casesNote {
+  margin: 1.5rem 0 0;
+  font-size: 0.875rem;
+  color: var(--d-muted);
+}
+
+/* ---- FAQ ---- */
+
+.faq {
+  display: grid;
+  gap: 0.5rem;
+  max-width: 48rem;
+}
+
+.faq details {
+  border: 1px solid var(--d-line);
+  border-radius: 0.75rem;
+  background: var(--d-surface);
+}
+
+.faq summary {
+  padding: 1rem 1.25rem;
+  font-weight: 700;
+  cursor: pointer;
+  list-style: none;
+}
+
+.faq summary::-webkit-details-marker {
+  display: none;
+}
+
+.faq summary::after {
+  content: "＋";
+  float: right;
+  color: var(--d-brand);
+}
+
+.faq details[open] summary::after {
+  content: "－";
+}
+
+.faq summary:focus-visible {
+  outline: 2px solid var(--d-brand-ink);
+  outline-offset: -2px;
+  border-radius: 0.75rem;
+}
+
+.faq details p {
+  margin: 0;
+  padding: 0 1.25rem 1rem;
+  font-size: 0.9375rem;
+  color: var(--d-muted);
+}
+
+/* ---- 相談フォーム ---- */
+
+.contact {
+  display: grid;
+  gap: 2rem;
+}
+
+@media (min-width: 900px) {
+  .contact {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    align-items: start;
+    gap: 3rem;
+  }
+}
+
+.contactLead {
+  margin: 0;
+  color: var(--d-muted);
+}
