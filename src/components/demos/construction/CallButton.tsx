@@ -21,6 +21,12 @@ export function CallButton({
   variant?: "hero" | "header";
 }) {
   const [notice, setNotice] = useState("");
+  // header 版だけ、通知を流れの外（絶対配置）に出す。文字が入っているときだけ
+  // 吹き出しの縁取りを付ける（空の枠がヘッダーの下に常に浮かないように）。
+  const headerNoticeClass =
+    variant === "header"
+      ? `${s.callNoticeHeader} ${notice ? s.callNoticeHeaderActive : ""}`
+      : "";
 
   return (
     <span className={s.callWrap}>
@@ -51,7 +57,11 @@ export function CallButton({
           {sub ? <span className={s.callSub}>{sub}</span> : null}
         </span>
       </button>
-      <span className={s.callNotice} role="status" aria-live="polite">
+      <span
+        className={`${s.callNotice} ${headerNoticeClass}`}
+        role="status"
+        aria-live="polite"
+      >
         {notice}
       </span>
     </span>

@@ -96,7 +96,7 @@
 
 .newsItem {
   display: grid;
-  grid-template-columns: auto auto;
+  grid-template-columns: auto 1fr;
   gap: 0.25rem 0.875rem;
   align-items: center;
   padding: 1rem 0;

@@ -31,7 +31,7 @@ export function PriceTable() {
         ))}
       </div>
 
-      <ul className={s.rates}>
+      <ul className={s.rates} aria-live="polite">
         {RATE_ROWS.map((row) => (
           <li key={row.id} className={s.rate}>
             <p className={s.rateLabel}>{row.label}</p>

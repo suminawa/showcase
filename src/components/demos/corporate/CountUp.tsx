@@ -30,10 +30,6 @@ export function CountUp({
     ).matches;
     if (reduced || typeof IntersectionObserver === "undefined") return;
 
-    // useEffect の中で setState を直に呼ばない（react-hooks の set-state-in-effect）
-    const reset = () => setValue(0);
-    reset();
-
     let raf = 0;
     let start = 0;
 
@@ -51,6 +47,11 @@ export function CountUp({
         for (const entry of entries) {
           if (!entry.isIntersecting) continue;
           observer.disconnect();
+          // 画面に入った瞬間だけ 0 に戻す ── ここまでは SSR の最終値のまま見せておく
+          // （スクロールしない訪問者や印刷・スクリーンショット、一部だけ見える card には
+          // 最終値が残る）。IntersectionObserver のコールバック内なので、useEffect の
+          // 本体で直に setState を呼ぶ場合（react-hooks の set-state-in-effect）には当たらない。
+          setValue(0);
           raf = window.requestAnimationFrame(frame);
         }
       },

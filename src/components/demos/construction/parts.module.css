@@ -2,7 +2,7 @@
  * 見本「灯月設備」の部品（料金の切替・対応エリア・電話ボタン・メニューのアイコン）。
  * 色はページの根（src/app/demos/construction-lp/construction.module.css の .page）が
  * --d-* で決める。ここには色を直書きしない。
- * --d-accent は飾り専用のオレンジ（白地で 2.8:1 しかない）。文字にも境界にも使わない。
+ * --d-accent は飾り専用のオレンジ（白地で 2.8:1 しかない）。文字と、意味のある境界には使わない（脈打つ輪のような飾りの縁は可）。
  */
 
 /* ---- 料金の目安 ---- */
@@ -160,6 +160,7 @@
 /* ---- 電話ボタン ---- */
 
 .callWrap {
+  position: relative;
   display: inline-grid;
   gap: 0.5rem;
   justify-items: start;
@@ -268,6 +269,28 @@
   font-size: 0.8125rem;
   line-height: 1.7;
   color: var(--d-fg);
+}
+
+/*
+ * header 版の通知。min-height を予約する in-flow のレイアウトから外し、
+ * ボタンの右下に吹き出しとして重ねる ── ヘッダーの高さやロゴ・ナビの位置に影響させない。
+ */
+.callNoticeHeader {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  min-height: 0;
+  width: max-content;
+  max-width: min(22rem, 78vw);
+}
+
+/* 文字が入っているときだけ、吹き出しの縁取りを付ける */
+.callNoticeHeaderActive {
+  margin-top: 0.25rem;
+  padding: 0.5rem 0.75rem;
+  background: var(--d-surface);
+  border: 1px solid var(--d-line);
+  border-radius: 0.5rem;
 }
 
 /* ---- メニューのアイコン ---- */

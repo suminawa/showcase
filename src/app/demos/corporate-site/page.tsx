@@ -4,6 +4,7 @@
  * 背景の波は CSS だけで動く（JavaScript を積まない）。数字は画面に入ったら数え上げる。
  */
 import type { Metadata } from "next";
+import Link from "next/link";
 
 import { CountUp } from "@/components/demos/corporate/CountUp";
 import { NAV_BASE } from "@/components/demos/corporate/nav";
@@ -52,14 +53,14 @@ export default function CorporateTopPage() {
           <p className={s.heroLead}>
             水深も、流れも、水の質も。船を出して測り、置いた機器で記録を続け、図と報告書にしてお渡しします。
           </p>
-          <p className={s.heroCtas}>
-            <a href={`${NAV_BASE}/services`} className={c.primary}>
+          <div className={s.heroCtas}>
+            <Link href={`${NAV_BASE}/services`} className={c.primary}>
               事業内容を見る
-            </a>
-            <a href={`${NAV_BASE}/contact`} className={c.secondary}>
+            </Link>
+            <Link href={`${NAV_BASE}/contact`} className={c.secondary}>
               お問い合わせ
-            </a>
-          </p>
+            </Link>
+          </div>
         </div>
       </section>
 
@@ -119,9 +120,9 @@ export default function CorporateTopPage() {
                 測る範囲と期間が決まっていなくてもかまいません。現場の条件をうかがってから、進め方をご提案します。
               </p>
             </div>
-            <a href={`${NAV_BASE}/contact`} className={s.ctaButton}>
+            <Link href={`${NAV_BASE}/contact`} className={s.ctaButton}>
               お問い合わせへ
-            </a>
+            </Link>
           </div>
         </div>
       </section>

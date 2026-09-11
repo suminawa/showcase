@@ -28,6 +28,15 @@
   align-content: start;
 }
 
+/*
+ * 見出し(h2)は corporate.module.css の .h2 が持つ margin-bottom: 2rem を背負っている。
+ * ここでは打ち消して、gap の 12px だけにする ── アイコン→見出しと同じ間隔にそろえる。
+ * class ではなく要素名で選ぶ ── CSS Modules は他ファイルの .h2 をこのファイルから直接選べない。
+ */
+.blockHead h2 {
+  margin-bottom: 0;
+}
+
 .blockIcon {
   display: block;
   width: 3rem;
