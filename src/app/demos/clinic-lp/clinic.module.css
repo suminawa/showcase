@@ -1,0 +1,521 @@
+/*
+ * 見本: クリニック・医院の LP。白地に水色ひと色、本文も見出しもゴシック。
+ * 丸みは書体ではなく角丸で出す（丸ゴシックを足さない ── フォントを増やさない方針）。
+ * 色はこの根で決め、共通部品は --d-* を継承する。
+ *
+ * ヒーローには淡い円が重なる。三つが全部重なった最悪の地 rgb(208,227,234) で
+ * --d-fg 12.4:1 / --d-brand-ink 6.7:1。--d-brand は 4.3:1 にしか届かないので、
+ * ヒーローの中では --d-brand を文字に使わない（小見出しは --d-brand-ink）。
+ * 円の濃さ（heroCircles.module.css の 8% / 6% / 7%）はその計算の前提なので、上げない。
+ */
+
+.page {
+  --d-bg: #ffffff;
+  --d-fg: #182028; /* 白地で 16.5:1 */
+  --d-muted: #51606b; /* 白地で 6.5:1、--d-soft の上で 6.0:1 */
+  --d-brand: #0d6e91; /* 水色。白地で 5.7:1 */
+  --d-brand-ink: #08506b; /* 白地で 8.9:1 */
+  --d-line: #d8e6ee;
+  --d-soft: #eef7fb;
+  --d-surface: #ffffff; /* 入力欄・カードの面 */
+  --d-on-brand: #ffffff; /* 水色の上の文字。5.7:1 */
+  --d-input-line: #7a8b96; /* 入力欄の枠線。白地で 3.5:1(WCAG 1.4.11) */
+
+  min-height: 100vh;
+  background: var(--d-bg);
+  color: var(--d-fg);
+  font-family: var(--font-sans);
+  line-height: 1.85;
+  overflow-x: clip;
+}
+
+:global(html):has(.page) {
+  background: #ffffff;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  :global(html):has(.page) {
+    scroll-behavior: smooth;
+  }
+}
+
+.main {
+  scroll-margin-top: 4.5rem;
+}
+
+.container {
+  width: min(100% - 2.5rem, 1020px);
+  margin-inline: auto;
+}
+
+/* 目で見えないが読み上げには乗る文字（表の印の意味など） */
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* ---- ヘッダー ---- */
+
+.header {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  border-bottom: 1px solid var(--d-line);
+  background: color-mix(in srgb, var(--d-surface) 90%, transparent);
+  backdrop-filter: blur(8px);
+}
+
+.headerRow {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  min-height: 3.75rem;
+}
+
+.brand {
+  font-weight: 800;
+  font-size: 1.0625rem;
+  letter-spacing: 0.04em;
+  color: var(--d-fg);
+  text-decoration: none;
+}
+
+.nav {
+  display: none;
+  gap: 1.25rem;
+  margin-left: auto;
+  font-size: 0.9375rem;
+}
+
+.nav a {
+  color: var(--d-muted);
+  text-decoration: none;
+}
+
+.nav a:hover {
+  color: var(--d-fg);
+}
+
+@media (min-width: 860px) {
+  .nav {
+    display: flex;
+  }
+}
+
+.headerCta {
+  margin-left: auto;
+}
+
+@media (min-width: 860px) {
+  .headerCta {
+    margin-left: 0;
+  }
+}
+
+.page a:focus-visible,
+.page summary:focus-visible {
+  outline: 2px solid var(--d-brand-ink);
+  outline-offset: 2px;
+}
+
+/* ---- ボタン（角丸を強くして、やわらかい印象を出す） ---- */
+
+.primary,
+.secondary {
+  display: inline-block;
+  padding: 0.875rem 1.75rem;
+  border-radius: 999px;
+  font-size: 0.9375rem;
+  font-weight: 700;
+  text-align: center;
+  text-decoration: none;
+}
+
+.primary {
+  background: var(--d-brand);
+  color: var(--d-on-brand);
+}
+
+.primary:hover {
+  background: var(--d-brand-ink);
+}
+
+.secondary {
+  border: 1px solid var(--d-brand-ink);
+  background: var(--d-surface);
+  color: var(--d-brand-ink);
+}
+
+.secondary:hover {
+  background: var(--d-soft);
+}
+
+.small {
+  padding: 0.5rem 1rem;
+  font-size: 0.875rem;
+}
+
+/* ---- ヒーロー ---- */
+
+.hero {
+  position: relative;
+  isolation: isolate;
+  padding: 4rem 0 3.5rem;
+  border-bottom: 1px solid var(--d-line);
+}
+
+@media (min-width: 720px) {
+  .hero {
+    padding: 6rem 0 5rem;
+  }
+}
+
+/* 円の入れ物。漂った円がヒーローの外へ出ないよう、ここで切り取る */
+.circlesLayer {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  overflow: hidden;
+}
+
+/* 円が重なる地では --d-brand が 4.3:1 にしか届かないので、小見出しは --d-brand-ink */
+.eyebrow {
+  margin: 0 0 1rem;
+  font-size: 0.8125rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  color: var(--d-brand-ink);
+}
+
+.h1 {
+  margin: 0;
+  max-width: 16em;
+  font-size: clamp(1.875rem, 6.4vw, 3.25rem);
+  font-weight: 800;
+  line-height: 1.35;
+  letter-spacing: 0.01em;
+}
+
+/* ヒーローの本文。地に円が重なるので --d-muted を使わず、--d-fg のまま字を小さくして差を付ける */
+.heroLead {
+  margin: 1.5rem 0 0;
+  max-width: 30em;
+  font-size: 0.9375rem;
+}
+
+.heroHours {
+  display: grid;
+  gap: 0.25rem;
+  margin: 2rem 0 0;
+  max-width: 26rem;
+  padding: 1rem 1.25rem;
+  border-radius: 1rem;
+  background: color-mix(in srgb, var(--d-surface) 82%, transparent);
+  border: 1px solid var(--d-line);
+  font-size: 0.9375rem;
+}
+
+.heroHours p {
+  margin: 0;
+}
+
+.heroWalk {
+  margin: 1.25rem 0 0;
+  font-size: 0.9375rem;
+  font-weight: 700;
+}
+
+.ctas {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin: 1.75rem 0 0;
+}
+
+.fine {
+  margin: 1rem 0 0;
+  font-size: 0.8125rem;
+}
+
+/* ---- 節 ---- */
+
+.section {
+  padding: 4rem 0;
+  scroll-margin-top: 4.5rem;
+}
+
+.section + .section {
+  border-top: 1px solid var(--d-line);
+}
+
+.soft {
+  background: var(--d-soft);
+}
+
+.h2 {
+  margin: 0 0 2rem;
+  font-size: clamp(1.375rem, 4vw, 1.875rem);
+  font-weight: 800;
+  line-height: 1.5;
+}
+
+/* ---- 特長・診療内容 ---- */
+
+.grid3 {
+  display: grid;
+  gap: 1rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+@media (min-width: 780px) {
+  .grid3 {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+.card {
+  padding: 1.5rem;
+  border: 1px solid var(--d-line);
+  border-radius: 1.25rem;
+  background: var(--d-surface);
+}
+
+.cardTitle {
+  margin: 0 0 0.5rem;
+  font-size: 1.0625rem;
+  font-weight: 700;
+  line-height: 1.6;
+}
+
+.cardBody {
+  margin: 0;
+  font-size: 0.9375rem;
+  color: var(--d-muted);
+}
+
+.icon {
+  display: block;
+  width: 2.25rem;
+  height: 2.25rem;
+  margin-bottom: 1rem;
+  color: var(--d-brand);
+}
+
+/* ---- 診療時間の表 ---- */
+
+.tableWrap {
+  max-width: 44rem;
+  overflow-x: auto;
+  /* .table の min-width(30rem)がせまい画面では入れ物より広くなる。
+     overflow-x: auto 自体は内側のスクロールを正しく作るが、Chromium では
+     それだけだと document の scrollWidth 側にまで広さが漏れ、ページ全体が
+     横に動かせる状態になることがある。contain: paint で「この箱の外には
+     何も描かれない」ことを明示し、漏れを止める */
+  contain: paint;
+}
+
+.table {
+  width: 100%;
+  min-width: 30rem;
+  border-collapse: collapse;
+  background: var(--d-surface);
+  font-size: 0.9375rem;
+}
+
+.table th,
+.table td {
+  padding: 0.75rem 0.5rem;
+  border: 1px solid var(--d-line);
+  text-align: center;
+}
+
+.table thead th {
+  background: var(--d-soft);
+  font-weight: 700;
+}
+
+.table tbody th {
+  text-align: left;
+  white-space: nowrap;
+  font-weight: 700;
+}
+
+.table td[data-mark="open"] {
+  color: var(--d-brand);
+  font-weight: 700;
+}
+
+.table td[data-mark="short"] {
+  color: var(--d-brand-ink);
+  font-weight: 700;
+}
+
+.table td[data-mark="closed"] {
+  color: var(--d-muted);
+}
+
+.legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1.5rem;
+  margin: 1rem 0 0;
+  font-size: 0.875rem;
+  color: var(--d-muted);
+}
+
+.closedNote {
+  margin: 0.5rem 0 0;
+  font-size: 0.9375rem;
+  font-weight: 700;
+}
+
+.openNowRow {
+  min-height: 2.05em;
+  margin: 1rem 0 0;
+}
+
+.openNow {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.375rem 0.875rem;
+  border-radius: 999px;
+  background: var(--d-soft);
+  font-weight: 700;
+  color: var(--d-fg);
+}
+
+.openNow::before {
+  content: "";
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 999px;
+  background: currentColor;
+}
+
+.openNow[data-open="true"] {
+  color: var(--d-brand);
+}
+
+/* ---- 院内のご案内 ---- */
+
+.rooms {
+  display: grid;
+  gap: 1.5rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+@media (min-width: 780px) {
+  .rooms {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+.room {
+  display: grid;
+  gap: 0.75rem;
+  align-content: start;
+}
+
+.roomFigure {
+  display: block;
+  padding: 1rem;
+  border: 1px solid var(--d-line);
+  border-radius: 1.25rem;
+  background: var(--d-surface);
+  color: var(--d-brand);
+}
+
+/* 図解の SVG は幅いっぱいにし、高さは viewBox の比から決める。
+   .icon と違って入れ物の高さが決まっていないので、ここは明示しないと
+   高さの計算が堂々巡りになって潰れることがある */
+.roomFigure svg {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+/* ---- FAQ ---- */
+
+.faq {
+  display: grid;
+  gap: 0.5rem;
+  max-width: 48rem;
+}
+
+.faq details {
+  border: 1px solid var(--d-line);
+  border-radius: 1rem;
+  background: var(--d-surface);
+}
+
+.faq summary {
+  padding: 1rem 1.25rem;
+  font-weight: 700;
+  cursor: pointer;
+  list-style: none;
+}
+
+.faq summary::-webkit-details-marker {
+  display: none;
+}
+
+.faq summary::after {
+  content: "＋";
+  float: right;
+  color: var(--d-brand);
+}
+
+.faq details[open] summary::after {
+  content: "－";
+}
+
+.faq summary:focus-visible {
+  outline: 2px solid var(--d-brand-ink);
+  outline-offset: -2px;
+  border-radius: 1rem;
+}
+
+.faq details p {
+  margin: 0;
+  padding: 0 1.25rem 1rem;
+  font-size: 0.9375rem;
+  color: var(--d-muted);
+}
+
+/* ---- 予約 ---- */
+
+.reserve {
+  display: grid;
+  gap: 2rem;
+}
+
+@media (min-width: 900px) {
+  .reserve {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    align-items: start;
+    gap: 3rem;
+  }
+}
+
+.reserveLead {
+  margin: 0;
+  color: var(--d-muted);
+}
+
+.reserveNote {
+  margin: 1rem 0 0;
+  font-size: 0.875rem;
+  color: var(--d-muted);
+}
