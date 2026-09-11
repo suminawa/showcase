@@ -32,7 +32,7 @@ export const RATE_ROWS: readonly RateRow[] = [
     label: "出張費（片道 15 km まで）",
     weekday: 2200,
     surcharged: true,
-    note: "エリアの外は 1 km ごとに 110 円を足します。",
+    note: "対応エリアの外は、1 km ごとに 110 円を加算いたします。",
   },
   {
     id: "base",
@@ -46,7 +46,7 @@ export const RATE_ROWS: readonly RateRow[] = [
     label: "見積もり",
     weekday: 0,
     surcharged: false,
-    note: "作業の前に金額を出します。断っても費用はかかりません。",
+    note: "作業の前に金額をお出しします。お見積もり後にお断りいただいても、費用はかかりません。",
   },
 ];
 
