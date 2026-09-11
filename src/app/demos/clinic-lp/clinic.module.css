@@ -208,6 +208,8 @@
   margin: 1.5rem 0 0;
   max-width: 30em;
   font-size: 0.9375rem;
+  /* 文節で折る。せまい画面で「す。」だけが次の行に落ちるのを防ぐ */
+  word-break: auto-phrase;
 }
 
 .heroHours {
@@ -312,20 +314,34 @@
 
 /* ---- 診療時間の表 ---- */
 
+/* min-width は置かない。時刻を表の外（caption）へ出したので、行の見出しは
+   「午前」「午後」の二文字だけになり、360px でも月〜土の六列がそのまま入る。
+   overflow-x は、文字を大きくして使う人のための逃げ道として残す
+   ── 入れ物より広くなったときに、隠れるのではなく動かせる状態にする */
 .tableWrap {
   max-width: 44rem;
   overflow-x: auto;
-  /* .table の min-width(30rem)がせまい画面では入れ物より広くなる。
-     overflow-x: auto 自体は内側のスクロールを正しく作るが、Chromium では
-     それだけだと document の scrollWidth 側にまで広さが漏れ、ページ全体が
-     横に動かせる状態になることがある。contain: paint で「この箱の外には
-     何も描かれない」ことを明示し、漏れを止める */
-  contain: paint;
+}
+
+/* 時刻はここに置き、表のます目は印だけにする。
+   文言は spanLabel から組み立てる ── 数字を二か所に書かない */
+.tableCaption {
+  caption-side: top;
+  margin-bottom: 0.625rem;
+  text-align: left;
+  font-size: 0.9375rem;
+  font-weight: 700;
+}
+
+/* 「午前 9:30 - 13:00」を途中で折らず、まとまりごとに折り返す */
+.spanTime {
+  display: inline-block;
+  margin-right: 1.25rem;
+  white-space: nowrap;
 }
 
 .table {
   width: 100%;
-  min-width: 30rem;
   border-collapse: collapse;
   background: var(--d-surface);
   font-size: 0.9375rem;

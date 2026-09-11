@@ -43,6 +43,12 @@
   outline-offset: 2px;
 }
 
+/* 読み上げの範囲（金額の列 + 下の一行）。.priceWrap と同じ間をそのまま保つ */
+.priceLive {
+  display: grid;
+  gap: 1.5rem;
+}
+
 .rates {
   display: grid;
   gap: 1rem;

@@ -23,7 +23,11 @@ const TITLE = "見本 ｜ 建設・工事の LP";
 const DESCRIPTION =
   "架空の設備工事会社「灯月設備」の 1 ページ LP。電話導線と料金の目安まで動く見本。";
 
-/** ヒーローの粒。飾り専用の明るいオレンジ（--d-accent と同じ値） */
+/**
+ * ヒーローの粒。飾り専用の明るいオレンジ。
+ * canvas は rgba() を文字列で組み立てるので、ここだけは "R, G, B" の生の数字を持つ
+ * ── construction.module.css の --d-accent と同じ値。片方だけ変えない。
+ */
 const ACCENT_RGB = "240, 122, 18";
 const ACCENT_COUNT = 70;
 

@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 
-import { formatYen } from "@/lib/format";
+import { formatYenSuffix } from "@/lib/format";
 
 import {
   ADVISORY_PLANS,
@@ -40,12 +40,14 @@ export function AdvisoryPlans() {
         ))}
       </div>
 
-      <div className={s.card}>
+      {/* 切り替えるとカードの中身が丸ごと入れ替わるので、ここを読み上げに載せる。
+          金額は「15,000 円」の書き方（formatYenSuffix）── カードの本文と揃える */}
+      <div className={s.card} aria-live="polite">
         <h3 className={s.name}>{plan.name}</h3>
         <p className={s.audience}>{plan.audience}</p>
         <p className={s.price}>
           <span className={s.priceLabel}>{head.label}</span>
-          <span className={s.amount}>{formatYen(head.price)}</span>
+          <span className={s.amount}>{formatYenSuffix(head.price)}</span>
           <span className={s.unit}>{UNIT_LABELS[head.unit]}</span>
         </p>
         {rest.length > 0 ? (
@@ -54,7 +56,7 @@ export function AdvisoryPlans() {
               <li key={line.label}>
                 <span>{line.label}</span>
                 <span className={s.lineAmount}>
-                  {formatYen(line.price)}
+                  {formatYenSuffix(line.price)}
                   {UNIT_LABELS[line.unit]}
                 </span>
               </li>
@@ -67,7 +69,7 @@ export function AdvisoryPlans() {
           </p>
         ) : (
           <p className={s.yearly}>
-            年間の目安 <strong>{formatYen(yearly)}</strong>
+            年間の目安 <strong>{formatYenSuffix(yearly)}</strong>
           </p>
         )}
         <ul className={s.includes}>

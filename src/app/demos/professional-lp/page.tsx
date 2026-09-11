@@ -284,7 +284,7 @@ export default function ProfessionalLpPage() {
             <ol className={s.steps}>
               {STEPS.map((step) => (
                 <li key={step.title} className={s.step}>
-                  <p className={s.stepTitle}>{step.title}</p>
+                  <h3 className={s.stepTitle}>{step.title}</h3>
                   <p className={s.stepBody}>{step.body}</p>
                 </li>
               ))}

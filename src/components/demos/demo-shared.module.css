@@ -79,6 +79,13 @@
   color: var(--d-muted);
 }
 
+/* 選ぶ欄の「選んでください」は disabled の option なので ::placeholder が効かない。
+   required の select は未選択のあいだ :invalid なので、そこを目印にして
+   入力欄の placeholder と同じ薄さにする */
+.field select:invalid {
+  color: var(--d-muted);
+}
+
 .submit {
   justify-self: start;
   font: inherit;

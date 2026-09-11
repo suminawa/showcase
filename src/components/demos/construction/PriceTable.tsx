@@ -31,21 +31,25 @@ export function PriceTable() {
         ))}
       </div>
 
-      <ul className={s.rates} aria-live="polite">
-        {RATE_ROWS.map((row) => (
-          <li key={row.id} className={s.rate}>
-            <p className={s.rateLabel}>{row.label}</p>
-            <p className={s.rateAmount}>{formatRate(priceFor(row, plan))}</p>
-            <p className={s.rateNote}>{row.note}</p>
-          </li>
-        ))}
-      </ul>
+      {/* 切り替えで変わるのは金額の列と下の一行の両方なので、二つまとめて
+          読み上げに載せる。切替ボタンは外に置く（押した状態まで読ませない） */}
+      <div className={s.priceLive} aria-live="polite">
+        <ul className={s.rates}>
+          {RATE_ROWS.map((row) => (
+            <li key={row.id} className={s.rate}>
+              <p className={s.rateLabel}>{row.label}</p>
+              <p className={s.rateAmount}>{formatRate(priceFor(row, plan))}</p>
+              <p className={s.rateNote}>{row.note}</p>
+            </li>
+          ))}
+        </ul>
 
-      <p className={s.priceNote}>
-        {plan === "night"
-          ? "夜間・休日は 18 時以降と、土日祝の扱いです。基本料金と出張費が 5 割増になります。"
-          : "平日の 8 時から 18 時までの金額です。18 時以降と土日祝は 5 割増になります。"}
-      </p>
+        <p className={s.priceNote}>
+          {plan === "night"
+            ? "夜間・休日は 18 時以降と、土日祝の扱いです。基本料金と出張費が 5 割増になります。"
+            : "平日の 8 時から 18 時までの金額です。18 時以降と土日祝は 5 割増になります。"}
+        </p>
+      </div>
     </div>
   );
 }

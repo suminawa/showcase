@@ -3,7 +3,7 @@
  * 診療時間の表と「いまは診療中です」、Web 予約の日付と時間帯の選択が見せどころ。
  * 写真を使わず、色・形・CSS・SVG だけで作る。院内の案内も図解で出す。
  * フォームはどこにも送らない。住所・電話番号・人名・実在の地名や駅名は書かない
- * ── だから電話の CTA も番号を持たず、予約の節へ送るだけにする（連絡先は結びのメールだけ）。
+ * ── だから電話の CTA は置かず、ヒーローからは Web 予約と診療時間へ送る（連絡先は結びのメールだけ）。
  */
 import type { Metadata } from "next";
 
@@ -290,8 +290,7 @@ export default function ClinicLpPage() {
             <p className={s.eyebrow}>駅前の歯科医院</p>
             <h1 className={s.h1}>痛みの少ない治療と、通いやすい予約</h1>
             <p className={s.heroLead}>
-              麻酔は表面麻酔をしてから、細い針でゆっくり入れます。予約は 30
-              分ずつ取るので、待合で長く待つことがありません。
+              歯医者が苦手な方と、お子さんを連れて通う方に合わせて、診療の進め方と予約の取り方を決めています。
             </p>
             <div className={s.heroHours}>
               <p>午前 {spanLabel(MORNING)}</p>
@@ -303,12 +302,12 @@ export default function ClinicLpPage() {
               <a href="#reserve" className={s.primary}>
                 Web で予約する
               </a>
-              <a href="#reserve" className={s.secondary}>
-                電話で予約する
+              <a href="#hours" className={s.secondary}>
+                診療時間を見る
               </a>
             </p>
             <p className={s.fine}>
-              見本のため、電話番号と住所は載せていません。ご予約は下のフォームからどうぞ。
+              見本のページなので、住所と電話番号は載せていません。ご予約は下のフォームからお願いします。
             </p>
           </div>
         </section>
@@ -349,7 +348,13 @@ export default function ClinicLpPage() {
             <h2 className={s.h2}>診療時間</h2>
             <div className={s.tableWrap}>
               <table className={s.table}>
-                <caption className={s.srOnly}>曜日ごとの診療時間</caption>
+                {/* 時刻は表の外へ出す。行の見出しに入れたままだと、せまい画面で
+                    表が入れ物からはみ出し、右側の曜日が読めなくなる */}
+                <caption className={s.tableCaption}>
+                  <span className={s.srOnly}>曜日ごとの診療時間。</span>
+                  <span className={s.spanTime}>午前 {spanLabel(MORNING)}</span>{" "}
+                  <span className={s.spanTime}>午後 {spanLabel(AFTERNOON)}</span>
+                </caption>
                 <thead>
                   <tr>
                     <th scope="col">
@@ -364,7 +369,7 @@ export default function ClinicLpPage() {
                 </thead>
                 <tbody>
                   <tr>
-                    <th scope="row">午前 {spanLabel(MORNING)}</th>
+                    <th scope="row">午前</th>
                     {CLINIC_DAYS.map((entry) => (
                       <HoursCell
                         key={entry.day}
@@ -374,7 +379,7 @@ export default function ClinicLpPage() {
                     ))}
                   </tr>
                   <tr>
-                    <th scope="row">午後 {spanLabel(AFTERNOON)}</th>
+                    <th scope="row">午後</th>
                     {CLINIC_DAYS.map((entry) => (
                       <HoursCell
                         key={entry.day}
