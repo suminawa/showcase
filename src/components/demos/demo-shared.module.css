@@ -1,6 +1,7 @@
 /*
  * 見本ページ共通の部品。色は各ページの根（.page 相当）が --d-* 変数で決める。
  * この部品は色を持たない ── 業種ごとに配色が変わっても、ここは触らない。
+ * ページの根は --d-fg --d-muted --d-line --d-brand --d-brand-ink に加えて、--d-surface（入力欄などの白い面）と --d-on-brand（ブランド色の上に載せる文字色）も定義する。
  */
 
 .footer {
@@ -60,7 +61,7 @@
   padding: 0.75rem 0.875rem;
   border: 1px solid var(--d-line);
   border-radius: 0.5rem;
-  background: #fff;
+  background: var(--d-surface);
   color: var(--d-fg);
 }
 
@@ -79,7 +80,7 @@
   border: 0;
   border-radius: 999px;
   background: var(--d-brand);
-  color: #fff;
+  color: var(--d-on-brand);
   cursor: pointer;
 }
 
