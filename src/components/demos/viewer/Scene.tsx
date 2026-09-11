@@ -24,6 +24,7 @@ import {
   showsRoof,
   visibleFloors,
   wallColorById,
+  WINDOW_TONE,
   type Floor,
   type FloorMode,
   type LightingMode,
@@ -166,8 +167,10 @@ function House({
                 <mesh key={panel.id} position={panel.position}>
                   <boxGeometry args={panel.size} />
                   <meshStandardMaterial
-                    color={lighting === "night" ? "#ffe3ac" : "#8fb6d8"}
-                    emissive="#ffd79a"
+                    color={
+                      lighting === "night" ? WINDOW_TONE.night : WINDOW_TONE.day
+                    }
+                    emissive={WINDOW_TONE.emissive}
                     emissiveIntensity={preset.windowEmissive}
                     roughness={0.15}
                     metalness={0.1}
@@ -232,6 +235,8 @@ function Annotations({
 }) {
   // 幅の狭いスマホでは吹き出しを詰めないと注記どうしが重なるので、距離係数を小さくして縮める
   const width = useThree((state) => state.size.width);
+  // 屋根が載っている全体では中が見えないので注記を出さない
+  if (showsRoof(floorMode)) return null;
   const distanceFactor = width < 480 ? 11 : 16;
   const notes = visibleFloors(floorMode).flatMap((floor) =>
     annotationPositions(layoutRooms(plan.floors[floor], FLOOR_RECT), floor),

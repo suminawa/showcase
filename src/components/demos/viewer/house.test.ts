@@ -11,6 +11,7 @@ import {
   visibleFloors,
   wallColorById,
   wallColors,
+  WINDOW_TONE,
   type WallColor,
 } from "./house";
 
@@ -56,6 +57,16 @@ describe("3D の中の色", () => {
       FLOOR_TONE[2],
       SELECTED_FLOOR_TONE,
       INTERIOR_TONE,
+    ]) {
+      expect(value).toMatch(/^#[0-9a-f]{6}$/);
+    }
+  });
+
+  it("窓の色も #rrggbb", () => {
+    for (const value of [
+      WINDOW_TONE.day,
+      WINDOW_TONE.night,
+      WINDOW_TONE.emissive,
     ]) {
       expect(value).toMatch(/^#[0-9a-f]{6}$/);
     }

@@ -55,6 +55,9 @@ export const SELECTED_FLOOR_TONE = "#f0e9d8";
 /** 内壁。外壁の色を変えても、中は白い塗り壁のまま */
 export const INTERIOR_TONE = "#e4dfd5";
 
+/** 窓の色。昼は空を映した水色、夜は室内の明かりが漏れた暖色。emissive は夜に光らせる発光色 */
+export const WINDOW_TONE = { day: "#8fb6d8", night: "#ffe3ac", emissive: "#ffd79a" } as const;
+
 /** 見せる階。全体は 1 階と 2 階の両方 */
 export function visibleFloors(mode: FloorMode): Floor[] {
   if (mode === "all") return [1, 2];

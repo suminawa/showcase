@@ -267,6 +267,11 @@
   pointer-events: none;
 }
 
+/* 家具の記号の上から最後に重ねて描くラベル。当たり判定を持たせず、下の操作を邪魔しない */
+.planLabels {
+  pointer-events: none;
+}
+
 .planWall {
   stroke: var(--d-fg);
   stroke-width: 10;

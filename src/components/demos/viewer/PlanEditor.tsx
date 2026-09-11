@@ -227,30 +227,19 @@ export function PlanEditor({
           height={HOUSE.depth * SCALE}
         />
 
-        {rooms.map((room) => {
-          const cx = (room.x + room.w / 2) * SCALE;
-          const cy = (room.z + room.d / 2) * SCALE;
-          return (
-            <g key={room.id}>
-              <rect
-                className={
-                  room.id === selectedId ? s.planRoomSelected : s.planRoom
-                }
-                x={room.x * SCALE + 4}
-                y={room.z * SCALE + 4}
-                width={room.w * SCALE - 8}
-                height={room.d * SCALE - 8}
-                onClick={() => onSelect(room.id)}
-              />
-              <text className={s.planName} x={cx} y={cy - 6}>
-                {room.label}
-              </text>
-              <text className={s.planArea} x={cx} y={cy + 22}>
-                {room.area.toFixed(1)} m²
-              </text>
-            </g>
-          );
-        })}
+        {rooms.map((room) => (
+          <rect
+            key={room.id}
+            className={
+              room.id === selectedId ? s.planRoomSelected : s.planRoom
+            }
+            x={room.x * SCALE + 4}
+            y={room.z * SCALE + 4}
+            width={room.w * SCALE - 8}
+            height={room.d * SCALE - 8}
+            onClick={() => onSelect(room.id)}
+          />
+        ))}
 
         {lines.map((line) => {
           const across = line.axis === "x";
@@ -300,6 +289,22 @@ export function PlanEditor({
             ))}
           </g>
         ))}
+
+        {/* 家具の記号の上に重なっても読めるよう、部屋名と面積はすべての上に最後に描く */}
+        {rooms.map((room) => {
+          const cx = (room.x + room.w / 2) * SCALE;
+          const cy = (room.z + room.d / 2) * SCALE;
+          return (
+            <g key={room.id} className={s.planLabels}>
+              <text className={s.planName} x={cx} y={cy - 6}>
+                {room.label}
+              </text>
+              <text className={s.planArea} x={cx} y={cy + 22}>
+                {room.area.toFixed(1)} m²
+              </text>
+            </g>
+          );
+        })}
       </svg>
 
       {selectedRoom && (

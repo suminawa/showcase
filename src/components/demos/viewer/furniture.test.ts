@@ -164,6 +164,26 @@ describe("partsInScene", () => {
     expect(pillow.position[2]).toBeCloseTo(0, 6);
     expect(pillow.size).toEqual([0.4, 0.12, 1.2]);
   });
+
+  it("180 度は x と z がどちらも反転する", () => {
+    const parts = partsInScene(bed({ rotation: 180 }));
+    expect(parts[0].size).toEqual([1.4, 0.3, 2]);
+    // 枕は北(z -0.75)から南(z +0.75)へ。x は 0 のまま
+    const pillow = parts[2];
+    expect(pillow.position[0]).toBeCloseTo(0, 6);
+    expect(pillow.position[2]).toBeCloseTo(0.75, 6);
+    expect(pillow.size).toEqual([1.2, 0.12, 0.4]);
+  });
+
+  it("270 度は 90 度の逆向き", () => {
+    const parts = partsInScene(bed({ rotation: 270 }));
+    expect(parts[0].size).toEqual([2, 0.3, 1.4]);
+    // 枕は北(z -0.75)から西(x -0.75)へ。90 度の東と左右対称
+    const pillow = parts[2];
+    expect(pillow.position[0]).toBeCloseTo(-0.75, 6);
+    expect(pillow.position[2]).toBeCloseTo(0, 6);
+    expect(pillow.size).toEqual([0.4, 0.12, 1.2]);
+  });
 });
 
 describe("既定の家具", () => {

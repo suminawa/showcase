@@ -129,21 +129,27 @@ export function Viewer() {
     detect();
   }, []);
 
-  const updatePlan = (next: PlanState) => {
-    setPlan(next);
-    writeStored(next);
+  // pointermove の連打でも古い plan を読まないよう、関数形で直前の状態から作って書き込む
+  const updatePlan = (updater: (prev: PlanState) => PlanState) => {
+    setPlan((prev) => {
+      const next = updater(prev);
+      writeStored(next);
+      return next;
+    });
   };
 
   const changeLayout = (floor: Floor, node: LayoutNode) => {
-    const floors: Record<Floor, LayoutNode> =
-      floor === 1
-        ? { 1: node, 2: plan.floors[2] }
-        : { 1: plan.floors[1], 2: node };
-    updatePlan({ ...plan, floors });
+    updatePlan((prev) => {
+      const floors: Record<Floor, LayoutNode> =
+        floor === 1
+          ? { 1: node, 2: prev.floors[2] }
+          : { 1: prev.floors[1], 2: node };
+      return { ...prev, floors };
+    });
   };
 
   const changeFurniture = (list: PlacedFurniture[]) => {
-    updatePlan({ ...plan, furniture: list });
+    updatePlan((prev) => ({ ...prev, furniture: list }));
   };
 
   const reset = () => {

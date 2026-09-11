@@ -22,7 +22,9 @@ export type Rotation = 0 | 90 | 180 | 270;
 export type Part = { offset: Vec3; size: Vec3; color: string };
 
 /** 平面図の記号。footprint に対する相対座標（中心原点） */
-export type Glyph = { rects: { x: number; z: number; w: number; d: number }[] };
+export type Glyph = {
+  rects: readonly { x: number; z: number; w: number; d: number }[];
+};
 
 export type FurnitureType = {
   id: FurnitureId;
@@ -31,7 +33,8 @@ export type FurnitureType = {
   /** 幅(x) × 奥行き(z)。回していないときの向き */
   footprint: [w: number, d: number];
   height: number;
-  parts: Part[];
+  /** readonly にして、共有している FURNITURE の表をどこからも書き換えられないようにする */
+  parts: readonly Part[];
   glyph: Glyph;
 };
 
