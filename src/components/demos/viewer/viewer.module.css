@@ -35,3 +35,148 @@
   opacity: 0.85;
   font-variant-numeric: tabular-nums;
 }
+
+/* ---- 操作のボタン ---- */
+
+.controls {
+  display: grid;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+@media (min-width: 720px) {
+  .controls {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.75rem 1.5rem;
+  }
+}
+
+.group {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.groupLabel {
+  min-width: 3.5em;
+  font-size: 0.8125rem;
+  font-weight: 700;
+  color: var(--d-muted);
+}
+
+.button {
+  font: inherit;
+  font-size: 0.875rem;
+  font-weight: 600;
+  padding: 0.5rem 0.875rem;
+  border: 1px solid var(--d-line);
+  border-radius: 999px;
+  background: var(--d-surface);
+  color: var(--d-fg);
+  cursor: pointer;
+}
+
+.button:hover {
+  border-color: var(--d-brand);
+}
+
+.button[aria-pressed="true"] {
+  background: var(--d-brand);
+  border-color: var(--d-brand);
+  color: var(--d-on-brand);
+}
+
+.button:focus-visible {
+  outline: 2px solid var(--d-brand-ink);
+  outline-offset: 2px;
+}
+
+.swatch {
+  display: inline-block;
+  width: 0.75rem;
+  height: 0.75rem;
+  margin-right: 0.5rem;
+  border: 1px solid var(--d-line);
+  border-radius: 50%;
+  vertical-align: -0.05em;
+}
+
+/* ---- 3D の枠 ---- */
+
+.stage {
+  position: relative;
+  aspect-ratio: 4 / 3;
+  overflow: hidden;
+  border: 1px solid var(--d-line);
+  border-radius: 1rem;
+  background: var(--d-soft);
+}
+
+@media (min-width: 720px) {
+  .stage {
+    aspect-ratio: 16 / 9;
+  }
+}
+
+.loading {
+  display: grid;
+  place-items: center;
+  height: 100%;
+  margin: 0;
+  font-size: 0.875rem;
+  color: var(--d-muted);
+}
+
+.caption {
+  margin: 0.75rem 0 0;
+  font-size: 0.875rem;
+  color: var(--d-muted);
+}
+
+/* ---- WebGL が無いときの平面図 ---- */
+
+.fallback {
+  display: grid;
+  gap: 1rem;
+  padding: 1.25rem;
+  border: 1px solid var(--d-line);
+  border-radius: 1rem;
+  background: var(--d-surface);
+}
+
+.fallbackText {
+  margin: 0;
+  font-size: 0.9375rem;
+  color: var(--d-muted);
+}
+
+.plan {
+  width: 100%;
+  height: auto;
+}
+
+.planOutline {
+  fill: none;
+  stroke: var(--d-fg);
+  stroke-width: 6;
+}
+
+.planRoom {
+  fill: var(--d-soft);
+  stroke: var(--d-muted);
+  stroke-width: 2;
+}
+
+.planName {
+  fill: var(--d-fg);
+  font-size: 30px;
+  font-weight: 700;
+  text-anchor: middle;
+}
+
+.planArea {
+  fill: var(--d-muted);
+  font-size: 24px;
+  text-anchor: middle;
+}
