@@ -35,11 +35,19 @@ describe("projects registry", () => {
     expect(sites.map((p) => p.slug)).toEqual(["suminagashi"]);
     const tools = projectsByCategory("tools");
     expect(tools.map((p) => p.slug)).toEqual(["quote-simulator", "30days"]);
-    expect(projectsByCategory("samples").map((p) => p.slug)).toEqual([
+    const samples = projectsByCategory("samples").map((p) => p.slug);
+    expect(samples.slice(0, 2)).toEqual(["saas-lp", "shop-lp"]);
+    expect(samples).toContain("professional-lp");
+    expect(samples).toContain("clinic-lp");
+    // 既存 4 件（前のプランで足された construction-lp / corporate-site）の並びも
+    // 崩れていないことを合わせて確かめる（置き換えでカバレッジを落とさない）。
+    expect(samples).toEqual([
       "saas-lp",
       "shop-lp",
       "construction-lp",
       "corporate-site",
+      "professional-lp",
+      "clinic-lp",
     ]);
     expect(projectsByCategory("games")).toEqual([]);
   });

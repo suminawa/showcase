@@ -7,7 +7,9 @@ export type DemoSlug =
   | "saas-lp"
   | "shop-lp"
   | "construction-lp"
-  | "corporate-site";
+  | "corporate-site"
+  | "professional-lp"
+  | "clinic-lp";
 
 export type Demo = {
   slug: DemoSlug;
@@ -52,6 +54,22 @@ export const demos: readonly Demo[] = [
     description:
       "架空の海洋・環境調査の計測会社「潮見計測」の会社案内。TOP と下層 3 枚がつながる見本。",
     tags: ["Next.js", "TypeScript", "見本サイト"],
+  },
+  {
+    slug: "professional-lp",
+    title: "見本 — 士業・研修の LP",
+    industry: "士業・研修",
+    description:
+      "架空の会計事務所「霜月会計事務所」の 1 ページ。税務調査の相談と、顧問料 3 プランの切替まで動く見本。",
+    tags: ["Next.js", "TypeScript", "見本 LP"],
+  },
+  {
+    slug: "clinic-lp",
+    title: "見本 — クリニック・医院の LP",
+    industry: "クリニック・医院",
+    description:
+      "架空の歯科医院「月白歯科クリニック」の 1 ページ。診療時間の表と Web 予約まで動く見本。",
+    tags: ["Next.js", "TypeScript", "見本 LP"],
   },
 ];
 

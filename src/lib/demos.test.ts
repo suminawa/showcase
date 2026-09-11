@@ -2,12 +2,23 @@ import { describe, expect, it } from "vitest";
 import { demoBySlug, demoHref, demos } from "./demos";
 
 describe("demos registry", () => {
-  it("4 本の見本が、この順で登録されている", () => {
-    expect(demos.map((d) => d.slug)).toEqual([
+  it("saas-lp と shop-lp が先頭にあり、あとから足した見本も並んでいる", () => {
+    const slugs = demos.map((d) => d.slug);
+    expect(slugs.slice(0, 2)).toEqual(["saas-lp", "shop-lp"]);
+    expect(slugs).toContain("professional-lp");
+    expect(slugs).toContain("clinic-lp");
+    expect(slugs.indexOf("professional-lp")).toBeLessThan(
+      slugs.indexOf("clinic-lp"),
+    );
+    // 既存 4 件（前のプランで足された construction-lp / corporate-site）の並びも
+    // 崩れていないことを合わせて確かめる（置き換えでカバレッジを落とさない）。
+    expect(slugs).toEqual([
       "saas-lp",
       "shop-lp",
       "construction-lp",
       "corporate-site",
+      "professional-lp",
+      "clinic-lp",
     ]);
   });
 
@@ -16,6 +27,8 @@ describe("demos registry", () => {
     expect(demoHref({ slug: "shop-lp" })).toBe("/demos/shop-lp");
     expect(demoHref({ slug: "construction-lp" })).toBe("/demos/construction-lp");
     expect(demoHref({ slug: "corporate-site" })).toBe("/demos/corporate-site");
+    expect(demoHref({ slug: "professional-lp" })).toBe("/demos/professional-lp");
+    expect(demoHref({ slug: "clinic-lp" })).toBe("/demos/clinic-lp");
   });
 
   it("demoBySlug は slug で引き、未知なら undefined", () => {
@@ -23,6 +36,8 @@ describe("demos registry", () => {
     expect(demoBySlug("shop-lp")?.industry).toBe("店舗・サロン");
     expect(demoBySlug("construction-lp")?.industry).toBe("建設・工事");
     expect(demoBySlug("corporate-site")?.industry).toBe("コーポレート");
+    expect(demoBySlug("professional-lp")?.industry).toBe("士業・研修");
+    expect(demoBySlug("clinic-lp")?.industry).toBe("クリニック・医院");
     expect(demoBySlug("nope")).toBeUndefined();
   });
 
