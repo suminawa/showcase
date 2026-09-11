@@ -3,7 +3,7 @@
  * 提案文から来た人が触る 1 ページ LP や 3D ビューア。ハブの SAMPLES 欄はここから組む。
  * 見本を足すときに触るのは、このファイルと src/app/demos/<slug>/ だけ。
  */
-export type DemoSlug = "saas-lp";
+export type DemoSlug = "saas-lp" | "shop-lp";
 
 export type Demo = {
   slug: DemoSlug;
@@ -23,6 +23,14 @@ export const demos: readonly Demo[] = [
     industry: "BtoB・SaaS",
     description:
       "架空の勤怠・工数 SaaS「Tabane Works」の 1 ページ。料金の切替、FAQ、問い合わせフォームまで動く見本。",
+    tags: ["Next.js", "TypeScript", "見本 LP"],
+  },
+  {
+    slug: "shop-lp",
+    title: "見本 — 店舗・サロンの LP",
+    industry: "店舗・サロン",
+    description:
+      "架空の焼き菓子とコーヒーの店「粉とゆげ」の 1 ページ。品書きと席の案内、予約フォームまで動く見本。",
     tags: ["Next.js", "TypeScript", "見本 LP"],
   },
 ];

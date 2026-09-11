@@ -36,6 +36,7 @@ describe("projects registry", () => {
     expect(tools.map((p) => p.slug)).toEqual(["quote-simulator", "30days"]);
     expect(projectsByCategory("samples").map((p) => p.slug)).toEqual([
       "saas-lp",
+      "shop-lp",
     ]);
     expect(projectsByCategory("games")).toEqual([]);
   });
@@ -48,8 +49,10 @@ describe("projects registry", () => {
   });
 
   it("見本の行はレジストリの題と説明をそのまま持つ", () => {
-    const [sample] = projectsByCategory("samples");
-    expect(sample.title).toBe("見本 — BtoB・SaaS の LP");
-    expect(sample.tags).toContain("見本 LP");
+    const [saas, shop] = projectsByCategory("samples");
+    expect(saas.title).toBe("見本 — BtoB・SaaS の LP");
+    expect(saas.tags).toContain("見本 LP");
+    expect(shop.title).toBe("見本 — 店舗・サロンの LP");
+    expect(projectHref(shop)).toBe("/demos/shop-lp");
   });
 });
