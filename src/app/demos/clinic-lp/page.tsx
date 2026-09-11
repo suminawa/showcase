@@ -57,23 +57,23 @@ export const metadata: Metadata = {
 
 const POINTS = [
   {
-    title: "痛みを減らす手順",
+    title: "痛みに配慮した手順",
     body: "表面の麻酔をしてから、細い針でゆっくり注射します。麻酔液は体温に温めて使います。",
   },
   {
-    title: "削る量を最小限に",
+    title: "削る範囲はできるだけ小さく",
     body: "虫歯の範囲をカメラで確かめ、削る前に何をするかを画面でご説明します。",
   },
   {
     title: "予約は 30 分ずつ",
-    body: "一人ずつ時間を取るので、待合で長く待つことがありません。",
+    body: "お一人ずつお時間を取りますので、待合でお待ちいただく時間を短くできます。",
   },
 ];
 
 const TREATMENTS = [
   {
     title: "一般歯科",
-    body: "虫歯と歯周病の治療。しみる、噛むと痛い、といったご相談から。",
+    body: "虫歯と歯周病の治療を行います。しみる、噛むと痛いといったご相談からどうぞ。",
     icon: (
       <svg
         viewBox="0 0 36 36"
@@ -105,7 +105,7 @@ const TREATMENTS = [
   },
   {
     title: "予防・クリーニング",
-    body: "3 か月に 1 回の定期検診と、歯石の除去。",
+    body: "3 か月に 1 回の定期検診と、歯石の除去を行います。",
     icon: (
       <svg viewBox="0 0 36 36" fill="none" stroke="currentColor" strokeWidth="2">
         <rect x="5" y="14" width="12" height="7" rx="2" />
@@ -128,7 +128,7 @@ const TREATMENTS = [
   },
   {
     title: "ホワイトニング",
-    body: "医院で行う方法と、自宅で続ける方法の 2 つがあります。",
+    body: "医院で行う方法と、ご自宅で続けていただく方法の 2 つをご用意しています。",
     icon: (
       <svg
         viewBox="0 0 36 36"
@@ -144,7 +144,7 @@ const TREATMENTS = [
   },
   {
     title: "インプラント相談",
-    body: "骨の状態を撮影し、できるかどうかと、ほかの方法をご説明します。",
+    body: "骨の状態を撮影し、治療ができるかどうかと、ほかの選択肢をご説明します。",
     icon: (
       <svg viewBox="0 0 36 36" fill="none" stroke="currentColor" strokeWidth="2">
         <path d="M12 6h12v6H12z" />
@@ -158,7 +158,7 @@ const TREATMENTS = [
 const ROOMS = [
   {
     title: "入口とスロープ",
-    body: "段差はありません。ベビーカーと車いすは、そのまま診療室まで入れます。",
+    body: "段差はありません。ベビーカーや車いすのまま、診療室までお入りいただけます。",
     figure: (
       <svg viewBox="0 0 120 80" fill="none" stroke="currentColor" strokeWidth="2">
         <path d="M6 66h108" />
@@ -171,7 +171,7 @@ const ROOMS = [
   },
   {
     title: "診療室",
-    body: "半個室が 4 台です。となりの音や話し声が気になりにくいように、台のあいだに壁を立てています。",
+    body: "半個室の診療台が 4 台あります。となりの音や話し声が気になりにくいよう、台のあいだに壁を設けています。",
     figure: (
       <svg viewBox="0 0 120 80" fill="none" stroke="currentColor" strokeWidth="2">
         <rect x="6" y="10" width="108" height="60" rx="3" />
@@ -185,7 +185,7 @@ const ROOMS = [
   },
   {
     title: "キッズスペース",
-    body: "待合の一角に、靴を脱いで上がれる場所があります。診療のあいだも、スタッフが様子を見ています。",
+    body: "待合の一角に、靴を脱いで上がれる場所をご用意しています。診療のあいだは、スタッフが様子を見守ります。",
     figure: (
       <svg viewBox="0 0 120 80" fill="none" stroke="currentColor" strokeWidth="2">
         <rect x="6" y="14" width="108" height="52" rx="3" />
@@ -201,7 +201,7 @@ const ROOMS = [
 const FAQ = [
   {
     q: "予約なしでも診てもらえますか。",
-    a: "急な痛みなら、当日の空きにお入れします。まずはご連絡ください。予約の方が先になります。",
+    a: "急な痛みのときは、当日の空いた時間にご案内します。まずはご連絡ください。ご予約の方を優先しますので、お待ちいただくことがあります。",
   },
   {
     q: "子どもは何歳から診てもらえますか。",
@@ -209,7 +209,7 @@ const FAQ = [
   },
   {
     q: "治療は何回くらいかかりますか。",
-    a: "小さな虫歯なら 1 回か 2 回です。神経の治療が要る場合は、4 回から 6 回が目安です。",
+    a: "小さな虫歯なら 1 回か 2 回です。神経の治療が必要な場合は、4 回から 6 回が目安です。",
   },
   {
     q: "保険は使えますか。",
@@ -217,7 +217,7 @@ const FAQ = [
   },
   {
     q: "駐車場はありますか。",
-    a: "医院の駐車場はありません。近くのコインパーキングをご利用ください。",
+    a: "医院の駐車場はございません。お近くのコインパーキングをご利用ください。",
   },
 ];
 
@@ -230,10 +230,10 @@ const RESERVE_FIELDS: DemoField[] = [
     required: true,
     placeholder: "日中つながる番号",
   },
-  { name: "date", label: "希望の日", type: "date", required: true },
+  { name: "date", label: "ご希望の日", type: "date", required: true },
   {
     name: "slot",
-    label: "時間帯",
+    label: "ご希望の時間帯",
     type: "select",
     required: true,
     options: slotOptions(),
@@ -288,9 +288,9 @@ export default function ClinicLpPage() {
           <HeroCircles className={s.circlesLayer} />
           <div className={s.container}>
             <p className={s.eyebrow}>駅前の歯科医院</p>
-            <h1 className={s.h1}>痛みの少ない治療と、通いやすい予約</h1>
+            <h1 className={s.h1}>痛みに配慮した治療と、通いやすい予約</h1>
             <p className={s.heroLead}>
-              歯医者が苦手な方と、お子さんを連れて通う方に合わせて、診療の進め方と予約の取り方を決めています。
+              歯医者が苦手な方や、お子さんを連れて通う方に合わせて、診療の進め方と予約の取り方を整えています。
             </p>
             <div className={s.heroHours}>
               <p>午前 {spanLabel(MORNING)}</p>
@@ -441,10 +441,10 @@ export default function ClinicLpPage() {
             <div>
               <h2 className={s.h2}>Web 予約</h2>
               <p className={s.reserveLead}>
-                お名前、電話番号、希望の日、時間帯、気になることを入れてください。翌診療日までに、こちらからご連絡します。
+                お名前、電話番号、ご希望の日と時間帯、気になることをご記入ください。翌診療日までに、こちらからご連絡します。
               </p>
               <p className={s.reserveNote}>
-                予約が決まるのは、こちらからの連絡のあとです。
+                ご予約が決まるのは、こちらからのご連絡のあとです。
               </p>
             </div>
             <DemoForm fields={RESERVE_FIELDS} submitLabel="予約を申し込む" />
