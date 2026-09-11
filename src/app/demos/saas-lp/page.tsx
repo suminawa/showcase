@@ -27,11 +27,15 @@ export const metadata: Metadata = {
     description: DESCRIPTION,
     url: "/demos/saas-lp",
     type: "website",
+    images: ["/opengraph-image.png"],
+    siteName: "Showcase",
+    locale: "ja_JP",
   },
   twitter: {
     card: "summary_large_image",
     title: TITLE,
     description: DESCRIPTION,
+    images: ["/opengraph-image.png"],
   },
 };
 

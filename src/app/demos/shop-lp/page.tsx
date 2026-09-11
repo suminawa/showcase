@@ -30,6 +30,7 @@ const mincho = Shippori_Mincho({
   weight: ["500", "600"],
   display: "swap",
   variable: "--d-mincho",
+  preload: false,
 });
 
 const BRAND = "粉とゆげ";
@@ -48,12 +49,16 @@ export const metadata: Metadata = {
       "架空の焼き菓子とコーヒーの店「粉とゆげ」の 1 ページ LP。品書きと席の予約まで動く見本。",
     url: "/demos/shop-lp",
     type: "website",
+    images: ["/opengraph-image.png"],
+    siteName: "Showcase",
+    locale: "ja_JP",
   },
   twitter: {
     card: "summary_large_image",
     title: "見本 ｜ 店舗・サロンの LP",
     description:
       "架空の焼き菓子とコーヒーの店「粉とゆげ」の 1 ページ LP。品書きと席の予約まで動く見本。",
+    images: ["/opengraph-image.png"],
   },
 };
 
