@@ -1,0 +1,179 @@
+/*
+ * 見本: 会社案内サイト（TOP + 下層 3 枚）。白地に紺ひと色と薄い水色の面、ゴシック体。
+ * この 1 枚が 4 枚の面の共通語彙 ── 色のトークン・幅・見出し・ボタン・節の余白。
+ * 面ごとの塊は top.module.css と sub.module.css が持つ。
+ * 色はこの根で決め、共通部品（DemoFooter / DemoForm）と corporate-parts.module.css は
+ * --d-* を継承する。ここ以外に色を直書きしない。
+ */
+
+.page {
+  --d-bg: #ffffff;
+  --d-fg: #141a22; /* 白地で 17.49:1 */
+  --d-muted: #4d5766; /* 白地で 7.32:1、--d-soft の上で 6.46:1 */
+  --d-brand: #14427a; /* 紺。白地で 10.05:1。白文字を載せても 10.05:1 */
+  --d-brand-ink: #0d2e56; /* 白地で 13.62:1 */
+  --d-line: #d8e0e8;
+  --d-soft: #eaf2f8; /* 薄い水色の面 */
+  --d-surface: #ffffff;
+  --d-on-brand: #ffffff;
+  --d-input-line: #6f7b88; /* 白地で 4.32:1 ── 入力欄の枠線（WCAG 1.4.11） */
+
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background: var(--d-bg);
+  color: var(--d-fg);
+  font-family: var(--font-sans);
+  line-height: 1.9;
+  overflow-x: clip;
+}
+
+/* 見本の枠がある間だけ、html の地も見本の色にする（CSS 変数は祖先に見えないので値を直書き） */
+:global(html):has(.page) {
+  background: #ffffff;
+}
+
+.container {
+  width: min(100% - 2.5rem, 1080px);
+  margin-inline: auto;
+}
+
+.page a:focus-visible {
+  outline: 2px solid var(--d-brand-ink);
+  outline-offset: 2px;
+}
+
+/* ---- ヘッダー ---- */
+
+.header {
+  border-bottom: 1px solid var(--d-line);
+  background: var(--d-surface);
+}
+
+.headerRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem 1.5rem;
+  padding: 1rem 0;
+}
+
+.logo {
+  font-size: 1.25rem;
+  font-weight: 800;
+  letter-spacing: 0.16em;
+  color: var(--d-brand);
+  text-decoration: none;
+}
+
+/* 本文の領域。フッターを下に押し下げる */
+.body {
+  flex: 1 0 auto;
+}
+
+/* ---- 節 ---- */
+
+.section {
+  padding: 4rem 0;
+}
+
+.section + .section {
+  border-top: 1px solid var(--d-line);
+}
+
+.soft {
+  background: var(--d-soft);
+}
+
+/* ---- 見出しと本文 ---- */
+
+.h1 {
+  margin: 0;
+  font-size: clamp(1.875rem, 5.6vw, 3rem);
+  font-weight: 800;
+  line-height: 1.35;
+  letter-spacing: 0.01em;
+}
+
+.h2 {
+  margin: 0 0 2rem;
+  padding-left: 0.875rem;
+  border-left: 4px solid var(--d-brand);
+  font-size: clamp(1.375rem, 3.2vw, 1.875rem);
+  font-weight: 800;
+  line-height: 1.5;
+}
+
+.h3 {
+  margin: 0 0 0.75rem;
+  font-size: 1.1875rem;
+  font-weight: 800;
+  line-height: 1.6;
+}
+
+.lead {
+  margin: 1.25rem 0 0;
+  max-width: 36em;
+  font-size: clamp(1rem, 1.6vw, 1.0625rem);
+  color: var(--d-muted);
+}
+
+/* ---- 下層 3 枚の面の頭 ---- */
+
+.pageHead {
+  padding: 3rem 0;
+  background: var(--d-soft);
+  border-bottom: 1px solid var(--d-line);
+}
+
+@media (min-width: 760px) {
+  .pageHead {
+    padding: 4.5rem 0;
+  }
+}
+
+/* ---- ボタン ---- */
+
+.primary,
+.secondary {
+  display: inline-block;
+  padding: 0.875rem 1.75rem;
+  border-radius: 0.5rem;
+  font-size: 1rem;
+  font-weight: 800;
+  text-align: center;
+  text-decoration: none;
+}
+
+.primary {
+  background: var(--d-brand);
+  color: var(--d-on-brand);
+}
+
+.primary:hover {
+  background: var(--d-brand-ink);
+}
+
+.secondary {
+  border: 2px solid var(--d-brand);
+  background: var(--d-surface);
+  color: var(--d-brand);
+}
+
+.secondary:hover {
+  border-color: var(--d-brand-ink);
+  color: var(--d-brand-ink);
+}
+
+/* 読み上げにだけ渡す文字（数え上げの最終値など）。目には見えない */
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
