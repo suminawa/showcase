@@ -4,7 +4,9 @@ import { useEffect, useRef } from "react";
 
 import { createParticles, stepParticles, type Particle } from "./field";
 
-const COUNT = 48;
+/** 既定は saas-lp の青。ほかの見本は rgb で自分の色を渡す */
+const DEFAULT_RGB = "31, 94, 255";
+const DEFAULT_COUNT = 48;
 const SEED = 11;
 
 /**
@@ -12,7 +14,17 @@ const SEED = 11;
  * 減速の設定（prefers-reduced-motion: reduce）なら 1 枚だけ描いて止める。
  * タブが隠れている間は止め、寸法が変わったら粒を撒き直す。
  */
-export function HeroField({ className }: { className?: string }) {
+export function HeroField({
+  className,
+  rgb = DEFAULT_RGB,
+  count = DEFAULT_COUNT,
+}: {
+  className?: string;
+  /** 粒の色。"R, G, B" の並び。濃さは粒ごとに決まるので、ここでは指定しない */
+  rgb?: string;
+  /** 粒の数。増やすほど紙の地のように見える */
+  count?: number;
+}) {
   const ref = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
@@ -35,7 +47,7 @@ export function HeroField({ className }: { className?: string }) {
       for (const p of particles) {
         ctx.beginPath();
         ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
-        ctx.fillStyle = `rgba(31, 94, 255, ${p.a})`;
+        ctx.fillStyle = `rgba(${rgb}, ${p.a})`;
         ctx.fill();
       }
     };
@@ -67,7 +79,7 @@ export function HeroField({ className }: { className?: string }) {
       canvas.width = Math.round(width * dpr);
       canvas.height = Math.round(height * dpr);
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-      particles = createParticles(COUNT, width, height, SEED);
+      particles = createParticles(count, width, height, SEED);
       draw();
     };
 
@@ -87,7 +99,7 @@ export function HeroField({ className }: { className?: string }) {
       observer.disconnect();
       document.removeEventListener("visibilitychange", onVisibility);
     };
-  }, []);
+  }, [rgb, count]);
 
   return <canvas ref={ref} className={className} aria-hidden="true" />;
 }
