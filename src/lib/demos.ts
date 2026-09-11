@@ -38,7 +38,7 @@ export const demos: readonly Demo[] = [
     title: "見本 — 間取りシミュレーター（3D）",
     industry: "建築・不動産",
     description:
-      "間取りを描きかえ、家具を置き、3D で確かめる見本。壁を動かすと隣の部屋が伸び縮みします。",
+      "間取りを描きかえ、家具を置き、3D で確かめる見本。マス目を塗るだけで廊下も L 字も描けます。",
     tags: ["React Three Fiber", "TypeScript", "見本 3D"],
   },
 ];

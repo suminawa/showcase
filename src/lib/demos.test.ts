@@ -36,6 +36,9 @@ describe("demos registry", () => {
     const viewer = demoBySlug("3d-viewer");
     expect(viewer?.industry).toBe("建築・不動産");
     expect(viewer?.title).toBe("見本 — 間取りシミュレーター（3D）");
+    expect(viewer?.description).toBe(
+      "間取りを描きかえ、家具を置き、3D で確かめる見本。マス目を塗るだけで廊下も L 字も描けます。",
+    );
     expect(viewer?.tags).toContain("React Three Fiber");
   });
 });
