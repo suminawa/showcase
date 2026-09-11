@@ -25,7 +25,7 @@ export const SERVICES: readonly ConstructionService[] = [
     id: "leak",
     name: "水漏れの修理",
     from: 8800,
-    note: "蛇口や排水管、トイレのにじみを止めます。部品の交換が必要な場合は別途部品代がかかります。",
+    note: "蛇口・排水管・トイレからの水漏れを修理します。部品の交換が必要な場合は別途部品代がかかります。",
   },
   {
     id: "clog",
