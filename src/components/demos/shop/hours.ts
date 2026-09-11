@@ -1,10 +1,21 @@
 /**
  * 見本「粉とゆげ」の営業時間。架空の店の、架空の時間割。
+ * 曜日の並びと時刻の書き方は ../openHours と共通（医院の診療時間と同じ部品を使う）。
  * 日をまたぐ営業は扱わない（この店は日中だけ開く）。
  */
+import {
+  dayLabel,
+  formatMinute,
+  inSpan,
+  minuteOfDay,
+  WEEK_FROM_MONDAY,
+  type Span,
+  type Weekday,
+} from "../openHours";
 
-/** 0 = 日曜 … 6 = 土曜。Date#getDay と同じ並び */
-export type Weekday = 0 | 1 | 2 | 3 | 4 | 5 | 6;
+// 先行の呼び出し元（hours.test.ts / shop-lp の page.tsx）が ./hours から引き続けるので、そのまま出し直す
+export { formatMinute };
+export type { Weekday };
 
 /** 月・火・水は休み */
 export const CLOSED_DAYS: readonly Weekday[] = [1, 2, 3];
@@ -14,20 +25,10 @@ export const OPEN_MINUTE = 10 * 60;
 export const CLOSE_MINUTE = 18 * 60;
 export const LAST_ORDER_MINUTE = 17 * 60 + 30;
 
-/** 表示は月曜起点で並べる（日曜起点だと「日・木・金・土」になって読みにくい） */
-const WEEK_FROM_MONDAY: readonly Weekday[] = [1, 2, 3, 4, 5, 6, 0];
-
-const DAY_LABELS = ["日", "月", "火", "水", "木", "金", "土"] as const;
-
-/** 600 -> "10:00"。時も 0 詰めにする */
-export function formatMinute(minute: number): string {
-  const hour = Math.floor(minute / 60);
-  const rest = minute % 60;
-  return `${String(hour).padStart(2, "0")}:${String(rest).padStart(2, "0")}`;
-}
+const OPEN_SPAN: Span = { start: OPEN_MINUTE, end: CLOSE_MINUTE };
 
 function labelFor(days: readonly Weekday[]): string {
-  return days.map((day) => DAY_LABELS[day]).join("・");
+  return days.map(dayLabel).join("・");
 }
 
 export function openDaysLabel(): string {
@@ -51,6 +52,5 @@ export function lastOrderLabel(): string {
 export function isOpenAt(date: Date): boolean {
   const day = date.getDay() as Weekday;
   if (CLOSED_DAYS.includes(day)) return false;
-  const minute = date.getHours() * 60 + date.getMinutes();
-  return minute >= OPEN_MINUTE && minute < CLOSE_MINUTE;
+  return inSpan(minuteOfDay(date), OPEN_SPAN);
 }

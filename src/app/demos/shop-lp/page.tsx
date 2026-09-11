@@ -20,7 +20,7 @@ import {
   lastOrderLabel,
   openDaysLabel,
 } from "@/components/demos/shop/hours";
-import { OpenNow } from "@/components/demos/shop/OpenNow";
+import { OpenNow } from "@/components/demos/OpenNow";
 
 import s from "./shop.module.css";
 
