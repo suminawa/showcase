@@ -46,6 +46,16 @@ const siteProjects: Project[] = demos.map((demo) => ({
 export const projects: Project[] = [
   ...siteProjects,
   {
+    slug: "suminagashi",
+    title: "墨流し — Suminagashi",
+    description:
+      "藍と墨が水面で渦を巻く、GPU 流体の水盤。指でかき混ぜ、墨を落とし、気に入った模様はそのまま保存できる。",
+    hubNote:
+      "いま触っているこの水面が、その作品です。ここでは混ぜられるだけ。落として、風を送って、保存できるのは向こう側。粘りと渦のつまみも、作品の側にあります。",
+    tags: ["WebGL2", "GLSL", "TypeScript"],
+    category: "tools",
+  },
+  {
     slug: "quote-simulator",
     title: "見積もりシミュレーター",
     description:
@@ -59,16 +69,6 @@ export const projects: Project[] = [
     description:
       "間取りを描きかえ、家具を置き、3D で確かめる。マス目を塗るだけで廊下も L 字も描ける、住まいの検討用の道具。",
     tags: ["React Three Fiber", "TypeScript"],
-    category: "tools",
-  },
-  {
-    slug: "suminagashi",
-    title: "墨流し — Suminagashi",
-    description:
-      "藍と墨が水面で渦を巻く、GPU 流体の水盤。指でかき混ぜ、墨を落とし、気に入った模様はそのまま保存できる。",
-    hubNote:
-      "いま触っているこの水面が、その作品です。ここでは混ぜられるだけ。落として、風を送って、保存できるのは向こう側。粘りと渦のつまみも、作品の側にあります。",
-    tags: ["WebGL2", "GLSL", "TypeScript"],
     category: "tools",
   },
   {
