@@ -65,7 +65,7 @@ export function AdvisoryPlans() {
         ) : null}
         {yearly === null ? (
           <p className={s.yearly}>
-            顧問契約はありません。要るときだけお受けします。
+            顧問契約はありません。必要なときだけお受けします。
           </p>
         ) : (
           <p className={s.yearly}>
