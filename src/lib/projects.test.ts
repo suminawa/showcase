@@ -8,18 +8,28 @@ import {
 } from "./projects";
 
 describe("projects registry", () => {
-  it("カテゴリは sites → tools → samples → games の順で 4 つ", () => {
+  it("カテゴリは sites → tools → games → challenge の順で 4 つ", () => {
     expect(CATEGORIES.map((c) => c.id)).toEqual([
       "sites",
       "tools",
-      "samples",
       "games",
+      "challenge",
     ]);
     expect(CATEGORIES.map((c) => c.label)).toEqual([
       "SITES",
       "TOOLS",
-      "SAMPLES",
       "GAMES",
+      "CHALLENGE",
+    ]);
+  });
+
+  it("欄の頭の一行を持つのは SITES だけ", () => {
+    const leads = CATEGORIES.map((c) => c.lead);
+    expect(leads).toEqual([
+      "どれも架空の会社で作った見本です。",
+      undefined,
+      undefined,
+      undefined,
     ]);
   });
 
@@ -32,40 +42,59 @@ describe("projects registry", () => {
 
   it("projectsByCategory がカテゴリで絞り込む", () => {
     const sites = projectsByCategory("sites");
-    expect(sites.map((p) => p.slug)).toEqual(["suminagashi"]);
-    const tools = projectsByCategory("tools");
-    expect(tools.map((p) => p.slug)).toEqual(["quote-simulator", "30days"]);
-    const samples = projectsByCategory("samples").map((p) => p.slug);
-    expect(samples).toEqual([
+    expect(sites.map((p) => p.slug)).toEqual([
+      "corporate-site",
       "saas-lp",
       "shop-lp",
       "construction-lp",
-      "corporate-site",
       "professional-lp",
       "clinic-lp",
-      "3d-viewer",
+    ]);
+    const tools = projectsByCategory("tools");
+    expect(tools.map((p) => p.slug)).toEqual([
+      "quote-simulator",
+      "floorplan",
+      "suminagashi",
+    ]);
+    expect(projectsByCategory("challenge").map((p) => p.slug)).toEqual([
+      "30days",
     ]);
     expect(projectsByCategory("games")).toEqual([]);
   });
 
   it("projectHref は /projects/<slug>、見本は /demos/<slug> を返す", () => {
-    const [first] = projectsByCategory("sites");
-    expect(projectHref(first)).toBe("/projects/suminagashi");
-    const samples = projectsByCategory("samples");
-    expect(projectHref(samples[0])).toBe("/demos/saas-lp");
-    expect(projectHref(samples[samples.length - 1])).toBe("/demos/3d-viewer");
+    const [quote, floorplan, suminagashi] = projectsByCategory("tools");
+    expect(projectHref(quote)).toBe("/projects/quote-simulator");
+    expect(projectHref(floorplan)).toBe("/projects/floorplan");
+    expect(projectHref(suminagashi)).toBe("/projects/suminagashi");
+    const [challenge] = projectsByCategory("challenge");
+    expect(projectHref(challenge)).toBe("/projects/30days");
+    const sites = projectsByCategory("sites");
+    expect(projectHref(sites[0])).toBe("/demos/corporate-site");
+    expect(projectHref(sites[sites.length - 1])).toBe("/demos/clinic-lp");
   });
 
-  it("見本の行はレジストリの題と説明をそのまま持つ", () => {
-    const [saas, shop, construction, corporate] = projectsByCategory("samples");
-    expect(saas.title).toBe("見本 — BtoB・SaaS の LP");
+  it("SITES の行はレジストリの題と説明をそのまま持つ", () => {
+    const [corporate, saas, shop, construction] = projectsByCategory("sites");
+    expect(corporate.title).toBe("会社案内サイト");
+    expect(corporate.tags).toContain("見本サイト");
+    expect(saas.title).toBe("BtoB・SaaS の LP");
     expect(saas.tags).toContain("見本 LP");
-    expect(shop.title).toBe("見本 — 店舗・サロンの LP");
+    expect(shop.title).toBe("店舗・サロンの LP");
     expect(projectHref(shop)).toBe("/demos/shop-lp");
-    expect(construction.title).toBe("見本 — 建設・工事の LP");
+    expect(construction.title).toBe("建設・工事の LP");
     expect(projectHref(construction)).toBe("/demos/construction-lp");
-    expect(corporate.title).toBe("見本 — 会社案内サイト");
-    expect(projectHref(corporate)).toBe("/demos/corporate-site");
+  });
+
+  it("間取りシミュレーターはツールの 2 番目", () => {
+    const [, floorplan] = projectsByCategory("tools");
+    expect(floorplan.slug).toBe("floorplan");
+    expect(floorplan.title).toBe("間取りシミュレーター");
+    expect(floorplan.description).toBe(
+      "間取りを描きかえ、家具を置き、3D で確かめる。マス目を塗るだけで廊下も L 字も描ける、住まいの検討用の道具。",
+    );
+    expect(floorplan.tags).toEqual(["React Three Fiber", "TypeScript"]);
+    expect(floorplan.href).toBeUndefined();
   });
 
   it("slug は作品と見本をまたいで重ならない", () => {

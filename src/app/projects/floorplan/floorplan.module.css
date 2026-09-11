@@ -1,15 +1,25 @@
 /*
- * 見本: 3D ビューアのページ。淡い灰の地に藍鼠 1 色。
- * 料紙（トップ・作品ページ）の文法はここには持ち込まない ── 見本は「相手の業種の画面」であって、
- * suminawa の紙ではない。色はこの根で決め、Viewer と DemoFooter は --d-* を継承する。
+ * 間取りシミュレーターの根。
  *
- * コントラスト（地 #eef0f2 上の実測）
- *   #1a1e24 14.6:1 / #545b64 5.9:1 / #2f5f7a 6.0:1
- *   #ffffff は #2f5f7a の上で 6.9:1
+ * 紙は料紙のまま（背景はここで塗らない）── ツールの面は見積もりシミュレーターと
+ * 同じ地に載せる。この一枚が持つのは【道具の中の色と字】だけで、
+ * 道具の外（頭・戻り・一行）は projects.module.css の文法に従う。
+ *
+ * 色を料紙に寄せないのは水盤と同じ理屈で、道具自身の色は道具のものだから ──
+ * 藍鼠は図面の線と面を読み分けるための色で、額装が変わっても変わらない。
+ * 値は Viewer / PlanEditor（components/demos/viewer/viewer.module.css）が
+ * --d-* として読む。ここが唯一の出どころ。
+ *
+ * コントラスト … 各値は見本だったころ地 #EEF0F2 の上で測ってある
+ *   （#1A1E24 14.6:1 / #545B64 5.9:1 / #2F5F7A 6.0:1、#FFFFFF は #2F5F7A の上で 6.9:1）。
+ *   料紙 #F6F3EB は #EEF0F2 より明るい（相対輝度 0.897 > 0.869）ので、
+ *   地に直に載る字と線はどれもこの数値より濃く出る。下回るものは無い。
  */
 
-.page {
-  --d-bg: #eef0f2;
+.tool {
+  /* 地は料紙。塗らずに透かすので、--d-bg は「後ろにある紙の色」を指す
+     （viewer.module.css では、墨地の注記の吹き出しの字の色として読まれる） */
+  --d-bg: var(--ryoushi-paper);
   --d-fg: #1a1e24;
   --d-muted: #545b64;
   --d-brand: #2f5f7a;
@@ -20,105 +30,16 @@
   --d-on-brand: #ffffff;
   --d-input-line: #8b91a0; /* 入力欄（部屋名の select）の枠線。地の色で 3:1 以上 */
 
-  min-height: 100vh;
-  background: var(--d-bg);
+  /* 道具の字は明朝ではなく素の sans。図面の数字と部屋名が小さく並ぶ面なので、
+     頭の明朝はここで切る（境目は道具の枠ではなく、字そのものが示す）。
+     ＊ 見本のころは var(--font-sans) と書いていたが、あれは Tailwind の
+       @theme inline の名前で、:root には出ない（utility に畳まれるだけ）。
+       見本では body の font-sans をそのまま継いでいたので気づかなかった。
+       料紙の上では祖先が明朝なので、素通しにすると道具まで明朝になる ──
+       次の font 変数（next/font が body に載せる実体）を直に読む。 */
   color: var(--d-fg);
-  font-family: var(--font-sans);
+  font-family:
+    var(--font-noto-sans-jp), ui-sans-serif, system-ui, "Hiragino Sans",
+    sans-serif;
   line-height: 1.8;
-  overflow-x: clip;
-}
-
-/* 見本の根がある間だけ、html の地も見本の色にする（引っ張ったときの余白が料紙の色にならないように）。
-   トークンは .page に閉じているので、ここだけ値を直書きする */
-:global(html):has(.page) {
-  background: #eef0f2;
-}
-
-.container {
-  width: min(100% - 2.5rem, 1080px);
-  margin-inline: auto;
-  padding-top: 3rem;
-}
-
-.eyebrow {
-  margin: 0 0 0.75rem;
-  font-size: 0.875rem;
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  color: var(--d-brand);
-}
-
-.h1 {
-  margin: 0;
-  font-size: clamp(1.75rem, 4.6vw, 2.75rem);
-  font-weight: 800;
-  line-height: 1.25;
-  letter-spacing: -0.01em;
-}
-
-.lead {
-  margin: 1rem 0 0;
-  max-width: 36em;
-  color: var(--d-muted);
-}
-
-.section {
-  margin-top: 3rem;
-}
-
-.h2 {
-  margin: 0 0 1.5rem;
-  font-size: clamp(1.25rem, 2.8vw, 1.75rem);
-  font-weight: 800;
-  line-height: 1.35;
-}
-
-.points {
-  display: grid;
-  gap: 1rem;
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-
-@media (min-width: 720px) {
-  .points {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-}
-
-.card {
-  padding: 1.25rem 1.5rem;
-  border: 1px solid var(--d-line);
-  border-radius: 1rem;
-  background: var(--d-surface);
-}
-
-.cardTitle {
-  margin: 0 0 0.375rem;
-  font-size: 1.0625rem;
-  font-weight: 700;
-}
-
-.cardBody {
-  margin: 0;
-  font-size: 0.9375rem;
-  color: var(--d-muted);
-}
-
-.notes {
-  margin: 0;
-  padding-left: 1.25rem;
-  max-width: 44em;
-  list-style: disc;
-  color: var(--d-muted);
-}
-
-/* display: grid だと <li> の既定マーカーが消えるので、行間は margin で取る */
-.notes li + li {
-  margin-top: 0.75rem;
-}
-
-.footer {
-  margin-top: 3rem;
 }

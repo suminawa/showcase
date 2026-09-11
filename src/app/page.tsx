@@ -15,7 +15,7 @@
  *   破る一点で、分けるための線ではなく、字を載せるための線として引いている。
  * FIRST VIEWPORT: 右上に入りの一筆、左下に SUMINAWA、左端を降りる脈の頭。
  *   界線は名乗りの版面（大字の帯を除く）に既に敷かれている。名乗りの下に置くのは
- *   分類の目次（SITES / TOOLS / SAMPLES / GAMES）だけで、作品の文字は一切出さない。
+ *   分類の目次（SITES / TOOLS / GAMES / CHALLENGE）だけで、作品の文字は一切出さない。
  * ASSET: 水の素材は /ink/sumi-wide.webp ── 結びの掠れ（.trace）が静止時から読んでいる画と
  *   同一なので、流れを足しても追加のダウンロードが 1 バイトも発生しない。
  * COLOR: 唯一の色は朱 #A63A2E の落款ひとつ。罫も脈も墨の濃淡だけで語る。
@@ -132,6 +132,8 @@ type Row = {
   anchorId: ProjectCategory | null;
   /** その段に出す分類名。同じ分類が続く 2 行目以降は出さない */
   label: string | null;
+  /** 分類の見出しの下に置く 1 行。持つのは分類の最初の段だけ（無い分類のほうが多い） */
+  lead: string | null;
   pos: RowPos;
   project: Project | null;
 };
@@ -148,17 +150,25 @@ function rowPos(index: number, count: number): RowPos {
  * 何を作る場所なのかを先に見せておく。
  */
 function buildRows(): Row[] {
-  return CATEGORIES.flatMap(({ id, label }): Row[] => {
+  return CATEGORIES.flatMap(({ id, label, lead }): Row[] => {
     const items = projectsByCategory(id);
     if (items.length === 0) {
       return [
-        { key: `empty-${id}`, anchorId: id, label, pos: "only", project: null },
+        {
+          key: `empty-${id}`,
+          anchorId: id,
+          label,
+          lead: lead ?? null,
+          pos: "only",
+          project: null,
+        },
       ];
     }
     return items.map((project, i) => ({
       key: project.slug,
       anchorId: i === 0 ? id : null,
       label: i === 0 ? label : null,
+      lead: i === 0 ? (lead ?? null) : null,
       pos: rowPos(i, items.length),
       project,
     }));
@@ -238,6 +248,10 @@ export default function Home() {
               <span className={s.flowDeep} aria-hidden="true" />
 
               <span className={s.cat}>{row.label ?? ""}</span>
+
+              {/* 分類の頭の一行。欄に並ぶものが何なのかを、一件ずつの説明に
+                  書かずにここで一度だけ言う。字は作品の説明と同じ「小」 */}
+              {row.lead && <p className={s.lead}>{row.lead}</p>}
 
               {row.project ? (
                 <Link href={projectHref(row.project)} className={s.entry}>
