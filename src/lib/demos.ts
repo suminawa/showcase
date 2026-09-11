@@ -3,7 +3,7 @@
  * 提案文から来た人が触る 1 ページ LP や 3D ビューア。ハブの SAMPLES 欄はここから組む。
  * 見本を足すときに触るのは、このファイルと src/app/demos/<slug>/ だけ。
  */
-export type DemoSlug = "saas-lp" | "shop-lp";
+export type DemoSlug = "saas-lp" | "shop-lp" | "3d-viewer";
 
 export type Demo = {
   slug: DemoSlug;
@@ -32,6 +32,14 @@ export const demos: readonly Demo[] = [
     description:
       "架空の焼き菓子とコーヒーの店「粉とゆげ」の 1 ページ。品書きと席の案内、予約フォームまで動く見本。",
     tags: ["Next.js", "TypeScript", "見本 LP"],
+  },
+  {
+    slug: "3d-viewer",
+    title: "見本 — 3D ビューア（建物）",
+    industry: "建築・不動産",
+    description:
+      "2 階建ての家をブラウザで回して見る見本。階の切替、間取り、昼夜の照明、外壁の色を切り替えられます。",
+    tags: ["React Three Fiber", "TypeScript", "見本 3D"],
   },
 ];
 

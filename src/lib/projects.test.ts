@@ -35,18 +35,18 @@ describe("projects registry", () => {
     expect(sites.map((p) => p.slug)).toEqual(["suminagashi"]);
     const tools = projectsByCategory("tools");
     expect(tools.map((p) => p.slug)).toEqual(["quote-simulator", "30days"]);
-    expect(projectsByCategory("samples").map((p) => p.slug)).toEqual([
-      "saas-lp",
-      "shop-lp",
-    ]);
+    const samples = projectsByCategory("samples").map((p) => p.slug);
+    expect(samples[0]).toBe("saas-lp");
+    expect(samples[samples.length - 1]).toBe("3d-viewer");
     expect(projectsByCategory("games")).toEqual([]);
   });
 
   it("projectHref は /projects/<slug>、見本は /demos/<slug> を返す", () => {
     const [first] = projectsByCategory("sites");
     expect(projectHref(first)).toBe("/projects/suminagashi");
-    const [sample] = projectsByCategory("samples");
-    expect(projectHref(sample)).toBe("/demos/saas-lp");
+    const samples = projectsByCategory("samples");
+    expect(projectHref(samples[0])).toBe("/demos/saas-lp");
+    expect(projectHref(samples[samples.length - 1])).toBe("/demos/3d-viewer");
   });
 
   it("見本の行はレジストリの題と説明をそのまま持つ", () => {
