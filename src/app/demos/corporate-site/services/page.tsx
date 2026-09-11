@@ -42,7 +42,7 @@ export default function CorporateServicesPage() {
         <div className={c.container}>
           <h1 className={c.h1}>海を測り、記録し、読み解く</h1>
           <p className={c.lead}>
-            三つの事業はつながっています。海で測り、置いて記録し、読み解く。調査で数字の癖を知っているから、解析のときに異常値を見分けられます。
+            三つの事業はつながっています。海で測り、機器を置いて記録し、そのデータを読み解く。現場で数字の癖をつかんでいますので、解析でも異常値を見分けられます。
           </p>
         </div>
       </section>
@@ -59,7 +59,7 @@ export default function CorporateServicesPage() {
                 </div>
                 <div className={s.blockDetail}>
                   <div>
-                    <h3 className={s.detailTitle}>仕事の流れ</h3>
+                    <h3 className={s.detailTitle}>進め方</h3>
                     <ol className={s.flow}>
                       {pillar.steps.map((step) => (
                         <li key={step} className={s.flowStep}>

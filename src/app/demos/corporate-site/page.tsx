@@ -51,7 +51,7 @@ export default function CorporateTopPage() {
           <p className={s.heroEyebrow}>海洋・環境調査の計測</p>
           <h1 className={c.h1}>海を測り、記録を残す。</h1>
           <p className={s.heroLead}>
-            水深も、流れも、水の質も。船を出して測り、置いた機器で記録を続け、図と報告書にしてお渡しします。
+            水深も、流れも、水の質も。船を出して測り、設置した機器で記録を続け、図と報告書にしてお渡しします。
           </p>
           <div className={s.heroCtas}>
             <Link href={`${NAV_BASE}/services`} className={c.primary}>
@@ -117,7 +117,7 @@ export default function CorporateTopPage() {
                 調査のご相談は、まず内容をお聞かせください
               </h2>
               <p className={s.ctaBody}>
-                測る範囲と期間が決まっていなくてもかまいません。現場の条件をうかがってから、進め方をご提案します。
+                測る範囲や期間が決まっていない段階でも、ご相談いただけます。現場の条件をうかがったうえで、進め方をご提案します。
               </p>
             </div>
             <Link href={`${NAV_BASE}/contact`} className={s.ctaButton}>

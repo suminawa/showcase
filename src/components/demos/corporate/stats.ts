@@ -14,7 +14,7 @@ export const STATS: readonly Stat[] = [
   // 設立の 2002 年から数える（会社概要の「海の計測を、2002 年から続けています」と同じ）。
   // 自社ブイでの「観測」は 2007 年からなので、ここは「計測」と書く
   { id: "years", label: "計測を続けた年数", value: 24, unit: "年" },
-  { id: "devices", label: "海に置いた観測機器", value: 96, unit: "台" },
+  { id: "devices", label: "海に設置した観測機器", value: 96, unit: "台" },
   { id: "data", label: "解析したデータ", value: 38, unit: "TB" },
 ];
 

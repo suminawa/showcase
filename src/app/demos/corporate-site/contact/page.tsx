@@ -37,11 +37,11 @@ export const metadata: Metadata = {
 const HOURS = [
   {
     term: "受付時間",
-    body: "平日 9:00 - 17:30（土日祝と年末年始は休みます）",
+    body: "平日 9:00 - 17:30（土日祝と年末年始はお休みをいただいています）",
   },
   {
     term: "お返事",
-    body: "2 営業日のうちにご返信します。急ぎのご用件は、その旨をお書きください。",
+    body: "2 営業日以内にご返信します。お急ぎのご用件は、その旨をお書き添えください。",
   },
 ];
 
@@ -82,9 +82,9 @@ export default function CorporateContactPage() {
       <section className={c.section}>
         <div className={`${c.container} ${s.contact}`}>
           <div>
-            <h2 className={c.h2}>ご記入のお願い</h2>
+            <h2 className={c.h2}>お問い合わせにあたって</h2>
             <p className={s.contactIntro}>
-              測る範囲や期間が決まっていなくてもかまいません。現場の条件と、知りたいことをお書きください。
+              測る範囲や期間が決まっていない段階でも、ご相談いただけます。現場の条件と、知りたいことをお書きください。
             </p>
             <dl className={s.hours}>
               {HOURS.map((row) => (
@@ -95,7 +95,7 @@ export default function CorporateContactPage() {
               ))}
             </dl>
           </div>
-          <DemoForm fields={CONTACT_FIELDS} submitLabel="この内容で送る" />
+          <DemoForm fields={CONTACT_FIELDS} submitLabel="この内容で送信する" />
         </div>
       </section>
     </>
