@@ -1,4 +1,6 @@
-export type ProjectCategory = "tools" | "games" | "sites";
+import { demoHref, demos } from "./demos";
+
+export type ProjectCategory = "tools" | "games" | "sites" | "samples";
 
 export type Project = {
   slug: string;
@@ -11,14 +13,27 @@ export type Project = {
    * ハブの素材そのものが作品と同じもののとき、その重複を明示的に引き受ける。
    */
   hubNote?: string;
+  /** ハブから飛ぶ先。無ければ /projects/<slug> */
+  href?: string;
 };
 
 /** 表示順もこの配列の順に従う */
 export const CATEGORIES: { id: ProjectCategory; label: string }[] = [
   { id: "sites", label: "SITES" },
   { id: "tools", label: "TOOLS" },
+  { id: "samples", label: "SAMPLES" },
   { id: "games", label: "GAMES" },
 ];
+
+/** 見本はレジストリ（demos.ts）から SAMPLES 欄に写す。ハブは作品と同じ行として扱う */
+const sampleProjects: Project[] = demos.map((demo) => ({
+  slug: demo.slug,
+  title: demo.title,
+  description: demo.description,
+  tags: demo.tags,
+  category: "samples",
+  href: demoHref(demo),
+}));
 
 export const projects: Project[] = [
   {
@@ -47,10 +62,11 @@ export const projects: Project[] = [
     tags: ["Next.js", "TypeScript", "公開ログ"],
     category: "tools",
   },
+  ...sampleProjects,
 ];
 
 export function projectHref(project: Project): string {
-  return `/projects/${project.slug}`;
+  return project.href ?? `/projects/${project.slug}`;
 }
 
 export function projectsByCategory(category: ProjectCategory): Project[] {
