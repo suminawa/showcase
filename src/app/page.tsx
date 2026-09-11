@@ -14,21 +14,25 @@
  *   階段を上ることで初めて目に見える。界線は「罫を使わない」という飛白の法を意図的に
  *   破る一点で、分けるための線ではなく、字を載せるための線として引いている。
  * FIRST VIEWPORT: 右上に入りの一筆、左下に SUMINAWA、左端を降りる脈の頭。
- *   界線は名乗りの版面（大字の帯を除く）に既に敷かれている。作品の文字は一切出さない。
+ *   界線は名乗りの版面（大字の帯を除く）に既に敷かれている。名乗りの下に置くのは
+ *   分類の目次（SITES / TOOLS / SAMPLES / GAMES）だけで、作品の文字は一切出さない。
  * ASSET: 水の素材は /ink/sumi-wide.webp ── 結びの掠れ（.trace）が静止時から読んでいる画と
  *   同一なので、流れを足しても追加のダウンロードが 1 バイトも発生しない。
  * COLOR: 唯一の色は朱 #A63A2E の落款ひとつ。罫も脈も墨の濃淡だけで語る。
  *   水だけは青墨（あおずみ）── 藍を含んだ墨で、最も濃い芯にだけ色が出る。
  * FORM: 三つ — 料紙に脈、触れて流れ。文法は DESIGN.md
  */
+import { Fragment } from "react";
 import Link from "next/link";
 import { Hina_Mincho, Shippori_Mincho } from "next/font/google";
 
 import {
   CATEGORIES,
+  categoryAnchors,
   projectHref,
   projectsByCategory,
   type Project,
+  type ProjectCategory,
 } from "@/lib/projects";
 import {
   STRANDS,
@@ -115,12 +119,28 @@ function Myaku({
   );
 }
 
+/**
+ * 分類の中でのその段の位置。界線の版面をどこまで伸ばし、どちらの端を消すかが
+ * これだけで決まる ── 同じ分類の中では紙を切らず、分類の変わり目でだけ切る。
+ * 一件しかない分類は "only"、すなわち上下とも端を消す従来の見え方のまま。
+ */
+type RowPos = "first" | "middle" | "last" | "only";
+
 type Row = {
   key: string;
+  /** 目次の飛び先。その分類の最初の段だけが持つ */
+  anchorId: ProjectCategory | null;
   /** その段に出す分類名。同じ分類が続く 2 行目以降は出さない */
   label: string | null;
+  pos: RowPos;
   project: Project | null;
 };
+
+function rowPos(index: number, count: number): RowPos {
+  if (count === 1) return "only";
+  if (index === 0) return "first";
+  return index === count - 1 ? "last" : "middle";
+}
 
 /**
  * 段の並びをレジストリから組む。作品を足すときに触るのは projects.ts だけ。
@@ -131,11 +151,15 @@ function buildRows(): Row[] {
   return CATEGORIES.flatMap(({ id, label }): Row[] => {
     const items = projectsByCategory(id);
     if (items.length === 0) {
-      return [{ key: `empty-${id}`, label, project: null }];
+      return [
+        { key: `empty-${id}`, anchorId: id, label, pos: "only", project: null },
+      ];
     }
     return items.map((project, i) => ({
       key: project.slug,
+      anchorId: i === 0 ? id : null,
       label: i === 0 ? label : null,
+      pos: rowPos(i, items.length),
       project,
     }));
   });
@@ -170,13 +194,32 @@ export default function Home() {
             墨
           </span>
         </p>
+
+        {/* 分類の目次。名乗りの次の罫に座る一行で、各分類の最初の段へ飛ぶ。
+            字は下の作品欄の分類名（.cat）と同じ「小」── 同じ字であることが
+            目次と見出しを結ぶ唯一の手がかりで、印も枠も足さない */}
+        <nav className={s.index} aria-label="分類">
+          {categoryAnchors().map(({ id, label, anchor }, i) => (
+            <Fragment key={id}>
+              {i > 0 && "　"}
+              <a className={s.indexLink} href={anchor}>
+                {label}
+              </a>
+            </Fragment>
+          ))}
+        </nav>
       </header>
 
       <ol className={s.works}>
         {rows.map((row, i) => {
           const vein = plan.rows[i];
           return (
-            <li key={row.key} className={s.work}>
+            <li
+              key={row.key}
+              id={row.anchorId ?? undefined}
+              data-pos={row.pos}
+              className={s.work}
+            >
               <Myaku
                 zone={`${s.zWork} ${i === 0 ? s.zWorkFirst : ""}`}
                 at={vein.at}

@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   CATEGORIES,
+  categoryAnchors,
   projectHref,
   projects,
   projectsByCategory,
@@ -58,5 +59,26 @@ describe("projects registry", () => {
 
   it("slug は作品と見本をまたいで重ならない", () => {
     expect(new Set(projects.map((p) => p.slug)).size).toBe(projects.length);
+  });
+});
+
+describe("categoryAnchors", () => {
+  it("CATEGORIES と同じ順で 4 件を返す", () => {
+    const anchors = categoryAnchors();
+    expect(anchors).toHaveLength(4);
+    expect(anchors.map((a) => a.id)).toEqual(CATEGORIES.map((c) => c.id));
+    expect(anchors.map((a) => a.label)).toEqual(CATEGORIES.map((c) => c.label));
+  });
+
+  it("anchor は # + id の形", () => {
+    for (const anchor of categoryAnchors()) {
+      expect(anchor.anchor).toBe(`#${anchor.id}`);
+      expect(anchor.anchor).toMatch(/^#[a-z]+$/);
+    }
+  });
+
+  it("作品を持たない分類も目次に残る", () => {
+    expect(categoryAnchors().map((a) => a.id)).toContain("games");
+    expect(projectsByCategory("games")).toEqual([]);
   });
 });

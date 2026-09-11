@@ -72,3 +72,19 @@ export function projectHref(project: Project): string {
 export function projectsByCategory(category: ProjectCategory): Project[] {
   return projects.filter((project) => project.category === category);
 }
+
+/** 目次の一本。分類の名と、その分類の最初の段に付けた id への飛び先 */
+export type CategoryAnchor = {
+  id: ProjectCategory;
+  label: string;
+  anchor: string;
+};
+
+/**
+ * 名乗りの下に並べる分類の目次。並びは CATEGORIES そのままで、
+ * 作品を持たない分類（GAMES）も段があるかぎり必ず入る ──
+ * 目次は「何がここに載るか」の一覧であって、載っているものの一覧ではない。
+ */
+export function categoryAnchors(): CategoryAnchor[] {
+  return CATEGORIES.map(({ id, label }) => ({ id, label, anchor: `#${id}` }));
+}

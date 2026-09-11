@@ -465,7 +465,10 @@
   left: calc(-1 * var(--myaku-band));
   width: var(--myaku-band);
   bottom: 0;
-  top: calc(-1 * var(--hi-void));
+  /* 箱の上端は【前の段の下端】。.work が持つ段の余白（--work-lead）をそのまま
+     読むので、同じ分類で余白が 2 行へ詰まっても区間は隙間なく継ぎ、
+     前の段へ食い込むこともない ── 終点 x と次の始点 x は変わらないので繋ぎ目は飛ばない */
+  top: calc(-1 * var(--work-lead, var(--hi-void)));
 }
 
 .zWorkFirst {
@@ -533,10 +536,12 @@
  */
 .mark::before {
   bottom: 0;
-  /* 下から積んだ寸法（余白3行・落款1行・間1行・英文1行・送り2行）＝ 8 行ぶん。
-     そこへ大字の高さを足すと、界線の版面の上端は大字の上端でぴたりと止まる。
-     「Showcase」は必ずその外＝柱題の位置に残り、罫を一本も背負わない。 */
-  height: calc(0.94 * var(--hi-mark-size) + 8 * var(--hi-kei-pitch));
+  /* 下から積んだ寸法（余白 3 行・目次 1 行・英文（落款を含む）1 行・送り 2 行）
+     ＝ 7 行。そこへ大字の高さと、大字の上へ残す 2 行ぶんを足して 9 行ぶん。
+     下のマスクが大字の足元まで罫を出さないので、界線の版面の上端は大字の上端で
+     ぴたりと止まり、「Showcase」は必ずその外＝柱題の位置に残って罫を背負わない。
+     ＊ 目次を一行足したので 8 行 → 9 行。ここが半端だと罫の位相が狂う。 */
+  height: calc(0.94 * var(--hi-mark-size) + 9 * var(--hi-kei-pitch));
   background-position: 0 100%;
   mask-image: linear-gradient(
     to bottom,
@@ -632,6 +637,54 @@
   }
 }
 
+/*
+ * 分類の目次 ── 英文の次の罫に座る一行。
+ *
+ * 書体・大きさ・字間は作品欄の分類名（.cat）と寸分たがわず同じにしてある。
+ * 目次と見出しを結ぶ手がかりはこの【同じ字であること】だけで、
+ * 印も枠も下線も足さない。左端は英文に揃える ── 起点の斜行を割らないため。
+ * line-height 2.3 ＝ ちょうど界線一行なので、狭い紙で折り返しても
+ * 次の行はそのまま次の罫に落ちる。
+ */
+.index {
+  font-size: var(--hi-tiny);
+  line-height: 2.3;
+  letter-spacing: 0.3em;
+  color: var(--hi-sumi-3);
+  margin-left: clamp(28px, 20vw, 280px);
+  animation: hi-rise 1000ms var(--hi-brush) 1420ms both;
+}
+
+/* 触れて起きるのは墨が一段濃くなることだけ。色を持つのは落款ひとつという規則の内側 */
+.indexLink {
+  color: inherit;
+  text-decoration: none;
+  transition: color var(--hi-soak);
+}
+
+.indexLink:hover,
+.indexLink:focus-visible {
+  color: var(--hi-sumi);
+}
+
+/* 一行に 4 つ並ぶので、紙から大きく離す共通の輪（offset 10〜18px）では隣の字に被る。
+   太さを 2px に上げたうえで、輪は字の隙間の内側へ詰める。色は墨のまま */
+.paper .indexLink:focus-visible {
+  outline: 2px solid var(--hi-sumi);
+  outline-offset: clamp(4px, 0.6vw, 7px);
+}
+
+/*
+ * 目次から段へ飛ぶあいだだけ紙が滑る。:has(.paper) でこの面に限定してあるので、
+ * 作品ページや見本のスクロールには一切触れない。
+ * 勢いを望まない人には与えない（no-preference のときだけ）。
+ */
+@media (prefers-reduced-motion: no-preference) {
+  :global(html):has(.paper) {
+    scroll-behavior: smooth;
+  }
+}
+
 /* ==========================================================================
    作品 ── 料紙の上の小さな一行。飾りは持たないが、罫の上には座る
    ========================================================================== */
@@ -650,31 +703,75 @@
    z-index は与えない ── 与えると .work 自身が積み重ね文脈になり、
    負の z-index を持つ水と罫が、自分の背景の下ではなく文字の下へ潜れなくなる。 */
 .work {
+  /* ---- 分類の中の位置で決まる四つ（既定は data-pos="only"＝従来のまま）----
+     --work-lead … 前の段の下端から、この段の上端までの間。
+                   段の余白と脈の区間の箱（.zWork の top）が同じ値を読むので、
+                   二つが食い違って脈が前の段へ食い込むことが起こらない。
+     --kei-top / --kei-bottom … 界線の版面を上下へどれだけ張り出すか。
+     --kei-head / --kei-foot  … その端を何行かけて消すか。0 なら消さずに渡す。
+     四つとも pitch の整数倍（または 0）。半端にすると罫の位相が狂う。 */
+  --work-lead: var(--hi-void);
+  --kei-top: calc(-3 * var(--hi-kei-pitch));
+  --kei-bottom: calc(-3 * var(--hi-kei-pitch));
+  --kei-head: calc(1.4 * var(--hi-kei-pitch));
+  --kei-foot: calc(1.4 * var(--hi-kei-pitch));
+
   position: relative;
   display: grid;
   grid-template-columns: clamp(70px, 7vw, 104px) minmax(0, 1fr);
   column-gap: clamp(20px, 4vw, 72px);
+  /* 目次から飛んできたときの着地。版面の上に空の罫が残る位置で止める */
+  scroll-margin-top: calc(4 * var(--hi-kei-pitch));
 }
 
+/* 分類が切り替わるところは沈黙の段差のまま ── 紙はそこでいったん終わる */
 .work + .work {
-  margin-top: var(--hi-void);
+  margin-top: var(--work-lead);
 }
 
 /*
- * 一件ぶんの版面に敷く界線（静止）。字の上下へ 3 行ぶん延ばし、
- * その端を 1.4 行かけて消す ── 空の罫が上下に一本半ずつ残る。
+ * 同じ分類の中では紙を切らない。
+ *
+ * 段の余白を 2 行へ詰め、前の段の版面をこの段の上端まで伸ばし、
+ * 触れ合う側の端は消さずに渡す。結果、前の作品のタグ行と次の作品の題の行の
+ * あいだに残るのは【空の罫ちょうど 2 本】になる：
+ *
+ *   … タグの行（罫）／空の罫／空の罫／題の行（罫）…
+ *
+ * 段の余白も版面の張り出しも pitch の整数倍なので、罫の位相は紙の全体で
+ * 一つのまま動かない ── 版面が二枚重なっても、線が二本に割れることはない。
+ */
+.work[data-pos="middle"],
+.work[data-pos="last"] {
+  --work-lead: calc(2 * var(--hi-kei-pitch));
+  /* 上は前の段の版面が既に届いている。自分は上端から、消さずに始める */
+  --kei-top: 0px;
+  --kei-head: 0px;
+}
+
+.work[data-pos="first"],
+.work[data-pos="middle"] {
+  /* 下は次の段の上端まで（＝空の罫 2 本ぶん）伸ばし、消さずに渡す */
+  --kei-bottom: calc(-2 * var(--hi-kei-pitch));
+  --kei-foot: 0px;
+}
+
+/*
+ * 一件ぶんの版面に敷く界線（静止）。分類の外を向く端は字の上下へ 3 行ぶん延び、
+ * そこから 1.4 行かけて消える ── 空の罫が一本半ずつ残る。
  * 「まだ書かれていない行」が見えることで、罫は区切りではなく料紙になる。
- * 上へ延ばす量は pitch の整数倍なので、位相は .work の上端基準のまま狂わない。
+ * 張り出しは pitch の整数倍なので、位相は .work の上端基準のまま狂わない。
+ * ホバー規則は一つも持たない ── 罫は紙の支度であって、出来事ではない。
  */
 .work::before {
-  top: calc(-3 * var(--hi-kei-pitch));
-  bottom: calc(-3 * var(--hi-kei-pitch));
+  top: var(--kei-top);
+  bottom: var(--kei-bottom);
   background-position: 0 0;
   mask-image: linear-gradient(
     to bottom,
     transparent 0,
-    #000 calc(1.4 * var(--hi-kei-pitch)),
-    #000 calc(100% - 1.4 * var(--hi-kei-pitch)),
+    #000 var(--kei-head),
+    #000 calc(100% - var(--kei-foot)),
     transparent 100%
   );
 }
