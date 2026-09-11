@@ -1,0 +1,41 @@
+/*
+ * 帳簿の罫。横罫は 2.25rem ごと、縦罫は左から 4.5rem の位置に 1 本。
+ * 色そのものは書かず、ページの根が決めた --d-brand を薄めて使う。
+ * 罫が文字の後ろに来ても読めるよう、濃さは横罫 9% / 縦罫 6% までにする。
+ * 二つが交わった地でも --d-muted が 5.2:1 ある ── その計算の前提なので、この数字を上げない。
+ */
+
+.rules {
+  position: absolute;
+  /* 上下に 1 行ぶん以上はみ出させる。流れても端の切れ目が見えないように */
+  inset: -3rem 0;
+  background-image:
+    repeating-linear-gradient(
+      to bottom,
+      color-mix(in srgb, var(--d-brand) 9%, transparent) 0 1px,
+      transparent 1px 2.25rem
+    ),
+    linear-gradient(
+      to right,
+      transparent 0 4.5rem,
+      color-mix(in srgb, var(--d-brand) 6%, transparent) 4.5rem
+        calc(4.5rem + 1px),
+      transparent calc(4.5rem + 1px)
+    );
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .rules {
+    animation: drift 24s linear infinite;
+  }
+}
+
+/* 1 行ぶん（2.25rem）ちょうど動かして戻るので、つなぎ目が見えない */
+@keyframes drift {
+  from {
+    transform: translate3d(0, 0, 0);
+  }
+  to {
+    transform: translate3d(0, -2.25rem, 0);
+  }
+}
