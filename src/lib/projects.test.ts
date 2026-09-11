@@ -55,4 +55,8 @@ describe("projects registry", () => {
     expect(shop.title).toBe("見本 — 店舗・サロンの LP");
     expect(projectHref(shop)).toBe("/demos/shop-lp");
   });
+
+  it("slug は作品と見本をまたいで重ならない", () => {
+    expect(new Set(projects.map((p) => p.slug)).size).toBe(projects.length);
+  });
 });

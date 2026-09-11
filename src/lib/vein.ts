@@ -172,7 +172,16 @@ function chain(table: Record<VeinSegment, Ends>, rowCount: number) {
     x = end + dx;
   }
 
-  return { dxs, tailDx: x - table.tail[0] };
+  const [tailStart, tailEnd] = table.tail;
+  let tailDx = x - tailStart;
+  // 結びの本来の終点（6 / 17）は下限より内側に来ているので、送りが 0 以上
+  // （右へ、または動かない）ときはそのまま ── 作品が少ないときの基準値
+  // （vein.test.ts で固定）を変えない。中間の区間が下限に当たるほど左へ
+  // 流れて送りが負に振れたときだけ、結びも同じ下限で止める。ここを素通り
+  // させると、5 行目以降で結びが紙の外まで送られてマスクの外に出てしまう
+  if (tailDx < 0 && tailEnd + tailDx < FLOOR) tailDx = FLOOR - tailEnd;
+
+  return { dxs, tailDx };
 }
 
 /**
