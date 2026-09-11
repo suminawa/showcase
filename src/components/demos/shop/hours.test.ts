@@ -36,7 +36,7 @@ describe("shop hours", () => {
 
   it("曜日の並びは月曜から始まる", () => {
     expect(openDaysLabel()).toBe("木・金・土・日");
-    expect(closedDaysLabel()).toBe("月・火・水");
+    expect(closedDaysLabel()).toBe("定休日：月・火・水");
   });
 
   it("時間の表示と、ラストオーダーの位置", () => {

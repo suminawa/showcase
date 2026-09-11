@@ -34,8 +34,9 @@ export function openDaysLabel(): string {
   return labelFor(WEEK_FROM_MONDAY.filter((day) => !CLOSED_DAYS.includes(day)));
 }
 
+/** 「定休日：月・火・水」の形で返す。休みます、のような文にはしない */
 export function closedDaysLabel(): string {
-  return labelFor(WEEK_FROM_MONDAY.filter((day) => CLOSED_DAYS.includes(day)));
+  return `定休日：${labelFor(WEEK_FROM_MONDAY.filter((day) => CLOSED_DAYS.includes(day)))}`;
 }
 
 export function hoursLabel(): string {

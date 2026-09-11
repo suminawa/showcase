@@ -72,6 +72,11 @@
   border-color: var(--d-brand);
 }
 
+.field input::placeholder,
+.field textarea::placeholder {
+  color: var(--d-muted);
+}
+
 .submit {
   justify-self: start;
   font: inherit;

@@ -34,6 +34,12 @@ describe("shop menu", () => {
     }
   });
 
+  it("組をすべて足すと品書き全体になる（漏れも重なりもない）", () => {
+    expect(
+      MENU_GROUPS.flatMap((g) => menuByCategory(g.category))
+    ).toHaveLength(MENU.length);
+  });
+
   it("価格は 300 円以上 1000 円未満の 10 円単位", () => {
     for (const item of MENU) {
       expect(item.price).toBeGreaterThanOrEqual(300);

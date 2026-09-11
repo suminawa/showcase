@@ -101,6 +101,12 @@ const RESERVE_FIELDS: DemoField[] = [
     required: true,
     placeholder: "you@example.com",
   },
+  {
+    name: "hold",
+    label: "取り置き（任意）",
+    type: "textarea",
+    placeholder: "例: バターのスコーン 2、ほうじ茶 1",
+  },
 ];
 
 export default function ShopLpPage() {
@@ -121,7 +127,7 @@ export default function ShopLpPage() {
               <p className={s.hoursLine}>
                 {openDaysLabel()} {hoursLabel()}（ラストオーダー {lastOrderLabel()}）
               </p>
-              <p className={s.hoursClosed}>{closedDaysLabel()}は休みます。</p>
+              <p className={s.hoursClosed}>{closedDaysLabel()}</p>
               <p className={s.openNowRow}>
                 <OpenNow className={s.openNow} />
               </p>
@@ -131,7 +137,7 @@ export default function ShopLpPage() {
                 席を予約する
               </a>
               <a href="#menu" className={s.secondary}>
-                品書きを見る
+                お品書きを見る
               </a>
             </p>
           </div>
@@ -153,7 +159,7 @@ export default function ShopLpPage() {
 
         <section id="menu" className={`${s.section} ${s.soft}`}>
           <div className={s.container}>
-            <h2 className={s.h2}>品書き</h2>
+            <h2 className={s.h2}>お品書き</h2>
             <div className={s.menu}>
               {MENU_GROUPS.map((group) => (
                 <div key={group.category}>

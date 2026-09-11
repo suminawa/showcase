@@ -47,8 +47,7 @@
   margin-inline: auto;
 }
 
-.page a:focus-visible,
-.page summary:focus-visible {
+.page a:focus-visible {
   outline: 2px solid var(--d-brand-ink);
   outline-offset: 2px;
 }
@@ -153,7 +152,7 @@
 }
 
 .openNowRow {
-  min-height: 1.6em;
+  min-height: 2.05em;
   margin: 0.25rem 0 0;
 }
 
@@ -267,6 +266,7 @@
   display: block;
   margin-bottom: 0.75rem;
   font-family: var(--d-serif);
+  font-weight: 500;
   font-size: 1.25rem;
   letter-spacing: 0.08em;
   color: var(--d-brand);
