@@ -1,107 +1,27 @@
 import { describe, expect, it } from "vitest";
 import {
-  annotationPositions,
   cameraPose,
-  effectiveFloorMode,
+  FLOOR_TONE,
   HOUSE,
+  INTERIOR_TONE,
   isCutaway,
   lightingPreset,
-  rooms,
+  SELECTED_FLOOR_TONE,
   showsRoof,
-  visibleRooms,
+  visibleFloors,
   wallColorById,
   wallColors,
   type WallColor,
 } from "./house";
 
-describe("家の表", () => {
-  it("各部屋の広さは幅 × 奥行きと合う", () => {
-    for (const room of rooms) {
-      expect(room.area).toBeCloseTo(room.size[0] * room.size[2], 6);
-    }
-  });
-
-  it("各階の広さの合計は間口 × 奥行き", () => {
-    const footprint = HOUSE.width * HOUSE.depth;
-    for (const floor of [1, 2] as const) {
-      const total = rooms
-        .filter((room) => room.floor === floor)
-        .reduce((sum, room) => sum + room.area, 0);
-      expect(total).toBeCloseTo(footprint, 6);
-    }
-  });
-
-  it("どの部屋も建物の外に出ない", () => {
-    for (const room of rooms) {
-      expect(Math.abs(room.position[0]) + room.size[0] / 2).toBeLessThanOrEqual(
-        HOUSE.width / 2 + 1e-6,
-      );
-      expect(Math.abs(room.position[2]) + room.size[2] / 2).toBeLessThanOrEqual(
-        HOUSE.depth / 2 + 1e-6,
-      );
-    }
-  });
-
-  it("部屋の高さと中心は、その階の床から天井までに収まる", () => {
-    for (const room of rooms) {
-      const { base, height } = HOUSE.floors[room.floor];
-      expect(room.size[1]).toBe(height);
-      expect(room.position[1]).toBeCloseTo(base + height / 2, 6);
-    }
-  });
-
-  it("id は重複しない", () => {
-    const ids = rooms.map((room) => room.id);
-    expect(new Set(ids).size).toBe(ids.length);
-  });
-});
-
-describe("visibleRooms", () => {
-  it("1f は 1 階だけ、2f は 2 階だけ、all は全部", () => {
-    expect(visibleRooms(rooms, "1f").map((r) => r.id)).toEqual([
-      "ldk",
-      "entrance",
-      "bath",
-      "washitsu",
-      "corridor",
-    ]);
-    expect(visibleRooms(rooms, "2f").map((r) => r.id)).toEqual([
-      "bedroom",
-      "kids",
-      "study",
-      "hall",
-    ]);
-    expect(visibleRooms(rooms, "all")).toHaveLength(rooms.length);
-  });
-
-  it("元の表を書き換えない", () => {
-    const before = rooms.length;
-    visibleRooms(rooms, "all").pop();
-    expect(rooms).toHaveLength(before);
-  });
-});
-
-describe("annotationPositions", () => {
-  it("注記は 5 点", () => {
-    expect(annotationPositions(rooms)).toHaveLength(5);
-  });
-
-  it("見えている階の注記だけを返す", () => {
-    expect(
-      annotationPositions(visibleRooms(rooms, "1f")).map((a) => a.id),
-    ).toEqual(["ldk", "bath", "washitsu"]);
-    expect(
-      annotationPositions(visibleRooms(rooms, "2f")).map((a) => a.id),
-    ).toEqual(["bedroom", "kids"]);
-  });
-
-  it("吹き出しは部屋の天井の少し下に置く", () => {
-    const [ldk] = annotationPositions(visibleRooms(rooms, "1f"));
-    expect(ldk.label).toBe("LDK");
-    expect(ldk.area).toBe(33);
-    expect(ldk.position[0]).toBeCloseTo(-1.75, 6);
-    expect(ldk.position[1]).toBeCloseTo(2.35, 6);
-    expect(ldk.position[2]).toBeCloseTo(-1, 6);
+describe("家の寸法", () => {
+  it("間口 9m × 奥行き 8m の 2 階建て", () => {
+    expect(HOUSE.width).toBe(9);
+    expect(HOUSE.depth).toBe(8);
+    expect(HOUSE.floors[2].base).toBeCloseTo(
+      HOUSE.floors[1].height + HOUSE.slabThickness,
+      6,
+    );
   });
 });
 
@@ -126,6 +46,19 @@ describe("外壁の色", () => {
     expect(() => wallColorById(brokenId as WallColor["id"])).toThrow(
       "未知の外壁の色: none",
     );
+  });
+});
+
+describe("3D の中の色", () => {
+  it("床と内壁の色は #rrggbb", () => {
+    for (const value of [
+      FLOOR_TONE[1],
+      FLOOR_TONE[2],
+      SELECTED_FLOOR_TONE,
+      INTERIOR_TONE,
+    ]) {
+      expect(value).toMatch(/^#[0-9a-f]{6}$/);
+    }
   });
 });
 
@@ -160,43 +93,42 @@ describe("昼夜の照明", () => {
 });
 
 describe("表示の切替", () => {
-  it("全体を回して見るときだけ屋根を載せる", () => {
-    expect(showsRoof("all", "orbit")).toBe(true);
-    expect(showsRoof("1f", "orbit")).toBe(false);
-    expect(showsRoof("2f", "orbit")).toBe(false);
-    expect(showsRoof("all", "plan")).toBe(false);
-    expect(isCutaway("all", "orbit")).toBe(false);
-    expect(isCutaway("all", "plan")).toBe(true);
-    expect(isCutaway("1f", "orbit")).toBe(true);
+  it("全体のときだけ屋根を載せ、階を選んだときは腰で切る", () => {
+    expect(showsRoof("all")).toBe(true);
+    expect(showsRoof("1f")).toBe(false);
+    expect(showsRoof("2f")).toBe(false);
+    expect(isCutaway("all")).toBe(false);
+    expect(isCutaway("1f")).toBe(true);
+    expect(isCutaway("2f")).toBe(true);
   });
 
-  it("間取りは 1 つの階だけ見せる（断面）", () => {
-    expect(effectiveFloorMode("all", "plan")).toBe("1f");
-    expect(effectiveFloorMode("2f", "plan")).toBe("2f");
-    expect(effectiveFloorMode("1f", "plan")).toBe("1f");
-    expect(effectiveFloorMode("all", "orbit")).toBe("all");
+  it("visibleFloors は見せる階を返す", () => {
+    expect(visibleFloors("all")).toEqual([1, 2]);
+    expect(visibleFloors("1f")).toEqual([1]);
+    expect(visibleFloors("2f")).toEqual([2]);
   });
 });
 
 describe("cameraPose", () => {
-  it("間取りは真上から見下ろす", () => {
-    const pose = cameraPose("all", "plan");
-    expect(pose.position[0]).toBe(0);
-    expect(Math.abs(pose.position[2])).toBeLessThan(0.1);
-    expect(pose.position[1]).toBeGreaterThan(pose.target[1] + 10);
-  });
-
-  it("2 階の間取りは 1 階より高い位置から見る", () => {
-    expect(cameraPose("2f", "plan").position[1]).toBeGreaterThan(
-      cameraPose("1f", "plan").position[1],
-    );
-  });
-
-  it("回して見るときは斜め上の離れた位置", () => {
+  it("斜めからは離れた上から見る", () => {
     for (const mode of ["1f", "2f", "all"] as const) {
       const pose = cameraPose(mode, "orbit");
       expect(pose.position[1]).toBeGreaterThan(5);
       expect(Math.hypot(pose.position[0], pose.position[2])).toBeGreaterThan(10);
     }
+  });
+
+  it("真上からの全体は屋根の上から見下ろす", () => {
+    const pose = cameraPose("all", "top");
+    expect(pose.position).toEqual([0, 22, 0.01]);
+    expect(pose.target).toEqual([0, 0, 0]);
+  });
+
+  it("真上から階を選ぶと、その階の床の上から見下ろす", () => {
+    expect(cameraPose("1f", "top").position[1]).toBe(18);
+    const pose = cameraPose("2f", "top");
+    expect(pose.target[1]).toBeCloseTo(HOUSE.floors[2].base, 6);
+    expect(pose.position[1]).toBeCloseTo(HOUSE.floors[2].base + 18, 6);
+    expect(Math.abs(pose.position[2])).toBeLessThan(0.1);
   });
 });

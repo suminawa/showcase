@@ -1,7 +1,7 @@
 "use client";
 
 /*
- * 見本: 建物ビューアの 3D の場面。寸法も色も持たず、house.ts と shell.ts が返す
+ * 見本: 間取りシミュレーターの 3D。寸法も色も持たず、house.ts / shell.ts / furniture.ts が返す
  * 「箱の一覧」を並べるだけにしてある。形を直したいときは .ts の側だけを触る。
  * このファイルは next/dynamic（ssr: false）からだけ読まれる ── three.js を
  * ほかの画面の束に混ぜないため。
@@ -12,16 +12,17 @@ import { Canvas, useThree } from "@react-three/fiber";
 import { useEffect, useState } from "react";
 import { MOUSE, TOUCH } from "three";
 
+import { furnitureOnFloor, lighten, partsInScene } from "./furniture";
 import {
-  annotationPositions,
   cameraPose,
-  effectiveFloorMode,
+  FLOOR_TONE,
   HOUSE,
+  INTERIOR_TONE,
   isCutaway,
   lightingPreset,
-  rooms,
+  SELECTED_FLOOR_TONE,
   showsRoof,
-  visibleRooms,
+  visibleFloors,
   wallColorById,
   type Floor,
   type FloorMode,
@@ -29,7 +30,11 @@ import {
   type ViewMode,
   type WallColor,
 } from "./house";
+import { FLOOR_RECT, layoutRooms } from "./layout";
+import { type PlanState } from "./plan-state";
 import {
+  annotationPositions,
+  interiorWallPanels,
   roofShape,
   roomSlab,
   slabPanel,
@@ -40,13 +45,19 @@ import {
 import s from "./viewer.module.css";
 
 export type SceneProps = {
+  /** 間取りと家具。ここでは読むだけで、書き替えは Viewer が行う */
+  plan: PlanState;
+  /** 間取り図で編集している階。選択の強調をこの階だけに出す */
+  activeFloor: Floor;
   floorMode: FloorMode;
   view: ViewMode;
   lighting: LightingMode;
   wallColorId: WallColor["id"];
   /** 動きを減らす設定のとき true。自動回転と慣性を止める */
   reducedMotion: boolean;
-  /** WebGL のコンテキストを失ったときに呼ばれる。呼び出し側で平面図の代替表示に切り替える */
+  /** 選択中の部屋または家具の id */
+  selectedId: string | null;
+  /** WebGL のコンテキストを失ったときに呼ばれる。呼び出し側で断りの表示に切り替える */
   onContextLost?: () => void;
 };
 
@@ -61,10 +72,15 @@ const INITIAL_CAMERA = {
   position: [13, 10, 14] as [number, number, number],
 };
 
-/** 部屋の床の色。外壁の色を変えても床は変えない（間取りの読みやすさを保つため） */
-const FLOOR_TONE: Record<Floor, string> = { 1: "#d8d2c6", 2: "#cec7b9" };
+/* 操作の割り当ても、毎回新しい物を作らないよう外に出す */
+const MOUSE_BUTTONS = {
+  LEFT: MOUSE.ROTATE,
+  MIDDLE: MOUSE.DOLLY,
+  RIGHT: MOUSE.PAN,
+};
+const TOUCHES = { ONE: TOUCH.ROTATE, TWO: TOUCH.DOLLY_PAN };
 
-/** 箱を 1 つ置く。家の部品はすべてこれ */
+/** 箱を 1 つ置く。家の部品も家具もすべてこれ */
 function Box({
   panel,
   color,
@@ -113,60 +129,92 @@ function Stage({ lighting }: { lighting: LightingMode }) {
   );
 }
 
-/** 家そのもの。見せる階と切り方は house.ts が決める */
+/** 家そのもの。見せる階と切り方は house.ts が、部屋と家具は plan が決める */
 function House({
+  plan,
+  activeFloor,
   floorMode,
-  view,
   lighting,
   wallColorId,
-}: Omit<SceneProps, "reducedMotion">) {
-  const mode = effectiveFloorMode(floorMode, view);
-  const cutaway = isCutaway(floorMode, view);
+  selectedId,
+}: {
+  plan: PlanState;
+  activeFloor: Floor;
+  floorMode: FloorMode;
+  lighting: LightingMode;
+  wallColorId: WallColor["id"];
+  selectedId: string | null;
+}) {
+  const cutaway = isCutaway(floorMode);
   const colors = wallColorById(wallColorId);
   const preset = lightingPreset(lighting);
-  const shown = visibleRooms(rooms, mode);
-  const floors: Floor[] = mode === "all" ? [1, 2] : mode === "1f" ? [1] : [2];
   const roof = roofShape();
 
   return (
     <group>
-      {floors.map((floor) => (
-        <group key={floor}>
-          <Box panel={slabPanel(floor)} color={colors.trim} />
-          {wallPanels(floor, cutaway).map((panel) => (
-            <Box key={panel.id} panel={panel} color={colors.wall} />
-          ))}
-          {/* 切って見るときは壁が腰までしか無いので、窓は出さない */}
-          {!cutaway &&
-            windowPanels(floor).map((panel) => (
-              <mesh key={panel.id} position={panel.position}>
-                <boxGeometry args={panel.size} />
-                <meshStandardMaterial
-                  color={lighting === "night" ? "#ffe3ac" : "#8fb6d8"}
-                  emissive="#ffd79a"
-                  emissiveIntensity={preset.windowEmissive}
-                  roughness={0.15}
-                  metalness={0.1}
-                />
-              </mesh>
+      {visibleFloors(floorMode).map((floor) => {
+        const tree = plan.floors[floor];
+        return (
+          <group key={floor}>
+            <Box panel={slabPanel(floor)} color={colors.trim} />
+            {wallPanels(floor, cutaway).map((panel) => (
+              <Box key={panel.id} panel={panel} color={colors.wall} />
             ))}
-        </group>
-      ))}
+            {/* 切って見るときは壁が腰までしか無いので、窓は出さない */}
+            {!cutaway &&
+              windowPanels(floor).map((panel) => (
+                <mesh key={panel.id} position={panel.position}>
+                  <boxGeometry args={panel.size} />
+                  <meshStandardMaterial
+                    color={lighting === "night" ? "#ffe3ac" : "#8fb6d8"}
+                    emissive="#ffd79a"
+                    emissiveIntensity={preset.windowEmissive}
+                    roughness={0.15}
+                    metalness={0.1}
+                  />
+                </mesh>
+              ))}
+            {layoutRooms(tree, FLOOR_RECT).map((room) => (
+              <Box
+                key={room.id}
+                panel={roomSlab(room, floor)}
+                color={
+                  floor === activeFloor && room.id === selectedId
+                    ? SELECTED_FLOOR_TONE
+                    : FLOOR_TONE[floor]
+                }
+                roughness={0.95}
+              />
+            ))}
+            {interiorWallPanels(tree, floor, cutaway).map((panel) => (
+              <Box key={panel.id} panel={panel} color={INTERIOR_TONE} />
+            ))}
+            {furnitureOnFloor(plan.furniture, floor).flatMap((item) =>
+              partsInScene(item).map((part) => (
+                <Box
+                  key={part.id}
+                  panel={part}
+                  color={
+                    item.id === selectedId
+                      ? lighten(part.color, 0.12)
+                      : part.color
+                  }
+                />
+              )),
+            )}
+          </group>
+        );
+      })}
 
-      {shown.map((room) => (
-        <Box
-          key={room.id}
-          panel={roomSlab(room)}
-          color={FLOOR_TONE[room.floor]}
-          roughness={0.95}
-        />
-      ))}
-
-      {showsRoof(floorMode, view) && (
+      {showsRoof(floorMode) && (
         <group position={roof.position} scale={[1, 1, roof.scaleZ]}>
           <mesh rotation={[0, roof.rotationY, 0]}>
             <coneGeometry args={[roof.radius, roof.height, 4]} />
-            <meshStandardMaterial color={colors.roof} roughness={0.9} flatShading />
+            <meshStandardMaterial
+              color={colors.roof}
+              roughness={0.9}
+              flatShading
+            />
           </mesh>
         </group>
       )}
@@ -174,19 +222,20 @@ function House({
   );
 }
 
-/** 注記 5 点。見えている階のぶんだけ出す */
+/** 注記。見えている階のすべての部屋に出す */
 function Annotations({
+  plan,
   floorMode,
-  view,
 }: {
+  plan: PlanState;
   floorMode: FloorMode;
-  view: ViewMode;
 }) {
-  const mode = effectiveFloorMode(floorMode, view);
-  const notes = annotationPositions(visibleRooms(rooms, mode));
   // 幅の狭いスマホでは吹き出しを詰めないと注記どうしが重なるので、距離係数を小さくして縮める
   const width = useThree((state) => state.size.width);
   const distanceFactor = width < 480 ? 11 : 16;
+  const notes = visibleFloors(floorMode).flatMap((floor) =>
+    annotationPositions(layoutRooms(plan.floors[floor], FLOOR_RECT), floor),
+  );
   return (
     <>
       {notes.map((note) => (
@@ -224,30 +273,36 @@ function CameraRig({
   const camera = useThree((state) => state.camera);
   const invalidate = useThree((state) => state.invalidate);
   useEffect(() => {
-    const pose = cameraPose(floorMode, view);
-    camera.position.set(pose.position[0], pose.position[1], pose.position[2]);
-    camera.updateProjectionMatrix();
-    // frameloop="demand" のときは、動かしただけでは描き直らないので明示的に起こす
-    invalidate();
+    const place = () => {
+      const pose = cameraPose(floorMode, view);
+      camera.position.set(pose.position[0], pose.position[1], pose.position[2]);
+      camera.updateProjectionMatrix();
+      // frameloop="demand" のときは、動かしただけでは描き直らないので明示的に起こす
+      invalidate();
+    };
+    place();
   }, [camera, invalidate, floorMode, view]);
   return null;
 }
 
 export default function Scene({
+  plan,
+  activeFloor,
   floorMode,
   view,
   lighting,
   wallColorId,
   reducedMotion,
+  selectedId,
   onContextLost,
 }: SceneProps) {
   // 最初はゆっくり回して立体だと分かるようにし、触られたら止める
   const [autoRotate, setAutoRotate] = useState(!reducedMotion);
   const pose = cameraPose(floorMode, view);
-  // 自動回転のときだけ毎フレーム描き直す。それ以外は操作や視点の置き直しのときだけ
+  const spinning = autoRotate && !reducedMotion && view === "orbit";
+  // 自動回転のときだけ毎フレーム描き直す。それ以外は状態や操作が変わったときだけ
   // 描く「オンデマンド」にして、待機中の電力を使わない
-  const frameloop: "always" | "demand" =
-    autoRotate && !reducedMotion && view === "orbit" ? "always" : "demand";
+  const frameloop: "always" | "demand" = spinning ? "always" : "demand";
 
   return (
     <Canvas
@@ -265,33 +320,27 @@ export default function Scene({
     >
       <Stage lighting={lighting} />
       <House
+        plan={plan}
+        activeFloor={activeFloor}
         floorMode={floorMode}
-        view={view}
         lighting={lighting}
         wallColorId={wallColorId}
+        selectedId={selectedId}
       />
-      <Annotations floorMode={floorMode} view={view} />
+      <Annotations plan={plan} floorMode={floorMode} />
       <CameraRig floorMode={floorMode} view={view} />
       <OrbitControls
         makeDefault
         target={pose.target}
         enableDamping={!reducedMotion}
         dampingFactor={0.08}
-        autoRotate={autoRotate && !reducedMotion && view === "orbit"}
+        autoRotate={spinning}
         autoRotateSpeed={0.5}
         onStart={() => setAutoRotate(false)}
-        enableRotate={view === "orbit"}
-        enablePan={view === "plan"}
-        mouseButtons={
-          view === "plan"
-            ? { LEFT: MOUSE.PAN, MIDDLE: MOUSE.DOLLY, RIGHT: MOUSE.PAN }
-            : { LEFT: MOUSE.ROTATE, MIDDLE: MOUSE.DOLLY, RIGHT: MOUSE.PAN }
-        }
-        touches={
-          view === "plan"
-            ? { ONE: TOUCH.PAN, TWO: TOUCH.DOLLY_PAN }
-            : { ONE: TOUCH.ROTATE, TWO: TOUCH.DOLLY_PAN }
-        }
+        enableRotate
+        enablePan
+        mouseButtons={MOUSE_BUTTONS}
+        touches={TOUCHES}
         minDistance={5}
         maxDistance={45}
         maxPolarAngle={Math.PI / 2.05}

@@ -1,6 +1,10 @@
 import { describe, expect, it } from "vitest";
-import { HOUSE, rooms } from "./house";
+import { HOUSE } from "./house";
+import { defaultLayout, dividers, FLOOR_RECT, layoutRooms } from "./layout";
 import {
+  annotationPositions,
+  INTERIOR_WALL,
+  interiorWallPanels,
   roofShape,
   roomSlab,
   slabPanel,
@@ -40,13 +44,27 @@ describe("床", () => {
   });
 
   it("部屋の床は部屋より少し小さく、床の高さに置く", () => {
-    const ldk = rooms.filter((room) => room.id === "ldk")[0];
-    const slab = roomSlab(ldk);
-    expect(slab.size[0]).toBeLessThan(ldk.size[0]);
-    expect(slab.size[2]).toBeLessThan(ldk.size[2]);
-    expect(slab.position[0]).toBe(ldk.position[0]);
-    expect(slab.position[2]).toBe(ldk.position[2]);
+    const [ldk] = layoutRooms(defaultLayout(1), FLOOR_RECT);
+    expect(ldk.label).toBe("LDK");
+    const slab = roomSlab(ldk, 1);
+    expect(slab.size[0]).toBeLessThan(ldk.w);
+    expect(slab.size[2]).toBeLessThan(ldk.d);
+    // 床座標の中心が 3D の中心座標に写る
+    expect(slab.position[0]).toBeCloseTo(ldk.x + ldk.w / 2 - HOUSE.width / 2, 6);
+    expect(slab.position[2]).toBeCloseTo(ldk.z + ldk.d / 2 - HOUSE.depth / 2, 6);
     expect(slab.position[1] - slab.size[1] / 2).toBeCloseTo(0, 6);
+  });
+
+  it("部屋の床の id は階をまたいでも重複しない", () => {
+    const ids = [
+      ...layoutRooms(defaultLayout(1), FLOOR_RECT).map((room) =>
+        roomSlab(room, 1),
+      ),
+      ...layoutRooms(defaultLayout(2), FLOOR_RECT).map((room) =>
+        roomSlab(room, 2),
+      ),
+    ].map((panel) => panel.id);
+    expect(new Set(ids).size).toBe(ids.length);
   });
 });
 
@@ -83,6 +101,44 @@ describe("外壁", () => {
     const ids = [...wallPanels(1, false), ...wallPanels(2, false)].map(
       (w) => w.id,
     );
+    expect(new Set(ids).size).toBe(ids.length);
+  });
+});
+
+describe("内壁", () => {
+  it("分割線の本数だけ立ち、厚みは 0.12m", () => {
+    const tree = defaultLayout(1);
+    const walls = interiorWallPanels(tree, 1, false);
+    expect(walls).toHaveLength(dividers(tree, FLOOR_RECT).length);
+    expect(walls).toHaveLength(4);
+    for (const wall of walls) {
+      expect(Math.min(wall.size[0], wall.size[2])).toBeCloseTo(INTERIOR_WALL, 6);
+      expect(wall.size[1]).toBe(HOUSE.floors[1].height);
+      expect(wall.position[1] - wall.size[1] / 2).toBeCloseTo(0, 6);
+    }
+  });
+
+  it("最初の 1 枚は東西を分ける壁（南北に走る）", () => {
+    const [wall] = interiorWallPanels(defaultLayout(1), 1, false);
+    expect(wall.size[0]).toBeCloseTo(INTERIOR_WALL, 6);
+    expect(wall.size[2]).toBe(HOUSE.depth);
+    expect(wall.position[0]).toBeCloseTo(5.5 - HOUSE.width / 2, 6);
+  });
+
+  it("断面のときは腰の高さで切る", () => {
+    const [wall] = interiorWallPanels(defaultLayout(2), 2, true);
+    expect(wall.size[1]).toBe(HOUSE.cutawayWallHeight);
+    expect(wall.position[1] - wall.size[1] / 2).toBeCloseTo(
+      HOUSE.floors[2].base,
+      6,
+    );
+  });
+
+  it("id は階をまたいでも重複しない", () => {
+    const ids = [
+      ...interiorWallPanels(defaultLayout(1), 1, false),
+      ...interiorWallPanels(defaultLayout(2), 2, false),
+    ].map((panel) => panel.id);
     expect(new Set(ids).size).toBe(ids.length);
   });
 });
@@ -135,5 +191,29 @@ describe("屋根", () => {
     expect(roof.position[1] - roof.height / 2).toBeCloseTo(top, 6);
     expect(roof.height).toBe(HOUSE.roofRise);
     expect(roof.rotationY).toBeCloseTo(Math.PI / 4, 6);
+  });
+});
+
+describe("注記", () => {
+  it("すべての部屋に出て、天井の 0.35m 下に置く", () => {
+    const rooms = layoutRooms(defaultLayout(2), FLOOR_RECT);
+    const notes = annotationPositions(rooms, 2);
+    expect(notes).toHaveLength(4);
+    expect(notes[0].label).toBe("主寝室");
+    expect(notes[0].area).toBe(20);
+    expect(notes[0].position[0]).toBeCloseTo(2.5 - HOUSE.width / 2, 6);
+    expect(notes[0].position[2]).toBeCloseTo(2 - HOUSE.depth / 2, 6);
+    expect(notes[0].position[1]).toBeCloseTo(
+      HOUSE.floors[2].base + HOUSE.floors[2].height - 0.35,
+      6,
+    );
+  });
+
+  it("id は階をまたいでも重複しない", () => {
+    const ids = [
+      ...annotationPositions(layoutRooms(defaultLayout(1), FLOOR_RECT), 1),
+      ...annotationPositions(layoutRooms(defaultLayout(2), FLOOR_RECT), 2),
+    ].map((note) => note.id);
+    expect(new Set(ids).size).toBe(ids.length);
   });
 });

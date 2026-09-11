@@ -1,22 +1,33 @@
 "use client";
 
 /*
- * 見本: 建物ビューアの操作。状態はここだけが持ち、3D の場面には渡すだけにする。
+ * 見本: 間取りシミュレーターの操作。状態（間取り + 家具）はここだけが持ち、
+ * 3D の場面（Scene）と間取り図（PlanEditor）には props で配る。
+ * だから壁や家具を動かしている最中も、3D がそのまま追いつく。
  * ボタンは素の <button> なので、three.js を読み終える前でも押せる。
  */
 
 import dynamic from "next/dynamic";
 import { useEffect, useState } from "react";
 
-import { FloorPlan } from "./FloorPlan";
+import { type PlacedFurniture } from "./furniture";
 import {
-  effectiveFloorMode,
   wallColors,
+  type Floor,
   type FloorMode,
   type LightingMode,
   type ViewMode,
   type WallColor,
 } from "./house";
+import { type LayoutNode } from "./layout";
+import { PlanEditor } from "./PlanEditor";
+import {
+  defaultPlanState,
+  parsePlanState,
+  serializePlanState,
+  STORAGE_KEY,
+  type PlanState,
+} from "./plan-state";
 import s from "./viewer.module.css";
 
 /*
@@ -50,6 +61,34 @@ function hasWebgl(): boolean {
   }
 }
 
+/* 保存はブラウザの localStorage だけ。使えない環境（プライベート表示・容量超過）でも
+   編集は続けられるよう、読み書きはすべて try/catch で包む。中身は 2KB ほどなので、
+   ドラッグのたびに書いても重くならない */
+
+function readStored(): PlanState | null {
+  try {
+    return parsePlanState(window.localStorage.getItem(STORAGE_KEY));
+  } catch {
+    return null;
+  }
+}
+
+function writeStored(state: PlanState): void {
+  try {
+    window.localStorage.setItem(STORAGE_KEY, serializePlanState(state));
+  } catch {
+    // 保存できなくても編集は続けられる
+  }
+}
+
+function clearStored(): void {
+  try {
+    window.localStorage.removeItem(STORAGE_KEY);
+  } catch {
+    // 同上
+  }
+}
+
 const FLOOR_BUTTONS: { value: FloorMode; label: string }[] = [
   { value: "1f", label: "1F" },
   { value: "2f", label: "2F" },
@@ -57,8 +96,8 @@ const FLOOR_BUTTONS: { value: FloorMode; label: string }[] = [
 ];
 
 const VIEW_BUTTONS: { value: ViewMode; label: string }[] = [
-  { value: "orbit", label: "立体" },
-  { value: "plan", label: "間取り" },
+  { value: "orbit", label: "斜めから" },
+  { value: "top", label: "真上から" },
 ];
 
 const LIGHT_BUTTONS: { value: LightingMode; label: string }[] = [
@@ -69,128 +108,185 @@ const LIGHT_BUTTONS: { value: LightingMode; label: string }[] = [
 export function Viewer() {
   const [support, setSupport] = useState<Support>("checking");
   const [reducedMotion, setReducedMotion] = useState(false);
+  const [plan, setPlan] = useState<PlanState>(defaultPlanState);
+  const [activeFloor, setActiveFloor] = useState<Floor>(1);
+  const [selectedId, setSelectedId] = useState<string | null>(null);
   const [floorMode, setFloorMode] = useState<FloorMode>("all");
   const [view, setView] = useState<ViewMode>("orbit");
   const [lighting, setLighting] = useState<LightingMode>("day");
   const [wallColorId, setWallColorId] = useState<WallColor["id"]>("plaster");
 
   useEffect(() => {
+    // 描いたあとに調べる。サーバーとの食い違い（ハイドレーション）を避けるため
     const detect = () => {
       setSupport(hasWebgl() ? "ok" : "none");
       setReducedMotion(
         window.matchMedia("(prefers-reduced-motion: reduce)").matches,
       );
+      const stored = readStored();
+      if (stored) setPlan(stored);
     };
     detect();
   }, []);
 
-  const planFloor = effectiveFloorMode(floorMode, "plan") === "2f" ? 2 : 1;
-  // 間取りでは全体でも 1F だけを描くので、押下状態は実際に見えている階に合わせる
-  const pressedFloorMode = effectiveFloorMode(floorMode, view);
+  const updatePlan = (next: PlanState) => {
+    setPlan(next);
+    writeStored(next);
+  };
+
+  const changeLayout = (floor: Floor, node: LayoutNode) => {
+    const floors: Record<Floor, LayoutNode> =
+      floor === 1
+        ? { 1: node, 2: plan.floors[2] }
+        : { 1: plan.floors[1], 2: node };
+    updatePlan({ ...plan, floors });
+  };
+
+  const changeFurniture = (list: PlacedFurniture[]) => {
+    updatePlan({ ...plan, furniture: list });
+  };
+
+  const reset = () => {
+    setPlan(defaultPlanState());
+    setSelectedId(null);
+    clearStored();
+  };
+
+  const goToFloor = (floor: Floor) => {
+    if (floor === activeFloor) return;
+    setActiveFloor(floor);
+    // 選んでいた部屋や家具は別の階のものなので外す
+    setSelectedId(null);
+  };
+
+  const changeFloorMode = (mode: FloorMode) => {
+    setFloorMode(mode);
+    if (mode === "1f") goToFloor(1);
+    if (mode === "2f") goToFloor(2);
+  };
+
+  const changeActiveFloor = (floor: Floor) => {
+    goToFloor(floor);
+    // 3D が 1 つの階だけを映しているときは、そちらも同じ階に合わせる（全体はそのまま）
+    if (floorMode !== "all") setFloorMode(floor === 1 ? "1f" : "2f");
+  };
 
   return (
     <div>
-      <div className={s.controls}>
-        <div className={s.group} role="group" aria-label="表示する階">
-          <span className={s.groupLabel}>階</span>
-          {FLOOR_BUTTONS.map((item) => (
-            <button
-              key={item.value}
-              type="button"
-              className={s.button}
-              aria-pressed={pressedFloorMode === item.value}
-              onClick={() => setFloorMode(item.value)}
-            >
-              {item.label}
-            </button>
-          ))}
-        </div>
+      {support !== "none" && (
+        <div className={s.controls}>
+          <div className={s.group} role="group" aria-label="表示する階">
+            <span className={s.groupLabel}>階</span>
+            {FLOOR_BUTTONS.map((item) => (
+              <button
+                key={item.value}
+                type="button"
+                className={s.button}
+                aria-pressed={floorMode === item.value}
+                onClick={() => changeFloorMode(item.value)}
+              >
+                {item.label}
+              </button>
+            ))}
+          </div>
 
-        {support !== "none" && (
-          <>
-            <div className={s.group} role="group" aria-label="見え方">
-              <span className={s.groupLabel}>見え方</span>
-              {VIEW_BUTTONS.map((item) => (
-                <button
-                  key={item.value}
-                  type="button"
-                  className={s.button}
-                  aria-pressed={view === item.value}
-                  onClick={() => setView(item.value)}
-                >
-                  {item.label}
-                </button>
-              ))}
-            </div>
+          <div className={s.group} role="group" aria-label="視点">
+            <span className={s.groupLabel}>視点</span>
+            {VIEW_BUTTONS.map((item) => (
+              <button
+                key={item.value}
+                type="button"
+                className={s.button}
+                aria-pressed={view === item.value}
+                onClick={() => setView(item.value)}
+              >
+                {item.label}
+              </button>
+            ))}
+          </div>
 
-            <div className={s.group} role="group" aria-label="明かり">
-              <span className={s.groupLabel}>明かり</span>
-              {LIGHT_BUTTONS.map((item) => (
-                <button
-                  key={item.value}
-                  type="button"
-                  className={s.button}
-                  aria-pressed={lighting === item.value}
-                  onClick={() => setLighting(item.value)}
-                >
-                  {item.label}
-                </button>
-              ))}
-            </div>
+          <div className={s.group} role="group" aria-label="明かり">
+            <span className={s.groupLabel}>明かり</span>
+            {LIGHT_BUTTONS.map((item) => (
+              <button
+                key={item.value}
+                type="button"
+                className={s.button}
+                aria-pressed={lighting === item.value}
+                onClick={() => setLighting(item.value)}
+              >
+                {item.label}
+              </button>
+            ))}
+          </div>
 
-            <div className={s.group} role="group" aria-label="外壁の色">
-              <span className={s.groupLabel}>外壁</span>
-              {wallColors.map((color) => (
-                <button
-                  key={color.id}
-                  type="button"
-                  className={s.button}
-                  aria-pressed={wallColorId === color.id}
-                  onClick={() => setWallColorId(color.id)}
-                >
-                  {/* 色見本だけは実際の 3D の色を見せる必要があるので直に指定する */}
-                  <span
-                    className={s.swatch}
-                    style={{ background: color.wall }}
-                    aria-hidden="true"
-                  />
-                  {color.name}
-                </button>
-              ))}
-            </div>
-          </>
-        )}
-      </div>
-
-      {support === "none" ? (
-        <div className={s.fallback}>
-          <p className={s.fallbackText}>
-            お使いの環境では 3D（WebGL）を表示できません。同じ寸法の表から起こした平面図に切り替えました。表示の途中で描画できなくなった場合も、この画面のままご覧いただけます。
-          </p>
-          <FloorPlan floor={planFloor} />
-        </div>
-      ) : (
-        <div className={s.stage}>
-          {support === "ok" ? (
-            <Scene
-              floorMode={floorMode}
-              view={view}
-              lighting={lighting}
-              wallColorId={wallColorId}
-              reducedMotion={reducedMotion}
-              onContextLost={() => setSupport("none")}
-            />
-          ) : (
-            <p className={s.loading}>建物を組み立てています…</p>
-          )}
+          <div className={s.group} role="group" aria-label="外壁の色">
+            <span className={s.groupLabel}>外壁</span>
+            {wallColors.map((color) => (
+              <button
+                key={color.id}
+                type="button"
+                className={s.button}
+                aria-pressed={wallColorId === color.id}
+                onClick={() => setWallColorId(color.id)}
+              >
+                {/* 色見本だけは実際の 3D の色を見せる必要があるので直に指定する */}
+                <span
+                  className={s.swatch}
+                  style={{ background: color.wall }}
+                  aria-hidden="true"
+                />
+                {color.name}
+              </button>
+            ))}
+          </div>
         </div>
       )}
 
-      <p className={s.caption}>
-        {support === "none"
-          ? "3D の代わりに平面図を出しています。階のボタンで 1F と 2F を切り替えられます。"
-          : "ドラッグで回転、ピンチまたはホイールで拡大縮小。間取りではドラッグで平行移動します。"}
-      </p>
+      <div className={s.workspace}>
+        {support === "none" ? (
+          <div className={s.fallback}>
+            <p className={s.fallbackText}>
+              お使いの環境では 3D（WebGL）を表示できません。間取り図の編集はそのまま使えます。
+            </p>
+          </div>
+        ) : (
+          <div className={s.stage}>
+            {support === "ok" ? (
+              <Scene
+                plan={plan}
+                activeFloor={activeFloor}
+                floorMode={floorMode}
+                view={view}
+                lighting={lighting}
+                wallColorId={wallColorId}
+                reducedMotion={reducedMotion}
+                selectedId={selectedId}
+                onContextLost={() => setSupport("none")}
+              />
+            ) : (
+              <p className={s.loading}>建物を組み立てています…</p>
+            )}
+          </div>
+        )}
+
+        <PlanEditor
+          plan={plan}
+          activeFloor={activeFloor}
+          selectedId={selectedId}
+          onFloorChange={changeActiveFloor}
+          onSelect={setSelectedId}
+          onLayoutChange={changeLayout}
+          onFurnitureChange={changeFurniture}
+          onReset={reset}
+        />
+      </div>
+
+      {support !== "none" && (
+        <p className={s.caption}>
+          3D はドラッグで回転、ピンチまたはホイールで拡大縮小、右ドラッグか 2 本指で平行移動。間取り図は壁と家具をドラッグで動かします。
+        </p>
+      )}
     </div>
   );
 }

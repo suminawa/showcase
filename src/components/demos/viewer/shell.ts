@@ -1,8 +1,15 @@
 /**
- * 見本: 家の外皮（床・外壁・窓・屋根）を寸法から組み立てる。
+ * 見本: 家の外皮（床・外壁・窓・屋根）と、間取りから出る中身（部屋の床・内壁・注記）を組み立てる。
  * 返すのは「どこに、どの大きさの箱を置くか」だけ。3D の部品はそれを並べる。
  */
-import { HOUSE, type Floor, type Room, type Vec3 } from "./house";
+import { HOUSE, type Floor, type Vec3 } from "./house";
+import {
+  dividers,
+  FLOOR_RECT,
+  toScene,
+  type LayoutNode,
+  type RoomRect,
+} from "./layout";
 
 export type Panel = {
   id: string;
@@ -10,6 +17,9 @@ export type Panel = {
   /** 幅(x)・高さ(y)・奥行き(z) */
   size: Vec3;
 };
+
+/** 内壁の厚み */
+export const INTERIOR_WALL = 0.12;
 
 /** その階の床スラブ。上面がちょうどその階の床の高さに来る */
 export function slabPanel(floor: Floor): Panel {
@@ -23,14 +33,15 @@ export function slabPanel(floor: Floor): Panel {
 }
 
 /** 部屋ごとの床。少しだけ縮めて置くと、継ぎ目がそのまま間取りの線に見える */
-export function roomSlab(room: Room): Panel {
+export function roomSlab(room: RoomRect, floor: Floor): Panel {
   const gap = 0.12;
   const t = 0.06;
-  const { base } = HOUSE.floors[room.floor];
+  const { base } = HOUSE.floors[floor];
+  const [sx, sz] = toScene(room.x + room.w / 2, room.z + room.d / 2);
   return {
-    id: `${room.id}-floor`,
-    position: [room.position[0], base + t / 2, room.position[2]],
-    size: [room.size[0] - gap, t, room.size[2] - gap],
+    id: `f${floor}-${room.id}-floor`,
+    position: [sx, base + t / 2, sz],
+    size: [room.w - gap, t, room.d - gap],
   };
 }
 
@@ -68,6 +79,37 @@ export function wallPanels(floor: Floor, cutaway: boolean): Panel[] {
       size: [t, h, HOUSE.depth - t * 2],
     },
   ];
+}
+
+/** 間取りの分割線を、厚み 0.12m の内壁にする。高さは外壁と同じ決まり */
+export function interiorWallPanels(
+  node: LayoutNode,
+  floor: Floor,
+  cutaway: boolean,
+): Panel[] {
+  const { base, height } = HOUSE.floors[floor];
+  const h = cutaway ? Math.min(height, HOUSE.cutawayWallHeight) : height;
+  const y = base + h / 2;
+  const t = INTERIOR_WALL;
+  return dividers(node, FLOOR_RECT).map((line) => {
+    const middle = (line.from + line.to) / 2;
+    const length = line.to - line.from;
+    if (line.axis === "x") {
+      // 南北に走る線。x = at に立て、z 方向に伸ばす
+      const [sx, sz] = toScene(line.at, middle);
+      return {
+        id: `f${floor}-${line.id}`,
+        position: [sx, y, sz],
+        size: [t, h, length],
+      };
+    }
+    const [sx, sz] = toScene(middle, line.at);
+    return {
+      id: `f${floor}-${line.id}`,
+      position: [sx, y, sz],
+      size: [length, h, t],
+    };
+  });
 }
 
 /** count 個を span の幅に等間隔で並べたときの、それぞれの中心 */
@@ -150,4 +192,33 @@ export function roofShape(): Roof {
     position: [0, top + HOUSE.roofRise / 2, 0],
     rotationY: Math.PI / 4,
   };
+}
+
+export type Annotation = {
+  id: string;
+  label: string;
+  /** 広さ（m²） */
+  area: number;
+  /** 吹き出しを置く位置。部屋の天井の少し下 */
+  position: Vec3;
+};
+
+/**
+ * 注記はすべての部屋に出す。天井から 0.35m 下げると、
+ * 上から見ても横から見ても部屋の中に見える。
+ */
+export function annotationPositions(
+  rooms: readonly RoomRect[],
+  floor: Floor,
+): Annotation[] {
+  const { base, height } = HOUSE.floors[floor];
+  return rooms.map((room) => {
+    const [sx, sz] = toScene(room.x + room.w / 2, room.z + room.d / 2);
+    return {
+      id: `f${floor}-${room.id}`,
+      label: room.label,
+      area: room.area,
+      position: [sx, base + height - 0.35, sz] as Vec3,
+    };
+  });
 }

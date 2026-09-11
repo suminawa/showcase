@@ -1,7 +1,7 @@
 /**
- * 見本: 建物ビューアの家。glTF も外部の 3D データも読まず、この表だけから組み立てる。
+ * 見本: 間取りシミュレーターの家。glTF も外部の 3D データも読まず、この表だけから組み立てる。
  * 単位はメートル。Three.js の座標系（y が高さ）で、原点は 1 階の床の中心。
- * 3D の部品（Scene.tsx）はここと shell.ts を読むだけで、寸法も色も自前で持たない。
+ * 部屋の形は layout.ts（分割木）が決める。ここは階・外皮の寸法・色・明かり・視点だけを持つ。
  */
 
 export type Vec3 = [number, number, number];
@@ -9,27 +9,15 @@ export type Vec3 = [number, number, number];
 /** 1 階だけ / 2 階だけ / 全体 */
 export type FloorMode = "1f" | "2f" | "all";
 
-/** 回して見る / 真上から見る（上の階を外した断面 = 間取り） */
-export type ViewMode = "orbit" | "plan";
+/**
+ * 斜めから見る / 真上から見る。どちらもカメラの位置が違うだけで、
+ * 断面（腰の高さで切る）かどうかは階の選択だけで決まる。
+ */
+export type ViewMode = "orbit" | "top";
 
 export type LightingMode = "day" | "night";
 
 export type Floor = 1 | 2;
-
-export type Room = {
-  id: string;
-  /** 注記と平面図に出す部屋名 */
-  label: string;
-  floor: Floor;
-  /** 部屋の中心。y は床と天井のちょうど間 */
-  position: Vec3;
-  /** 幅(x)・高さ(y)・奥行き(z) */
-  size: Vec3;
-  /** 広さ（m²）。size の x × z と一致させる */
-  area: number;
-  /** 注記の吹き出しを出す部屋。全部で 5 つ */
-  annotated: boolean;
-};
 
 /**
  * 家の寸法。間口 9m × 奥行き 8m の 2 階建て。
@@ -55,124 +43,22 @@ export const HOUSE = {
   eaves: 0.5,
 } as const;
 
-/**
- * 部屋の表。1 階・2 階とも合計 72m²（= 9 × 8）にそろえてある。
- * annotated の 5 部屋に注記の吹き出しが出る。
- */
-export const rooms: readonly Room[] = [
-  {
-    id: "ldk",
-    label: "LDK",
-    floor: 1,
-    position: [-1.75, 1.35, -1],
-    size: [5.5, 2.7, 6],
-    area: 33,
-    annotated: true,
-  },
-  {
-    id: "entrance",
-    label: "玄関ホール",
-    floor: 1,
-    position: [2.75, 1.35, -2.25],
-    size: [3.5, 2.7, 3.5],
-    area: 12.25,
-    annotated: false,
-  },
-  {
-    id: "bath",
-    label: "浴室・洗面",
-    floor: 1,
-    position: [2.75, 1.35, 0.75],
-    size: [3.5, 2.7, 2.5],
-    area: 8.75,
-    annotated: true,
-  },
-  {
-    id: "washitsu",
-    label: "和室",
-    floor: 1,
-    position: [-2, 1.35, 3],
-    size: [5, 2.7, 2],
-    area: 10,
-    annotated: true,
-  },
-  {
-    id: "corridor",
-    label: "階段・廊下",
-    floor: 1,
-    position: [2.5, 1.35, 3],
-    size: [4, 2.7, 2],
-    area: 8,
-    annotated: false,
-  },
-  {
-    id: "bedroom",
-    label: "主寝室",
-    floor: 2,
-    position: [-2, 4.2, -2],
-    size: [5, 2.5, 4],
-    area: 20,
-    annotated: true,
-  },
-  {
-    id: "kids",
-    label: "子ども部屋",
-    floor: 2,
-    position: [2.5, 4.2, -2],
-    size: [4, 2.5, 4],
-    area: 16,
-    annotated: true,
-  },
-  {
-    id: "study",
-    label: "書斎",
-    floor: 2,
-    position: [-2.5, 4.2, 2],
-    size: [4, 2.5, 4],
-    area: 16,
-    annotated: false,
-  },
-  {
-    id: "hall",
-    label: "ホール・階段",
-    floor: 2,
-    position: [2, 4.2, 2],
-    size: [5, 2.5, 4],
-    area: 20,
-    annotated: false,
-  },
-];
-
-/** 見せる階で絞る。呼び出し側が並べ替えないよう、新しい配列で返す */
-export function visibleRooms(list: readonly Room[], mode: FloorMode): Room[] {
-  if (mode === "all") return [...list];
-  const floor: Floor = mode === "1f" ? 1 : 2;
-  return list.filter((room) => room.floor === floor);
-}
-
-export type Annotation = {
-  id: string;
-  label: string;
-  /** 広さ（m²） */
-  area: number;
-  /** 吹き出しを置く位置。部屋の天井の少し下 */
-  position: Vec3;
+/** 部屋の床の色。外壁の色を変えても床は変えない（間取りの読みやすさを保つため） */
+export const FLOOR_TONE: Record<Floor, string> = {
+  1: "#d8d2c6",
+  2: "#cec7b9",
 };
 
-/** 注記の位置。天井から 0.35m 下げると、上から見ても横から見ても部屋の中に見える */
-export function annotationPositions(list: readonly Room[]): Annotation[] {
-  return list
-    .filter((room) => room.annotated)
-    .map((room) => ({
-      id: room.id,
-      label: room.label,
-      area: room.area,
-      position: [
-        room.position[0],
-        room.position[1] + room.size[1] / 2 - 0.35,
-        room.position[2],
-      ] as Vec3,
-    }));
+/** 選択中の部屋の床。少し明るくして、どれを選んでいるか 3D でも分かるようにする */
+export const SELECTED_FLOOR_TONE = "#f0e9d8";
+
+/** 内壁。外壁の色を変えても、中は白い塗り壁のまま */
+export const INTERIOR_TONE = "#e4dfd5";
+
+/** 見せる階。全体は 1 階と 2 階の両方 */
+export function visibleFloors(mode: FloorMode): Floor[] {
+  if (mode === "all") return [1, 2];
+  return mode === "1f" ? [1] : [2];
 }
 
 export type WallColor = {
@@ -255,34 +141,29 @@ export function lightingPreset(mode: LightingMode): LightingPreset {
   };
 }
 
-/** 切って見る状態か。1 階だけ・2 階だけ・間取りは、外壁を腰の高さで切って中をのぞく */
-export function isCutaway(mode: FloorMode, view: ViewMode): boolean {
-  return view === "plan" || mode !== "all";
+/** 切って見る状態か。1 つの階だけ見るときは、外壁を腰の高さで切って中をのぞく */
+export function isCutaway(mode: FloorMode): boolean {
+  return mode !== "all";
 }
 
-/** 屋根は切っていないとき（全体を回して見るとき）だけ載せる */
-export function showsRoof(mode: FloorMode, view: ViewMode): boolean {
-  return !isCutaway(mode, view);
-}
-
-/** 間取りは断面。上の階を外して 1 つの階だけ見せる */
-export function effectiveFloorMode(mode: FloorMode, view: ViewMode): FloorMode {
-  return view === "plan" && mode === "all" ? "1f" : mode;
+/** 屋根は切っていないとき（全体のとき）だけ載せる。真上から全体を見れば屋根が見える */
+export function showsRoof(mode: FloorMode): boolean {
+  return !isCutaway(mode);
 }
 
 export type CameraPose = { position: Vec3; target: Vec3 };
 
 /**
- * 視点。間取りは真上から見下ろす。
- * 真上のとき z をわずかにずらすのは、視線と上方向が重なって回転が定まらなくなるのを避けるため。
+ * 視点。真上のとき z をわずかにずらすのは、視線と上方向が重なって回転が定まらなくなるのを避けるため。
+ * 全体を真上から見るときは屋根の上から。階を選んだときはその階の床の上から見下ろす。
  */
 export function cameraPose(mode: FloorMode, view: ViewMode): CameraPose {
-  const floor = effectiveFloorMode(mode, view);
-  if (view === "plan") {
-    const base = floor === "2f" ? HOUSE.floors[2].base : HOUSE.floors[1].base;
-    return { position: [0, base + 15, 0.01], target: [0, base, 0] };
+  if (view === "top") {
+    if (mode === "all") return { position: [0, 22, 0.01], target: [0, 0, 0] };
+    const base = mode === "2f" ? HOUSE.floors[2].base : HOUSE.floors[1].base;
+    return { position: [0, base + 18, 0.01], target: [0, base, 0] };
   }
-  if (floor === "1f") return { position: [11, 8, 12], target: [0, 1.4, 0] };
-  if (floor === "2f") return { position: [11, 11, 12], target: [0, 4.2, 0] };
+  if (mode === "1f") return { position: [11, 8, 12], target: [0, 1.4, 0] };
+  if (mode === "2f") return { position: [11, 11, 12], target: [0, 4.2, 0] };
   return { position: [13, 10, 14], target: [0, 3.2, 0] };
 }
