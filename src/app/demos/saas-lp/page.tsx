@@ -14,10 +14,25 @@ import s from "./saas.module.css";
 
 const BRAND = "Tabane Works";
 
+const TITLE = "見本 ｜ BtoB・SaaS の LP";
+const DESCRIPTION =
+  "架空の勤怠・工数 SaaS「Tabane Works」の 1 ページ LP。料金切替と FAQ、フォームまで動く見本。";
+
 export const metadata: Metadata = {
-  title: "見本 ｜ BtoB・SaaS の LP",
-  description:
-    "架空の勤怠・工数 SaaS「Tabane Works」の 1 ページ LP。料金切替と FAQ、フォームまで動く見本。",
+  // レイアウトの title.template（"%s | Showcase"）がタブに付け足されるのを防ぐ
+  title: { absolute: TITLE },
+  description: DESCRIPTION,
+  openGraph: {
+    title: TITLE,
+    description: DESCRIPTION,
+    url: "/demos/saas-lp",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: TITLE,
+    description: DESCRIPTION,
+  },
 };
 
 const ISSUES = [
@@ -123,7 +138,7 @@ export default function SaasLpPage() {
         </div>
       </header>
 
-      <main id="top">
+      <main id="top" className={s.main}>
         <section className={s.hero}>
           <HeroField className={s.field} />
           <div className={s.container}>

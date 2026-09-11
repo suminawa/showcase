@@ -11,6 +11,7 @@
   --d-brand: #1f5eff; /* 白地で 4.6:1 */
   --d-brand-ink: #0e2a80;
   --d-line: #e6e8ee;
+  --d-input-line: #8b91a0; /* 白地で約 3.1:1 ── 入力欄の枠線（WCAG 1.4.11） */
   --d-soft: #f3f6ff;
   --d-surface: #ffffff; /* 入力欄・カードの面 */
   --d-on-brand: #ffffff; /* ブランド色の上の文字。#1f5eff 上で 5.1:1 */
@@ -24,9 +25,24 @@
 }
 
 @media (prefers-reduced-motion: no-preference) {
-  :global(html) {
+  /* :global(html) 単体だと見本を離れたあとも smooth-scroll が残る
+     （クライアント遷移で hub に戻っても history が html に付いたまま）。
+     .page（このページ自身のクラスなので hashed される）を持つ間だけに絞る */
+  :global(html):has(.page) {
     scroll-behavior: smooth;
   }
+}
+
+/* --d-bg は .page 自身が定義する変数で、祖先の html には見えない
+   （CSS 変数は上から下にしか継承しない）。オーバースクロールの下に
+   hub のクリーム色が透けないよう、.page が定義する --d-bg の値
+   （#ffffff）をそのままここに書く（finding #11） */
+:global(html):has(.page) {
+  background: #ffffff;
+}
+
+.main {
+  scroll-margin-top: 4.5rem; /* #top がスティッキーヘッダーの下に隠れないように */
 }
 
 .container {

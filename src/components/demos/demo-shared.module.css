@@ -1,7 +1,7 @@
 /*
  * 見本ページ共通の部品。色は各ページの根（.page 相当）が --d-* 変数で決める。
  * この部品は色を持たない ── 業種ごとに配色が変わっても、ここは触らない。
- * ページの根は --d-fg --d-muted --d-line --d-brand --d-brand-ink に加えて、--d-surface（入力欄などの白い面）と --d-on-brand（ブランド色の上に載せる文字色）も定義する。
+ * ページの根は --d-fg --d-muted --d-line --d-brand --d-brand-ink に加えて、--d-surface（入力欄などの白い面）と --d-on-brand（ブランド色の上に載せる文字色）、--d-input-line（入力欄の枠線。白地で 3:1 以上）も定義する。
  */
 
 .footer {
@@ -59,7 +59,7 @@
 .field textarea {
   font: inherit;
   padding: 0.75rem 0.875rem;
-  border: 1px solid var(--d-line);
+  border: 1px solid var(--d-input-line);
   border-radius: 0.5rem;
   background: var(--d-surface);
   color: var(--d-fg);
