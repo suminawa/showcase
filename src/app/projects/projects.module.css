@@ -199,6 +199,11 @@
 }
 
 /* 文中のリンク ── 字の下に一本。戻り・窓口と同じく、触れると墨が濃くなる */
+/* 売り物の行: 名前とリンクを 1 かたまりで折り返す */
+.product {
+  display: inline-block;
+}
+
 .textLink {
   color: var(--rp-sumi-3);
   text-decoration: underline;
