@@ -21,6 +21,7 @@ import s from "../projects.module.css";
 const PRODUCTS = [
   { name: "見積もり電卓テンプレ", links: links.s1 },
   { name: "期限アラート GAS キット", links: links.s2 },
+  { name: "フォーム受付 GAS キット", links: links.s3 },
 ];
 
 export const metadata: Metadata = {
