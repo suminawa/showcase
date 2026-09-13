@@ -17,6 +17,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 
 import { Viewer } from "@/components/demos/viewer/Viewer";
+import links from "@/data/links.json";
 
 import { fontVars } from "../fonts";
 import s from "../projects.module.css";
@@ -61,6 +62,21 @@ export default function FloorplanPage() {
         <p className={s.lede} style={{ marginTop: "calc(2 * var(--rp-pitch))" }}>
           3D のデータは読み込まず、間取りはマス目の表、家具は箱の一覧という 2
           つの表から組み立てています。変更はお使いのブラウザにだけ保存し、サーバーには送りません。
+        </p>
+        <p className={s.lede}>
+          この間取りシミュレーターを自分のサイトに置ける版（発売記念 ¥8,800、9 月 19 日まで。建具・収納・寸法・家具の実寸つき）
+          {links.floorplan.note && (
+            <>
+              {" ── "}
+              <a href={links.floorplan.note} className={s.textLink}>note</a>
+            </>
+          )}
+          {links.floorplan.booth && (
+            <>
+              {links.floorplan.note ? " / " : " ── "}
+              <a href={links.floorplan.booth} className={s.textLink}>BOOTH</a>
+            </>
+          )}
         </p>
       </div>
     </main>

@@ -23,6 +23,7 @@ const PRODUCTS = [
   { name: "期限アラート GAS キット", links: links.s2 },
   { name: "フォーム受付 GAS キット", links: links.s3 },
   { name: "業種別 LP テンプレ パック", links: links.lp },
+  { name: "間取りシミュレーター", links: links.floorplan },
 ];
 
 export const metadata: Metadata = {
