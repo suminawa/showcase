@@ -13,6 +13,7 @@
   "dependencies": {
     "@react-three/drei": "10.7.8",
     "@react-three/fiber": "9.7.0",
+    "@suminawa/ai-concierge": "file:vendor/suminawa-ai-concierge-1.0.0.tgz",
     "next": "16.2.11",
     "react": "19.2.4",
     "react-dom": "19.2.4",

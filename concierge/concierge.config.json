@@ -1,0 +1,13 @@
+{
+  "site": { "name": "suminawa", "url": "https://suminawa.dev" },
+  "urls": [],
+  "content": "concierge/content",
+  "alwaysInclude": ["suminawa について"],
+  "greeting": "こんにちは。suminawa の案内窓口です。売り物の内容や価格、受託の料金、進め方などをお答えします。",
+  "suggestions": ["AI 案内窓口キットは何ができますか", "GAS の自動化はいくらからですか", "買ったあとの更新は無料ですか"],
+  "contactUrl": "https://suminawa.dev/projects/ai-concierge#contact",
+  "labels": {},
+  "answer": { "model": "claude-opus-5", "effort": "low", "maxTokens": 700, "style": "敬体。200 字以内。箇条書きは使わず、文でお答えします。" },
+  "retrieval": { "wholeCorpusMaxTokens": 60000, "topK": 8 },
+  "limits": { "maxInputChars": 300, "perMinute": 6, "perHour": 40, "dailyQuestions": 300 }
+}

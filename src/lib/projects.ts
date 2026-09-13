@@ -80,6 +80,14 @@ export const projects: Project[] = [
     category: "tools",
   },
   {
+    slug: "ai-concierge",
+    title: "AI 案内窓口",
+    description:
+      "自社の文書だけを根拠に、サイトの上でお客さまの質問に答える窓口。答えには出典が付き、分からないことは問い合わせへ回す。ここに置いてあるのは、suminawa 自身の案内を読む実物。",
+    tags: ["Claude API", "Next.js", "TypeScript"],
+    category: "tools",
+  },
+  {
     slug: "30days",
     title: "30日 — Thirty Days",
     description:
