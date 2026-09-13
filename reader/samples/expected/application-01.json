@@ -1,0 +1,17 @@
+{
+  "form": "application",
+  "fields": {
+    "name": "潮見 さくら",
+    "nameReading": "しおみ さくら",
+    "postalCode": "000-0003",
+    "address": "みなと市浜3-3-3",
+    "phone": "090-0000-0003",
+    "email": "shiomi@example.com",
+    "birthDate": "1990年5月4日",
+    "preferredDate": "2026年9月20日",
+    "plan": "月4回コース",
+    "agreed": "☑",
+    "notes": "平日の夜を希望します"
+  },
+  "tables": {}
+}

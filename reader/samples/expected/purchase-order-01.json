@@ -1,0 +1,35 @@
+{
+  "form": "purchase-order",
+  "fields": {
+    "orderer": "みなと商会",
+    "supplier": "さくら設備株式会社",
+    "orderNumber": "PO-2026-0115",
+    "orderDate": "2026年9月3日",
+    "deliveryDate": "2026年9月20日",
+    "deliveryPlace": "みなと商会 本社 3F 倉庫",
+    "total": "¥985,600",
+    "notes": "納品時は事前にお電話ください。"
+  },
+  "tables": {
+    "lineItems": [
+      {
+        "description": "エアコン 業務用 4馬力",
+        "quantity": "2",
+        "unitPrice": "¥385,000",
+        "amount": "¥770,000"
+      },
+      {
+        "description": "配管・据付工事",
+        "quantity": "2",
+        "unitPrice": "¥48,000",
+        "amount": "¥96,000"
+      },
+      {
+        "description": "既存機撤去",
+        "quantity": "2",
+        "unitPrice": "¥15,000",
+        "amount": "¥30,000"
+      }
+    ]
+  }
+}

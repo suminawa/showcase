@@ -57,6 +57,7 @@ describe("projects registry", () => {
       "tax-back",
       "floorplan",
       "ai-concierge",
+      "doc-reader",
     ]);
     expect(projectsByCategory("challenge").map((p) => p.slug)).toEqual([
       "30days",

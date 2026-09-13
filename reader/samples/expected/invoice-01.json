@@ -1,0 +1,37 @@
+{
+  "form": "invoice",
+  "fields": {
+    "issuer": "さくら設備株式会社",
+    "recipient": "みなと商会",
+    "invoiceNumber": "INV-2026-0901",
+    "issueDate": "2026年9月1日",
+    "dueDate": "2026年9月30日",
+    "subtotal": "¥152,500",
+    "tax": "¥15,250",
+    "total": "¥167,750",
+    "registrationNumber": "T0000000000001",
+    "bankAccount": "みなと銀行 中央支店 普通 0000001 サクラセツビ（カ"
+  },
+  "tables": {
+    "lineItems": [
+      {
+        "description": "給湯器交換工事",
+        "quantity": "1",
+        "unitPrice": "¥128,000",
+        "amount": "¥128,000"
+      },
+      {
+        "description": "配管部材一式",
+        "quantity": "1",
+        "unitPrice": "¥18,500",
+        "amount": "¥18,500"
+      },
+      {
+        "description": "出張費",
+        "quantity": "2",
+        "unitPrice": "¥3,000",
+        "amount": "¥6,000"
+      }
+    ]
+  }
+}

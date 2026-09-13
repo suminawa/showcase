@@ -1,0 +1,19 @@
+{
+  "id": "business-card",
+  "name": "名刺",
+  "description": "名刺の写真。氏名・会社・部署・役職・連絡先を読み取ります。",
+  "fields": [
+    { "key": "name", "label": "氏名", "type": "string", "required": true, "hint": "いちばん大きく書かれている人名" },
+    { "key": "nameReading", "label": "ふりがな", "type": "string", "hint": "氏名の上や横のかな・ローマ字" },
+    { "key": "company", "label": "会社名", "type": "string", "required": true },
+    { "key": "department", "label": "部署", "type": "string" },
+    { "key": "title", "label": "役職", "type": "string" },
+    { "key": "email", "label": "メール", "type": "string", "pattern": "^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$" },
+    { "key": "phone", "label": "電話", "type": "string", "hint": "TEL の番号。携帯は別の欄に" },
+    { "key": "mobile", "label": "携帯", "type": "string", "hint": "Mobile・携帯 の番号" },
+    { "key": "postalCode", "label": "郵便番号", "type": "string", "hint": "〒 の後ろの 7 桁" },
+    { "key": "address", "label": "住所", "type": "string" },
+    { "key": "url", "label": "URL", "type": "string" }
+  ],
+  "checks": []
+}

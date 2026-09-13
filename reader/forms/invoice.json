@@ -1,0 +1,27 @@
+{
+  "id": "invoice",
+  "name": "請求書",
+  "description": "取引先から届いた請求書。発行者・宛名・番号・日付・金額・明細を読み取ります。",
+  "fields": [
+    { "key": "issuer", "label": "請求元", "type": "string", "required": true, "hint": "請求書を発行した会社や個人の名前。上部の宛名ではなく、印影や振込先の近くにある側" },
+    { "key": "recipient", "label": "請求先", "type": "string", "required": true, "hint": "「御中」「様」が付いている宛名" },
+    { "key": "invoiceNumber", "label": "請求書番号", "type": "string", "hint": "No. や 請求番号 の後ろの英数字" },
+    { "key": "issueDate", "label": "発行日", "type": "date", "required": true, "hint": "請求日・発行日" },
+    { "key": "dueDate", "label": "支払期限", "type": "date", "hint": "お支払期限・振込期日" },
+    { "key": "subtotal", "label": "税抜金額", "type": "money", "hint": "小計・税抜合計" },
+    { "key": "tax", "label": "消費税", "type": "money", "hint": "消費税額の合計" },
+    { "key": "total", "label": "合計金額", "type": "money", "required": true, "hint": "税込の合計・ご請求金額" },
+    { "key": "registrationNumber", "label": "登録番号", "type": "string", "pattern": "^T\\d{13}$", "hint": "T で始まる 13 桁のインボイス登録番号" },
+    { "key": "bankAccount", "label": "振込先", "type": "string", "hint": "銀行名・支店名・口座種別・口座番号・名義を 1 つの文字にまとめて" },
+    { "key": "lineItems", "label": "明細", "type": "table", "hint": "品名・数量・単価・金額の行。小計や消費税の行は含めない", "columns": [
+      { "key": "description", "label": "品名", "type": "string" },
+      { "key": "quantity", "label": "数量", "type": "number" },
+      { "key": "unitPrice", "label": "単価", "type": "money" },
+      { "key": "amount", "label": "金額", "type": "money" }
+    ] }
+  ],
+  "checks": [
+    { "type": "sum", "items": "lineItems.amount", "equals": "subtotal", "tolerance": 1 },
+    { "type": "sum", "parts": ["subtotal", "tax"], "equals": "total", "tolerance": 1 }
+  ]
+}

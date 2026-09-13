@@ -88,6 +88,14 @@ export const projects: Project[] = [
     category: "tools",
   },
   {
+    slug: "doc-reader",
+    title: "AI 書類読み取り",
+    description:
+      "請求書・領収書・申込書を AI が読み取り、確認してから表に出す道具。同梱の見本はその場で試せ、お手元の書類でも試せる。ここに置いてあるのは、suminawa 自身の読み取りキットを動かす実物。",
+    tags: ["Claude API", "Next.js", "TypeScript"],
+    category: "tools",
+  },
+  {
     slug: "30days",
     title: "30日 — Thirty Days",
     description:

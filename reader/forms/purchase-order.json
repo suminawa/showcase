@@ -1,0 +1,22 @@
+{
+  "id": "purchase-order",
+  "name": "注文書",
+  "description": "注文書・発注書。発注者・受注者・番号・日付・納期・納品場所・金額・明細を読み取ります。",
+  "fields": [
+    { "key": "orderer", "label": "発注者", "type": "string", "required": true, "hint": "注文する側。印影や担当者名がある側" },
+    { "key": "supplier", "label": "受注者", "type": "string", "required": true, "hint": "「御中」が付いている宛名" },
+    { "key": "orderNumber", "label": "注文番号", "type": "string", "hint": "注文 No.・発注番号" },
+    { "key": "orderDate", "label": "注文日", "type": "date", "required": true },
+    { "key": "deliveryDate", "label": "納期", "type": "date", "hint": "納期・納入日・希望納期" },
+    { "key": "deliveryPlace", "label": "納品場所", "type": "string", "hint": "納入先・納品先の住所や名称" },
+    { "key": "total", "label": "合計金額", "type": "money", "required": true, "hint": "税込の合計" },
+    { "key": "lineItems", "label": "明細", "type": "table", "hint": "品名・数量・単価・金額の行", "columns": [
+      { "key": "description", "label": "品名", "type": "string" },
+      { "key": "quantity", "label": "数量", "type": "number" },
+      { "key": "unitPrice", "label": "単価", "type": "money" },
+      { "key": "amount", "label": "金額", "type": "money" }
+    ] },
+    { "key": "notes", "label": "備考", "type": "string", "hint": "備考・特記事項" }
+  ],
+  "checks": []
+}
