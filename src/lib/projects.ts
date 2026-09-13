@@ -64,6 +64,14 @@ export const projects: Project[] = [
     category: "tools",
   },
   {
+    slug: "tax-back",
+    title: "税込からの逆算",
+    description:
+      "切りのいい税込価格を決めたあと、請求書に書く税抜と消費税を出す。端数の扱い（切り捨て・四捨五入・切り上げ）ごとに、その税込にぴったり戻る税抜を探す。",
+    tags: ["Next.js", "TypeScript"],
+    category: "tools",
+  },
+  {
     slug: "floorplan",
     title: "間取りシミュレーター",
     description:
