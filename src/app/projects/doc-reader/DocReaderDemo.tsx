@@ -122,7 +122,7 @@ export function DocReaderDemo() {
                   <a href={`/reader-samples/${sample.file}`} target="_blank" rel="noopener noreferrer" className={c.sampleLink}>
                     {sample.title}
                   </a>
-                  <button type="button" className={c.action} disabled={busy || forms.length === 0} onClick={() => onSample(sample)}>
+                  <button aria-label={`${sample.title} を読み取る`} type="button" className={c.action} disabled={busy || forms.length === 0} onClick={() => onSample(sample)}>
                     読み取る
                   </button>
                 </li>
@@ -169,7 +169,11 @@ export function DocReaderDemo() {
 
           {!busy && result === null && <p className={c.placeholder}>左の見本を選ぶか、書類をアップロードすると、ここに結果が出ます。</p>}
 
-          {!busy && result !== null && !result.ok && <p className={c.error}>{result.message}</p>}
+          {!busy && result !== null && !result.ok && (
+            <p className={c.error} role="alert">
+              {result.message}
+            </p>
+          )}
 
           {!busy && result !== null && result.ok && (
             <div className={c.result}>

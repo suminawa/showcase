@@ -17,7 +17,11 @@ function reader(): Promise<Reader> {
       const forms = await loadForms(config.formsDir);
       const client = config.apiKey === null ? createFakeClient(await loadFakeAnswers("reader/samples")) : undefined;
       return createReader(config, { forms, client });
-    })();
+    })().catch((error: unknown) => {
+      // 読み込みに失敗した約束を持ち続けない（次のリクエストでやり直す）
+      ready = null;
+      throw error;
+    });
   }
   return ready;
 }
