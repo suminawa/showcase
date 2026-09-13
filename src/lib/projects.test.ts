@@ -54,6 +54,7 @@ describe("projects registry", () => {
     expect(tools.map((p) => p.slug)).toEqual([
       "suminagashi",
       "quote-simulator",
+      "tax-back",
       "floorplan",
     ]);
     expect(projectsByCategory("challenge").map((p) => p.slug)).toEqual([
@@ -63,7 +64,8 @@ describe("projects registry", () => {
   });
 
   it("projectHref は /projects/<slug>、見本は /demos/<slug> を返す", () => {
-    const [suminagashi, quote, floorplan] = projectsByCategory("tools");
+    const [suminagashi, quote, taxBack, floorplan] = projectsByCategory("tools");
+    expect(projectHref(taxBack)).toBe("/projects/tax-back");
     expect(projectHref(quote)).toBe("/projects/quote-simulator");
     expect(projectHref(floorplan)).toBe("/projects/floorplan");
     expect(projectHref(suminagashi)).toBe("/projects/suminagashi");
@@ -86,8 +88,8 @@ describe("projects registry", () => {
     expect(projectHref(construction)).toBe("/demos/construction-lp");
   });
 
-  it("間取りシミュレーターはツールの 2 番目", () => {
-    const [, , floorplan] = projectsByCategory("tools");
+  it("間取りシミュレーターはツールの 4 番目", () => {
+    const [, , , floorplan] = projectsByCategory("tools");
     expect(floorplan.slug).toBe("floorplan");
     expect(floorplan.title).toBe("間取りシミュレーター");
     expect(floorplan.description).toBe(
