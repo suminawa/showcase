@@ -1,0 +1,27 @@
+/*
+ * 3D 商品コンフィギュレーターの根。紙は料紙のまま（背景はここで塗らない）。
+ * この一枚が持つのは道具の中の色と字だけで、道具の外（頭・戻り・一行）は projects.module.css に従う。
+ * 値は部品が --pc-* として読む。ここが唯一の出どころ（間取りシミュレーターの --d-* と同じ役割）。
+ */
+.tool {
+  --pc-bg: transparent;
+  --pc-fg: #1a1e24;
+  --pc-muted: #545b64;
+  --pc-brand: #2f5f7a;
+  --pc-on-brand: #ffffff;
+  --pc-line: #d5d9de;
+  --pc-surface: #ffffff;
+  --pc-radius: 4px;
+  --pc-font: var(--font-noto-sans-jp), ui-sans-serif, system-ui, "Hiragino Sans", sans-serif;
+  color: var(--pc-fg);
+  line-height: 1.8;
+}
+
+.loading {
+  margin: 0;
+  min-height: 20rem;
+  display: grid;
+  place-items: center;
+  color: var(--pc-muted);
+  font-family: var(--pc-font);
+}
