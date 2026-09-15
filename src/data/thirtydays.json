@@ -55,6 +55,17 @@
       "humanMinutes": 20,
       "release": "",
       "ai": "書類読み取り・問い合わせ整理・LINE 案内窓口の 3 キットを完成"
+    },
+    {
+      "day": 5,
+      "date": "2026-09-15",
+      "revenue": 0,
+      "proposals": 0,
+      "replies": 0,
+      "meetings": 0,
+      "humanMinutes": 10,
+      "release": "",
+      "ai": "3D 商品コンフィギュレーターの設計・計画と実装開始、収集 125 件・提案 50 本"
     }
   ]
 }
