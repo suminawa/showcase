@@ -1,0 +1,14 @@
+/* 道具の中だけは自前の色と字を持つ。キットの CSS 変数（--sa-*）をこの一枚で紙に寄せる */
+.tool {
+  --sa-bg: transparent;
+  --sa-paper: #fffdf8;
+  --sa-ink: #2b2a27;
+  --sa-muted: #7a766d;
+  --sa-line: #e0dbd0;
+  --sa-accent: #2f6f5e;
+  --sa-radius: 8px;
+  border: 1px solid #e0dbd0;
+  border-radius: 12px;
+  background: #fffdf8;
+  min-height: 480px;
+}
