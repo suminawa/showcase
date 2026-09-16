@@ -426,10 +426,14 @@ function withCommas(n) {
   return parts.join(".");
 }
 
-/** Sheets が数式として解釈する先頭文字を無力化する（見た目は変わらない） */
+/**
+ * 文字は必ず「文字として保存」する印（先頭の '）を付けて書く。見た目は変わらない。
+ * Sheets は書いた文字を人の入力と同じように読み直すので、印が無いと 数式（=…）だけでなく
+ * 電話の先頭 0 や「1-2」「2026-09-16 10:32:05」まで数や日付に化ける。
+ */
 function safeCell(value) {
   const text = String(value === null || value === undefined ? "" : value);
-  return /^[=+\-@\t\r]/.test(text) ? "'" + text : text;
+  return text === "" ? "" : "'" + text;
 }
 
 function applyDateFormat_(key, dateFormat) {
@@ -594,7 +598,8 @@ function matchesFilter(column, value, filter) {
   if (column.type === "チェック") {
     // チェックに使えるのは eq / ne（empty / notEmpty は上で済み）。ほかの op は当たらない
     if (op !== "eq" && op !== "ne") return false;
-    const want = filter.value === true || String(filter.value).toLowerCase() === "true";
+    // 画面の select は はい / いいえ を送る。TRUE / 1 / ○ も同じに読む
+    const want = boolOf(filter.value, false);
     const got = value === true;
     return op === "ne" ? got !== want : got === want;
   }
@@ -764,6 +769,16 @@ function parseId(id) {
 
 function isId(text) {
   return parseId(text) !== null;
+}
+
+/** 2 つの ID のうち後ろの方（日付キー → 連番の順で比べる）。読めない方は無視し、どちらも読めなければ "" */
+function laterId(a, b) {
+  const first = parseId(a);
+  const second = parseId(b);
+  if (first === null) return second === null ? "" : String(b);
+  if (second === null) return String(a);
+  if (first.dateKey !== second.dateKey) return first.dateKey > second.dateKey ? String(a) : String(b);
+  return first.sequence >= second.sequence ? String(a) : String(b);
 }
 
 /** 前回の ID と今日の日付キーから、次の ID を作る */
@@ -1023,6 +1038,12 @@ function settingsCsv() {
 const OP_LABELS = { contains: "を含む", eq: "と等しい", ne: "と等しくない", gt: "より大きい", gte: "以上", lt: "より小さい", lte: "以下", between: "の範囲", in: "のいずれか", empty: "が空", notEmpty: "が空でない" };
 const LONG_TEXT_PREVIEW = 40;
 const TYPE_INPUT = { 文字: "text", メール: "email", 電話: "tel", URL: "url", 日付: "date", 日時: "datetime-local" };
+/** 型ごとに使える条件（当たりようのない条件は出さない） */
+const TEXT_OPS = ["contains", "eq", "ne", "empty", "notEmpty"];
+const ORDER_OPS = ["eq", "ne", "gt", "gte", "lt", "lte", "between", "empty", "notEmpty"];
+const CHOICE_OPS = ["eq", "ne", "empty", "notEmpty"];
+const FILTER_OPS = { 文字: TEXT_OPS, 長文: TEXT_OPS, メール: TEXT_OPS, 電話: TEXT_OPS, URL: TEXT_OPS, 数値: ORDER_OPS, 金額: ORDER_OPS, 日付: ORDER_OPS, 日時: ORDER_OPS, 選択: CHOICE_OPS, 参照: CHOICE_OPS, 複数選択: ["in", "contains", "empty", "notEmpty"], チェック: ["eq"] };
+const FILTER_PLACEHOLDER = "範囲は 最小,最大。いずれかは 値1,値2";
 
 function escapeHtml(value) {
   return String(value === null || value === undefined ? "" : value)
@@ -1063,7 +1084,7 @@ function filterText_(table, filter, refs) {
   if (filter.op === "between") value = escapeHtml(filter.value[0]) + "〜" + escapeHtml(filter.value[1]);
   else if (filter.op === "in") value = filter.value.map((v) => escapeHtml(labelFor(column, v, refs, {}))).join("、");
   else if (filter.op === "empty" || filter.op === "notEmpty") value = "";
-  else if (column.type === "チェック") value = filter.value === true || String(filter.value) === "true" ? "はい" : "いいえ";
+  else if (column.type === "チェック") value = boolOf(filter.value, false) ? "はい" : "いいえ";
   else value = escapeHtml(labelFor(column, filter.value, refs, {}));
   const label = OP_LABELS[filter.op] || filter.op;
   // empty / notEmpty の label は「が空」「が空でない」と「が」を含むので、つなぎの「が」を重ねない
@@ -1076,10 +1097,33 @@ function renderFilterChips(table, filters, refs) {
   return '<div class="sa-chips">' + filters.map((f, i) => '<span class="sa-chip">' + filterText_(table, f, refs) + ' <button type="button" class="sa-chip-x" data-action="remove-filter" data-index="' + i + '" aria-label="この条件を外す">×</button></span>').join("") + '<button type="button" class="sa-link" data-action="clear-filters">すべて外す</button></div>';
 }
 
-function renderFilterPanel(table) {
-  const columns = table.columns.map((c) => '<option value="' + attr_(c.name) + '">' + escapeHtml(c.name) + "</option>").join("");
-  const ops = Object.keys(OP_LABELS).map((op) => '<option value="' + op + '">' + escapeHtml(OP_LABELS[op]) + "</option>").join("");
-  return '<form class="sa-filter-panel" data-form="filter"><label>列<select name="column">' + columns + "</select></label><label>条件<select name=\"op\">" + ops + '</select></label><label>値<input type="text" name="value" placeholder="範囲は 最小,最大。いずれかは 値1,値2"></label><button type="submit" class="sa-btn">条件を足す</button></form>';
+function choiceField_(list) {
+  return '<select name="value"><option value="">（未選択）</option>' + list.map((o) => '<option value="' + attr_(o.value) + '">' + escapeHtml(o.label) + "</option>").join("") + "</select>";
+}
+
+/** 値の欄。型に合う入力にする（op が between のときは main.js が text に戻す） */
+function valueField_(column, options) {
+  const type = column === null ? "文字" : column.type;
+  if (type === "選択" || type === "複数選択") return choiceField_(column.options.map((o) => ({ value: o, label: o })));
+  if (type === "チェック") return '<select name="value"><option value="はい">はい</option><option value="いいえ">いいえ</option></select>';
+  if (type === "参照") {
+    const list = Array.isArray(options) ? options : null;
+    if (list === null) return '<select name="value"></select><span class="sa-note">候補を読み込んでいます…</span>';
+    return choiceField_(list.map((o) => ({ value: o.id, label: o.label })));
+  }
+  if (type === "日付") return '<input type="date" name="value">';
+  if (type === "日時") return '<input type="datetime-local" name="value">';
+  if (type === "数値" || type === "金額") return '<input type="text" inputmode="decimal" name="value" placeholder="範囲は 最小,最大">';
+  return '<input type="text" name="value" placeholder="' + attr_(FILTER_PLACEHOLDER) + '">';
+}
+
+/** column は選ばれている列（null なら先頭の列）、options は 参照 の列の候補 [{ id, label }]（無ければ null） */
+function renderFilterPanel(table, column, options) {
+  const chosen = column === null || column === undefined ? (table.columns.length > 0 ? table.columns[0] : null) : column;
+  const columns = table.columns.map((c) => '<option value="' + attr_(c.name) + '"' + (chosen !== null && c.name === chosen.name ? " selected" : "") + ">" + escapeHtml(c.name) + "</option>").join("");
+  const names = chosen === null ? TEXT_OPS : FILTER_OPS[chosen.type] || TEXT_OPS;
+  const ops = names.map((op) => '<option value="' + op + '">' + escapeHtml(OP_LABELS[op]) + "</option>").join("");
+  return '<form class="sa-filter-panel" data-form="filter"><label>列<select name="column">' + columns + "</select></label><label>条件<select name=\"op\">" + ops + "</select></label><label>値" + valueField_(chosen, options) + '</label><button type="submit" class="sa-btn">条件を足す</button></form>';
 }
 
 function renderPager(total, page, pageSize) {
@@ -1188,7 +1232,7 @@ function renderToolbar(state) {
   const table = currentTable(state);
   if (table === null) return "";
   const ai = state.ai ? '<div class="sa-ai"><input type="text" data-field="ai" value="' + attr_(state.aiText) + '" placeholder="言葉で絞り込む（例: 先月連絡した取引中の顧客）"><button type="button" class="sa-btn" data-action="ai-filter">AI で絞り込み</button></div>' + (state.aiExplanation ? '<div class="sa-ai-note">' + escapeHtml(state.aiExplanation) + "</div>" : "") : "";
-  return '<div class="sa-toolbar"><input type="search" class="sa-search" data-field="q" value="' + attr_(state.q) + '" placeholder="検索" aria-label="検索"><button type="button" class="sa-btn sa-btn-quiet" data-action="toggle-filters" aria-expanded="' + (state.filterPanel ? "true" : "false") + '">絞り込み</button>' + (state.user.canEdit ? '<button type="button" class="sa-btn sa-btn-primary" data-action="new">新規</button>' : "") + '<button type="button" class="sa-btn sa-btn-quiet" data-action="csv">CSV</button>' + (state.loading ? '<span class="sa-spinner" aria-label="読み込み中"></span>' : "") + "</div>" + ai + (state.filterPanel ? renderFilterPanel(table) : "") + renderFilterChips(table, state.filters, state.refs);
+  return '<div class="sa-toolbar"><input type="search" class="sa-search" data-field="q" value="' + attr_(state.q) + '" placeholder="検索" aria-label="検索"><button type="button" class="sa-btn sa-btn-quiet" data-action="toggle-filters" aria-expanded="' + (state.filterPanel ? "true" : "false") + '">絞り込み</button>' + (state.user.canEdit ? '<button type="button" class="sa-btn sa-btn-primary" data-action="new">新規</button>' : "") + '<button type="button" class="sa-btn sa-btn-quiet" data-action="csv">CSV</button>' + (state.loading ? '<span class="sa-spinner" aria-label="読み込み中"></span>' : "") + "</div>" + ai + (state.filterPanel ? renderFilterPanel(table, state.filterColumn ? findColumn(table, state.filterColumn) : null, state.filterOptions) : "") + renderFilterChips(table, state.filters, state.refs);
 }
 
 function renderList(state) {
@@ -1251,6 +1295,8 @@ function initialState() {
     error: "",
     notice: "",
     filterPanel: false,
+    filterColumn: "",
+    filterOptions: null,
     aiText: "",
     aiExplanation: "",
     view: null,
@@ -1292,7 +1338,7 @@ function reduce(state, action) {
   }
   if (type === "select-table") {
     if (!state.tables.some((t) => t.name === action.name)) return state;
-    return assign_(state, { current: action.name, q: "", filters: [], sort: null, page: 1, rows: [], total: 0, refs: {}, view: null, filterPanel: false, aiText: "", aiExplanation: "", csv: null, error: "", notice: "" });
+    return assign_(state, { current: action.name, q: "", filters: [], sort: null, page: 1, rows: [], total: 0, refs: {}, view: null, filterPanel: false, filterColumn: "", filterOptions: null, aiText: "", aiExplanation: "", csv: null, error: "", notice: "" });
   }
   if (type === "set-q") return assign_(state, { q: String(action.q || ""), page: 1 });
   if (type === "add-filter") return assign_(state, { filters: state.filters.concat([action.filter]), page: 1 });
@@ -1317,6 +1363,7 @@ function reduce(state, action) {
   if (type === "error") return assign_(state, { error: String(action.message || ""), loading: false });
   if (type === "notice") return assign_(state, { notice: String(action.message || "") });
   if (type === "toggle-filter-panel") return assign_(state, { filterPanel: !state.filterPanel });
+  if (type === "filter-column") return assign_(state, { filterColumn: String(action.column || ""), filterOptions: Array.isArray(action.options) ? action.options : null });
   if (type === "ai-text") return assign_(state, { aiText: String(action.text || "") });
   if (type === "ai-explanation") return assign_(state, { aiExplanation: String(action.text || "") });
   if (type === "open-detail") return assign_(state, { view: { kind: "detail", id: action.row ? action.row.ID : "", row: action.row, refs: action.refs || {}, summary: "", summaryLoading: false }, error: "", notice: "" });
@@ -1581,18 +1628,17 @@ function mountSheetApp(root, api) {
       .catch(fail);
   }
 
-  /** フォームの欄を { 列名: 値 } に */
+  /** フォームの欄を { 列名: 値 } に。列名に " があっても壊れないよう、選択子ではなく elements から集める */
   function collect(form, table) {
     const record = {};
     table.columns.forEach((column) => {
+      const fields = Array.prototype.filter.call(form.elements, (el) => el.name === column.name);
       if (column.type === "複数選択") {
-        record[column.name] = Array.prototype.map.call(form.querySelectorAll('input[name="' + column.name + '"]:checked'), (el) => el.value);
+        record[column.name] = fields.filter((el) => el.checked).map((el) => el.value);
       } else if (column.type === "チェック") {
-        const el = form.querySelector('input[name="' + column.name + '"]');
-        record[column.name] = !!(el && el.checked);
+        record[column.name] = fields.length > 0 && fields[0].checked === true;
       } else {
-        const el = form.elements.namedItem(column.name);
-        let value = el ? el.value : "";
+        let value = fields.length > 0 ? fields[0].value : "";
         if (column.type === "日時") value = String(value).replace("T", " ");
         record[column.name] = value;
       }
@@ -1731,6 +1777,35 @@ function mountSheetApp(root, api) {
     load();
   }
 
+  /** 絞り込みの列が変わったら、その型に合う条件と入力欄に描き直す（参照は候補を取ってから） */
+  function filterColumn(name) {
+    const table = currentTable(state);
+    const column = table === null ? null : findColumn(table, name);
+    if (column === null || column.type !== "参照") {
+      dispatch({ type: "filter-column", column: name, options: null });
+      return;
+    }
+    api
+      .options(table.name, name)
+      .then((result) => dispatch({ type: "filter-column", column: name, options: result.options }))
+      .catch((error) => {
+        dispatch({ type: "filter-column", column: name, options: null });
+        fail(error);
+      });
+  }
+
+  /** 範囲（between）は「最小,最大」の 2 つを入れるので、値の欄はそのあいだだけ text にする */
+  function swapRangeField(form, op) {
+    const field = form.elements.namedItem("value");
+    if (!field || field.tagName !== "INPUT") return;
+    if (field.dataset.type === undefined) {
+      field.dataset.type = field.type;
+      field.dataset.placeholder = field.placeholder;
+    }
+    field.type = op === "between" ? "text" : field.dataset.type;
+    field.placeholder = op === "between" ? "最小,最大（例: 2026-08-01,2026-08-31）" : field.dataset.placeholder;
+  }
+
   root.addEventListener("click", (event) => {
     const el = event.target.closest("[data-action]");
     if (!el || !root.contains(el)) return;
@@ -1791,6 +1866,14 @@ function mountSheetApp(root, api) {
     } else if (field === "ai") {
       state = reduce(state, { type: "ai-text", text: target.value });
     }
+  });
+
+  root.addEventListener("change", (event) => {
+    const el = event.target;
+    const form = el ? el.form : null;
+    if (!form || form.dataset.form !== "filter") return;
+    if (el.name === "column") filterColumn(el.value);
+    else if (el.name === "op") swapRangeField(form, el.value);
   });
 
   root.addEventListener("submit", (event) => {
