@@ -80,6 +80,14 @@ export const projects: Project[] = [
     category: "tools",
   },
   {
+    slug: "configurator",
+    title: "3D 商品コンフィギュレーター",
+    description:
+      "商品を 3D で回しながら、色・素材・パーツ・刻印・ロゴを選び、価格をその場で確かめる。商品ページに置ける道具。",
+    tags: ["React Three Fiber", "glTF", "TypeScript"],
+    category: "tools",
+  },
+  {
     slug: "ai-concierge",
     title: "AI 案内窓口",
     description:
