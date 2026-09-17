@@ -1,0 +1,19 @@
+{
+  "id": "application",
+  "name": "申込書",
+  "description": "手書きや印字の申込書。氏名・住所・連絡先・希望日・プラン・備考を読み取ります。",
+  "fields": [
+    { "key": "name", "label": "氏名", "type": "string", "required": true },
+    { "key": "nameReading", "label": "ふりがな", "type": "string" },
+    { "key": "postalCode", "label": "郵便番号", "type": "string" },
+    { "key": "address", "label": "住所", "type": "string", "required": true },
+    { "key": "phone", "label": "電話", "type": "string", "required": true },
+    { "key": "email", "label": "メール", "type": "string", "pattern": "^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$" },
+    { "key": "birthDate", "label": "生年月日", "type": "date" },
+    { "key": "preferredDate", "label": "希望日", "type": "date", "hint": "希望日・予約希望日・開始希望日" },
+    { "key": "plan", "label": "プラン", "type": "string", "hint": "申し込むコース・プラン・商品名。チェックが付いているもの" },
+    { "key": "agreed", "label": "同意", "type": "boolean", "hint": "規約への同意のチェックや署名の有無" },
+    { "key": "notes", "label": "備考", "type": "string", "hint": "ご要望・備考欄" }
+  ],
+  "checks": []
+}

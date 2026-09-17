@@ -1,0 +1,284 @@
+/* ==========================================================================
+   AI 書類読み取り ── 料紙の上の帳面（Operate）
+   --------------------------------------------------------------------------
+   見積もりシミュレーター（quote.module.css）と同じ帳面の法。箱を持たず、
+   罫は墨の一本だけ、字は「大」と「小」の二段。この面に選ぶ行為は無いので
+   朱は一切使わない ── ボタンも警告も、すべて墨の濃淡だけで語る。
+
+   --dr-* は料紙の色を、このモジュールの中で使う名前に写しただけの薄い層。
+   値は --rp-* をそのまま指す。
+   ========================================================================== */
+
+.shell {
+  --dr-fg: var(--rp-sumi);
+  --dr-muted: var(--rp-sumi-4);
+  --dr-faint: var(--rp-sumi-3);
+  --dr-line: color-mix(in srgb, var(--rp-sumi) 30%, transparent);
+}
+
+.layout {
+  display: grid;
+  gap: calc(2 * var(--rp-pitch));
+  align-items: start;
+}
+
+@media (min-width: 1024px) {
+  .layout {
+    grid-template-columns: minmax(0, 1fr) minmax(300px, 28rem);
+    gap: calc(1.5 * var(--rp-pitch)) clamp(40px, 6vw, 96px);
+  }
+}
+
+.left,
+.right {
+  display: grid;
+  gap: calc(1.25 * var(--rp-pitch));
+  min-width: 0;
+}
+
+@media (min-width: 1024px) {
+  .right {
+    position: sticky;
+    top: calc(1.5 * var(--rp-pitch));
+  }
+}
+
+/* 見出し。本文より小さく、字間を開けて「別の役の字」だと示す */
+.sectionHead {
+  margin: 0 0 calc(0.5 * var(--rp-pitch));
+  font-size: var(--rp-tiny);
+  line-height: 2;
+  letter-spacing: 0.24em;
+  color: var(--dr-muted);
+}
+
+/* ==========================================================================
+   見本 ── 題と、開く・読み取るの二つの動詞
+   ========================================================================== */
+
+.samples {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: calc(0.4 * var(--rp-pitch));
+}
+
+.sample {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.8em 1.5em;
+  padding: calc(0.25 * var(--rp-pitch)) 0;
+  font-size: var(--rp-tiny);
+  line-height: 1.8;
+}
+
+.sampleLink {
+  color: var(--dr-faint);
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.3em;
+  transition: color 200ms var(--rp-brush);
+}
+
+.sampleLink:hover,
+.sampleLink:focus-visible {
+  color: var(--dr-fg);
+}
+
+/* ==========================================================================
+   動詞（ボタン）── 箱を持たない。下線が一本、濃さで押せる／押せないを示す
+   ========================================================================== */
+
+.action {
+  appearance: none;
+  border: 0;
+  border-bottom: 1px solid var(--dr-muted);
+  border-radius: 0;
+  background: none;
+  padding: 0 0 0.15em;
+  font: inherit;
+  font-size: var(--rp-tiny);
+  letter-spacing: 0.08em;
+  color: var(--dr-fg);
+  cursor: pointer;
+  transition:
+    border-color var(--rp-soak),
+    color var(--rp-soak);
+}
+
+.action:hover,
+.action:focus-visible {
+  border-bottom-color: var(--dr-fg);
+}
+
+.action:disabled {
+  color: var(--dr-muted);
+  border-bottom-color: var(--dr-line);
+  cursor: not-allowed;
+}
+
+/* ==========================================================================
+   自分の書類 ── 保存しない・上限があることを、読む前に必ず目に入れる
+   ========================================================================== */
+
+.note {
+  margin: 0 0 calc(0.5 * var(--rp-pitch));
+  font-size: var(--rp-tiny);
+  line-height: 2.2;
+  letter-spacing: 0.04em;
+  color: var(--dr-muted);
+  max-width: 34em;
+}
+
+.fileField {
+  display: inline-flex;
+  flex-direction: column;
+  gap: calc(0.3 * var(--rp-pitch));
+  font-size: var(--rp-tiny);
+  letter-spacing: 0.1em;
+  color: var(--dr-muted);
+}
+
+.fileField input {
+  font: inherit;
+  color: var(--dr-fg);
+}
+
+.notice {
+  font-size: var(--rp-tiny);
+  line-height: 2;
+  letter-spacing: 0.04em;
+  color: var(--dr-fg);
+  border-bottom: 1px solid var(--dr-line);
+  padding-bottom: calc(0.4 * var(--rp-pitch));
+}
+
+/* ==========================================================================
+   結果 ── 表が主役。色は使わず、罫と濃淡だけで読ませる
+   ========================================================================== */
+
+.status,
+.placeholder {
+  font-size: var(--rp-tiny);
+  line-height: 2;
+  letter-spacing: 0.04em;
+  color: var(--dr-muted);
+}
+
+.error {
+  font-size: var(--rp-tiny);
+  line-height: 2;
+  letter-spacing: 0.04em;
+  color: var(--dr-fg);
+}
+
+.result {
+  display: grid;
+  gap: calc(0.9 * var(--rp-pitch));
+  min-width: 0;
+}
+
+.lines {
+  display: grid;
+  gap: calc(0.3 * var(--rp-pitch));
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--rp-tiny);
+  line-height: 1.9;
+}
+
+.table th,
+.table td {
+  padding: calc(0.2 * var(--rp-pitch)) 0.8em calc(0.2 * var(--rp-pitch)) 0;
+  text-align: left;
+  vertical-align: top;
+  border: 0;
+  font-weight: 400;
+  color: var(--dr-faint);
+}
+
+.table th:last-child,
+.table td:last-child {
+  padding-right: 0;
+}
+
+.table tbody th[scope="row"] {
+  color: var(--dr-fg);
+  white-space: nowrap;
+}
+
+.table thead th {
+  color: var(--dr-muted);
+  letter-spacing: 0.08em;
+  font-weight: 400;
+}
+
+.table thead tr {
+  border-bottom: 1px solid var(--dr-line);
+}
+
+.confidence {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.table td.confidence {
+  text-align: right;
+}
+
+.warnings {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: calc(0.25 * var(--rp-pitch));
+  font-size: var(--rp-tiny);
+  line-height: 1.9;
+  letter-spacing: 0.04em;
+  color: var(--dr-faint);
+  border-top: 1px solid var(--dr-line);
+  padding-top: calc(0.5 * var(--rp-pitch));
+}
+
+.meta {
+  margin: 0;
+  font-size: var(--rp-tiny);
+  letter-spacing: 0.04em;
+  color: var(--dr-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.jsonBlock {
+  font-size: var(--rp-tiny);
+  color: var(--dr-muted);
+}
+
+.jsonBlock summary {
+  cursor: pointer;
+  letter-spacing: 0.08em;
+  color: var(--dr-faint);
+}
+
+.json {
+  margin: calc(0.5 * var(--rp-pitch)) 0 0;
+  padding: calc(0.5 * var(--rp-pitch));
+  overflow-x: auto;
+  white-space: pre;
+  font-size: 0.8em;
+  line-height: 1.6;
+  color: var(--dr-faint);
+  border: 1px solid var(--dr-line);
+}
+
+@media (max-width: 767px) {
+  .layout {
+    gap: calc(1.5 * var(--rp-pitch));
+  }
+}

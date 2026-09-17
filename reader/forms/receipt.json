@@ -1,0 +1,21 @@
+{
+  "id": "receipt",
+  "name": "領収書",
+  "description": "店舗や取引先の領収書・レシート。発行者・日付・金額・税率・支払方法を読み取ります。",
+  "fields": [
+    { "key": "issuer", "label": "発行者", "type": "string", "required": true, "hint": "店名・会社名" },
+    { "key": "issueDate", "label": "日付", "type": "date", "required": true, "hint": "領収日・発行日・レシートの日時" },
+    { "key": "total", "label": "合計金額", "type": "money", "required": true, "hint": "税込の合計" },
+    { "key": "tax", "label": "消費税", "type": "money", "hint": "内消費税・消費税額" },
+    { "key": "taxRate", "label": "税率", "type": "enum", "options": ["10%", "8%", "0%", "混在"], "hint": "10% と 8% が両方あれば「混在」" },
+    { "key": "paymentMethod", "label": "支払方法", "type": "enum", "options": ["現金", "クレジットカード", "電子マネー", "振込", "不明"], "hint": "書かれていなければ「不明」" },
+    { "key": "registrationNumber", "label": "登録番号", "type": "string", "pattern": "^T\\d{13}$", "hint": "T で始まる 13 桁" },
+    { "key": "purpose", "label": "但し書き", "type": "string", "hint": "「但」の後ろ。レシートなら主な品目" },
+    { "key": "lineItems", "label": "明細", "type": "table", "hint": "レシートの品目の行。無ければ空", "columns": [
+      { "key": "description", "label": "品名", "type": "string" },
+      { "key": "quantity", "label": "数量", "type": "number" },
+      { "key": "amount", "label": "金額", "type": "money" }
+    ] }
+  ],
+  "checks": []
+}

@@ -1,0 +1,11 @@
+{
+  "site": { "name": "suminawa" },
+  "forms": "reader/forms",
+  "defaultForm": "invoice",
+  "model": "claude-opus-5",
+  "effort": "low",
+  "confidenceThreshold": 0.8,
+  "limits": { "maxFileBytes": 4194304, "maxPages": 5, "perMinute": 3, "perHour": 15, "daily": 50 },
+  "send": { "sheet": "読み取り" },
+  "labels": {}
+}

@@ -1,0 +1,27 @@
+[
+  {
+    "file": "invoice-01.pdf",
+    "title": "請求書（設備工事）",
+    "form": "invoice"
+  },
+  {
+    "file": "receipt-01.jpg",
+    "title": "レシート（コンビニ風）",
+    "form": "receipt"
+  },
+  {
+    "file": "purchase-order-01.pdf",
+    "title": "注文書（空調）",
+    "form": "purchase-order"
+  },
+  {
+    "file": "business-card-01.jpg",
+    "title": "名刺",
+    "form": "business-card"
+  },
+  {
+    "file": "application-01.pdf",
+    "title": "申込書",
+    "form": "application"
+  }
+]

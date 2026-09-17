@@ -1,0 +1,17 @@
+{
+  "form": "business-card",
+  "fields": {
+    "name": "海野 ひかり",
+    "nameReading": "うみの ひかり",
+    "company": "みなと商会",
+    "department": "総務部",
+    "title": "課長",
+    "email": "umino@example.com",
+    "phone": "03-0000-6666",
+    "mobile": "090-0000-0001",
+    "postalCode": "000-0001",
+    "address": "みなと市中央2-2-2 みなとビル5F",
+    "url": "https://example.com"
+  },
+  "tables": {}
+}
