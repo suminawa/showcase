@@ -56,6 +56,8 @@ describe("projects registry", () => {
       "quote-simulator",
       "tax-back",
       "floorplan",
+      "configurator",
+      "sheet-app",
       "ai-concierge",
       "doc-reader",
     ]);
