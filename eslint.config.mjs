@@ -14,6 +14,9 @@ const eslintConfig = defineConfig([
     "next-env.d.ts",
     // Claude Code の worktree（別セッションの作業ツリー）は lint 対象外
     ".claude/**",
+    // public/ 配下はキットの demo バンドルをそのまま置く場所（ai-concierge.js、
+    // demos/*/app.js）。ビルド成果物の写しであって自前のソースではないので対象外
+    "public/**/*.js",
   ]),
 ]);
 

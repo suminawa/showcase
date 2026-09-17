@@ -88,6 +88,14 @@ export const projects: Project[] = [
     category: "tools",
   },
   {
+    slug: "sheet-app",
+    title: "スプレッドシート業務アプリ",
+    description:
+      "スプレッドシートを台帳のまま、定義シートに列を書くだけで、一覧・検索・登録・編集の画面をスマートフォンでも。Apps Script の Web アプリとして公開するキットの見本。",
+    tags: ["Google Apps Script", "JavaScript"],
+    category: "tools",
+  },
+  {
     slug: "ai-concierge",
     title: "AI 案内窓口",
     description:
