@@ -26,6 +26,8 @@ export const metadata: Metadata = {
   title: "見積もりシミュレーター",
   description:
     "作業条件を入力すると、見積もりの内訳と合計がリアルタイムで見える電卓",
+  openGraph: { images: ["/og/quote-simulator.png"] },
+  twitter: { card: "summary_large_image", images: ["/og/quote-simulator.png"] },
 };
 
 export default function QuoteSimulatorPage() {

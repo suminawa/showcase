@@ -25,6 +25,8 @@ export const metadata: Metadata = {
   title: "スプレッドシート業務アプリ",
   description:
     "スプレッドシートを台帳のまま、定義シートに列を書くだけで、一覧・検索・登録・編集の画面をスマートフォンでも。Apps Script の Web アプリとして公開するキットの見本。",
+  openGraph: { images: ["/og/sheet-app.png"] },
+  twitter: { card: "summary_large_image", images: ["/og/sheet-app.png"] },
 };
 
 export default function SheetAppPage() {

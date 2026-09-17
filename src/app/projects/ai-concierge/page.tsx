@@ -16,6 +16,8 @@ import s from "../projects.module.css";
 export const metadata: Metadata = {
   title: "AI 案内窓口",
   description: "自社の文書だけを根拠に、サイトの上でお客さまの質問に答える窓口。出典つきで答え、分からないことは問い合わせへ回します",
+  openGraph: { images: ["/og/ai-concierge.png"] },
+  twitter: { card: "summary_large_image", images: ["/og/ai-concierge.png"] },
 };
 
 export default function AiConciergePage() {

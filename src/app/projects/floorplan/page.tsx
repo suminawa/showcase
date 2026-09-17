@@ -27,6 +27,8 @@ export const metadata: Metadata = {
   title: "間取りシミュレーター",
   description:
     "間取りを描きかえ、家具を置き、3D で確かめる。マス目を塗るだけで廊下も L 字も描ける、住まいの検討用の道具。",
+  openGraph: { images: ["/og/floorplan.png"] },
+  twitter: { card: "summary_large_image", images: ["/og/floorplan.png"] },
 };
 
 export default function FloorplanPage() {

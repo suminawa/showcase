@@ -14,6 +14,8 @@ import s from "../projects.module.css";
 export const metadata: Metadata = {
   title: "税込からの逆算",
   description: "切りのいい税込価格を決めたあと、請求書に書く税抜と消費税を出す電卓",
+  openGraph: { images: ["/og/tax-back.png"] },
+  twitter: { card: "summary_large_image", images: ["/og/tax-back.png"] },
 };
 
 export default function TaxBackPage() {

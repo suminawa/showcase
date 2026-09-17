@@ -22,6 +22,8 @@ export const metadata: Metadata = {
   title: "墨流し — Suminagashi",
   description:
     "藍と墨が水面で渦を巻く GPU 流体の水盤。かき混ぜて、墨を落として、気に入った模様を保存できる。",
+  openGraph: { images: ["/og/suminagashi.png"] },
+  twitter: { card: "summary_large_image", images: ["/og/suminagashi.png"] },
 };
 
 export default function SuminagashiPage() {

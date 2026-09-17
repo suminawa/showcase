@@ -23,6 +23,8 @@ export const metadata: Metadata = {
   title: "3D 商品コンフィギュレーター",
   description:
     "商品を 3D で回しながら、色・素材・パーツ・刻印・ロゴを選び、価格をその場で確かめる。商品ページに置ける道具。",
+  openGraph: { images: ["/og/configurator.png"] },
+  twitter: { card: "summary_large_image", images: ["/og/configurator.png"] },
 };
 
 export default function ConfiguratorPage() {

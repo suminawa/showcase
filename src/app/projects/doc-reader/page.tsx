@@ -15,6 +15,8 @@ import { DocReaderDemo } from "./DocReaderDemo";
 export const metadata: Metadata = {
   title: "AI 書類読み取り",
   description: "請求書・領収書・申込書を読み取り、確認してから表に出す道具です。同梱の見本と、お手元の書類でその場から試せます。",
+  openGraph: { images: ["/og/doc-reader.png"] },
+  twitter: { card: "summary_large_image", images: ["/og/doc-reader.png"] },
 };
 
 export default function DocReaderPage() {
