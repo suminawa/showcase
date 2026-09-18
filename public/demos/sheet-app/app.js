@@ -436,6 +436,32 @@ function safeCell(value) {
   return text === "" ? "" : "'" + text;
 }
 
+/** セル 1 つに入る字数（Google スプレッドシートの上限 50,000 字に、' と余裕を見込む） */
+const TRASH_JSON_LIMIT = 49000;
+
+/**
+ * _ごみ箱 に書く JSON。長い値から順に切って上限に収める（収まらなければ ID と注記だけを残す）。
+ * 切らずに書くとセルの上限で書き込みが失敗し、削除そのものができなくなる
+ */
+function trashJson(record, limit) {
+  const max = limit === undefined ? TRASH_JSON_LIMIT : limit;
+  const copy = Object.assign({}, record);
+  let json = JSON.stringify(copy);
+  let guard = 0;
+  while (json.length > max && guard < 100) {
+    guard += 1;
+    const keys = Object.keys(copy).filter((k) => typeof copy[k] === "string" && copy[k].length > 20);
+    if (keys.length === 0) break;
+    keys.sort((a, b) => copy[b].length - copy[a].length);
+    const value = copy[keys[0]];
+    const keep = Math.max(0, value.length - (json.length - max) - 8);
+    copy[keys[0]] = value.slice(0, keep) + "…（切りました）";
+    json = JSON.stringify(copy);
+  }
+  if (json.length > max) json = JSON.stringify({ ID: copy.ID, 注記: "行が長すぎたため内容を残せませんでした" });
+  return json;
+}
+
 function applyDateFormat_(key, dateFormat) {
   if (dateFormat === "yyyy/MM/dd") return key.replace(/-/g, "/");
   return key;
@@ -514,6 +540,9 @@ const OPS = ["contains", "eq", "ne", "gt", "gte", "lt", "lte", "between", "in", 
 const DEFAULT_PAGE_SIZE = 50;
 const MIN_PAGE_SIZE = 1;
 const MAX_PAGE_SIZE = 200;
+/** 検索の言葉と条件の数の上限（画面からもらう値を無制限に受けない） */
+const MAX_Q_LENGTH = 200;
+const MAX_FILTERS = 20;
 const NUMBER_TYPES = ["数値", "金額"];
 const DATE_TYPES = ["日付", "日時"];
 const SYSTEM_SORTABLE = ["ID", "作成日時", "更新日時", "更新者"];
@@ -567,6 +596,7 @@ function normalizeQuery(table, raw) {
       if (value === "") continue;
     }
     filters.push({ column: column.name, op: op, value: value });
+    if (filters.length >= MAX_FILTERS) break;
   }
   let sort = null;
   if (source.sort && typeof source.sort === "object" && columnOf_(table, textOf(source.sort.column)) !== null) {
@@ -575,7 +605,7 @@ function normalizeQuery(table, raw) {
   const page = Math.max(1, Math.floor(Number(source.page)) || 1);
   let pageSize = Math.floor(Number(source.pageSize)) || DEFAULT_PAGE_SIZE;
   pageSize = Math.min(MAX_PAGE_SIZE, Math.max(MIN_PAGE_SIZE, pageSize));
-  return { q: textOf(source.q), filters: filters, sort: sort, page: page, pageSize: pageSize };
+  return { q: textOf(source.q).slice(0, MAX_Q_LENGTH), filters: filters, sort: sort, page: page, pageSize: pageSize };
 }
 
 function compareScalar_(column, value, target) {
@@ -1187,10 +1217,13 @@ function renderDetail(table, row, refs, opts) {
   const system = '<dt class="sa-muted">ID</dt><dd class="sa-muted">' + escapeHtml(row.ID) + '</dd><dt class="sa-muted">作成</dt><dd class="sa-muted">' + escapeHtml(row.作成日時 || "") + '</dd><dt class="sa-muted">更新</dt><dd class="sa-muted">' + escapeHtml(row.更新日時 || "") + " " + escapeHtml(row.更新者 || "") + "</dd>";
   const buttons = (opts.canEdit ? '<button type="button" class="sa-btn" data-action="edit">編集</button><button type="button" class="sa-btn sa-btn-danger" data-action="delete">削除</button>' : "") + (opts.ai ? '<button type="button" class="sa-btn sa-btn-quiet" data-action="ai-summary"' + (opts.summaryLoading ? " disabled" : "") + ">AI 要約</button>" : "");
   const summary = opts.summaryLoading ? '<div class="sa-summary sa-muted">要約しています…</div>' : opts.summary ? '<div class="sa-summary"><div class="sa-pre">' + escapeHtml(opts.summary) + "</div></div>" : "";
-  return '<div class="sa-detail"><header class="sa-drawer-head"><h2>' + escapeHtml(labelFor(table.columns.find((c) => c.name === table.display) || { name: "ID", type: "文字" }, row[table.display], flat, opts) || row.ID) + '</h2><button type="button" class="sa-close" data-action="close" aria-label="閉じる">×</button></header><div class="sa-actions">' + buttons + "</div>" + summary + "<dl>" + rows + system + "</dl></div>";
+  return '<div class="sa-detail"><header class="sa-drawer-head"><h2 id="sa-drawer-title">' + escapeHtml(labelFor(table.columns.find((c) => c.name === table.display) || { name: "ID", type: "文字" }, row[table.display], flat, opts) || row.ID) + '</h2><button type="button" class="sa-close" data-action="close" aria-label="閉じる">×</button></header><div class="sa-actions">' + buttons + "</div>" + summary + "<dl>" + rows + system + "</dl></div>";
 }
 
-function fieldHtml_(column, values, errors, options) {
+/** 参照の候補はサーバー側で先頭 2,000 件に切られる（gas_web.js の OPTIONS_LIMIT）。切れているときは欄の下に出す */
+const OPTIONS_TRUNCATED_NOTE = "候補が多いため、表示名の順で先頭の 2,000 件だけを出しています。";
+
+function fieldHtml_(column, values, errors, options, truncated) {
   const value = values[column.name];
   const error = errors[column.name] || "";
   const id = "sa-f-" + column.name;
@@ -1211,6 +1244,7 @@ function fieldHtml_(column, values, errors, options) {
     const list = options[column.name] || [];
     const opts = ['<option value="">（未選択）</option>'].concat(list.map((o) => '<option value="' + attr_(o.id) + '"' + (String(value) === o.id ? " selected" : "") + ">" + escapeHtml(o.label) + "</option>"));
     input = '<select name="' + attr_(column.name) + '" id="' + attr_(id) + '"' + describe + ">" + opts.join("") + "</select>";
+    if (truncated && truncated[column.name] === true) input += '<div class="sa-note">' + OPTIONS_TRUNCATED_NOTE + "</div>";
   } else if (column.type === "数値" || column.type === "金額") {
     input = '<input type="text" inputmode="' + (column.type === "金額" ? "numeric" : "decimal") + '" name="' + attr_(column.name) + '" id="' + attr_(id) + '" value="' + attr_(value === null || value === undefined ? "" : value) + '"' + describe + ">";
   } else {
@@ -1221,11 +1255,11 @@ function fieldHtml_(column, values, errors, options) {
   return '<div class="sa-field' + (error ? " sa-field-error" : "") + '"><label for="' + attr_(id) + '">' + escapeHtml(column.name) + (column.required ? ' <span class="sa-required">必須</span>' : "") + "</label>" + input + (column.note ? '<div class="sa-note">' + escapeHtml(column.note) + "</div>" : "") + (error ? '<div class="sa-error" id="' + attr_(errId) + '">' + escapeHtml(error) + "</div>" : "") + "</div>";
 }
 
-/** options は { 参照の列名: [{ id, label }] } */
+/** options は { 参照の列名: [{ id, label }] }、opts.optionsTruncated は { 参照の列名: true }（候補が切れている列） */
 function renderForm(table, values, errors, options, opts) {
-  const fields = table.columns.map((c) => fieldHtml_(c, values || {}, errors || {}, options || {})).join("");
+  const fields = table.columns.map((c) => fieldHtml_(c, values || {}, errors || {}, options || {}, opts.optionsTruncated || {})).join("");
   const title = opts.isNew ? table.name + " を登録" : table.name + " を編集";
-  return '<form class="sa-form" data-form="record" novalidate><header class="sa-drawer-head"><h2>' + escapeHtml(title) + '</h2><button type="button" class="sa-close" data-action="close" aria-label="閉じる">×</button></header>' + fields + '<div class="sa-actions"><button type="submit" class="sa-btn sa-btn-primary">' + (opts.isNew ? "登録" : "保存") + '</button><button type="button" class="sa-btn sa-btn-quiet" data-action="close">やめる</button></div></form>';
+  return '<form class="sa-form" data-form="record" novalidate><header class="sa-drawer-head"><h2 id="sa-drawer-title">' + escapeHtml(title) + '</h2><button type="button" class="sa-close" data-action="close" aria-label="閉じる">×</button></header>' + fields + '<div class="sa-actions"><button type="submit" class="sa-btn sa-btn-primary">' + (opts.isNew ? "登録" : "保存") + '</button><button type="button" class="sa-btn sa-btn-quiet" data-action="close">やめる</button></div></form>';
 }
 
 function renderToolbar(state) {
@@ -1248,13 +1282,13 @@ function renderDrawer(state) {
   if (table === null || state.view === null) return "";
   let inner = "";
   if (state.view.kind === "detail") inner = renderDetail(table, state.view.row, state.view.refs, { dateFormat: state.dateFormat, canEdit: state.user.canEdit, ai: state.ai, summary: state.view.summary, summaryLoading: state.view.summaryLoading });
-  else inner = renderForm(table, state.view.values, state.view.errors, state.view.options, { isNew: state.view.isNew, id: state.view.id });
-  return '<div class="sa-backdrop" data-action="close"></div><aside class="sa-drawer" role="dialog" aria-modal="true">' + inner + "</aside>";
+  else inner = renderForm(table, state.view.values, state.view.errors, state.view.options, { isNew: state.view.isNew, id: state.view.id, optionsTruncated: state.view.optionsTruncated });
+  return '<div class="sa-backdrop" data-action="close"></div><aside class="sa-drawer" role="dialog" aria-modal="true" aria-labelledby="sa-drawer-title">' + inner + "</aside>";
 }
 
 function csvBox_(state) {
   if (state.csv === null) return "";
-  return '<section class="sa-csv"><header class="sa-drawer-head"><h2>CSV</h2><button type="button" class="sa-close" data-action="csv-close" aria-label="閉じる">×</button></header><p>ファイルとして保存できない環境では、下の内容をコピーして .csv として保存してください。</p><div class="sa-actions"><button type="button" class="sa-btn" data-action="copy-csv">コピー</button></div><textarea readonly rows="8">' + escapeHtml(state.csv) + "</textarea></section>";
+  return '<section class="sa-csv"><header class="sa-drawer-head"><h2 id="sa-drawer-title">CSV</h2><button type="button" class="sa-close" data-action="csv-close" aria-label="閉じる">×</button></header><p>ファイルとして保存できない環境では、下の内容をコピーして .csv として保存してください。</p><div class="sa-actions"><button type="button" class="sa-btn" data-action="copy-csv">コピー</button></div><textarea readonly rows="8">' + escapeHtml(state.csv) + "</textarea></section>";
 }
 
 function renderApp(state) {
@@ -1368,7 +1402,7 @@ function reduce(state, action) {
   if (type === "ai-explanation") return assign_(state, { aiExplanation: String(action.text || "") });
   if (type === "open-detail") return assign_(state, { view: { kind: "detail", id: action.row ? action.row.ID : "", row: action.row, refs: action.refs || {}, summary: "", summaryLoading: false }, error: "", notice: "" });
   if (type === "open-form") {
-    return assign_(state, { view: { kind: "form", isNew: action.isNew === true, id: action.id || "", seenUpdatedAt: action.seenUpdatedAt || "", values: action.values || {}, errors: {}, options: action.options || {} }, error: "", notice: "" });
+    return assign_(state, { view: { kind: "form", isNew: action.isNew === true, id: action.id || "", seenUpdatedAt: action.seenUpdatedAt || "", values: action.values || {}, errors: {}, options: action.options || {}, optionsTruncated: action.optionsTruncated || {} }, error: "", notice: "" });
   }
   if (type === "form-errors") return withView_(state, { errors: action.errors || {} });
   if (type === "form-values") return withView_(state, { values: action.values || {} });
@@ -1609,19 +1643,21 @@ function mountSheetApp(root, api) {
     const refColumns = table.columns.filter((c) => c.type === "参照");
     return Promise.all(refColumns.map((c) => api.options(table.name, c.name))).then((results) => {
       const options = {};
+      const truncated = {};
       refColumns.forEach((c, i) => {
         options[c.name] = results[i].options;
+        if (results[i].truncated === true) truncated[c.name] = true;
       });
-      return options;
+      return { options: options, truncated: truncated };
     });
   }
 
   function openForm(isNew, row) {
     const table = currentTable(state);
     optionsFor(table)
-      .then((options) => {
+      .then((got) => {
         const values = isNew ? validate(table, {}, { today: state.today, isNew: true }).values : Object.assign({}, row);
-        dispatch({ type: "open-form", isNew: isNew, id: isNew ? "" : row.ID, seenUpdatedAt: isNew ? "" : row.更新日時, values: values, options: options });
+        dispatch({ type: "open-form", isNew: isNew, id: isNew ? "" : row.ID, seenUpdatedAt: isNew ? "" : row.更新日時, values: values, options: got.options, optionsTruncated: got.truncated });
         const first = root.querySelector(".sa-form input, .sa-form select, .sa-form textarea");
         if (first) first.focus();
       })
@@ -1763,7 +1799,10 @@ function mountSheetApp(root, api) {
     const table = currentTable(state);
     const column = form.elements.namedItem("column").value;
     const op = form.elements.namedItem("op").value;
-    const raw = String(form.elements.namedItem("value").value || "").trim();
+    let raw = String(form.elements.namedItem("value").value || "").trim();
+    // datetime-local の値は "2026-09-16T10:30" なので、API の形（空白区切り）に直す
+    const chosen = table === null ? null : findColumn(table, column);
+    if (chosen !== null && chosen.type === "日時" && op !== "between") raw = raw.replace("T", " ");
     let value = raw;
     if (op === "between") value = raw.split(/[,、]/).map((s) => s.trim()).slice(0, 2);
     else if (op === "in") value = raw.split(/[,、]/).map((s) => s.trim()).filter((s) => s !== "");
