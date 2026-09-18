@@ -58,6 +58,7 @@ describe("projects registry", () => {
       "floorplan",
       "configurator",
       "sheet-app",
+      "booking",
       "ai-concierge",
       "doc-reader",
     ]);

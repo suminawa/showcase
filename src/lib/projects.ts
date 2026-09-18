@@ -96,6 +96,14 @@ export const projects: Project[] = [
     category: "tools",
   },
   {
+    slug: "booking",
+    title: "予約ページ キット",
+    description:
+      "スプレッドシートに枠を書くだけで、公開した URL がそのまま予約ページになる。空きカレンダーから日と時間を選び、お名前と連絡先を入れて予約する、Apps Script のキットの見本。",
+    tags: ["Google Apps Script", "JavaScript"],
+    category: "tools",
+  },
+  {
     slug: "ai-concierge",
     title: "AI 案内窓口",
     description:

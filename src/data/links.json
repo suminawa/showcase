@@ -29,5 +29,9 @@
   "sheet-app": {
     "note": "",
     "booth": ""
+  },
+  "booking": {
+    "note": "",
+    "booth": ""
   }
 }
