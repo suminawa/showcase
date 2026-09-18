@@ -16,11 +16,6 @@
   --bk-font: system-ui, -apple-system, "Segoe UI", "Hiragino Sans", "Noto Sans JP", sans-serif;
 }
 
-body {
-  margin: 0;
-  background: var(--bk-bg);
-}
-
 .bk {
   font-family: var(--bk-font);
   font-size: 16px;

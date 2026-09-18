@@ -4,9 +4,23 @@
  * 束ねた 1 本の中で共有する小さな道具。どのファイルからも import して使う（各ファイルで同名の関数を定義しない）。
  */
 
-/** セルや入力の値を、前後の空白を落とした文字にする。null / undefined は "" */
+/**
+ * セルや入力の値を、前後の空白を落とした文字にする。null / undefined は ""。
+ * 配列やオブジェクトは "" にする（画面から送られた変な値が "[object Object]" として
+ * 検査を通り抜けないように。toString が壊れた値で落ちることも防ぐ）。日付のセルは Date で来るので通す
+ */
 function textOf(value) {
-  return value === null || value === undefined ? "" : String(value).trim();
+  if (value === null || value === undefined) return "";
+  const kind = typeof value;
+  if (kind === "string") return value.trim();
+  if (kind === "number" || kind === "boolean" || kind === "bigint") return String(value);
+  if (kind !== "object") return "";
+  if (Object.prototype.toString.call(value) !== "[object Date]") return "";
+  try {
+    return String(value).trim();
+  } catch (error) {
+    return "";
+  }
 }
 
 /** TRUE / FALSE のほか、はい・いいえ・1・0・○・× も読む。空や読めない字は fallback */
@@ -51,6 +65,16 @@ function headerIndex(header, name) {
     if (textOf(row[i]) === name) return i;
   }
   return -1;
+}
+
+/**
+ * お客さまに見せてよい、こちらで用意した敬体の誤り。
+ * expected の印が付いたものだけをそのまま画面に出し、それ以外は当たりさわりのない 1 文に置き換える
+ */
+function politeError(message) {
+  const error = new Error(message);
+  error.expected = true;
+  return error;
 }
 
 /** "booking: ○○シートの N 行目: message" の形にする */
@@ -217,7 +241,7 @@ function longDateOf(dateKey, dateFormat) {
   return shown + "（" + weekdayKanjiOf(key) + "）";
 }
 
-/** 件名・通知文に使う短い日付（0 埋めなし、曜日は全角カッコ）："9/20（土）" */
+/** 件名・通知文に使う短い日付（0 埋めなし、曜日は全角カッコ）："9/19（土）" */
 function shortDateOf(dateKey) {
   if (dateKey === "") return "";
   const parts = String(dateKey).split("-");
@@ -875,7 +899,9 @@ function matchesService_(rule, serviceName) {
 
 /**
  * その日に出す枠 → `{ start, end, capacity }[]`（開始の早い順）。休みの日は空。
- * 開始から終了まで間隔ごとに区切り（終了ちょうどに始まる枠は作らない）、枠の終わりは開始＋間隔。
+ * 開始から終了まで間隔ごとに区切り、枠の終わりは開始＋間隔。
+ * 枠は「終了」までに終わるものだけを作る（開始＋間隔が終了を過ぎる枠は作らない）ので、
+ * 終了 − 開始が間隔で割り切れないときは、終わりに余りの時間が残る。
  * 別の行に同じ開始があれば 1 つにまとめ、定員を足して終わりは遅い方にする
  */
 function slotsFor(dateKey, rules, closed, serviceName) {
@@ -898,7 +924,8 @@ function slotsFor(dateKey, rules, closed, serviceName) {
     if (interval <= 0 || !isFinite(startMinutes) || !isFinite(endMinutes)) continue;
 
     const capacity = Math.max(0, numberOr_(rule.capacity, 1));
-    for (let at = startMinutes; at < endMinutes; at += interval) {
+    // 枠の終わり（開始＋間隔）が「終了」に収まるあいだだけ作る
+    for (let at = startMinutes; at + interval <= endMinutes; at += interval) {
       const start = timeOf(at);
       const finish = at + interval;
       const seen = has_(indexByStart, start) ? indexByStart[start] : undefined;
@@ -917,7 +944,7 @@ function slotsFor(dateKey, rules, closed, serviceName) {
   const slots = [];
   for (let i = 0; i < found.length; i += 1) {
     const start = timeOf(found[i].minutes);
-    // 終わりが日をまたぐ枠（23:30 開始の 30 分など）は "00:00" 側に回す
+    // 枠は「終了」（最大 23:59）までに終わるので日はまたがないが、念のため addMinutes で丸める
     const end = addMinutes(date, start, found[i].finish - found[i].minutes).time;
     slots.push({ start: start, end: end, capacity: found[i].capacity });
   }
@@ -1029,7 +1056,7 @@ function cancelAllowed(reservation, now, settings) {
 // ===== receipt.js =====
 /**
  * 受付番号（その日の連番）。連番は前回の受付番号だけを覚えておけば足りる（日が変われば 001 に戻る）。
- * フォーム受付キット（packages/form-intake-gas/src/receipt.js）からの写し。
+ * 姉妹キット（フォーム受付キット）の受付番号と同じ作り。
  */
 
 /** ("2026-09-14", 3) → "20260914-003"。1000 件目からは桁が増える */
@@ -1084,13 +1111,19 @@ function isToken(value) {
  */
 
 /**
- * シートのセルに書く前に、数式と誤認される文字列を無害にする。
- * 先頭が = + - @ かタブ・CR・LF なら ' を前置する。空はそのまま（設計書 §7）
+ * シートのセルに書く前に、数式と誤認される文字列と、数として読まれて形の崩れる文字列を無害にする。
+ * ' を前置するのは次の 3 つ。空はそのまま（設計書 §7）
+ *   1. 先頭が = + - @ かタブ・CR・LF（数式・コマンドと誤認される）
+ *   2. 先頭が 0 の数字だけの文字列（"09012345678" が 9012345678 になって先頭の 0 が消える）
+ *   3. 16 桁以上の数字だけの文字列（表計算の数は 15 桁までしか正しく持てない）
+ * 日付（"2026-09-22"）と時刻（"11:00"）はここに当てはまらないので、これまでどおり日付・時刻のセルとして書く
+ * （並べ替えや絞り込みに使えるようにするため。読み戻す toDateKey / parseTime は Date でも文字でも読める）
  */
 function safeCell(value) {
   const text = value === null || value === undefined ? "" : String(value);
   if (text === "") return text;
-  return /^[=+\-@\t\r\n]/.test(text) ? "'" + text : text;
+  const numberLike = /^0\d+$/.test(text) || (/^\d+$/.test(text) && text.length > 15);
+  return /^[=+\-@\t\r\n]/.test(text) || numberLike ? "'" + text : text;
 }
 
 /**
@@ -1242,13 +1275,17 @@ function serviceRows_() {
   ];
 }
 
-/** 火水金の 2 本（初回・通常）、土（サービス指定なし）、today + 3 日だけの日付指定（曜日は空） */
+/**
+ * 火水金の 2 本（初回・通常）、土（サービス指定なし）、today + 3 日だけの日付指定（曜日は空）。
+ * 枠は「終了」までに終わるものだけを作るので、終了 − 開始はどの行も間隔で割り切れるようにしてある
+ * （60 分 × 3・45 分 × 6・45 分 × 9・60 分 × 2）
+ */
 function ruleRows_(today) {
   return [
     ["曜日", "日付", "開始", "終了", "間隔", "定員", "サービス"],
     ["火, 水, 金", "", "10:00", "13:00", "60", "1", SERVICE_FIRST],
-    ["火, 水, 金", "", "14:00", "19:00", "45", "1", SERVICE_REGULAR],
-    ["土", "", "10:00", "17:00", "45", "2", ""],
+    ["火, 水, 金", "", "14:00", "18:30", "45", "1", SERVICE_REGULAR],
+    ["土", "", "10:00", "16:45", "45", "2", ""],
     ["", addDays(today, 3), "10:00", "12:00", "60", "1", ""],
   ];
 }
@@ -2096,9 +2133,11 @@ function memoryApi(fixedNow) {
       if (!checked.ok) throw demoStop_(demoFirstError_(checked.errors));
       const value = checked.value;
 
+      // 数えるのはこれからのご予約だけ（サーバーの gas_web.js と同じ数え方）
       let same = 0;
       for (let i = 0; i < reservations.length; i += 1) {
         if (textOf(reservations[i]["状態"]) !== DEMO_CONFIRMED) continue;
+        if (textOf(reservations[i]["日付"]) < today) continue;
         if (textOf(reservations[i]["メール"]).toLowerCase() === value.email.toLowerCase()) same += 1;
       }
       if (same >= settings.maxPerEmail) throw demoStop_("同じメールアドレスでのご予約は " + settings.maxPerEmail + " 件までです。");
