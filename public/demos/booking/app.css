@@ -1,0 +1,427 @@
+/* 予約ページの見た目。スマートフォンを先に考え、640px から少し広げる。
+   色は CSS 変数でまとめ、--bk-accent だけ設定「テーマ色」で差し替わる（render.js が .bk-shell の style に入れる）。 */
+
+:root {
+  --bk-accent: #2f6f5e;
+  --bk-accent-ink: #ffffff;
+  --bk-ink: #1f2320;
+  --bk-muted: #6b716c;
+  --bk-paper: #ffffff;
+  --bk-bg: #fafaf8;
+  --bk-line: #d9dcd7;
+  --bk-soft: #f1f3f0;
+  --bk-danger: #a63d2f;
+  --bk-danger-bg: #fbeae7;
+  --bk-radius: 10px;
+  --bk-font: system-ui, -apple-system, "Segoe UI", "Hiragino Sans", "Noto Sans JP", sans-serif;
+}
+
+.bk {
+  font-family: var(--bk-font);
+  font-size: 16px;
+  line-height: 1.6;
+  color: var(--bk-ink);
+  background: var(--bk-bg);
+  -webkit-text-size-adjust: 100%;
+}
+.bk *,
+.bk *::before,
+.bk *::after {
+  box-sizing: border-box;
+}
+.bk :focus-visible {
+  outline: 2px solid var(--bk-accent);
+  outline-offset: 2px;
+}
+
+.bk-shell {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 16px;
+}
+.bk-head {
+  padding: 4px 0 12px;
+  border-bottom: 1px solid var(--bk-line);
+}
+.bk-title {
+  margin: 0;
+  font-size: 1.15rem;
+}
+.bk-main {
+  display: block;
+}
+.bk-step,
+.bk-form {
+  margin-top: 16px;
+}
+.bk-h2 {
+  margin: 0 0 12px;
+  font-size: 1.05rem;
+  line-height: 1.5;
+}
+.bk-h2:focus {
+  outline: none;
+}
+.bk-chosen,
+.bk-legend,
+.bk-loading,
+.bk-empty {
+  margin: 8px 0;
+  font-size: 0.85rem;
+  color: var(--bk-muted);
+}
+.bk-muted {
+  color: var(--bk-muted);
+}
+.bk-tel {
+  color: var(--bk-accent);
+}
+
+/* 読み上げだけに届く文字（○△の意味や表の見出し） */
+.bk-sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+/* 人には見えない欄（埋まっていたら書き込まない） */
+.bk-hp {
+  position: absolute;
+  left: -9999px;
+}
+
+/* 知らせと注意書き */
+.bk-error {
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+  margin-top: 12px;
+  padding: 10px 12px;
+  border-radius: var(--bk-radius);
+  background: var(--bk-danger-bg);
+  color: var(--bk-danger);
+}
+.bk-error-text {
+  flex: 1;
+}
+.bk-error-x {
+  min-width: 32px;
+  min-height: 32px;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  font-size: 1.1rem;
+  line-height: 1;
+  cursor: pointer;
+}
+.bk-boot-error,
+.bk-notice,
+.bk-busy,
+.bk-caution {
+  padding: 10px 12px;
+  border-radius: var(--bk-radius);
+  background: var(--bk-soft);
+  font-size: 0.9rem;
+}
+.bk-boot-error,
+.bk-caution {
+  background: var(--bk-danger-bg);
+  color: var(--bk-danger);
+}
+.bk-boot-tel {
+  margin: 8px 0 0;
+  font-size: 1.125rem;
+}
+/* 受付を止めている枠の中では、電話も同じ色でそろえる */
+.bk-boot-error .bk-tel {
+  color: inherit;
+}
+
+/* ボタン */
+.bk-btn,
+.bk-nav,
+.bk-day,
+.bk-slot,
+.bk-service {
+  font: inherit;
+  color: inherit;
+  background: var(--bk-paper);
+  border: 1px solid var(--bk-line);
+  border-radius: var(--bk-radius);
+  cursor: pointer;
+  transition: border-color 0.15s ease, background-color 0.15s ease;
+}
+.bk-btn {
+  min-height: 44px;
+  padding: 10px 18px;
+}
+.bk-btn-primary {
+  background: var(--bk-accent);
+  border-color: var(--bk-accent);
+  color: var(--bk-accent-ink);
+  font-weight: 600;
+}
+.bk-btn-quiet {
+  background: transparent;
+  color: var(--bk-muted);
+}
+.bk-btn-danger {
+  border-color: var(--bk-danger);
+  color: var(--bk-danger);
+}
+.bk-btn[disabled],
+.bk-nav[disabled],
+.bk-day[disabled],
+.bk-slot[disabled] {
+  opacity: 0.55;
+  cursor: default;
+}
+.bk-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 16px;
+}
+
+/* サービスを選ぶ */
+.bk-services {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.bk-service {
+  display: grid;
+  gap: 2px;
+  width: 100%;
+  min-height: 44px;
+  padding: 12px 14px;
+  text-align: left;
+}
+.bk-service-name {
+  font-weight: 600;
+}
+.bk-service-minutes,
+.bk-service-note {
+  font-size: 0.85rem;
+  color: var(--bk-muted);
+}
+
+/* カレンダー */
+.bk-cal-nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin: 12px 0 8px;
+}
+.bk-nav {
+  min-height: 44px;
+  padding: 8px 12px;
+  font-size: 0.9rem;
+}
+.bk-month {
+  margin: 0;
+  font-size: 1.05rem;
+}
+.bk-cal {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 3px;
+  table-layout: fixed;
+}
+.bk-cal th {
+  padding: 2px 0;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--bk-muted);
+}
+.bk-cal td {
+  padding: 0;
+}
+.bk-day {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1px;
+  width: 100%;
+  min-height: 44px;
+  aspect-ratio: 1 / 1;
+  padding: 2px;
+}
+.bk-day-n {
+  font-size: 0.95rem;
+  font-variant-numeric: tabular-nums;
+}
+.bk-day-mark {
+  font-size: 0.95rem;
+  line-height: 1;
+  color: var(--bk-accent);
+}
+.bk-open .bk-day {
+  border-color: var(--bk-accent);
+}
+.bk-few .bk-day {
+  border-color: var(--bk-accent);
+  border-style: dashed;
+}
+.bk-full .bk-day,
+.bk-closed .bk-day,
+.bk-past .bk-day {
+  background: var(--bk-soft);
+  border-color: transparent;
+  color: var(--bk-muted);
+}
+.bk-today .bk-day::after {
+  content: "";
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: var(--bk-muted);
+}
+
+/* 時間を選ぶ */
+.bk-slots {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.bk-slot {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  width: 100%;
+  min-height: 56px;
+  padding: 8px;
+}
+.bk-slot-time {
+  font-variant-numeric: tabular-nums;
+}
+.bk-slot-left {
+  font-size: 0.75rem;
+  color: var(--bk-muted);
+}
+
+/* 入力と確認 */
+.bk-summary,
+.bk-confirm,
+.bk-done-list {
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  gap: 6px 14px;
+  margin: 0 0 16px;
+  padding: 12px 14px;
+  border-radius: var(--bk-radius);
+  background: var(--bk-paper);
+  border: 1px solid var(--bk-line);
+}
+.bk-summary dt,
+.bk-confirm dt,
+.bk-done-list dt {
+  font-size: 0.85rem;
+  color: var(--bk-muted);
+}
+.bk-summary dd,
+.bk-confirm dd,
+.bk-done-list dd {
+  margin: 0;
+  word-break: break-word;
+}
+.bk-field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-bottom: 14px;
+}
+.bk-field label {
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+.bk-field input,
+.bk-field textarea {
+  width: 100%;
+  padding: 10px 12px;
+  font: inherit;
+  color: inherit;
+  background: var(--bk-paper);
+  border: 1px solid var(--bk-line);
+  border-radius: 8px;
+}
+.bk-field textarea {
+  resize: vertical;
+}
+.bk-has-error input,
+.bk-has-error textarea {
+  border-color: var(--bk-danger);
+}
+.bk-field-error {
+  margin: 0;
+  font-size: 0.85rem;
+  color: var(--bk-danger);
+}
+.bk-required {
+  font-size: 0.75rem;
+  font-weight: 400;
+  color: var(--bk-danger);
+}
+.bk-optional {
+  font-size: 0.75rem;
+  font-weight: 400;
+  color: var(--bk-muted);
+}
+.bk-notice {
+  margin: 0 0 16px;
+}
+.bk-busy {
+  margin: 12px 0 0;
+}
+.bk-done p {
+  margin: 8px 0;
+}
+
+@media (min-width: 640px) {
+  .bk-shell {
+    padding: 24px 24px 40px;
+  }
+  .bk-title {
+    font-size: 1.3rem;
+  }
+  /* カレンダーと時間は別の画面なので、広い画面では枠を 3 列に並べて一度に見渡せるようにする */
+  .bk-slots {
+    grid-template-columns: repeat(3, 1fr);
+  }
+  .bk-services {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .bk-cal {
+    border-spacing: 6px;
+  }
+  .bk-day-n,
+  .bk-day-mark {
+    font-size: 1.05rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bk *,
+  .bk *::before,
+  .bk *::after {
+    transition: none !important;
+    animation: none !important;
+  }
+}

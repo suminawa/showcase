@@ -1,0 +1,15 @@
+/* 道具の中だけは自前の色と字を持つ。キットの CSS 変数（--bk-*）をこの一枚で紙に寄せる */
+.tool {
+  --bk-bg: transparent;
+  --bk-paper: #fffdf8;
+  --bk-soft: #f4f0e7;
+  --bk-ink: #2b2a27;
+  --bk-muted: #7a766d;
+  --bk-line: #e0dbd0;
+  --bk-accent: #2f6f5e;
+  --bk-radius: 8px;
+  border: 1px solid #e0dbd0;
+  border-radius: 12px;
+  background: #fffdf8;
+  min-height: 480px;
+}
