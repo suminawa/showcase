@@ -1223,7 +1223,7 @@ function buildCancelMail(settings, reservation) {
 const SHOP_NAME = "ひだまり整体院";
 
 const SAMPLE_PHONE = "045-000-0000";
-const SAMPLE_ADDRESS = "横浜市中区みなと町 1-2-3";
+const SAMPLE_ADDRESS = "みなと市しおかぜ町 1-2-3";
 const SAMPLE_NOTICE = "初めての方は、開始の 10 分前にお越しください。";
 
 const SERVICE_FIRST = "初回カウンセリング（60 分）";
