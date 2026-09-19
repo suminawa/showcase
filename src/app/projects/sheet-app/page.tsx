@@ -71,8 +71,8 @@ export default function SheetAppPage() {
           1 件の要約ができます。
         </p>
         <p className={s.lede}>
-          このキット（発売記念 ¥8,800、9 月 25
-          日まで。定義シートからの画面生成・CSV・AI
+          このキットは発売の準備中です（定価 ¥9,800。発売から 7
+          日間は発売記念 ¥8,800。定義シートからの画面生成・CSV・AI
           の絞り込みと要約・見本 3 種つき）
           {links["sheet-app"].note && (
             <>
