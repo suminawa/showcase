@@ -13,7 +13,9 @@ let ready: Promise<Reader> | null = null;
 function reader(): Promise<Reader> {
   if (ready === null) {
     ready = (async () => {
-      const config = resolveConfig({ file: await loadConfigFile("reader/reader.config.json"), env: process.env });
+      // Vercel は proxy の後ろなので、訪問者のアドレスは x-forwarded-for から取る（無いと全員が同じ回数制限を分け合う）
+      const env = { ...process.env, TRUST_PROXY: process.env.TRUST_PROXY ?? "1" };
+      const config = resolveConfig({ file: await loadConfigFile("reader/reader.config.json"), env });
       const forms = await loadForms(config.formsDir);
       const client = config.apiKey === null ? createFakeClient(await loadFakeAnswers("reader/samples")) : undefined;
       return createReader(config, { forms, client });
