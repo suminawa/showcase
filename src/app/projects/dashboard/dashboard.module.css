@@ -1,0 +1,44 @@
+/* 道具の中だけは自前の色と字を持つ。キットの CSS 変数（--db-*）をこの一枚で紙に寄せる */
+.tool {
+  border: 1px solid #e0dbd0;
+  border-radius: 12px;
+  background: #fffdf8;
+  min-height: 480px;
+  padding: 8px;
+}
+
+.tool :global(.db) {
+  --db-surface: #fffdf8;
+  --db-card: #ffffff;
+  --db-border: #e0dbd0;
+}
+
+/* 言語の切り替え。道具の右上に小さく置く */
+.tool :global(.dashboard-demo-lang) {
+  display: flex;
+  justify-content: flex-end;
+  gap: 6px;
+  padding: 8px 12px 0;
+}
+
+.tool :global(.dashboard-demo-lang button) {
+  font: inherit;
+  font-size: 12px;
+  padding: 4px 10px;
+  border: 1px solid #e0dbd0;
+  border-radius: 999px;
+  background: transparent;
+  color: #52514e;
+  cursor: pointer;
+}
+
+.tool :global(.dashboard-demo-lang button[aria-pressed="true"]) {
+  background: #2b2a27;
+  border-color: #2b2a27;
+  color: #fffdf8;
+}
+
+.tool :global(.dashboard-demo-lang button:focus-visible) {
+  outline: 2px solid #2a78d6;
+  outline-offset: 2px;
+}

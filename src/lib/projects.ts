@@ -104,6 +104,14 @@ export const projects: Project[] = [
     category: "tools",
   },
   {
+    slug: "dashboard",
+    title: "ダッシュボード キット",
+    description:
+      "スプレッドシートや CSV の数字を、設定を書くだけで KPI・折れ線・棒・目標・表の画面にする。期間と区分で絞ると全部がいっしょに変わり、日本語と英語に対応。サイトへの埋め込み・Next.js・Google スプレッドシートの 3 つの置き方ができるキットの見本。",
+    tags: ["JavaScript", "SVG", "Google Apps Script", "Next.js"],
+    category: "tools",
+  },
+  {
     slug: "ai-concierge",
     title: "AI 案内窓口",
     description:
