@@ -9,5 +9,5 @@
   "labels": {},
   "answer": { "model": "claude-opus-5", "effort": "low", "maxTokens": 700, "style": "敬体。200 字以内。箇条書きは使わず、文でお答えします。" },
   "retrieval": { "wholeCorpusMaxTokens": 60000, "topK": 8 },
-  "limits": { "maxInputChars": 300, "perMinute": 6, "perHour": 40, "dailyQuestions": 300 }
+  "limits": { "maxInputChars": 300, "perMinute": 6, "perHour": 40, "dailyQuestions": 60 }
 }
