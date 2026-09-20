@@ -1,0 +1,172 @@
+/*
+ * キットの app/legal/legal.module.css を手本にした、法務の 1 枚です。
+ * 見本でお見せするのは「特定商取引法に基づく表記」だけです。
+ */
+
+.page {
+  display: flex;
+  flex-direction: column;
+  min-height: 100%;
+}
+
+.inner {
+  width: 100%;
+  max-width: 48rem;
+  margin: 0 auto;
+  padding: 0 1rem;
+}
+
+.header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem 1rem;
+  padding-top: 1.25rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--st-border);
+}
+
+.brand {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font-size: 0.9375rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  text-align: left;
+  cursor: pointer;
+}
+
+.brand:hover {
+  text-decoration: underline;
+}
+
+.nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem 1rem;
+}
+
+.navHere {
+  color: var(--st-text);
+  font-size: 0.8125rem;
+  font-weight: 650;
+}
+
+.main {
+  padding-top: 2rem;
+  padding-bottom: 2.5rem;
+}
+
+.title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+.updated {
+  margin-top: 0.4rem;
+  color: var(--st-text-muted);
+  font-size: 0.8125rem;
+}
+
+/* まだお書きでない項目があるときだけ出す帯です */
+.notice {
+  margin-top: 1.25rem;
+  padding: 0.75rem 0.9rem;
+  border: 1px solid var(--st-warn);
+  border-radius: var(--st-radius-sm);
+  background: var(--st-warn-soft);
+}
+
+.noticeTitle {
+  font-size: 0.875rem;
+  font-weight: 650;
+}
+
+.noticeText {
+  margin-top: 0.25rem;
+  font-size: 0.8125rem;
+  line-height: 1.7;
+}
+
+.doc {
+  margin-top: 2rem;
+}
+
+.heading {
+  margin-top: 2rem;
+  font-size: 1rem;
+  font-weight: 650;
+  letter-spacing: -0.01em;
+  /* 見出しが、語の途中で折り返さないようにします（対応していないブラウザでは、これまでどおりです） */
+  word-break: auto-phrase;
+}
+
+.heading:first-child {
+  margin-top: 0;
+}
+
+.paragraph {
+  margin-top: 0.75rem;
+  font-size: 0.9375rem;
+  line-height: 1.9;
+  /* 長い名前や URL が、枠からはみ出さないようにします */
+  overflow-wrap: anywhere;
+}
+
+.list {
+  margin-top: 0.75rem;
+  padding-left: 1.2rem;
+  font-size: 0.9375rem;
+  line-height: 1.9;
+  list-style: disc;
+}
+
+.rows {
+  margin-top: 0.9rem;
+  border-top: 1px solid var(--st-border);
+}
+
+.row {
+  display: grid;
+  gap: 0.2rem;
+  padding: 0.8rem 0;
+  border-bottom: 1px solid var(--st-border);
+}
+
+.rowTerm {
+  font-size: 0.8125rem;
+  font-weight: 650;
+}
+
+.rowText {
+  font-size: 0.9375rem;
+  line-height: 1.85;
+  overflow-wrap: anywhere;
+}
+
+.footer {
+  margin-top: auto;
+  padding-top: 1.25rem;
+  padding-bottom: 2rem;
+  border-top: 1px solid var(--st-border);
+}
+
+@media (min-width: 48rem) {
+  .main {
+    padding-top: 2.5rem;
+  }
+
+  .title {
+    font-size: 1.75rem;
+  }
+
+  .row {
+    grid-template-columns: 12rem 1fr;
+    gap: 0 1.5rem;
+    align-items: baseline;
+  }
+}

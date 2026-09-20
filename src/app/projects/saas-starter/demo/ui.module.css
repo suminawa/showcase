@@ -1,0 +1,605 @@
+/*
+ * キットの app/_components/ui.module.css を手本にした、見本の中の部品の見た目です。
+ * 色・角の丸み・書体は --st-* から取ります（直に色を書きません）。
+ * 変数の出どころは、額の根の 1 枚（../saas-starter.module.css）です。
+ */
+
+/* ---- 並べ方 ---- */
+
+.stack {
+  display: flex;
+  flex-direction: column;
+  gap: var(--st-gap);
+}
+
+.stackTight {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.625rem;
+}
+
+.rowBetween {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.625rem;
+}
+
+/* ---- 面 ---- */
+
+.card {
+  padding: 1.25rem;
+  border: 1px solid var(--st-border);
+  border-radius: var(--st-radius);
+  background: var(--st-surface);
+}
+
+.cardTitle {
+  font-size: 1.0625rem;
+  font-weight: 650;
+}
+
+.cardHint {
+  color: var(--st-text-muted);
+  font-size: 0.875rem;
+  line-height: 1.65;
+}
+
+/* 1 枚の紙を真ん中に置く画面（ログイン・偽のお支払い）です */
+.centered {
+  display: grid;
+  place-items: center;
+  min-height: 24rem;
+  padding: 2rem 1rem;
+}
+
+.centeredWrap {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  width: 100%;
+  max-width: 26rem;
+}
+
+.panel {
+  width: 100%;
+  max-width: 26rem;
+  margin: 0 auto;
+  padding: 1.75rem 1.5rem;
+  border: 1px solid var(--st-border);
+  border-radius: var(--st-radius);
+  background: var(--st-surface);
+  box-shadow: var(--st-shadow);
+}
+
+.sectionTitle {
+  font-size: 0.8125rem;
+  font-weight: 650;
+  color: var(--st-text-muted);
+}
+
+@media (min-width: 40rem) {
+  .card {
+    padding: 1.5rem;
+  }
+
+  .panel {
+    padding: 2rem;
+  }
+}
+
+/* ---- 押していただくところ ---- */
+
+.button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  min-height: 2.5rem;
+  padding: 0 0.95rem;
+  border: 1px solid var(--st-border);
+  border-radius: var(--st-radius-sm);
+  background: var(--st-surface);
+  color: var(--st-text);
+  font-size: 0.875rem;
+  font-weight: 620;
+  line-height: 1.2;
+  text-align: center;
+  text-decoration: none;
+  cursor: pointer;
+  transition: box-shadow 160ms ease-out, border-color 160ms ease-out, color 160ms ease-out;
+}
+
+/*
+ * 押したときの手ごたえは、内側の影の濃さだけで出しています。
+ * どんな色に着せ替えても、同じだけ沈んで見えるようにするためです。
+ */
+.button:hover {
+  box-shadow: inset 0 0 0 999px rgba(0, 0, 0, 0.05);
+}
+
+.button:active {
+  box-shadow: inset 0 0 0 999px rgba(0, 0, 0, 0.1);
+}
+
+.button:disabled,
+.button[aria-disabled="true"] {
+  opacity: 0.55;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+.primary {
+  border-color: transparent;
+  background: var(--st-accent);
+  color: var(--st-accent-text);
+}
+
+.danger {
+  border-color: transparent;
+  background: var(--st-danger);
+  color: var(--st-accent-text);
+}
+
+.quiet {
+  border-color: transparent;
+  background: transparent;
+  color: var(--st-text-muted);
+}
+
+.quiet:hover {
+  color: var(--st-text);
+}
+
+.small {
+  min-height: 2.125rem;
+  padding: 0 0.7rem;
+  font-size: 0.8125rem;
+}
+
+.linkButton {
+  align-self: flex-start;
+}
+
+/* 文の中の行き先。額の中では本当のリンクを置かないので、字だけの押しどころにする */
+.textButton {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--st-accent);
+  font-size: inherit;
+  font-weight: inherit;
+  line-height: inherit;
+  text-align: left;
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.2em;
+  cursor: pointer;
+}
+
+.textButton:hover {
+  text-decoration-thickness: 2px;
+}
+
+/* ---- 入力 ---- */
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.label {
+  display: flex;
+  align-items: baseline;
+  gap: 0.4rem;
+  font-size: 0.8125rem;
+  font-weight: 620;
+}
+
+.required {
+  color: var(--st-text-muted);
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+.hint {
+  max-width: 46ch;
+  color: var(--st-text-muted);
+  font-size: 0.8125rem;
+  line-height: 1.6;
+}
+
+.input,
+.select,
+.textarea {
+  width: 100%;
+  /* 広い画面でも、目で追える長さで止めます */
+  max-width: 34rem;
+  padding: 0.55rem 0.7rem;
+  border: 1px solid var(--st-border);
+  border-radius: var(--st-radius-sm);
+  background: var(--st-surface);
+  color: var(--st-text);
+  font-size: 0.9375rem;
+  line-height: 1.5;
+  transition: border-color 160ms ease-out;
+}
+
+.input::placeholder,
+.textarea::placeholder {
+  color: var(--st-text-muted);
+}
+
+.input:hover,
+.select:hover,
+.textarea:hover {
+  border-color: var(--st-text-muted);
+}
+
+.textarea {
+  min-height: 5.5rem;
+  resize: vertical;
+}
+
+.select {
+  padding-right: 2rem;
+  cursor: pointer;
+}
+
+.input[aria-invalid="true"],
+.select[aria-invalid="true"],
+.textarea[aria-invalid="true"] {
+  border-color: var(--st-danger);
+  background: var(--st-danger-soft);
+}
+
+.fieldError {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.4rem;
+  font-size: 0.8125rem;
+  line-height: 1.6;
+}
+
+.fieldError::before {
+  content: "";
+  flex: none;
+  width: 0.5rem;
+  height: 0.5rem;
+  margin-top: 0.45rem;
+  border-radius: 50%;
+  background: var(--st-danger);
+}
+
+/* ---- お知らせ ---- */
+
+.notice {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.6rem;
+  padding: 0.75rem 0.9rem;
+  border: 1px solid var(--st-border);
+  border-radius: var(--st-radius-sm);
+  background: var(--st-surface-2);
+  color: var(--st-text);
+  font-size: 0.875rem;
+  line-height: 1.65;
+}
+
+.notice::before {
+  content: "";
+  flex: none;
+  width: 0.5rem;
+  height: 0.5rem;
+  margin-top: 0.5rem;
+  border-radius: 50%;
+  background: var(--st-text-muted);
+}
+
+.noticeOk {
+  border-color: var(--st-ok);
+  background: var(--st-ok-soft);
+}
+
+.noticeOk::before {
+  background: var(--st-ok);
+}
+
+.noticeWarn {
+  border-color: var(--st-warn);
+  background: var(--st-warn-soft);
+}
+
+.noticeWarn::before {
+  background: var(--st-warn);
+}
+
+.noticeDanger {
+  border-color: var(--st-danger);
+  background: var(--st-danger-soft);
+}
+
+.noticeDanger::before {
+  background: var(--st-danger);
+}
+
+.noticeBody {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.25rem 0.6rem;
+}
+
+.noticeClose {
+  flex: none;
+  min-height: 1.75rem;
+  margin-left: auto;
+  padding: 0 0.4rem;
+  border: 0;
+  border-radius: var(--st-radius-sm);
+  background: transparent;
+  color: var(--st-text-muted);
+  font-size: 0.8125rem;
+  cursor: pointer;
+}
+
+.noticeClose:hover {
+  color: var(--st-text);
+}
+
+/* ---- 札 ---- */
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.1rem 0.5rem;
+  border: 1px solid var(--st-border);
+  border-radius: 999px;
+  background: var(--st-surface-2);
+  color: var(--st-text);
+  font-size: 0.75rem;
+  font-weight: 620;
+  line-height: 1.6;
+  white-space: nowrap;
+}
+
+.badgeOwner {
+  border-color: var(--st-accent);
+  background: var(--st-accent-soft);
+}
+
+.badgeAdmin {
+  border-color: var(--st-border);
+}
+
+/* ---- まだ何も無いとき ---- */
+
+.empty {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  padding: 1.5rem 1.25rem;
+  border: 1px dashed var(--st-border);
+  border-radius: var(--st-radius);
+  background: var(--st-surface);
+}
+
+.emptyTitle {
+  font-size: 0.9375rem;
+  font-weight: 650;
+}
+
+.emptyHint {
+  color: var(--st-text-muted);
+  font-size: 0.875rem;
+  line-height: 1.65;
+}
+
+/* ---- 一覧 ---- */
+
+.rows {
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--st-border);
+  border-radius: var(--st-radius);
+  background: var(--st-surface);
+  overflow: hidden;
+}
+
+.rowItem {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem 1rem;
+  padding: 0.9rem 1.1rem;
+}
+
+.rows > * + * {
+  border-top: 1px solid var(--st-border);
+}
+
+.rowMain {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  min-width: 11rem;
+  flex: 1 1 14rem;
+}
+
+.rowName {
+  font-size: 0.9375rem;
+  font-weight: 620;
+  overflow-wrap: anywhere;
+}
+
+.rowMeta {
+  color: var(--st-text-muted);
+  font-size: 0.8125rem;
+  overflow-wrap: anywhere;
+}
+
+.rowActions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+/* ---- 折りたたみ ---- */
+
+.disclosure {
+  border-top: 1px solid var(--st-border);
+}
+
+.summary {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.6rem 1.1rem;
+  color: var(--st-text-muted);
+  font-size: 0.8125rem;
+  font-weight: 620;
+  cursor: pointer;
+  list-style: none;
+}
+
+.summary::-webkit-details-marker {
+  display: none;
+}
+
+.summary::before {
+  content: "";
+  width: 0.4rem;
+  height: 0.4rem;
+  border-right: 1.5px solid currentColor;
+  border-bottom: 1.5px solid currentColor;
+  transform: rotate(-45deg);
+  transition: transform 160ms ease-out;
+}
+
+.disclosure[open] > .summary::before {
+  transform: rotate(45deg);
+}
+
+.summary:hover {
+  color: var(--st-text);
+}
+
+.disclosureBody {
+  padding: 0.25rem 1.1rem 1.1rem;
+}
+
+/* ---- 文字づかい ---- */
+
+.muted {
+  color: var(--st-text-muted);
+  font-size: 0.875rem;
+  line-height: 1.65;
+}
+
+.strong {
+  font-weight: 650;
+}
+
+/* 読み上げの方にだけお伝えする文です */
+.visuallyHidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* お返事が無いあいだは、場所も取りません */
+.formStatus:empty {
+  display: none;
+}
+
+/* 1 回だけお見せする文字（お作りした招待のリンク）です */
+.valueBox {
+  width: 100%;
+  margin-top: 0.5rem;
+  padding: 0.5rem 0.65rem;
+  border: 1px solid var(--st-border);
+  border-radius: var(--st-radius-sm);
+  background: var(--st-surface-2);
+  color: var(--st-text);
+  font-size: 0.8125rem;
+}
+
+/* ---- 行き来 ---- */
+
+.nav {
+  display: flex;
+  gap: 0.25rem;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.nav::-webkit-scrollbar {
+  display: none;
+}
+
+.navLink {
+  padding: 0.4rem 0.75rem;
+  border: 0;
+  border-radius: var(--st-radius-sm);
+  background: transparent;
+  color: var(--st-text-muted);
+  font-size: 0.875rem;
+  font-weight: 620;
+  text-decoration: none;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: background-color 160ms ease-out, color 160ms ease-out;
+}
+
+.navLink:hover {
+  background: var(--st-surface);
+  color: var(--st-text);
+}
+
+.navCurrent {
+  background: var(--st-accent-soft);
+  color: var(--st-text);
+}
+
+.navCurrent:hover {
+  background: var(--st-accent-soft);
+}
+
+.navSub .navLink {
+  font-size: 0.8125rem;
+}
+
+/* ---- 送信のあいだの輪 ---- */
+
+.spinner {
+  flex: none;
+  width: 0.85rem;
+  height: 0.85rem;
+  border: 2px solid currentColor;
+  border-right-color: transparent;
+  border-radius: 50%;
+  opacity: 0.7;
+  animation: st-spin 700ms linear infinite;
+}
+
+@keyframes st-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}

@@ -1,0 +1,266 @@
+/*
+ * 額 ── ブラウザの窓の形をした枠。料紙の上に、道具として 1 つだけ載る。
+ *
+ * 窓の外（枠と操作の並び）は紙の側の色で、窓の中はキットの世界。
+ * キットの色・角の丸み・書体（--st-*）は **この窓の根の 1 枚に閉じる**。
+ * :root には 1 つも出さない ── 出した日に、料紙の色がキットの色に染まる。
+ * 水盤と同じ理屈で、額装が変わっても掛かっているものは変わらない。
+ *
+ * 窓の中は明るい配色に固定する。紙の上に載せるものなので、
+ * 機器の設定が暗い配色でも、ここだけは紙と同じ明るさで見えてほしい。
+ */
+
+.frame {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  border: 1px solid #e0dbd0;
+  border-radius: 12px;
+  background: #fffdf8;
+  /* 機器の設定が暗い配色でも、額は紙の上のものとして明るいままにする
+     （選ぶ欄のような、機器が描く部品まで含めて） */
+  color-scheme: light;
+}
+
+/* ---- 窓の外 ---- */
+
+.chrome {
+  display: flex;
+  flex-direction: column;
+  border-bottom: 1px solid #e0dbd0;
+  background: #f4f0e7;
+}
+
+.bar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 12px;
+}
+
+.dots {
+  display: flex;
+  flex: none;
+  gap: 5px;
+}
+
+.dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: #d9d3c6;
+}
+
+/* 見本の中でいまどこにいるかを、窓の住所として出す（押せる場所ではない） */
+.address {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  padding: 3px 10px;
+  border: 1px solid #e4dfd4;
+  border-radius: 999px;
+  background: #fffdf8;
+  color: #6a665d;
+  font-size: 12px;
+  line-height: 1.6;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 14px;
+  padding: 0 12px 10px;
+}
+
+.control {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+}
+
+.controlLabel {
+  flex: none;
+  color: #6a665d;
+  font-size: 12px;
+  line-height: 1.6;
+}
+
+.select {
+  max-width: 13rem;
+  min-height: 30px;
+  padding: 3px 8px;
+  border: 1px solid #e0dbd0;
+  border-radius: 6px;
+  background: #fffdf8;
+  color: #3a3730;
+  font: inherit;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.toggle {
+  padding: 4px 10px;
+  border: 1px solid #e0dbd0;
+  border-radius: 999px;
+  background: transparent;
+  color: #55514a;
+  font: inherit;
+  font-size: 12px;
+  line-height: 1.6;
+  cursor: pointer;
+}
+
+.toggle[aria-pressed="true"] {
+  border-color: #2b2a27;
+  background: #2b2a27;
+  color: #fffdf8;
+}
+
+.reset {
+  margin-left: auto;
+  padding: 4px 10px;
+  border: 1px solid #e0dbd0;
+  border-radius: 6px;
+  background: #fffdf8;
+  color: #55514a;
+  font: inherit;
+  font-size: 12px;
+  line-height: 1.6;
+  cursor: pointer;
+}
+
+.reset:hover,
+.toggle:hover {
+  border-color: #b9b2a3;
+  color: #1c1a15;
+}
+
+/* ---- 窓の中 ── ここから先がキットの世界 ---- */
+
+.window {
+  /* 面 */
+  --st-bg: #fbfbfa;
+  --st-surface: #ffffff;
+  --st-surface-2: #f4f3f0;
+  --st-border: #e3e2dd;
+
+  /* 文字 */
+  --st-text: #1c1c1a;
+  --st-text-muted: #6f6e68;
+
+  /* アクセント（押していただくところと、いま選ばれているところにだけ） */
+  --st-accent: #1f6fd0;
+  --st-accent-text: #ffffff;
+  --st-accent-soft: #e8f1fc;
+
+  /* 状態 */
+  --st-ok: #0ca30c;
+  --st-ok-soft: #e9f6e9;
+  --st-warn: #b8730a;
+  --st-warn-soft: #fbf1e0;
+  --st-danger: #d03b3b;
+  --st-danger-soft: #fbeaea;
+
+  /* かたち */
+  --st-radius: 10px;
+  --st-radius-sm: 6px;
+  --st-gap: 1rem;
+  --st-shadow: 0 1px 2px rgba(28, 28, 26, 0.06), 0 12px 28px -18px rgba(28, 28, 26, 0.35);
+
+  /* 書体 */
+  --st-font: -apple-system, BlinkMacSystemFont, "Segoe UI", "Hiragino Sans", "Noto Sans JP",
+    "Yu Gothic UI", Meiryo, system-ui, sans-serif;
+
+  /* 機器の設定にかかわらず、窓の中は明るい配色で見えるようにする */
+  color-scheme: light;
+
+  min-height: 30rem;
+  background: var(--st-bg);
+  color: var(--st-text);
+  font-family: var(--st-font);
+  font-size: 1rem;
+  line-height: 1.7;
+  -webkit-font-smoothing: antialiased;
+}
+
+/*
+ * キットの globals.css の土台。窓の中にだけ効かせる。
+ * ＊ :where() で包んで重みを 0 にしておくこと。包まずに書くと、この土台が
+ *   キットの部品の余白（.heading の上の 2rem、箇条書きの点）に勝ってしまい、
+ *   窓の中だけ組みが詰まる。キットの側では要素の名前 1 つ分の重みしかない規則である。
+ */
+:where(.window) *,
+:where(.window) *::before,
+:where(.window) *::after {
+  box-sizing: border-box;
+}
+
+:where(.window) :where(h1, h2, h3, p, figure, blockquote, dl, dd) {
+  margin: 0;
+}
+
+:where(.window) :where(h1, h2, h3) {
+  line-height: 1.35;
+  font-weight: 650;
+  letter-spacing: -0.01em;
+  text-wrap: balance;
+}
+
+:where(.window) :where(ul, ol) {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+:where(.window) :where(input, select, textarea, button) {
+  font: inherit;
+  color: inherit;
+}
+
+/*
+ * キーボードでお使いの方に、いまどこにいるかが必ず見えるように。
+ * 料紙の側は輪を紙から離して細く引くが、窓の中はキットの決まりに戻す
+ * （紙の外側に置いた輪が、窓の縁で切れてしまうため）。
+ */
+.frame .window :is(a, button, input, select, textarea, summary):focus-visible {
+  outline: 2px solid var(--st-accent);
+  outline-offset: 2px;
+}
+
+.frame .chrome :is(button, select):focus-visible {
+  outline: 2px solid #a63a2e;
+  outline-offset: 2px;
+}
+
+/* まだ組み立てが終わっていないあいだの、置き場所だけの 1 行 */
+.booting {
+  padding: 4rem 1rem;
+  color: var(--st-text-muted);
+  font-size: 0.875rem;
+  text-align: center;
+}
+
+@media (max-width: 480px) {
+  .window {
+    min-height: 26rem;
+  }
+
+  .reset {
+    margin-left: 0;
+  }
+}
+
+/* 動きを控えたいご希望のとき（料紙の側でも止めているが、窓の中でも止める） */
+@media (prefers-reduced-motion: reduce) {
+  .frame *,
+  .frame *::before,
+  .frame *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

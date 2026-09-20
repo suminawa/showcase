@@ -33,5 +33,9 @@
   "booking": {
     "note": "",
     "booth": ""
+  },
+  "saas-starter": {
+    "note": "",
+    "booth": ""
   }
 }
