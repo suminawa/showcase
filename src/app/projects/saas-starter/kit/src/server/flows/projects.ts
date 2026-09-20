@@ -38,11 +38,18 @@ export async function listProjectsFlow(input: {
 }): Promise<FlowResult<{ projects: Project[]; quota: Quota }>> {
   if (!can("project:read", { role: input.ctx.role })) return flowFail("forbidden");
 
-  const projects = await input.ctx.ports.data.listProjects(input.ctx.organization.id);
+  const [projects, count] = await Promise.all([
+    input.ctx.ports.data.listProjects(input.ctx.organization.id),
+    input.ctx.ports.data.countProjects(input.ctx.organization.id),
+  ]);
 
-  // 一覧はこの組織の行だけなので、その件数がそのまま使用中の件数です。
-  // 残り件数は、契約が止まっているときに無料へ落としたあとのプランで数えます。
-  const quota = projectQuota(input.ctx.billing.plan, projects.length);
+  // 「何件お使いか」は、一覧の長さではなく**数え直した件数**から作ります。
+  // 一覧は 1 回のお返事に入る行数で切られることがあり、その数字をそのまま出すと、
+  // 上限なしのプランで 1000 件を超えたお客さまの画面が「1000」で止まってしまいます
+  // （お作りになれる件数は createProjectFlow が countProjects で判じているので、
+  // 画面の数字だけが嘘になります）。
+  // 残り件数は、ご契約が止まっているときに無料へ落としたあとのプランで数えます。
+  const quota = projectQuota(input.ctx.billing.plan, count);
   return flowOk({ projects, quota });
 }
 

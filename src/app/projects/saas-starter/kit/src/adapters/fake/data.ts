@@ -18,6 +18,9 @@ import type {
 } from "../../ports/data";
 import type { FakeStore } from "./store";
 
+/** 役割の名前です（本物の check 制約と同じ 3 つです） */
+const ROLES: readonly Role[] = ["owner", "admin", "member"];
+
 function clone<T>(value: T): T {
   return structuredClone(value);
 }
@@ -213,12 +216,23 @@ export class FakeData implements DataPort {
     return count;
   }
 
-  /** 数え直しと書き込みを、await をはさまずに 1 つの関数の中で行います */
+  /**
+   * 数え直しと書き込みを、await をはさまずに 1 つの関数の中で行います。
+   *
+   * 呼び手の役割（ST001・ST002）は、ここでは確かめていません。
+   * `DataPort` はお申し付けごとの「どなたが呼んだか」を持たず、見本のしくみの
+   * ログインの状態はサーバーに 1 つだけだからです（別の 2 人が同時に、を表せません）。
+   * 役割の確かめは flow（`src/server/flows/members.ts`）と、
+   * 本物の `change_member_role` が行います。
+   */
   async changeMemberRole(
     organizationId: string,
     userId: string,
     role: Role,
   ): Promise<"ok" | "last_owner" | "not_found"> {
+    // 知らない役割の名前は、行に入れません（本物は 22023 で止めます）
+    if (!ROLES.includes(role)) throw new Error("data: changeMemberRole");
+
     const key = this.store.membershipKey(organizationId, userId);
     const existing = this.store.memberships.get(key);
     if (existing === undefined) return "not_found";
@@ -408,7 +422,14 @@ export class FakeData implements DataPort {
     this.store.invitations.set(invitationId, { ...existing, status: "accepted", acceptedBy: userId });
   }
 
-  /** 招待を accepted にするところとメンバーに加えるところを、await をはさまずに行います */
+  /**
+   * 招待を accepted にするところとメンバーに加えるところを、await をはさまずに行います。
+   *
+   * お受けになれない理由は、**分けずに not_pending** でお返しします
+   * （無いご招待・期限切れ・すでにお受けのもの・宛先が違うもの・役割が合わないもの）。
+   * id を当てずっぽうに試しても、ご招待があること自体が分からないようにするためです。
+   * 本物の accept_invitation と同じ確かめを、同じ順で持ちます。
+   */
   async acceptInvitation(
     invitationId: string,
     userId: string,
@@ -416,6 +437,18 @@ export class FakeData implements DataPort {
   ): Promise<"ok" | "already_member" | "not_pending"> {
     const invitation = this.store.invitations.get(invitationId);
     if (invitation === undefined || invitation.status !== "pending") return "not_pending";
+
+    // 期限の切れたご招待は、お受けになれません
+    if (Date.parse(invitation.expiresAt) <= Date.parse(this.store.nowIso())) return "not_pending";
+
+    // お招きしたメールアドレスの方だけがお受けになれます
+    // （本物は auth.users.email を見ます。見本のしくみでは、プロフィールの行と
+    // ご登録の控えのどちらかに、その方のメールアドレスが入っています）。
+    const email = this.emailOf(userId);
+    if (email === null || email !== invitation.email.toLowerCase()) return "not_pending";
+
+    // 呼び出し側が渡した役割を、そのまま行に入れません（ご招待の行の役割が正です）
+    if (role !== invitation.role) return "not_pending";
 
     this.store.invitations.set(invitationId, {
       ...invitation,
@@ -429,10 +462,21 @@ export class FakeData implements DataPort {
     this.store.memberships.set(key, {
       organizationId: invitation.organizationId,
       userId,
-      role,
+      role: invitation.role,
       createdAt: this.store.nowIso(),
     });
     return "ok";
+  }
+
+  /** その方のメールアドレスです（本物の auth.users.email にあたります） */
+  private emailOf(userId: string): string | null {
+    const profile = this.store.profiles.get(userId);
+    if (profile !== undefined) return profile.email.toLowerCase();
+
+    for (const user of this.store.authUsers.values()) {
+      if (user.id === userId) return user.email.toLowerCase();
+    }
+    return null;
   }
 
   // ---- 課金 ----
@@ -445,6 +489,49 @@ export class FakeData implements DataPort {
   /** 見本のしくみでは、鍵の違いがないので同じ行をお返しします */
   async getBillingSubscription(organizationId: string): Promise<SubscriptionRow | null> {
     return this.getSubscription(organizationId);
+  }
+
+  /**
+   * 読むところと書くところを、await をはさまずに 1 つの関数の中で行います
+   * （本物の Supabase では、同じことを SQL の関数 1 つで行います）。
+   * 決まりは本物とそろえてあります。届いた状態がいまの行より前なら、何も書きません。
+   */
+  async applySubscriptionChange(input: {
+    organizationId: string;
+    row: Omit<SubscriptionRow, "organizationId"> | null;
+    now: string;
+  }): Promise<boolean> {
+    const existing = this.store.subscriptions.get(input.organizationId) ?? null;
+
+    // ご解約には取り直した行がないため、受け取った時刻で比べます
+    const stamp = input.row === null ? input.now : input.row.updatedAt;
+    if (existing !== null) {
+      const incoming = Date.parse(stamp);
+      const current = Date.parse(existing.updatedAt);
+      // 同じ時刻のものは、あとから届いたほうで書き直します
+      if (!Number.isNaN(incoming) && !Number.isNaN(current) && incoming < current) return false;
+    }
+
+    if (input.row === null) {
+      // 一度もご契約のない組織には、ご解約の行を作りません
+      if (existing === null) return false;
+
+      // 決済の契約の番号と期間の終わりは、あとからお調べになれるように残します
+      this.store.subscriptions.set(input.organizationId, {
+        ...existing,
+        planId: "free",
+        status: "canceled",
+        cancelAtPeriodEnd: false,
+        updatedAt: input.now,
+      });
+      return true;
+    }
+
+    this.store.subscriptions.set(
+      input.organizationId,
+      clone({ ...input.row, organizationId: input.organizationId }),
+    );
+    return true;
   }
 
   async upsertSubscription(row: SubscriptionRow): Promise<void> {

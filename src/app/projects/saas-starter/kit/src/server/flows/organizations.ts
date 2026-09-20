@@ -4,7 +4,7 @@
  * 組織の流れ（作る・名前を変える・消す・切り替える）です。
  * 役割ごとの可否は core/permissions の表 1 か所から決めます。
  */
-import { isLiveSubscription } from "../../core/billing-state";
+import { hasOpenSubscription } from "../../core/billing-state";
 import { can, type Role } from "../../core/permissions";
 import { validateText } from "../../core/validation";
 import type { Organization, Ports, SessionUser } from "../../ports";
@@ -78,8 +78,10 @@ export async function deleteOrganizationFlow(input: {
   }
 
   // ご契約が残ったまま組織を消すと、お支払いだけが続いてしまいます。
-  // 先にプランのご解約をお済ませいただくようお願いします。
-  if (isLiveSubscription(input.ctx.billing.status)) return flowFail("has_subscription");
+  // 先にプランのご解約をお済ませいただくようお願いします
+  // （はじめのお支払いの確認待ち・一時停止中・お支払いが滞っている状態も、
+  // 決済のしくみの側にはご契約が残っています）。
+  if (hasOpenSubscription(input.ctx.billing.status)) return flowFail("has_subscription");
 
   await input.ctx.ports.data.deleteOrganization(input.ctx.organization.id);
   return flowOk({ deleted: true } as const);

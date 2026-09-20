@@ -182,6 +182,36 @@ export interface DataPort {
    * ご解約の通知を取りこぼします。画面と Server Action からは呼ばないでください。
    */
   getBillingSubscription(organizationId: string): Promise<SubscriptionRow | null>;
+  /**
+   * 決済の通知の変更を、ご契約の表へ**条件付きで**写します。
+   *
+   * 読むところと書くところを 1 回の呼び出しの中で行います。
+   * 通知は順不同で、しかも同時に届きます。2 回に分けて読んでから書くと、
+   * そのあいだに別の通知がもっと新しい状態を書いていても気づけず、
+   * 古い状態で上書きしてしまいます（そのままでは直りません）。
+   *
+   * 届いた状態の時刻（row.updatedAt。ご解約のときは now）が、
+   * いま入っている行の時刻より**前**のときは、何も書かずに false を返します。
+   * 同じ時刻のものは、あとから届いたほうで書き直します。
+   *
+   * row が null のときはご解約です。決済の契約の番号と期間の終わりはそのまま残し、
+   * プランを free、状態を canceled にします。一度もご契約のない組織には、
+   * ご解約の行を作りません（false を返します）。
+   *
+   * **署名の検証を通った Webhook の流れだけが呼びます**（書けるのはサーバーだけです）。
+   */
+  applySubscriptionChange(input: {
+    organizationId: string;
+    row: Omit<SubscriptionRow, "organizationId"> | null;
+    /** その通知を受け取った時刻（ISO 8601） */
+    now: string;
+  }): Promise<boolean>;
+  /**
+   * ご契約の行を、そのまま置き換えます（条件をつけません）。
+   *
+   * **決済の通知の流れは使いません**（applySubscriptionChange に替えました）。
+   * 見本のデータづくりと、お手元でお試しになるときのために残しています。
+   */
   upsertSubscription(row: SubscriptionRow): Promise<void>;
   getStripeCustomer(organizationId: string): Promise<StripeCustomer | null>;
   setStripeCustomer(organizationId: string, stripeCustomerId: string): Promise<void>;

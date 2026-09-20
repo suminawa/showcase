@@ -42,6 +42,8 @@ export type BillingBanner =
   | "canceled"
   | "unpaid"
   | "cancel_scheduled"
+  /** 一時停止中です（機能はそのままお使いいただけます） */
+  | "paused"
   /** はじめのお支払いの確認をお待ちしています（無料のプランの上限でのご利用です） */
   | "incomplete";
 
@@ -95,16 +97,35 @@ export function isEntitled(status: StripeStatus): boolean {
   }
 }
 
-/** お支払いが続いているご契約の状態です（この間は組織を消せません） */
+/** いまこの瞬間、お支払いが通っているご契約の状態です */
 export const LIVE_STATUSES: readonly StripeStatus[] = ["active", "trialing", "past_due"];
 
 /**
- * ご契約が生きているか（Stripe 側にまだご契約が残っているか）。
- * 残っているうちに組織を消してしまうと、お支払いだけが続いてしまうため、
- * 組織を消すときはこの判定でお止めします。
+ * いま、お支払いが通っているご契約かどうか。
+ *
+ * **「ご契約の実体がまだあるか」とは別の問いです。** ご解約の通知が届いたときに
+ * 「取り直したら、まだお支払いが続いていた」を見分けるために使います。
  */
 export function isLiveSubscription(status: StripeStatus | "none"): boolean {
   return (LIVE_STATUSES as readonly string[]).includes(status);
+}
+
+/**
+ * 決済のしくみの側に、まだご契約の実体が残っているか。
+ *
+ * **「機能をお使いいただけるか（isEntitled）」とは別の問いです。**
+ *   - `incomplete` … はじめのお支払いがまだ確定していません。機能は止めますが、
+ *     そのあと有効になってご請求が始まりえます。もう 1 本お申し込みを通すと、
+ *     同じお客さまにご契約が 2 本立ってしまいます
+ *   - `paused` … 一時停止中です。機能はお使いいただけますが、ご契約は残っています
+ *   - `unpaid` … お支払いが滞っています。機能は止めますが、ご契約は残っています
+ *
+ * 残っているうちに新しいお申し込みをお通しすると二重のご請求になり、
+ * 残っているうちに組織を消すと、お支払いだけが続いてしまいます。
+ * お申し込みの可否・組織の削除・データベースの引き金の 3 か所は、この判定で決めます。
+ */
+export function hasOpenSubscription(status: StripeStatus | "none"): boolean {
+  return status !== "none" && status !== "canceled" && status !== "incomplete_expired";
 }
 
 function bannerFor(status: StripeStatus, cancelAtPeriodEnd: boolean): BillingBanner {
@@ -112,7 +133,10 @@ function bannerFor(status: StripeStatus, cancelAtPeriodEnd: boolean): BillingBan
   if (status === "canceled" || status === "incomplete_expired") return "canceled";
   // はじめのお支払いの確認待ちは、「お支払いが確かめられません」とは事情が違います
   if (status === "incomplete") return "incomplete";
-  if (status === "past_due" || status === "paused") return "past_due";
+  // 一時停止中も、「お支払いが確かめられません」とは事情が違います
+  // （同じ画面の状態の行は「一時停止中」と出ています。言うことをそろえます）
+  if (status === "paused") return "paused";
+  if (status === "past_due") return "past_due";
   return cancelAtPeriodEnd ? "cancel_scheduled" : "none";
 }
 

@@ -6,12 +6,7 @@
  * 画面は subscriptions の表だけを見ます（Stripe を毎回呼びません）。
  * 表を書き換えるのは、この中の applyWebhookFlow 1 か所だけです。
  */
-import {
-  isLiveSubscription,
-  isStripeStatus,
-  type BillingState,
-  type SubscriptionRow,
-} from "../../core/billing-state";
+import { hasOpenSubscription, isStripeStatus, type BillingState } from "../../core/billing-state";
 import { can } from "../../core/permissions";
 import {
   isPlanId,
@@ -56,12 +51,14 @@ export async function billingOverviewFlow(input: {
     /**
      * お申し込みのボタンをお出ししてよいかどうかです。
      *
-     * ご契約が続いているあいだにお申し込みをお通しすると、ご契約が 2 本になり、
+     * ご契約の実体が残っているあいだにお申し込みをお通しすると、ご契約が 2 本になり、
      * 二重にご請求してしまいます（startCheckoutFlow が already_subscribed で止めます）。
      * 押してから止めるのではなく、**はじめからお出ししない**ための答えです。
+     * 見るのは hasOpenSubscription です。はじめのお支払いの確認待ち（incomplete）や
+     * 一時停止中（paused）も、決済のしくみの側にはご契約が残っているためです。
      * プランの変更は、お手続きの画面（Customer Portal）で承ります。
      */
-    canStartCheckout: canManage && !isLiveSubscription(input.ctx.billing.status),
+    canStartCheckout: canManage && !hasOpenSubscription(input.ctx.billing.status),
   });
 }
 
@@ -76,10 +73,11 @@ export async function startCheckoutFlow(input: {
   // 無料のプランには Stripe の Price がないため、お申し込みに進めません
   if (planId === "free") return flowFail("invalid", [{ field: "planId", code: "bad_choice" }]);
 
-  // お支払いが続いているあいだに Checkout をもう一度お通しすると、
-  // ご契約が 2 本になり、二重にご請求してしまいます。
+  // ご契約の実体が残っているあいだに Checkout をもう一度お通しすると、
+  // ご契約が 2 本になり、二重にご請求してしまいます
+  // （はじめのお支払いの確認待ちと一時停止中も、実体は残っています）。
   // プランの変更とお支払い方法の変更は、お手続きの画面（Customer Portal）で承ります。
-  if (isLiveSubscription(input.ctx.billing.status)) return flowFail("already_subscribed");
+  if (hasOpenSubscription(input.ctx.billing.status)) return flowFail("already_subscribed");
 
   const result = await input.ctx.ports.billing.createCheckoutUrl({
     organizationId: input.ctx.organization.id,
@@ -172,25 +170,6 @@ function isWritableRow(row: SubscriptionChangeRow): boolean {
 }
 
 /**
- * 届いた行が、いま入っている行より前の状態かどうかを確かめます。
- *
- * updatedAt は「adapter が Stripe から状態を取り直した時刻」です（ports/billing.ts の約束）。
- * 通知は順不同で届くため、この時刻が前のものは、いまの状態を古い状態で
- * 上書きしてしまいます。同じ時刻のものは、あとから届いたほうで書き直します。
- * どちらかの時刻を読み取れないときは、並べようがないのでお書きします
- * （届いた行の時刻は、この前の isWritableRow で確かめてあります）。
- */
-function isStale(incomingUpdatedAt: string, existing: SubscriptionRow | null): boolean {
-  if (existing === null) return false;
-
-  const incoming = Date.parse(incomingUpdatedAt);
-  const current = Date.parse(existing.updatedAt);
-  if (Number.isNaN(incoming) || Number.isNaN(current)) return false;
-
-  return incoming < current;
-}
-
-/**
  * 存じ上げないお客さまの通知を、記録に 1 行だけ残します。
  *
  * ダッシュボードから直にご契約をお作りになった場合や、
@@ -226,36 +205,22 @@ async function applyChange(
   // 知らないプラン・知らない状態・読み取れない時刻は、書かずに捨てます
   if (change.row !== null && !isWritableRow(change.row)) return false;
 
-  // 通知だけの口（service role）で読みます。画面の口はログインしている方が要るため、
-  // ここでは 0 行になり、ご解約の通知を取りこぼします
-  const existing = await ports.data.getBillingSubscription(organizationId);
-
-  // ご解約のときは取り直した行がないため、受け取った時刻を使って比べます
-  const stamp = change.row === null ? now.toISOString() : change.row.updatedAt;
-  if (isStale(stamp, existing)) return false;
-
-  if (change.row === null) {
-    // 一度もご契約のない組織には、ご解約の行を作りません
-    // （作ると、お申し込みいただいたことのない方の画面に
-    // 「ご契約が終了しました」の帯が出てしまいます）。
-    if (existing === null) return false;
-
-    // ご契約が消えたときは、無料のプランに戻します。
-    // あとからお調べになれるよう、Stripe の契約の ID と期間の終わりは残します。
-    await ports.data.upsertSubscription({
-      organizationId,
-      planId: "free",
-      status: "canceled",
-      stripeSubscriptionId: existing.stripeSubscriptionId,
-      currentPeriodEnd: existing.currentPeriodEnd,
-      cancelAtPeriodEnd: false,
-      updatedAt: now.toISOString(),
-    });
-    return true;
-  }
-
-  // 組織の ID は、必ず stripe_customers から引き直したものを最後に置きます
-  // （届いた中身に organizationId が紛れていても、別の組織の行には書きません）。
-  await ports.data.upsertSubscription({ ...change.row, organizationId });
-  return true;
+  /**
+   * 表へ写すところは、この 1 回の呼び出しにすべて入っています。
+   *
+   * 「いまの行を読む → 比べる → 書く」を、ここで 2 回に分けません。
+   * 分けると、読んでから書くまでのあいだに別の通知がもっと新しい状態を書いていても
+   * 気づけず、古い状態で上書きしてしまいます（ご解約のあとに past_due が入ると、
+   * そのままずっと有料のプランの上限でお使いいただけてしまいます）。
+   * 順不同の並べ直し（届いた時刻が前なら書かない）と、ご解約の枝
+   * （決済の契約の番号を残したまま canceled・free にする）も、この中です。
+   *
+   * 組織の ID は、必ず stripe_customers から引き直したものをお渡しします
+   * （届いた中身に organizationId が紛れていても、別の組織の行には書きません）。
+   */
+  return await ports.data.applySubscriptionChange({
+    organizationId,
+    row: change.row,
+    now: now.toISOString(),
+  });
 }
