@@ -505,8 +505,10 @@ export class FakeData implements DataPort {
 
     // ご解約には取り直した行がないため、受け取った時刻で比べます
     const stamp = input.row === null ? input.now : input.row.updatedAt;
+    const incoming = Date.parse(stamp);
+    // 時刻として読めない行は、新しいか古いかを判じられませんので、書かずに捨てます（SQL の関数と同じ決まりです）
+    if (Number.isNaN(incoming)) return false;
     if (existing !== null) {
-      const incoming = Date.parse(stamp);
       const current = Date.parse(existing.updatedAt);
       // 同じ時刻のものは、あとから届いたほうで書き直します
       if (!Number.isNaN(incoming) && !Number.isNaN(current) && incoming < current) return false;
