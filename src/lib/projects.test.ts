@@ -130,11 +130,15 @@ describe("projects registry", () => {
     expect(saleLabel({ status: "onsale" })).toBe("発売前");
   });
 
-  it("作品ページを持たない 3 本は、note と紙の中の段へ飛ぶ", () => {
+  it("作品ページを持たない 3 本は、同じ名義の note の記事へ飛ぶ", () => {
     const by = Object.fromEntries(projects.map((p) => [p.slug, p]));
     expect(projectHref(by["deadline-alert"])).toBe(links.s2.note);
     expect(projectHref(by["form-intake"])).toBe(links.s3.note);
-    expect(projectHref(by["lp-pack"])).toBe("#sites");
+    expect(projectHref(by["lp-pack"])).toBe(links.lp.note);
+    // 紙の中の段へ跳ねる行はもう無い（買えるものは買えるところへ直接飛ばす）
+    for (const project of projects) {
+      expect(projectHref(project).startsWith("#")).toBe(false);
+    }
   });
 
   it("projectHref は /projects/<slug>、見本は /demos/<slug> を返す", () => {
@@ -209,9 +213,12 @@ describe("shelfAnchors", () => {
     }
   });
 
-  it("LP テンプレ パックの飛び先は、目次と同じ SITES の段の id", () => {
-    const sites = shelfAnchors().find((a) => a.id === "sites");
-    const pack = projects.find((p) => p.slug === "lp-pack");
-    expect(pack?.href).toBe(sites?.anchor);
+  it("段の id は目次からだけ使う（行の飛び先には使わない）", () => {
+    expect(shelfAnchors().map((a) => a.anchor)).toEqual([
+      "#services",
+      "#kits",
+      "#sites",
+      "#works",
+    ]);
   });
 });

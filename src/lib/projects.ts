@@ -37,7 +37,7 @@ export type Project = {
   sale?: Sale;
   /**
    * ハブから飛ぶ先。無ければ /projects/<slug>。
-   * 作品ページを持たない行は、ここに外（note）か紙の中（#sites）を書く。
+   * 作品ページを持たない行は、ここに同じ名義の note の記事を書く。
    */
   href?: string;
 };
@@ -111,7 +111,7 @@ const siteProjects: Project[] = demos.map((demo) => ({
 export const projects: Project[] = [
   /* ---- KITS ── 売っているもの ------------------------------------------
      発売中を先に、発売前を後に。飛び先は作品ページ（購入の導線は作品ページの
-     結びにある）。作品ページを持たない 3 本だけ、note か紙の中の段へ飛ばす。 */
+     結びにある）。作品ページを持たない 3 本だけ、同じ名義の note の記事へ飛ばす。 */
   {
     slug: "quote-simulator",
     title: "見積もり電卓テンプレ",
@@ -153,7 +153,7 @@ export const projects: Project[] = [
     tags: ["Next.js", "TypeScript"],
     category: "kits",
     sale: { status: "onsale", price: 6980 },
-    href: "#sites",
+    href: links.lp.note,
   },
   {
     slug: "ai-concierge",
@@ -235,9 +235,9 @@ export function projectsByCategory(category: ProjectCategory): Project[] {
  * その行に添える図版（実画面の写し）の出どころ。無ければ null。
  *
  * 規則は一つだけ ── **この紙の中に自分のページを持つ行だけが図版を持つ**。
- * note へ飛ぶ 2 本と、紙の中の段（#sites）へ飛ぶ 1 本は撮る画面が無いので、
- * 字だけの行として成立させる。撮るスクリプト（scripts/shoot-hub.mjs）も
- * 同じ規則で対象を決めるので、レジストリに 1 行足せば図版も 1 枚増える。
+ * note へ飛ぶ 3 本は撮る画面が無いので、字だけの行として成立させる。
+ * 撮るスクリプト（scripts/shoot-hub.mjs）も同じ規則で対象を決めるので、
+ * レジストリに 1 行足せば図版も 1 枚増える。
  */
 export function projectFigure(project: Project): string | null {
   return projectHref(project).startsWith("/") ? `/hub/${project.slug}` : null;
