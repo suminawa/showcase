@@ -104,6 +104,14 @@ export const projects: Project[] = [
     category: "tools",
   },
   {
+    slug: "saas-starter",
+    title: "SaaS スターター キット",
+    description:
+      "会員制サービスに要るもの一式 ── ログイン、組織とご招待、オーナー・管理者・メンバーの権限、プロジェクトの管理、Stripe の定期課金、法務のひな形。見本はブラウザの中だけで動き、役割を替えると画面が変わる。",
+    tags: ["Next.js", "TypeScript", "Supabase", "Stripe"],
+    category: "tools",
+  },
+  {
     slug: "ai-concierge",
     title: "AI 案内窓口",
     description:
