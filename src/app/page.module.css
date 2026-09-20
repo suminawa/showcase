@@ -118,11 +118,13 @@
      段差も【罫の整数倍】で刻む（2026-09-20）。もとは 40〜52svh で、
      背丈だけで決まっていた ── 段が 5 つになり、各段が見出しを持つように
      なったので、段差は背丈ではなく罫の数で数えるほうが素直になった。
-     版面は段の上下へ 3 行ずつ張り出すので、段差は 6 行より大きくなければ
-     隣の版面と重なって罫が二本に割れる。7 行 / 10 行はその拘束を満たす最小に
-     近い値で、段の切れ目には空の罫が 1〜4 行残る。 */
-  --hi-void: calc(7 * var(--hi-kei-pitch));
-  --hi-void-lg: calc(10 * var(--hi-kei-pitch));
+     版面は段の上下へ 3 行ずつ張り出すので、**段差 6 行が下限**である ──
+     これより詰めると版面が重なり、位相の違う罫が二枚見えて一本が二本に割れる。
+     6 行のときは版面どうしが隙間なく接する。接した点では両側とも
+     マスクで透明に落ちきっているので、墨は一滴も重ならない。
+     名乗りと結びの前後だけは 8 行 ── 目録の外を向く沈黙は、段と段の間より深い。 */
+  --hi-void: calc(6 * var(--hi-kei-pitch));
+  --hi-void-lg: calc(8 * var(--hi-kei-pitch));
 
   /* ---- 図版（実画面の写し）----
      高さは【必ず罫の整数倍】。半端にすると、図版を持つ行と持たない行で
@@ -481,7 +483,7 @@
  * の二点だけにしてある。
  */
 .zShelf {
-  --myaku-band: calc((5 * 100% + 5 * var(--hi-gap)) / 7);
+  --myaku-band: calc((4 * 100% + 4 * var(--hi-gap)) / 8);
   --myaku-draw: 900ms;
   left: calc(-1 * var(--myaku-band));
   width: var(--myaku-band);
@@ -503,7 +505,9 @@
  * 縦の線と横の罫が同じ帯で重なり、方眼に見える。脈が消えたところから罫が始まる。
  */
 .zTail {
-  --myaku-band: calc((5 * 100% + 5 * var(--hi-gap)) / 7);
+  /* 結びの箱は 7 列幅。通り道は 1 列目の起点から目録の起点（5 列目）まで
+     ＝ 4 列 + 4 隙間ぶんなので、7 列幅からはこの式で逆算する */
+  --myaku-band: calc((4 * 100% + 4 * var(--hi-gap)) / 7);
   left: 0;
   width: var(--myaku-band);
   top: calc(-1 * var(--hi-void-lg));
@@ -536,7 +540,10 @@
   position: relative;
   z-index: 1;
   grid-column: 1 / 13;
-  min-height: min(88svh, 760px);
+  /* 名乗りの背丈。初画面をこれ一つで埋めるだけあればよく、余った紙は
+     下の段のぶんに回す（目録は 19 行あり、1px は 19 回効く）。
+     900px の窓で 654px ＝ 画面の 73%、大字より下は空の罫だけが残る */
+  min-height: min(72svh, 600px);
   display: grid;
   grid-template-rows: 1fr auto auto auto auto;
   /* 界線の整数倍。ここが半端だと下から数えた罫の位相が狂う */
@@ -719,7 +726,7 @@
 .shelf {
   position: relative;
   z-index: 1;
-  grid-column: 6 / 13;
+  grid-column: 5 / 13;
   margin-top: var(--hi-void);
   /* 目次から飛んできたときの着地。版面の上に空の罫が残る位置で止める */
   scroll-margin-top: calc(4 * var(--hi-kei-pitch));
@@ -771,12 +778,14 @@
   color: var(--hi-sumi-3);
 }
 
+/* 頭の一行は、広い紙では一本の罫に収まりきる幅まで許す ── 40em で止めると
+   SITES の一行が「す。」だけを二行目に落とし、段の頭に半端な行が残る */
 .shelfLead {
   font-size: var(--hi-tiny);
   line-height: 2.3;
   letter-spacing: 0.05em;
   color: var(--hi-sumi-2);
-  max-width: 40em;
+  max-width: 46em;
 }
 
 .rows {
@@ -996,17 +1005,14 @@
 
 .entry {
   display: grid;
-  grid-template-columns: minmax(0, 1fr);
-  text-decoration: none;
-  color: inherit;
-}
-
-/* 図版を持つ行だけ二列になる。持たない行で二列にすると、
-   空の列ぶんの隙間（column-gap）が字の塊を痩せさせる */
-.withFig {
+  /* 図版の欄は【図版を持たない行でも】空けておく。ここを畳むと、
+     行ごとに字の塊の幅が変わり、右端に落ちる値段の列が上下で飛ぶ ──
+     品書きで値段の列が揃わないのは、ただの読みにくさである */
   grid-template-columns: minmax(0, 1fr) var(--hi-fig-w);
   column-gap: clamp(16px, 2.2vw, 30px);
   align-items: start;
+  text-decoration: none;
+  color: inherit;
 }
 
 .text {
@@ -1175,7 +1181,7 @@
   z-index: 1;
   grid-column: 1 / 8;
   margin-top: var(--hi-void-lg);
-  padding-bottom: clamp(64px, 18svh, 180px);
+  padding-bottom: clamp(48px, 10svh, 110px);
 }
 
 .close::before {
@@ -1345,7 +1351,7 @@
    * 紙の余白が右に残ることで、図版は「貼ってある一枚」のままでいられる。
    * 高さは 4 行ちょうどなので、上に回しても行の高さは罫の整数倍のまま。
    */
-  .withFig {
+  .entry {
     grid-template-columns: minmax(0, 1fr);
     column-gap: 0;
   }

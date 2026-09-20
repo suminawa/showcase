@@ -139,7 +139,9 @@ describe("projects registry", () => {
 
   it("projectHref は /projects/<slug>、見本は /demos/<slug> を返す", () => {
     const by = Object.fromEntries(projects.map((p) => [p.slug, p]));
-    expect(projectHref(by["quote-simulator"])).toBe("/projects/quote-simulator");
+    expect(projectHref(by["quote-simulator"])).toBe(
+      "/projects/quote-simulator",
+    );
     expect(projectHref(by.floorplan)).toBe("/projects/floorplan");
     expect(projectHref(by["tax-back"])).toBe("/projects/tax-back");
     expect(projectHref(by["30days"])).toBe("/projects/30days");

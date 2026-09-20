@@ -32,32 +32,28 @@ export const demos: readonly Demo[] = [
     slug: "corporate-site",
     title: "会社案内サイト",
     industry: "コーポレート",
-    description:
-      "架空の計測会社「潮見計測」の会社案内。TOP と下層 3 枚がつながる。",
+    description: "架空の計測会社「潮見計測」の会社案内。下層 3 枚つき。",
     tags: ["Next.js", "TypeScript", "見本サイト"],
   },
   {
     slug: "saas-lp",
     title: "BtoB・SaaS の LP",
     industry: "BtoB・SaaS",
-    description:
-      "架空の勤怠 SaaS「Tabane Works」の 1 ページ。料金の切替とフォームまで動く。",
+    description: "架空の勤怠 SaaS「Tabane Works」。料金の切替まで動く。",
     tags: ["Next.js", "TypeScript", "見本 LP"],
   },
   {
     slug: "shop-lp",
     title: "店舗・サロンの LP",
     industry: "店舗・サロン",
-    description:
-      "架空の焼き菓子の店「粉とゆげ」の 1 ページ。品書きと席の案内、予約まで動く。",
+    description: "架空の焼き菓子の店「粉とゆげ」。品書きと予約まで動く。",
     tags: ["Next.js", "TypeScript", "見本 LP"],
   },
   {
     slug: "construction-lp",
     title: "建設・工事の LP",
     industry: "建設・工事",
-    description:
-      "架空の設備工事会社「灯月設備」の 1 ページ。電話導線と対応エリアまで動く。",
+    description: "架空の設備工事会社「灯月設備」。電話導線と対応エリアまで。",
     tags: ["Next.js", "TypeScript", "見本 LP"],
   },
   {
@@ -65,7 +61,7 @@ export const demos: readonly Demo[] = [
     title: "士業・研修の LP",
     industry: "士業・研修",
     description:
-      "架空の会計事務所「霜月会計事務所」の 1 ページ。顧問料 3 プランの切替まで動く。",
+      "架空の会計事務所「霜月会計事務所」。顧問料 3 プランの切替つき。",
     tags: ["Next.js", "TypeScript", "見本 LP"],
   },
   {
@@ -73,7 +69,7 @@ export const demos: readonly Demo[] = [
     title: "クリニック・医院の LP",
     industry: "クリニック・医院",
     description:
-      "架空の歯科医院「月白歯科クリニック」の 1 ページ。診療時間の表と Web 予約まで。",
+      "架空の歯科医院「月白歯科クリニック」。診療時間の表と Web 予約。",
     tags: ["Next.js", "TypeScript", "見本 LP"],
   },
 ];

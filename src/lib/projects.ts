@@ -115,8 +115,7 @@ export const projects: Project[] = [
   {
     slug: "quote-simulator",
     title: "見積もり電卓テンプレ",
-    description:
-      "作業条件を入れると、見積もりの内訳と合計がその場で出る電卓。",
+    description: "条件を入れると、見積もりの内訳と合計がその場で出る電卓。",
     tags: ["Next.js", "TypeScript"],
     category: "kits",
     sale: { status: "onsale", price: 2980 },
@@ -124,8 +123,7 @@ export const projects: Project[] = [
   {
     slug: "deadline-alert",
     title: "期限アラート GAS キット",
-    description:
-      "スプレッドシートの期限を、毎朝 8 時に Slack へ 1 通でまとめて知らせる。",
+    description: "シートに書いた期限を、毎朝 1 通にまとめて知らせる。",
     tags: ["Google Apps Script"],
     category: "kits",
     sale: { status: "onsale", price: 2980 },
@@ -134,8 +132,7 @@ export const projects: Project[] = [
   {
     slug: "form-intake",
     title: "フォーム受付 GAS キット",
-    description:
-      "問い合わせフォームの送信先。シートに貯め、Slack へ流し、自動返信まで。",
+    description: "問い合わせの受け口。シートに貯め、通知と自動返信まで。",
     tags: ["Google Apps Script"],
     category: "kits",
     sale: { status: "onsale", price: 3480 },
@@ -144,7 +141,7 @@ export const projects: Project[] = [
   {
     slug: "floorplan",
     title: "間取りシミュレーター",
-    description: "マス目を塗って間取りを描き、家具を置いて 3D で確かめる。",
+    description: "マス目を塗って間取りを描き、家具を置いて 3D で見る。",
     tags: ["React Three Fiber", "TypeScript"],
     category: "kits",
     sale: { status: "onsale", price: 9800 },
@@ -152,8 +149,7 @@ export const projects: Project[] = [
   {
     slug: "lp-pack",
     title: "業種別 LP テンプレ パック",
-    description:
-      "SITES の見本 6 本をひとまとめにしたもの。文言と色を替えて使う。",
+    description: "見本 6 本をひとまとめにしたもの。文言と色を替えて使う。",
     tags: ["Next.js", "TypeScript"],
     category: "kits",
     sale: { status: "onsale", price: 6980 },
@@ -162,7 +158,7 @@ export const projects: Project[] = [
   {
     slug: "ai-concierge",
     title: "AI 案内窓口キット",
-    description: "自社の文書だけを根拠に、サイトの上で質問に答える窓口。",
+    description: "自社の文書だけを根拠に、サイトの上で質問に答える。",
     tags: ["Claude API", "Next.js"],
     category: "kits",
     sale: { status: "upcoming" },
@@ -170,8 +166,7 @@ export const projects: Project[] = [
   {
     slug: "sheet-app",
     title: "スプレッドシート業務アプリ キット",
-    description:
-      "定義シートに列を書くと、一覧・検索・登録・編集の画面ができる。",
+    description: "定義シートに列を書くと、一覧と登録の画面ができる。",
     tags: ["Google Apps Script"],
     category: "kits",
     sale: { status: "upcoming" },
@@ -179,7 +174,7 @@ export const projects: Project[] = [
   {
     slug: "doc-reader",
     title: "AI 書類読み取りキット",
-    description: "請求書や領収書を AI が読み取り、確認してから表に出す。",
+    description: "請求書や領収書を読み取り、確認してから表に出す。",
     tags: ["Claude API", "Next.js"],
     category: "kits",
     sale: { status: "upcoming" },
@@ -187,8 +182,7 @@ export const projects: Project[] = [
   {
     slug: "booking",
     title: "予約ページ キット",
-    description:
-      "スプレッドシートに枠を書くと、その URL がそのまま予約ページになる。",
+    description: "シートに枠を書くと、その URL が予約ページになる。",
     tags: ["Google Apps Script"],
     category: "kits",
     sale: { status: "upcoming" },
@@ -196,7 +190,7 @@ export const projects: Project[] = [
   {
     slug: "configurator",
     title: "3D 商品コンフィギュレーター",
-    description: "商品を 3D で回しながら色や素材を選び、価格をその場で見る。",
+    description: "回しながら色や素材を選び、価格をその場で確かめる。",
     tags: ["React Three Fiber", "glTF"],
     category: "kits",
     sale: { status: "upcoming" },
@@ -209,24 +203,21 @@ export const projects: Project[] = [
   {
     slug: "suminagashi",
     title: "墨流し — Suminagashi",
-    description:
-      "藍と墨が水面で渦を巻く GPU 流体の水盤。指でかき混ぜ、模様を保存できる。",
+    description: "藍と墨が渦を巻く GPU 流体の水盤。かき混ぜて保存できる。",
     tags: ["WebGL2", "GLSL", "TypeScript"],
     category: "works",
   },
   {
     slug: "tax-back",
     title: "税込からの逆算",
-    description:
-      "税込の価格から、請求書に書く税抜と消費税を出す。端数の扱いも選べる。",
+    description: "税込の価格から、請求書に書く税抜と消費税を出す。",
     tags: ["Next.js", "TypeScript"],
     category: "works",
   },
   {
     slug: "30days",
     title: "30日 — Thirty Days",
-    description:
-      "AI に全部やらせて 30 日でどこまで稼げるか。売上と時間を毎日書く帳面。",
+    description: "AI に全部やらせて 30 日。売上と時間を毎日書く公開の帳面。",
     tags: ["Next.js", "公開ログ"],
     category: "works",
   },
