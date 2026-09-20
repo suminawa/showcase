@@ -215,7 +215,7 @@ function Row({ project }: { project: Project }) {
           className={s.fig}
           src={`${fig}-640.webp`}
           srcSet={`${fig}-320.webp 320w, ${fig}-640.webp 640w`}
-          sizes="(max-width: 767px) 208px, 180px"
+          sizes="(max-width: 767px) 176px, 200px"
           width={640}
           height={400}
           loading="lazy"
