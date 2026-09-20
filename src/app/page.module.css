@@ -9,17 +9,17 @@
      出来事（最上層・触れた時だけ）流れ …… この画面で動くものは、これひとつしか無い。
 
    ── 降格した二つから削ったもの（grep で確かめられる） ─────────────
-   ・界線のホバー反応：hihaku-kei の .work::after（濃い罫が 380ms で現れ、
+   ・界線のホバー反応：hihaku-kei の .row::after（濃い罫が 380ms で現れ、
      上から下へ 1.0 / 0.55 / 0.19 と減衰する矩形）と変数 --hi-kei-soak を削除した。
      この案の罫は【自分では濃くならない】。罫の墨が増えるのは水が来た場所だけである。
    ・筆脈のホバー反応：hihaku-myaku の .wet 層、--myaku-dur / --myaku-in /
-     --myaku-out、および上流区間へ伝播する :has(~ .work .entry:hover) の一式を
+     --myaku-out、および上流区間へ伝播する :has(~ .row .entry:hover) の一式を
      丸ごと削除した。脈は淡い一層だけになり、触れても 1px も変化しない。
      二層あった器（page.tsx の Myaku）も一層に書き直してある。
 
    ── 並置にしないための一点：界線は流れに【吸収】した ─────────────
    濡れた紙は、そこに既に引かれていた墨を吸う。
-   .work::after は「触れると濃くなる罫」ではなく【水が届いた範囲の罫】である。
+   .row::after は「触れると濃くなる罫」ではなく【水が届いた範囲の罫】である。
 
      ・形   … 罫が決めない。水と同じ雲マスク（同じ SVG・同じ包絡）が決める。
      ・位置 … 水の mask-position に完全に追随する。水が右へ進めば濃い罫も右へ進む。
@@ -41,8 +41,8 @@
    出来事の【出どころ】であって、出来事ではない。
 
    ── 方眼にしない ─────────────────────────────────────────
-   罫は各段の版面（.work / .close / .mark の内側）にだけ引かれ、
-   脈は斜行で左に溜まった余白（1280px の紙で .work の左外 484px）だけを降りる。
+   罫は各段の版面（.shelf / .close / .mark の内側）にだけ引かれ、
+   脈は斜行で左に溜まった余白（1280px の紙で .shelf の左外 484px）だけを降りる。
    二つは元々ほぼ別の場所にあり、交差するのは結びの手前 1 箇所しかない。
    そこも脈の尾を界線の 3 行手前で止めて、線が二重に走る帯を作らないようにした。
 
@@ -102,31 +102,50 @@
   --hi-kasure: var(--ryoushi-kasure); /* 3.1:1 — 図版専用。文字には使わない */
   --hi-shu: var(--ryoushi-shu); /* 落款の朱。画面で色を持つのはここ一箇所だけ */
 
-  /* ---- 二段しかない字の寸法 ---- */
-  --hi-tiny: clamp(0.8125rem, 0.75rem + 0.22vw, 0.9375rem); /* 13 → 15px */
+  /* ---- 二段しかない字の寸法 ----
+     小を一段上げた（13〜15px → 14〜16px、2026-09-20）。目録に組み直して
+     一行あたりの字数が増えたので、13px の明朝では罫と競って読みにくかった。
+     pitch は字から決まるので、罫・行送り・余白・落款・図版も一緒に動く。 */
+  --hi-tiny: clamp(0.875rem, 0.8rem + 0.25vw, 1rem); /* 14 → 16px */
   /* 名乗りだけは別に持つ。界線の版面の高さがこの値から決まるため */
   --hi-mark-size: clamp(2.85rem, 12.6vw, 8.75rem);
 
   /* ---- 界線 ---- */
   /* 罫の間隔＝本文一行。以下すべての行送り・行間・落款・湿りの寸法がこの整数倍になる */
-  --hi-kei-pitch: calc(2.3 * var(--hi-tiny)); /* 約 30 → 34px */
+  --hi-kei-pitch: calc(2.3 * var(--hi-tiny)); /* 約 32 → 37px */
 
-  /* ---- 沈黙 ---- */
-  --hi-void: clamp(88px, 40svh, 380px);
-  --hi-void-lg: clamp(112px, 52svh, 500px);
+  /* ---- 沈黙 ----
+     段差も【罫の整数倍】で刻む（2026-09-20）。もとは 40〜52svh で、
+     背丈だけで決まっていた ── 段が 5 つになり、各段が見出しを持つように
+     なったので、段差は背丈ではなく罫の数で数えるほうが素直になった。
+     版面は段の上下へ 3 行ずつ張り出すので、段差は 6 行より大きくなければ
+     隣の版面と重なって罫が二本に割れる。7 行 / 10 行はその拘束を満たす最小に
+     近い値で、段の切れ目には空の罫が 1〜4 行残る。 */
+  --hi-void: calc(7 * var(--hi-kei-pitch));
+  --hi-void-lg: calc(10 * var(--hi-kei-pitch));
+
+  /* ---- 図版（実画面の写し）----
+     高さは【必ず罫の整数倍】。半端にすると、図版を持つ行と持たない行で
+     行の高さが罫からずれ、同じ段の中で罫の位相が狂う。
+     幅は 8:5 ── 撮るときの縦横比（640×400 / 320×200）と同じ。 */
+  --hi-fig-h: calc(3 * var(--hi-kei-pitch));
+  --hi-fig-w: calc(1.6 * var(--hi-fig-h));
 
   /* ---- 湿り ----
      上下への漏れは【必ず pitch の整数倍】でなければならない。半端にすると
-     濃い罫（.work::after）の位相が静止の罫（.work::before）からずれ、
+     濃い罫（.row::after）の位相が静止の罫（.shelf::before）からずれ、
      一本が二本に割れて見える。3 行にしてあるのは位相のためだけではなく、
-     静止の罫の版面（.work::before も上下 3 行）と【寸分たがわず同じ範囲】に
+     静止の罫の版面（.shelf::before も上下 3 行）と【同じかそれより内側の範囲】に
      するため ── 水が届いても、罫の無かった場所に罫が生えることは無い。
      3 行 ≒ 102px は段差 --hi-void（40svh）より十分に小さく、隣の行を汚さない。 */
   /* 板の高さ。pitch の整数倍でしか刻めない（半端にすると濡れた罫と静止の罫の
      位相が狂い、一本が二本に割れて見える）。だから【行数】で段階を持つ。
-     背が高い紙は 3 行まで開き、低い窓ほど畳む ── 下の @media 群で段階的に。 */
-  --hi-wet-y: calc(3 * var(--hi-kei-pitch));
-  --hi-wet-y2: calc(2 * var(--hi-kei-pitch));
+     背が高い紙は 2 行まで開き、低い窓ほど畳む ── 下の @media 群で段階的に。
+     ＊ 3 行 → 2 行に締めた（2026-09-20）。目録に組み直して行の間が
+     2 行 → 1 行に詰まったので、3 行のままだと水が隣の行まで届き、
+     「濡れているのは一行だけ」が読めなくなる。 */
+  --hi-wet-y: calc(2 * var(--hi-kei-pitch));
+  --hi-wet-y2: var(--hi-kei-pitch);
   /* 水の板が左右へはみ出す量。左（斜行で溜まった白い紙）へ大きく開く。
      濃い罫のマスクを水のマスクへ一致させる計算にも使うので変数で持つ */
   /*
@@ -229,8 +248,8 @@
    罫はすべて擬似要素なので DOM にもアクセシビリティツリーにも現れず、
    pointer-events も持たない。 */
 .mark::before,
-.work::before,
-.work::after,
+.shelf::before,
+.row::after,
 .close::before {
   content: "";
   position: absolute;
@@ -289,7 +308,6 @@
   /* 芯より筋を細く抜く（閾値 intercept -2.96）。黒の外に灰の縁が残る */
   mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1200 800' preserveAspectRatio='none'%3E%3Cfilter id='h' color-interpolation-filters='sRGB'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.0038 0.1' numOctaves='4' seed='5'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 1 0 0 0 0'/%3E%3CfeComponentTransfer%3E%3CfeFuncA type='linear' slope='8' intercept='-2.96'/%3E%3C/feComponentTransfer%3E%3C/filter%3E%3ClinearGradient id='g' x1='0' y1='1' x2='0.9' y2='0.05'%3E%3Cstop offset='0.16' stop-color='%23fff' stop-opacity='1'/%3E%3Cstop offset='0.68' stop-color='%23fff' stop-opacity='0'/%3E%3C/linearGradient%3E%3Cg transform='rotate(-7 600 400)'%3E%3Crect x='-500' y='-500' width='2200' height='1800' filter='url(%23h)'/%3E%3C/g%3E%3Crect width='1200' height='800' fill='url(%23g)'/%3E%3C/svg%3E");
   mask-size: 100% 100%;
-  animation: hi-sweep 1750ms var(--hi-brush) 60ms both;
 }
 
 /* 芯 ── 一番沈んだところだけを墨まで落とす。126〜232 を黒〜白へ引き伸ばす */
@@ -299,7 +317,6 @@
   /* 同じ乱流・同じ seed。閾値だけ上げて（-3.68）筋を太く抜く */
   mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1200 800' preserveAspectRatio='none'%3E%3Cfilter id='h' color-interpolation-filters='sRGB'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.0038 0.1' numOctaves='4' seed='5'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 1 0 0 0 0'/%3E%3CfeComponentTransfer%3E%3CfeFuncA type='linear' slope='8' intercept='-3.68'/%3E%3C/feComponentTransfer%3E%3C/filter%3E%3ClinearGradient id='g' x1='0' y1='1' x2='0.9' y2='0.05'%3E%3Cstop offset='0.14' stop-color='%23fff' stop-opacity='1'/%3E%3Cstop offset='0.6' stop-color='%23fff' stop-opacity='0'/%3E%3C/linearGradient%3E%3Cg transform='rotate(-7 600 400)'%3E%3Crect x='-500' y='-500' width='2200' height='1800' filter='url(%23h)'/%3E%3C/g%3E%3Crect width='1200' height='800' fill='url(%23g)'/%3E%3C/svg%3E");
   mask-size: 100% 100%;
-  animation: hi-sweep 1450ms var(--hi-brush) 160ms both;
 }
 
 /*
@@ -373,9 +390,6 @@
   mask-image: var(--myaku-kasure);
   mask-size: 100% 100%;
   mask-repeat: no-repeat;
-  /* 読み込み時、上から下へ引かれる。走り終えたあとは静止して残る */
-  animation: hi-myaku var(--myaku-draw) var(--hi-vein) var(--myaku-draw-delay)
-    both;
 }
 
 /* 常在の脈。#6A665D をそのまま使う ── 淡いが、紙の上でちゃんと見える濃さ。
@@ -450,28 +464,34 @@
 }
 
 /*
- * 作品の区間。作品欄（7 列幅）の左外へ、その 5/7 ぶんだけ張り出す。
- * 罫は .work の内側（left:0 right:0）にしか無いので、脈と罫は一度も交差しない。
+ * 段の区間。目録の欄（7 列幅）の左外へ、その 5/7 ぶんだけ張り出す。
+ * 罫は .shelf の内側（left:0 right:0）にしか無いので、脈と罫は一度も交差しない。
  *
- * 行数に依存しない。作品がレジストリで増えれば段も増えるので、
- * 区間ごとの個別指定は持たず、違いは
- *   ・一つめだけ上の間が広い（.works の margin が 52svh、以降は .work の 40svh）
- *   ・引かれる時刻（--myaku-draw-delay）は行ごとに JSX から渡す
+ * 【区間は段に一つ】── 行に一つではない。
+ * もとは作品の一行ごとに区間を置いていたが、目録に組み直して行が 19 本に
+ * 増えたところ、横送りが下限に当たり続けて繋ぎ目で脈が飛んだ（本番の 1280px で
+ * 実際に折れていた。詳しくは @/lib/vein の頭）。段に一つなら区間は四本で、
+ * 手で描いた端点のまま繋がる。viewBox は preserveAspectRatio="none" なので、
+ * 段が高いほど同じ曲線がゆっくり引き伸ばされ、一本の線が紙を降りる絵になる。
+ *
+ * 段数に依存しない。段が増えれば区間も増えるので、区間ごとの個別指定は持たず、
+ * 違いは
+ *   ・一つめだけ上の間が広い（--hi-void-lg、以降は --hi-void）
+ *   ・引かれる時刻（--myaku-draw-delay）は段ごとに JSX から渡す
  * の二点だけにしてある。
  */
-.zWork {
+.zShelf {
   --myaku-band: calc((5 * 100% + 5 * var(--hi-gap)) / 7);
   --myaku-draw: 900ms;
   left: calc(-1 * var(--myaku-band));
   width: var(--myaku-band);
   bottom: 0;
-  /* 箱の上端は【前の段の下端】。.work が持つ段の余白（--work-lead）をそのまま
-     読むので、同じ分類で余白が 2 行へ詰まっても区間は隙間なく継ぎ、
+  /* 箱の上端は【前の段の下端】。段の余白と同じ値を読むので、区間は隙間なく継ぎ、
      前の段へ食い込むこともない ── 終点 x と次の始点 x は変わらないので繋ぎ目は飛ばない */
-  top: calc(-1 * var(--work-lead, var(--hi-void)));
+  top: calc(-1 * var(--hi-void));
 }
 
-.zWorkFirst {
+.zShelfFirst {
   --myaku-draw: 1000ms;
   top: calc(-1 * var(--hi-void-lg));
 }
@@ -560,7 +580,6 @@
   letter-spacing: 0.34em;
   color: var(--hi-sumi-4);
   margin-bottom: clamp(12px, 2.2svh, 26px);
-  animation: hi-rise 1000ms var(--hi-brush) 620ms both;
 }
 
 .wordmark {
@@ -571,7 +590,6 @@
   line-height: 0.94;
   letter-spacing: 0.075em;
   color: var(--hi-sumi);
-  animation: hi-rise 1200ms var(--hi-brush) 760ms both;
 }
 
 /* 英文は名乗りの真下に置かず、紙の中ほどまで送る。この段差が非対称の起点。
@@ -590,7 +608,6 @@
   color: var(--hi-sumi-4);
   margin-top: calc(2 * var(--hi-kei-pitch));
   margin-left: clamp(28px, 20vw, 280px);
-  animation: hi-rise 1000ms var(--hi-brush) 1020ms both;
 }
 
 /*
@@ -628,19 +645,12 @@
   font-size: clamp(0.6875rem, 0.95vw, 0.8125rem);
   line-height: 1;
   letter-spacing: 0;
-  animation: hi-rise 900ms var(--hi-brush) 1320ms both;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .seal {
-    animation: none;
-  }
 }
 
 /*
  * 分類の目次 ── 英文の次の罫に座る一行。
  *
- * 書体・大きさ・字間は作品欄の分類名（.cat）と寸分たがわず同じにしてある。
+ * 書体・大きさ・字間は段の名（.shelfName）と寸分たがわず同じにしてある。
  * 目次と見出しを結ぶ手がかりはこの【同じ字であること】だけで、
  * 印も枠も下線も足さない。左端は英文に揃える ── 起点の斜行を割らないため。
  * line-height 2.3 ＝ ちょうど界線一行なので、狭い紙で折り返しても
@@ -652,7 +662,6 @@
   letter-spacing: 0.3em;
   color: var(--hi-sumi-3);
   margin-left: clamp(28px, 20vw, 280px);
-  animation: hi-rise 1000ms var(--hi-brush) 1420ms both;
 }
 
 /* 触れて起きるのは墨が一段濃くなることだけ。色を持つのは落款ひとつという規則の内側 */
@@ -686,94 +695,107 @@
 }
 
 /* ==========================================================================
-   作品 ── 料紙の上の小さな一行。飾りは持たないが、罫の上には座る
+   段と行 ── 料紙の上の目録。飾りは持たないが、罫の上には座る
+   --------------------------------------------------------------------------
+   ■ 罫は【段に一枚】敷く（2026-09-20 に変えた）
+     もとは作品の一行ごとに版面を持たせ、同じ分類の中では端を消さずに渡して
+     繋いでいた（--kei-top / --kei-head の一式）。行が 19 本に増えると、
+     版面が 19 枚重なることになり、位相を保つ拘束も 19 箇所に増える。
+     段に一枚なら background-repeat が一枚で通るので、位相は構造上ずれない。
+
+   ■ 行の高さは【必ず罫の整数倍】
+     字の行は line-height 2.3 ＝ ちょうど 1 pitch なので、何行に折り返しても
+     整数倍のまま。図版も高さを 3 pitch で固定してある。だから
+     行の高さ ＝ max(字の行数, 3) × pitch となり、半端が出ない。
+     ここが崩れると、同じ段の中で濡れた罫と静止の罫の位相が狂う。
+
+   ■ 分類の名は【行の中】ではなく【段の頭】に置く
+     もとは一行ごとに左の 90px の欄へ分類名を刷っていた。字の長い分類
+     （CHALLENGE）が欄からはみ出し、題に食い込んで「CHALLENGE30日」と
+     読めていた。段の頭へ移すと、欄そのものが無くなるので二度と起きない。
+     ついでに字の塊が 140px ぶん広くなり、説明が二行で収まるようになった。
    ========================================================================== */
 
-.works {
+.shelf {
   position: relative;
   z-index: 1;
   grid-column: 6 / 13;
-  margin-top: var(--hi-void-lg);
-  list-style: none;
-  margin-block-end: 0;
-  padding: 0;
-}
-
-/* position: relative は脈の区間・水の板・罫の含みブロックにするため。
-   z-index は与えない ── 与えると .work 自身が積み重ね文脈になり、
-   負の z-index を持つ水と罫が、自分の背景の下ではなく文字の下へ潜れなくなる。 */
-.work {
-  /* ---- 分類の中の位置で決まる四つ（既定は data-pos="only"＝従来のまま）----
-     --work-lead … 前の段の下端から、この段の上端までの間。
-                   段の余白と脈の区間の箱（.zWork の top）が同じ値を読むので、
-                   二つが食い違って脈が前の段へ食い込むことが起こらない。
-     --kei-top / --kei-bottom … 界線の版面を上下へどれだけ張り出すか。
-     --kei-head / --kei-foot  … その端を何行かけて消すか。0 なら消さずに渡す。
-     四つとも pitch の整数倍（または 0）。半端にすると罫の位相が狂う。 */
-  --work-lead: var(--hi-void);
-  --kei-top: calc(-3 * var(--hi-kei-pitch));
-  --kei-bottom: calc(-3 * var(--hi-kei-pitch));
-  --kei-head: calc(1.4 * var(--hi-kei-pitch));
-  --kei-foot: calc(1.4 * var(--hi-kei-pitch));
-
-  position: relative;
-  display: grid;
-  grid-template-columns: clamp(70px, 7vw, 104px) minmax(0, 1fr);
-  column-gap: clamp(20px, 4vw, 72px);
+  margin-top: var(--hi-void);
   /* 目次から飛んできたときの着地。版面の上に空の罫が残る位置で止める */
   scroll-margin-top: calc(4 * var(--hi-kei-pitch));
 }
 
-/* 分類が切り替わるところは沈黙の段差のまま ── 紙はそこでいったん終わる */
-.work + .work {
-  margin-top: var(--work-lead);
+/* 名乗りと目録のあいだだけは、段と段の間より広く取る */
+.shelfFirst {
+  margin-top: var(--hi-void-lg);
 }
 
 /*
- * 同じ分類の中では紙を切らない。
- *
- * 段の余白を 2 行へ詰め、前の段の版面をこの段の上端まで伸ばし、
- * 触れ合う側の端は消さずに渡す。結果、前の作品のタグ行と次の作品の題の行の
- * あいだに残るのは【空の罫ちょうど 2 本】になる：
- *
- *   … タグの行（罫）／空の罫／空の罫／題の行（罫）…
- *
- * 段の余白も版面の張り出しも pitch の整数倍なので、罫の位相は紙の全体で
- * 一つのまま動かない ── 版面が二枚重なっても、線が二本に割れることはない。
- */
-.work[data-pos="middle"],
-.work[data-pos="last"] {
-  --work-lead: calc(2 * var(--hi-kei-pitch));
-  /* 上は前の段の版面が既に届いている。自分は上端から、消さずに始める */
-  --kei-top: 0px;
-  --kei-head: 0px;
-}
-
-.work[data-pos="first"],
-.work[data-pos="middle"] {
-  /* 下は次の段の上端まで（＝空の罫 2 本ぶん）伸ばし、消さずに渡す */
-  --kei-bottom: calc(-2 * var(--hi-kei-pitch));
-  --kei-foot: 0px;
-}
-
-/*
- * 一件ぶんの版面に敷く界線（静止）。分類の外を向く端は字の上下へ 3 行ぶん延び、
- * そこから 1.4 行かけて消える ── 空の罫が一本半ずつ残る。
- * 「まだ書かれていない行」が見えることで、罫は区切りではなく料紙になる。
- * 張り出しは pitch の整数倍なので、位相は .work の上端基準のまま狂わない。
+ * 段の版面に敷く界線（静止）。字の上下へ 3 行ぶん延び、そこから 1.4 行かけて
+ * 消える ── 空の罫が一本半ずつ残る。「まだ書かれていない行」が見えることで、
+ * 罫は区切りではなく料紙になる。
+ * 張り出しは pitch の整数倍、段差（--hi-void ＝ 7 行）は張り出しの和（6 行）より
+ * 大きいので、隣の段の版面と重なることはない ── 罫が二本に割れる条件を作らない。
  * ホバー規則は一つも持たない ── 罫は紙の支度であって、出来事ではない。
  */
-.work::before {
-  top: var(--kei-top);
-  bottom: var(--kei-bottom);
+.shelf::before {
+  top: calc(-3 * var(--hi-kei-pitch));
+  bottom: calc(-3 * var(--hi-kei-pitch));
   background-position: 0 0;
   mask-image: linear-gradient(
     to bottom,
     transparent 0,
-    #000 var(--kei-head),
-    #000 calc(100% - var(--kei-foot)),
+    #000 calc(1.4 * var(--hi-kei-pitch)),
+    #000 calc(100% - 1.4 * var(--hi-kei-pitch)),
     transparent 100%
   );
+}
+
+/*
+ * 段の頭 ── 名（KITS）と、その段に並ぶものを一度だけ言う一行。
+ * 二行とも「小」で、下に空の罫を一本だけ残して目録が始まる。
+ * 合計が pitch の整数倍なので、罫の位相はこの塊を足しても動かない。
+ */
+.shelfHead {
+  margin-bottom: var(--hi-kei-pitch);
+}
+
+/* 段の名。字は名乗りの下の目次（.index）と寸分たがわず同じ ──
+   目次と見出しを結ぶ手がかりはこの【同じ字であること】だけ。
+   長い名が来ても欄に閉じ込めないので、題へ食い込む余地がない */
+.shelfName {
+  font-size: var(--hi-tiny);
+  font-weight: 400;
+  line-height: 2.3;
+  letter-spacing: 0.3em;
+  color: var(--hi-sumi-3);
+}
+
+.shelfLead {
+  font-size: var(--hi-tiny);
+  line-height: 2.3;
+  letter-spacing: 0.05em;
+  color: var(--hi-sumi-2);
+  max-width: 40em;
+}
+
+.rows {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+/* position: relative は水の板と濃い罫の含みブロックにするため。
+   z-index は与えない ── 与えると .row 自身が積み重ね文脈になり、
+   負の z-index を持つ水と罫が、自分の背景の下ではなく文字の下へ潜れなくなる。 */
+.row {
+  position: relative;
+}
+
+/* 行と行のあいだは空の罫ちょうど一本。二本開けると一件が散って見え、
+   詰めると題と札が見分けられなくなる ── 図版が一件の頭を押さえるので一本で足りる */
+.row + .row {
+  margin-top: var(--hi-kei-pitch);
 }
 
 /* ==========================================================================
@@ -781,24 +803,29 @@
    --------------------------------------------------------------------------
    ■ 三枚で一つ
      .flowDeep   底の流れ（blur。触れているあいだ 31s 周期で揺れつづける）
-     .work::after 水が届いた範囲の【界線】── 濡れた紙が、既にそこに在る墨を吸う
+     .row::after  水が届いた範囲の【界線】── 濡れた紙が、既にそこに在る墨を吸う
      .flow       差してくる水（表層。粒と雲が別の速さで走るので視差が出る）
      三枚は同じ雲マスク（--hi-wet-cloud）を共有し、同じ 1550ms で差し、
      同じ 840ms で薄まる。だから読み手には一つの湿りとしてしか見えない。
      界線が「自分の時間」を持たないことが、この案が並置でないことの実装上の証明である。
 
    ■ 濃い罫のマスクを水のマスクへ一致させる算
-     水の板は .work の左右へ --hi-wet-l / --hi-wet-r ぶんはみ出しているが、
-     罫は .work の中にしか無い（left:0 right:0）。同じ雲を同じ縮尺で当てるため、
+     水の板は .row の左右へ --hi-wet-l / --hi-wet-r ぶんはみ出しているが、
+     罫は .row の中にしか無い（left:0 right:0）。同じ雲を同じ縮尺で当てるため、
        mask-size     : calc(100% + l + r)      ← 水の板と同じ横幅になる
        mask-position : calc(水の位置 - l)       ← 原点を水の板の左端へ合わせる
      とする。inset-block も水と同じ ±--hi-wet-y なので縦の縮尺も一致し、
      結果として濃い罫は「水が乗った画素」だけに正確に出る。
 
    ■ 位相
-     --hi-wet-y は pitch の整数倍でなければならない。静止の罫（.work::before）は
-     上端 -3 pitch から、濃い罫は -4 pitch から敷き始めるが、どちらも
-     0.88 + 整数 pitch の位置に線が来るので、二枚は 1px も狂わずに重なる。
+     --hi-wet-y は pitch の整数倍でなければならない。静止の罫は段に一枚
+     （.shelf::before、段の上端から -3 pitch）、濡れた罫は行ごと
+     （.row::after、行の上端から -(--hi-wet-y)）だが、
+       ・段の頭（名 1 行＋一行＋空の罫 1 行）は pitch の整数倍
+       ・行の高さは max(字の行数, 図版 3 行) × pitch ＝ 整数倍
+       ・行と行の間も 1 pitch
+     なので、行の上端は必ず段の版面の原点から整数 pitch の位置にある。
+     どちらも 0.88 + 整数 pitch に線が来るので、二枚は 1px も狂わずに重なる。
 
    ■ 素材
      水の画は /ink/sumi-wide.webp ── 結びの掠れ（.trace）が静止時から
@@ -909,7 +936,7 @@
  * 濡れた紙が墨を吸う、その結果としてしか現れない。だから形も位置も時間も
  * すべて水（.flow）から借りている。単独のトリガも単独の時間も持たない。
  */
-.work::after {
+.row::after {
   top: calc(-1 * var(--hi-wet-y));
   bottom: calc(-1 * var(--hi-wet-y));
   background-image: var(--hi-kei-line-wet);
@@ -928,8 +955,8 @@
    触れる単位は作品の一行そのもの。リンクの矩形だけをトリガにすると
    分類名（SITES / TOOLS）の側が不感帯になる。
    :has(.entry) で、リンクを持たない「準備中」の行だけは濡れないようにしてある。 */
-.work:has(.entry):hover .flow,
-.work:has(.entry:focus-visible) .flow {
+.row:has(.entry):hover .flow,
+.row:has(.entry:focus-visible) .flow {
   /* 濃さを上げたぶん、範囲（--hi-wet-l / -r）を締めて紙の予算を釣り合わせている。
      広く薄く撒くより、狭く濃いほうが「濡れた」と読める */
   opacity: 0.245;
@@ -942,15 +969,15 @@
     mask-position 1550ms cubic-bezier(0.16, 0.62, 0.24, 1);
 }
 
-.work:has(.entry):hover .flowDeep,
-.work:has(.entry:focus-visible) .flowDeep {
+.row:has(.entry):hover .flowDeep,
+.row:has(.entry:focus-visible) .flowDeep {
   opacity: 0.14;
   transition: opacity 1750ms cubic-bezier(0.25, 0.6, 0.3, 1);
   animation-play-state: running;
 }
 
-.work:has(.entry):hover::after,
-.work:has(.entry:focus-visible)::after {
+.row:has(.entry):hover::after,
+.row:has(.entry:focus-visible)::after {
   opacity: 0.85;
   mask-position: calc(var(--hi-wet-x1) - var(--hi-wet-l)) 0;
   transition:
@@ -958,78 +985,76 @@
     mask-position 1550ms cubic-bezier(0.16, 0.62, 0.24, 1);
 }
 
-.cat {
-  font-size: var(--hi-tiny);
-  line-height: 2.3;
-  letter-spacing: 0.3em;
-  color: var(--hi-sumi-4);
-  transition: color var(--hi-soak);
-}
+/* ==========================================================================
+   目録の一行 ── 題と状態・説明・札、そして実画面の図版一枚
+   --------------------------------------------------------------------------
+   もとは題・説明・札のあいだに空の罫を一本ずつ挟んでいた（row-gap: 1 pitch）。
+   一件で 6 行、16 件で PC の全長が 7,700px に達し、提案の URL から来た人が
+   ひと目で選べなかった。いまは三つを続く罫に載せ、一件を 3〜4 行に収める。
+   空の罫は【行と行のあいだ】にだけ残す ── 一件の中ではなく、件と件の境に。
+   ========================================================================== */
 
-/*
- * 分類の頭の一行。分類名の右、その分類の最初の作品の上に座る。
- * 字は作品の説明（.desc）と同じ「小」── 段の中に新しい字の寸法を増やさない。
- * 一行（line-height 2.3 ＝ ちょうど 1 pitch）と下の間（1 pitch）の合計が
- * pitch の整数倍なので、界線の位相はこの一行を足しても動かない。
- * 置き場所は明示する ── .cat が 1 列目を取るので、自動配置に任せると
- * 作品が次の段の 1 列目へ落ちる。
- */
-.lead {
-  grid-column: 2;
-  grid-row: 1;
-  margin-bottom: var(--hi-kei-pitch);
-  font-size: var(--hi-tiny);
-  line-height: 2.3;
-  letter-spacing: 0.05em;
-  color: var(--hi-sumi-4);
-  max-width: 30em;
-  transition: color var(--hi-soak);
-}
-
-/* 頭の一行を持つ段では、水の板と濃い罫の上端を lead ぶん（一行 1 pitch と
-   下の間 1 pitch）下げて、作品の行に合わせる。lead の無い段と同じく
-   「作品の上 3 pitch」から濡れる。2 pitch は整数倍なので罫の位相は狂わない */
-.work:has(.lead) .flow,
-.work:has(.lead)::after {
-  top: calc(-1 * var(--hi-wet-y) + 2 * var(--hi-kei-pitch));
-}
-
-.work:has(.lead) .flowDeep {
-  top: calc(-1 * var(--hi-wet-y2) + 2 * var(--hi-kei-pitch));
-}
-
-/* 一行ぶん下へ送る。頭の一行を持つ段でだけ効く。
-   列も明示する ── 行だけを送ると、自動配置が空いている 1 列目（分類名の列）を
-   拾って、作品が罫の幅ぶんに痩せる */
-.lead + .entry,
-.lead + .empty {
-  grid-column: 2;
-  grid-row: 2;
-}
-
-/* 行間も界線一行ぶん。題と本文の間に、空の罫が一本きり残る */
 .entry {
   display: grid;
-  row-gap: var(--hi-kei-pitch);
+  grid-template-columns: minmax(0, 1fr);
   text-decoration: none;
   color: inherit;
+}
+
+/* 図版を持つ行だけ二列になる。持たない行で二列にすると、
+   空の列ぶんの隙間（column-gap）が字の塊を痩せさせる */
+.withFig {
+  grid-template-columns: minmax(0, 1fr) var(--hi-fig-w);
+  column-gap: clamp(16px, 2.2vw, 30px);
+  align-items: start;
+}
+
+.text {
+  display: block;
+  min-width: 0;
+}
+
+/* 題と状態が同じ罫に並ぶ。品書きと同じ組み方で、状態は行の右端に落ちる。
+   狭くて収まらないときは折り返して次の罫へ ── 折り返しても 1 pitch 単位なので
+   行の高さは罫の整数倍のまま崩れない */
+.line {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  column-gap: clamp(1rem, 2.4vw, 2rem);
 }
 
 .title {
   font-size: var(--hi-tiny);
   font-weight: 500;
   line-height: 2.3;
-  letter-spacing: 0.14em;
+  letter-spacing: 0.12em;
+  color: var(--hi-sumi);
+  transition: color var(--hi-soak);
+}
+
+/*
+ * 売り物の状態。チップにも枠にもしない ── ただの小の字の言葉で、
+ * 「発売中 ¥2,980」か「発売前」しか書かない。
+ * 朱は使わない。朱は【決めた】ことの印であって、売っていることの印ではない。
+ */
+.sale {
+  flex: none;
+  font-size: var(--hi-tiny);
+  line-height: 2.3;
+  letter-spacing: 0.08em;
   color: var(--hi-sumi-3);
+  font-variant-numeric: tabular-nums;
   transition: color var(--hi-soak);
 }
 
 .desc {
+  display: block;
   font-size: var(--hi-tiny);
   line-height: 2.3;
   letter-spacing: 0.05em;
-  color: var(--hi-sumi-4);
-  max-width: 30em;
+  color: var(--hi-sumi-2);
   transition: color var(--hi-soak);
 }
 
@@ -1037,38 +1062,108 @@
 .tags {
   display: flex;
   flex-wrap: wrap;
-  gap: 0 clamp(1rem, 2.4vw, 2.1rem);
+  gap: 0 clamp(1rem, 2.2vw, 1.9rem);
   font-size: var(--hi-tiny);
   line-height: 2.3;
-  letter-spacing: 0.18em;
+  letter-spacing: 0.16em;
   color: var(--hi-sumi-4);
   transition: color var(--hi-soak);
 }
 
-/* 触れると墨が一段濃くなる。分類名も一緒に濃くする ──
-   水と濃い罫がその語の下まで来るので、据え置きでは沈む（#6A665D は湿りの上で 4.2:1）。 */
-.work:has(.entry):hover .title,
-.work:has(.entry:focus-visible) .title {
+/*
+ * 図版 ── 紙に刷られた実画面の写し。
+ *
+ * 枠も角丸も影も持たない（DESIGN.md の Don't そのまま）。作品の色はそのまま残す ──
+ * 額装が変わっても、掛かっている絵は変わらない。
+ * 【出来事にしない】── 行に触れても図版は動かず、濡れず、濃さも変えない。
+ * 一度の接触で動くものは水ひとつ、という法を図版で破らない。
+ * 寸法は CSS で固定してあるので、遅れて届いても行が跳ねない。
+ */
+.fig {
+  display: block;
+  width: var(--hi-fig-w);
+  height: var(--hi-fig-h);
+  object-fit: cover;
+  object-position: top left;
+  /* 罫は図版の下を通る。紙に貼った一枚として、罫を隠す側に立つ */
+  background: var(--hi-paper);
+}
+
+/* 触れると墨が一段濃くなる。段の名と頭の一行は動かさない ──
+   濡れるのは触れた一行だけで、段そのものは出来事を持たない */
+.row:has(.entry):hover .desc,
+.row:has(.entry):hover .sale,
+.row:has(.entry):focus-within .desc,
+.row:has(.entry):focus-within .sale {
   color: var(--hi-sumi);
 }
 
-.work:has(.entry):hover .desc,
-.work:has(.entry):hover .tags,
-.work:has(.entry):hover .cat,
-.work:has(.entry):hover .lead,
-.work:has(.entry:focus-visible) .desc,
-.work:has(.entry:focus-visible) .tags,
-.work:has(.entry:focus-visible) .cat,
-.work:has(.entry:focus-visible) .lead {
+.row:has(.entry):hover .tags,
+.row:has(.entry):focus-within .tags {
   color: var(--hi-sumi-2);
 }
 
-.empty {
+/* ==========================================================================
+   品書き ── 承ります の段。頼めることと料金の目安だけ
+   --------------------------------------------------------------------------
+   行は何処へも飛ばないので、濡れない（水は「行に触れて作品へ入る」ための
+   仕掛けで、読むだけの行には要らない）。動くのは結びの宛先ひとつ。
+   ========================================================================== */
+
+.menu {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+/* 題と目安が同じ罫に並ぶ。狭ければ目安が次の罫へ落ちる（1 pitch 単位） */
+.menuItem {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  column-gap: clamp(1rem, 2.4vw, 2rem);
+}
+
+.menuName {
+  font-size: var(--hi-tiny);
+  font-weight: 500;
+  line-height: 2.3;
+  letter-spacing: 0.1em;
+  color: var(--hi-sumi);
+}
+
+.menuPrice {
   font-size: var(--hi-tiny);
   line-height: 2.3;
   letter-spacing: 0.05em;
-  color: var(--hi-sumi-4);
-  max-width: 30em;
+  color: var(--hi-sumi-2);
+  font-variant-numeric: tabular-nums;
+}
+
+/* 品書きの結び。空の罫を一本はさんでから置く */
+.menuNote {
+  margin-top: var(--hi-kei-pitch);
+  font-size: var(--hi-tiny);
+  line-height: 2.3;
+  letter-spacing: 0.05em;
+  color: var(--hi-sumi-2);
+  max-width: 40em;
+}
+
+/* 文の中に置く宛先。作品ページの .textLink と同じ文法をそのまま使う ──
+   触れて起きるのは墨が一段濃くなることだけ。朱は使わない（朱は「決めた」ことの印） */
+.mailLink {
+  color: var(--hi-sumi-3);
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.35em;
+  transition: color var(--hi-soak);
+}
+
+.mailLink:hover,
+.mailLink:focus-visible {
+  color: var(--hi-sumi);
 }
 
 /* ==========================================================================
@@ -1151,60 +1246,62 @@
    ========================================================================== */
 
 @media (max-width: 1023px) {
-  .works {
+  .shelf {
     grid-column: 3 / 13;
   }
   .close {
     grid-column: 1 / 11;
   }
 
-  /* 作品欄の起点が 3 列目へ寄るので、脈の通り道も 2u+2g に締め直す */
+  /* 目録の起点が 3 列目へ寄るので、脈の通り道も 2u+2g に締め直す */
   .zHead {
     width: calc((100% + var(--hi-gap)) / 6);
   }
-  .zWork,
+  .zShelf,
   .zTail {
     --myaku-band: calc((100% + var(--hi-gap)) / 5);
   }
 
   /*
-   * 768〜1023px の帯だけが抜け落ちていた。
-   * 湿りの寸法は 1023px 以下では何も締めておらず、767px 以下ではじめて
-   * 3 行 → 2 行に詰めていたので、この帯だけ「広い紙の湿り」を狭い紙に乗せていた。
-   * 実測でホバー時の紙が 75.8〜80.3%（全スクロール位置で八割割れ）。
-   * 飛白の法に真正面から抵触するので、広い紙と狭い紙の中間の寸法をここで与える。
+   * 768〜1023px の帯は、板が既に画面幅のほぼ全部を占める。広い紙と同じ高さの
+   * 板を乗せると画面に対する墨の比率が跳ね上がり、法「紙が八割」を割る
+   * （この帯を締める前の実測でホバー時 75.8〜80.3%）。
    * --hi-wet-y は pitch の整数倍でなければならない（濡れた罫と静止の罫の位相が
-   * 揃わなくなる）ので、行数で 3 → 2.5 ではなく 3 → 2 と落とし、
+   * 揃わなくなる）ので、行数で 2 → 1.5 ではなく 2 → 1 と落とし、
    * 代わりに左右の張り出しと濃さで釣り合いを取る。
    */
   .paper {
-    --hi-wet-y: calc(2 * var(--hi-kei-pitch));
+    --hi-wet-y: var(--hi-kei-pitch);
     --hi-wet-y2: var(--hi-kei-pitch);
     /* この帯は板が既に画面幅のほぼ全部なので、広げられる余地は左に少しだけ */
     --hi-wet-l: 16vw;
     --hi-wet-r: 6vw;
   }
 
-  .work:has(.entry):hover .flow,
-  .work:has(.entry:focus-visible) .flow {
+  .row:has(.entry):hover .flow,
+  .row:has(.entry:focus-visible) .flow {
     /* 広い紙と同じ濃さへ揃える。0.215 では合成後に青が出る閾値 a>0.17 に
        届かず、この帯だけ青が乗っていなかった（実測 B>R が水の 1.2%、
        b* 最青 −1.7 で、広い紙の −4.0 に対して半分以下） */
     opacity: 0.245;
   }
 
-  .work:has(.entry):hover .flowDeep,
-  .work:has(.entry:focus-visible) .flowDeep {
+  .row:has(.entry):hover .flowDeep,
+  .row:has(.entry:focus-visible) .flowDeep {
     opacity: 0.14;
   }
 }
 
 @media (max-width: 767px) {
   .paper {
-    --hi-void: clamp(72px, 26svh, 210px);
-    --hi-void-lg: clamp(88px, 32svh, 260px);
+    /* 縦長の紙では段差を締める。罫の整数倍という拘束はそのまま */
+    --hi-void: calc(5 * var(--hi-kei-pitch));
+    --hi-void-lg: calc(8 * var(--hi-kei-pitch));
+    /* 一列に畳まれた紙では図版が字の上に乗るので、一段大きく取れる。
+       高さは【必ず罫の整数倍】── 4 行、幅はその 1.6 倍（8:5） */
+    --hi-fig-h: calc(4 * var(--hi-kei-pitch));
     /* 縦長の紙では左に溜まる紙が細いので、水の左への開きを詰める。
-       .flow と .work::after の両方がこの変数を見るので、二枚は必ず一致する */
+       .flow と .row::after の両方がこの変数を見るので、二枚は必ず一致する */
     --hi-wet-l: 22vw;
     --hi-wet-r: 8vw;
     /* 一列に畳まれた紙では、一件の版面が画面幅のほぼ全部を占める。同じ濃さ・同じ広さの
@@ -1235,29 +1332,28 @@
   }
 
   /* 12 列では刻めない幅なので、起点の斜行は padding で保つ */
-  .works,
+  .shelf,
   .close {
     grid-column: 1 / 13;
   }
-  .works {
+  .shelf {
     padding-left: 9vw;
   }
 
-  /* 一列になったぶん、分類と題は隣り合う罫に落ちる。行間は罫に任せる */
-  .work {
+  /*
+   * 一列に畳む。図版は字の塊の右ではなく【上】へ回り、横幅いっぱいにはしない ──
+   * 紙の余白が右に残ることで、図版は「貼ってある一枚」のままでいられる。
+   * 高さは 4 行ちょうどなので、上に回しても行の高さは罫の整数倍のまま。
+   */
+  .withFig {
     grid-template-columns: minmax(0, 1fr);
-    row-gap: 0;
+    column-gap: 0;
   }
-
-  /* 一列では分類名が 1 行目を取る。頭の一行はその下、作品はさらに下の罫へ */
-  .lead {
-    grid-column: 1;
+  .withFig .fig {
+    grid-row: 1;
+  }
+  .withFig .text {
     grid-row: 2;
-  }
-  .lead + .entry,
-  .lead + .empty {
-    grid-column: 1;
-    grid-row: 3;
   }
 
   .flowDeep {
@@ -1275,10 +1371,59 @@
     left: calc(-0.85 * var(--hi-pad));
     width: calc(9vw + 0.85 * var(--hi-pad));
   }
-  .zWork {
+  .zShelf {
     --myaku-band: calc(9vw + 0.85 * var(--hi-pad));
     left: calc(-9vw - 0.85 * var(--hi-pad));
   }
+}
+
+/* ==========================================================================
+   現れ方 ── 本文は最初から見えている。演出は JS が用意できたときだけ
+   --------------------------------------------------------------------------
+   土台は【隠さないこと】。紙に印（html[data-hi="on"]）が付くのは JS が動いた
+   ときだけで、入場の animation はその下にしか書いていない。印が付かなければ
+   隠す規則が一つも当たらないので、JS を切った紙でも、印刷でも、読み込みに
+   失敗した紙でも、全部の行が最初から読める。
+
+   ＊ もとは入場の animation を素の要素に直接書き、fill-mode: both で
+     「遅延のあいだ opacity 0」にしていた。JS とは無関係に走る規則なので
+     読めなくなることは無いが、走る前の一瞬と、観測の取れない環境
+     （headless の撮影を含む）では白い紙のままになる。土台は静止した完成形で
+     あるべきで、動きはそこに足すもの ── 順序をここで逆にしてある。
+   ========================================================================== */
+
+:global(html[data-hi="on"]) .inkKasure {
+  animation: hi-sweep 1750ms var(--hi-brush) 60ms both;
+}
+
+:global(html[data-hi="on"]) .inkCore {
+  animation: hi-sweep 1450ms var(--hi-brush) 160ms both;
+}
+
+/* 脈は読み込み時に一度だけ上から下へ引かれ、そのあとは静止して紙に残る */
+:global(html[data-hi="on"]) .myaku {
+  animation: hi-myaku var(--myaku-draw) var(--hi-vein) var(--myaku-draw-delay)
+    both;
+}
+
+:global(html[data-hi="on"]) .showcase {
+  animation: hi-rise 1000ms var(--hi-brush) 620ms both;
+}
+
+:global(html[data-hi="on"]) .wordmark {
+  animation: hi-rise 1200ms var(--hi-brush) 760ms both;
+}
+
+:global(html[data-hi="on"]) .en {
+  animation: hi-rise 1000ms var(--hi-brush) 1020ms both;
+}
+
+:global(html[data-hi="on"]) .seal {
+  animation: hi-rise 900ms var(--hi-brush) 1320ms both;
+}
+
+:global(html[data-hi="on"]) .index {
+  animation: hi-rise 1000ms var(--hi-brush) 1420ms both;
 }
 
 /* ==========================================================================
@@ -1297,9 +1442,11 @@
  * だった。同じ 2 行でも、900px の窓では画面の 15%、568px の窓では 24% を占める。
  * 幅をいくら締めてもこの比は動かないので、背丈そのもので段階を持つ。
  *
- *   背が高い（861px〜）… 3 行  水が行の外まで大きく開く
- *   中くらい（701〜860）… 2 行
- *   低い  （〜700px） … 1 行  行と、その上下の罫一本ずつを覆うところまで
+ *   背が高い（861px〜）… 2 行  水が行の外まで開く
+ *   低い  （〜860px） … 1 行  行と、その上下の罫一本ずつを覆うところまで
+ * ＊ 2026-09-20 に一段ずつ落とした（3 / 2 / 1 → 2 / 1 / 1）。目録に組み直して
+ *   行と行のあいだが 2 行から 1 行へ詰まったので、もとの高さでは水が隣の行まで
+ *   届き、「濡れているのは一行だけ」が読めなくなる。
  *
  * どの段も pitch の整数倍なので、濡れた罫と静止の罫の位相は狂わない。
  * 雲の包絡は板に対する相対値なので、縦の falloff も一緒に伸縮する ──
@@ -1307,7 +1454,7 @@
  */
 @media (max-height: 860px) {
   .paper {
-    --hi-wet-y: calc(2 * var(--hi-kei-pitch));
+    --hi-wet-y: var(--hi-kei-pitch);
     --hi-wet-y2: var(--hi-kei-pitch);
   }
 }

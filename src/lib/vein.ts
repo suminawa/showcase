@@ -17,6 +17,25 @@
  * レジストリに 1 行足すだけで作品が増える、という構造を壊さないために、
  * 区間を translate で横へ送って始点を前の終点に合わせる。
  * 送り量はこの関数が計算する ── d を書き足す必要はない。
+ *
+ * ── 区間は【行】ではなく【段】に一つ（2026-09-20 に変えた）─────────
+ * もとは作品の一行ごとに区間を一つ置いていた。目録に組み直して行が 16 → 19 に
+ * 増えたところ、中間区間の送りが下限（FLOOR）に当たり続け、繋ぎ目で脈が
+ * 飛ぶようになった ── 本番の 1280px でも、結びの手前で線が二本に割れていた
+ * （最後の作品の区間が x=18 で終わり、結びが x=92 から始まっていた）。
+ *
+ * 区間を段（承ります / KITS / SITES / WORKS）に一つへ減らすと、区間は 4 本に
+ * なり、手で描いた端点のまま素直に繋がる。一本の線が紙全体を降りる絵も
+ * むしろ強くなる ── viewBox は preserveAspectRatio="none" なので、
+ * 段が高いほど同じ曲線がゆっくり引き伸ばされる。
+ *
+ * ── 結びは【送り】ではなく【送りと伸縮】で合わせる ───────────────
+ * 結びの区間だけは、始点を継ぎ目に合わせるだけでは足りない。終点は紙の左
+ * （1 列目＝結びの版面の起点）に着かなければならないので、両端を同時に
+ * 決める必要がある。translate だけではどちらか一方しか合わない ── もとの
+ * 実装はここで送りを下限で打ち切っており、それが上の「飛び」の正体だった。
+ * いまは x 方向の伸縮（tailScale）を併せて持たせ、始点は継ぎ目・終点は
+ * 手で描いた着地点に、常に両方を合わせる。
  */
 
 /** 区間の始点 x と終点 x（viewBox 100 単位）。d の実際の端点と一致させること */
@@ -133,14 +152,20 @@ export const STRANDS_NARROW = {
   ],
 } as const;
 
-/** 作品の段に使う区間。1 件目は w1、以降は w2 / w3 を交互に繰り返す */
+/** 段に使う区間。1 段目は w1、以降は w2 / w3 を交互に繰り返す */
 const MIDDLE: readonly VeinSegment[] = ["w2", "w3"];
 
 /**
  * 送りの下限。区間の終点がこれより左へ行くと脈が紙の縁に貼り付き、
- * 「筆の軌跡」ではなく「紙の折り目」に見える。作品が 8 件を超えたあたりで効く。
+ * 「筆の軌跡」ではなく「紙の折り目」に見える。段が 8 つを超えたあたりで効く。
  */
 const FLOOR = 18;
+
+/**
+ * 結びの横の伸縮の下限。これを下回ると結びの区間が縦の一本に潰れ、
+ * 「左へ帰る」という運筆の意味が消える。段が 10 を超えたあたりで効く。
+ */
+const TAIL_SQUEEZE = 0.3;
 
 export type VeinRow = {
   /** どの区間の d を使うか */
@@ -153,10 +178,30 @@ export type VeinRow = {
 
 export type VeinPlan = {
   rows: VeinRow[];
-  /** 結びの区間の横送り。最後の作品の段が終わった x に合わせる */
+  /** 結びの区間の横送り。最後の段が終わった x に始点を合わせる */
   tailDx: number;
   tailDxNarrow: number;
+  /** 結びの区間の横の伸縮。終点を手で描いた着地点（紙の左）に留める */
+  tailScale: number;
+  tailScaleNarrow: number;
 };
+
+/**
+ * 結びの区間を、始点＝継ぎ目・終点＝手で描いた着地点に同時に合わせる。
+ * transform は translate(tx 0) scale(sx 1)、すなわち x → tx + sx·x なので
+ *   sx·start + tx = x （継ぎ目）
+ *   sx·end   + tx = end（着地点は動かさない）
+ * を解く。x が start と一致する（＝段が 3 つ）ときは sx = 1 / tx = 0 になり、
+ * 手で描いたままの結びに戻る。
+ */
+function tailFit([start, end]: Ends, x: number) {
+  const scale = (x - end) / (start - end);
+  if (scale < TAIL_SQUEEZE) {
+    // 潰れすぎるときは、着地点を譲って継ぎ目のほうを守る（線は切らない）
+    return { dx: x - TAIL_SQUEEZE * start, scale: TAIL_SQUEEZE };
+  }
+  return { dx: end * (1 - scale), scale };
+}
 
 function chain(table: Record<VeinSegment, Ends>, rowCount: number) {
   const dxs: number[] = [];
@@ -172,27 +217,26 @@ function chain(table: Record<VeinSegment, Ends>, rowCount: number) {
     x = end + dx;
   }
 
-  const [tailStart, tailEnd] = table.tail;
-  let tailDx = x - tailStart;
-  // 結びの本来の終点（6 / 17）は下限より内側に来ているので、送りが 0 以上
-  // （右へ、または動かない）ときはそのまま ── 作品が少ないときの基準値
-  // （vein.test.ts で固定）を変えない。中間の区間が下限に当たるほど左へ
-  // 流れて送りが負に振れたときだけ、結びも同じ下限で止める。ここを素通り
-  // させると、5 行目以降で結びが紙の外まで送られてマスクの外に出てしまう
-  if (tailDx < 0 && tailEnd + tailDx < FLOOR) tailDx = FLOOR - tailEnd;
-
-  return { dxs, tailDx };
+  return { dxs, ...tailFit(table.tail, x) };
 }
 
 /**
- * 作品の段が rowCount 行あるときの、区間の割り当てと横送りを返す。
+ * 段が rowCount 個あるときの、区間の割り当てと横送りを返す。
  *
- * rowCount が 3（作品 2 件 ＋ 空カテゴリ 1 行）のときは送りが全て 0 になり、
- * 手で描いたときの数値とそのまま一致する ── ここは vein.test.ts で固定してある。
+ * rowCount が 3 のときは送りが全て 0・伸縮が 1 になり、手で描いたときの
+ * 数値とそのまま一致する ── ここは vein.test.ts で固定してある。
  */
 export function veinPlan(rowCount: number): VeinPlan {
   if (rowCount <= 0) {
-    return { rows: [], tailDx: WIDE.w1[1] - WIDE.tail[0], tailDxNarrow: 0 };
+    const wide = tailFit(WIDE.tail, WIDE.w1[1]);
+    const narrow = tailFit(NARROW.tail, NARROW.w1[1]);
+    return {
+      rows: [],
+      tailDx: wide.dx,
+      tailDxNarrow: narrow.dx,
+      tailScale: wide.scale,
+      tailScaleNarrow: narrow.scale,
+    };
   }
 
   const wide = chain(WIDE, rowCount);
@@ -207,5 +251,11 @@ export function veinPlan(rowCount: number): VeinPlan {
     });
   }
 
-  return { rows, tailDx: wide.tailDx, tailDxNarrow: narrow.tailDx };
+  return {
+    rows,
+    tailDx: wide.dx,
+    tailDxNarrow: narrow.dx,
+    tailScale: wide.scale,
+    tailScaleNarrow: narrow.scale,
+  };
 }

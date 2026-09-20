@@ -1,39 +1,104 @@
+import links from "../data/links.json";
+
 import { demoHref, demos } from "./demos";
 
-export type ProjectCategory = "sites" | "tools" | "games" | "challenge";
+/**
+ * ハブの段（たな）。並びはこの型の順ではなく SHELVES の配列が決める。
+ *
+ *   services … 承ります（頼めることと料金の目安。作品ではないので projects を持たない）
+ *   kits     … 売っているもの
+ *   sites    … 架空の会社で作った見本
+ *   works    … 触って確かめられる作品と道具
+ */
+export type ShelfId = "services" | "kits" | "sites" | "works";
+
+/** 作品が属せる段。承ります の段だけは作品を持たない */
+export type ProjectCategory = Exclude<ShelfId, "services">;
+
+/**
+ * 売り物の状態。**値段と状態の出どころはここ一箇所だけ**で、
+ * 発売・値上げのときに直すのもここだけ。price は発売中のものにだけ付ける
+ * （発売前の定価はハブに出さない ── 出すと発売前に値が独り歩きする）。
+ */
+export type Sale = {
+  status: "onsale" | "upcoming";
+  /** 税込の売価（円）。発売中のものだけが持つ */
+  price?: number;
+};
 
 export type Project = {
   slug: string;
   title: string;
+  /** 目録の一行。長くても 2 行に収まる長さで書く（40 字前後まで） */
   description: string;
   tags: string[];
   category: ProjectCategory;
+  /** 売り物のときだけ持つ。ハブには「発売中 ¥2,980」か「発売前」が小の字で出る */
+  sale?: Sale;
   /**
-   * ハブ（水盤）の索引にだけ出る 1 行。作品ページは読まない。
-   * ハブの素材そのものが作品と同じもののとき、その重複を明示的に引き受ける。
+   * ハブから飛ぶ先。無ければ /projects/<slug>。
+   * 作品ページを持たない行は、ここに外（note）か紙の中（#sites）を書く。
    */
-  hubNote?: string;
-  /** ハブから飛ぶ先。無ければ /projects/<slug> */
   href?: string;
 };
 
 /**
- * 表示順もこの配列の順に従う。
- * lead は分類の見出しの下に置く 1 行 ── その欄に並ぶものが何なのかを、
- * 一件ずつの説明に書かずに一度だけ言う。持たない分類のほうが多い。
+ * 段の並び。ハブはこの順に組まれ、名乗りの下の目次もこの順で出る。
+ * lead は段の見出しの下に置く 1 行（敬体）── その段に並ぶものが何なのかを、
+ * 一件ずつの説明に書かずにここで一度だけ言う。
  */
-export const CATEGORIES: {
-  id: ProjectCategory;
+export const SHELVES: {
+  id: ShelfId;
+  /** 段の名。英字の見出しを持たない段（承ります）は label を日本語で持つ */
   label: string;
   lead?: string;
 }[] = [
-  { id: "sites", label: "SITES", lead: "どれも架空の会社で作った見本です。" },
-  { id: "tools", label: "TOOLS" },
-  { id: "games", label: "GAMES" },
-  { id: "challenge", label: "CHALLENGE" },
+  { id: "services", label: "承ります" },
+  {
+    id: "kits",
+    label: "KITS",
+    lead: "そのまま使えるキットとテンプレです。",
+  },
+  {
+    id: "sites",
+    label: "SITES",
+    lead: "どれも架空の会社で作った見本です。業種別 LP テンプレ パックの中身でもあります。",
+  },
+  {
+    id: "works",
+    label: "WORKS",
+    lead: "その場で触って確かめられる作品と道具です。",
+  },
 ];
 
-/** サイトはレジストリ（demos.ts）から SITES 欄に写す。ハブは作品と同じ行として扱う */
+/**
+ * 承ります の段に出す品書き。
+ *
+ * 数字の出どころは公開済みの受託メニュー（concierge/content/services.md）で、
+ * そこに書いていない額は**足さない**。肩書き・経歴・実績の数はここに書かない ──
+ * この段に置くのは品書きだけで、語るのは下の段に並ぶ実物のほうである。
+ */
+export const SERVICES: { title: string; price: string }[] = [
+  { title: "サイト・LP の制作", price: "1 ページの LP は 150,000 円から" },
+  {
+    title: "業務の自動化（Google Apps Script）",
+    price: "既製キットの導入は 30,000 円、個別の開発は 40,000 円から",
+  },
+  {
+    title: "埋め込み部品の設置（AI 案内窓口・間取り・3D の商品ページ）",
+    price: "60,000 円から",
+  },
+  { title: "WebGL / GLSL の演出", price: "50,000 円から" },
+];
+
+/** 承ります の結びの一行。宛先は文の中に置き、そこだけがリンクになる */
+export const SERVICES_NOTE = {
+  before: "料金は税別の目安です。ご依頼とご相談は ",
+  mail: "hello@suminawa.dev",
+  after: " へ",
+};
+
+/** 見本はレジストリ（demos.ts）から SITES の段へ写す。ハブは作品と同じ行として扱う */
 const siteProjects: Project[] = demos.map((demo) => ({
   slug: demo.slug,
   title: demo.title,
@@ -44,88 +109,126 @@ const siteProjects: Project[] = demos.map((demo) => ({
 }));
 
 export const projects: Project[] = [
-  ...siteProjects,
-  {
-    slug: "suminagashi",
-    title: "墨流し — Suminagashi",
-    description:
-      "藍と墨が水面で渦を巻く、GPU 流体の水盤。指でかき混ぜ、墨を落とし、気に入った模様はそのまま保存できる。",
-    hubNote:
-      "いま触っているこの水面が、その作品です。ここでは混ぜられるだけ。落として、風を送って、保存できるのは向こう側。粘りと渦のつまみも、作品の側にあります。",
-    tags: ["WebGL2", "GLSL", "TypeScript"],
-    category: "tools",
-  },
+  /* ---- KITS ── 売っているもの ------------------------------------------
+     発売中を先に、発売前を後に。飛び先は作品ページ（購入の導線は作品ページの
+     結びにある）。作品ページを持たない 3 本だけ、note か紙の中の段へ飛ばす。 */
   {
     slug: "quote-simulator",
-    title: "見積もりシミュレーター",
+    title: "見積もり電卓テンプレ",
     description:
-      "作業条件を入れると、見積もりの内訳と合計がその場で見える。フリーランスの「いくらでやる？」を 30 秒で形にする電卓。",
-    tags: ["Next.js", "TypeScript", "Tailwind CSS"],
-    category: "tools",
+      "作業条件を入れると、見積もりの内訳と合計がその場で出る電卓。",
+    tags: ["Next.js", "TypeScript"],
+    category: "kits",
+    sale: { status: "onsale", price: 2980 },
   },
   {
-    slug: "tax-back",
-    title: "税込からの逆算",
+    slug: "deadline-alert",
+    title: "期限アラート GAS キット",
     description:
-      "切りのいい税込価格を決めたあと、請求書に書く税抜と消費税を出す。端数の扱い（切り捨て・四捨五入・切り上げ）ごとに、その税込にぴったり戻る税抜を探す。",
-    tags: ["Next.js", "TypeScript"],
-    category: "tools",
+      "スプレッドシートの期限を、毎朝 8 時に Slack へ 1 通でまとめて知らせる。",
+    tags: ["Google Apps Script"],
+    category: "kits",
+    sale: { status: "onsale", price: 2980 },
+    href: links.s2.note,
+  },
+  {
+    slug: "form-intake",
+    title: "フォーム受付 GAS キット",
+    description:
+      "問い合わせフォームの送信先。シートに貯め、Slack へ流し、自動返信まで。",
+    tags: ["Google Apps Script"],
+    category: "kits",
+    sale: { status: "onsale", price: 3480 },
+    href: links.s3.note,
   },
   {
     slug: "floorplan",
     title: "間取りシミュレーター",
-    description:
-      "間取りを描きかえ、家具を置き、3D で確かめる。マス目を塗るだけで廊下も L 字も描ける、住まいの検討用の道具。",
+    description: "マス目を塗って間取りを描き、家具を置いて 3D で確かめる。",
     tags: ["React Three Fiber", "TypeScript"],
-    category: "tools",
+    category: "kits",
+    sale: { status: "onsale", price: 9800 },
   },
   {
-    slug: "configurator",
-    title: "3D 商品コンフィギュレーター",
+    slug: "lp-pack",
+    title: "業種別 LP テンプレ パック",
     description:
-      "商品を 3D で回しながら、色・素材・パーツ・刻印・ロゴを選び、価格をその場で確かめる。商品ページに置ける道具。",
-    tags: ["React Three Fiber", "glTF", "TypeScript"],
-    category: "tools",
+      "SITES の見本 6 本をひとまとめにしたもの。文言と色を替えて使う。",
+    tags: ["Next.js", "TypeScript"],
+    category: "kits",
+    sale: { status: "onsale", price: 6980 },
+    href: "#sites",
+  },
+  {
+    slug: "ai-concierge",
+    title: "AI 案内窓口キット",
+    description: "自社の文書だけを根拠に、サイトの上で質問に答える窓口。",
+    tags: ["Claude API", "Next.js"],
+    category: "kits",
+    sale: { status: "upcoming" },
   },
   {
     slug: "sheet-app",
-    title: "スプレッドシート業務アプリ",
+    title: "スプレッドシート業務アプリ キット",
     description:
-      "スプレッドシートを台帳のまま、定義シートに列を書くだけで、一覧・検索・登録・編集の画面をスマートフォンでも。Apps Script の Web アプリとして公開するキットの見本。",
-    tags: ["Google Apps Script", "JavaScript"],
-    category: "tools",
+      "定義シートに列を書くと、一覧・検索・登録・編集の画面ができる。",
+    tags: ["Google Apps Script"],
+    category: "kits",
+    sale: { status: "upcoming" },
+  },
+  {
+    slug: "doc-reader",
+    title: "AI 書類読み取りキット",
+    description: "請求書や領収書を AI が読み取り、確認してから表に出す。",
+    tags: ["Claude API", "Next.js"],
+    category: "kits",
+    sale: { status: "upcoming" },
   },
   {
     slug: "booking",
     title: "予約ページ キット",
     description:
-      "スプレッドシートに枠を書くだけで、公開した URL がそのまま予約ページになる。空きカレンダーから日と時間を選び、お名前と連絡先を入れて予約する、Apps Script のキットの見本。",
-    tags: ["Google Apps Script", "JavaScript"],
-    category: "tools",
+      "スプレッドシートに枠を書くと、その URL がそのまま予約ページになる。",
+    tags: ["Google Apps Script"],
+    category: "kits",
+    sale: { status: "upcoming" },
   },
   {
-    slug: "ai-concierge",
-    title: "AI 案内窓口",
+    slug: "configurator",
+    title: "3D 商品コンフィギュレーター",
+    description: "商品を 3D で回しながら色や素材を選び、価格をその場で見る。",
+    tags: ["React Three Fiber", "glTF"],
+    category: "kits",
+    sale: { status: "upcoming" },
+  },
+
+  /* ---- SITES ── 架空の会社で作った見本 ---------------------------------- */
+  ...siteProjects,
+
+  /* ---- WORKS ── 作品と道具 ---------------------------------------------- */
+  {
+    slug: "suminagashi",
+    title: "墨流し — Suminagashi",
     description:
-      "自社の文書だけを根拠に、サイトの上でお客さまの質問に答える窓口。答えには出典が付き、分からないことは問い合わせへ回す。ここに置いてあるのは、suminawa 自身の案内を読む実物。",
-    tags: ["Claude API", "Next.js", "TypeScript"],
-    category: "tools",
+      "藍と墨が水面で渦を巻く GPU 流体の水盤。指でかき混ぜ、模様を保存できる。",
+    tags: ["WebGL2", "GLSL", "TypeScript"],
+    category: "works",
   },
   {
-    slug: "doc-reader",
-    title: "AI 書類読み取り",
+    slug: "tax-back",
+    title: "税込からの逆算",
     description:
-      "請求書・領収書・申込書を AI が読み取り、確認してから表に出す道具。同梱の見本はその場で試せ、お手元の書類でも試せる。ここに置いてあるのは、suminawa 自身の読み取りキットを動かす実物。",
-    tags: ["Claude API", "Next.js", "TypeScript"],
-    category: "tools",
+      "税込の価格から、請求書に書く税抜と消費税を出す。端数の扱いも選べる。",
+    tags: ["Next.js", "TypeScript"],
+    category: "works",
   },
   {
     slug: "30days",
     title: "30日 — Thirty Days",
     description:
-      "AIエージェントに全部やらせて、30日で1から稼げるだけ稼ぐ。売上・提案数・人間の介在時間を毎日足していく公開の帳面。",
-    tags: ["Next.js", "TypeScript", "公開ログ"],
-    category: "challenge",
+      "AI に全部やらせて 30 日でどこまで稼げるか。売上と時間を毎日書く帳面。",
+    tags: ["Next.js", "公開ログ"],
+    category: "works",
   },
 ];
 
@@ -137,18 +240,44 @@ export function projectsByCategory(category: ProjectCategory): Project[] {
   return projects.filter((project) => project.category === category);
 }
 
-/** 目次の一本。分類の名と、その分類の最初の段に付けた id への飛び先 */
-export type CategoryAnchor = {
-  id: ProjectCategory;
+/**
+ * その行に添える図版（実画面の写し）の出どころ。無ければ null。
+ *
+ * 規則は一つだけ ── **この紙の中に自分のページを持つ行だけが図版を持つ**。
+ * note へ飛ぶ 2 本と、紙の中の段（#sites）へ飛ぶ 1 本は撮る画面が無いので、
+ * 字だけの行として成立させる。撮るスクリプト（scripts/shoot-hub.mjs）も
+ * 同じ規則で対象を決めるので、レジストリに 1 行足せば図版も 1 枚増える。
+ */
+export function projectFigure(project: Project): string | null {
+  return projectHref(project).startsWith("/") ? `/hub/${project.slug}` : null;
+}
+
+/** 3 桁ごとの区切り。Intl に頼らないので、どこで組んでも同じ字が出る */
+function yen(price: number): string {
+  return `¥${String(price).replace(/\B(?=(\d{3})+(?!\d))/g, ",")}`;
+}
+
+/**
+ * 売り物の状態を小の字の言葉にする。チップにも印にもしない ──
+ * 朱は「決めた」ことの印なので、売っていることに朱は使わない。
+ */
+export function saleLabel(sale: Sale): string {
+  return sale.status === "onsale" && sale.price != null
+    ? `発売中 ${yen(sale.price)}`
+    : "発売前";
+}
+
+/** 目次の一本。段の名と、その段に付けた id への飛び先 */
+export type ShelfAnchor = {
+  id: ShelfId;
   label: string;
   anchor: string;
 };
 
 /**
- * 名乗りの下に並べる分類の目次。並びは CATEGORIES そのままで、
- * 作品を持たない分類（GAMES）も段があるかぎり必ず入る ──
- * 目次は「何がここに載るか」の一覧であって、載っているものの一覧ではない。
+ * 名乗りの下に並べる目次。並びは SHELVES そのまま。
+ * 空の段は組まないので、目次に出る段には必ず中身がある。
  */
-export function categoryAnchors(): CategoryAnchor[] {
-  return CATEGORIES.map(({ id, label }) => ({ id, label, anchor: `#${id}` }));
+export function shelfAnchors(): ShelfAnchor[] {
+  return SHELVES.map(({ id, label }) => ({ id, label, anchor: `#${id}` }));
 }
