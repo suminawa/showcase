@@ -272,6 +272,7 @@
    罫はすべて擬似要素なので DOM にもアクセシビリティツリーにも現れず、
    pointer-events も持たない。 */
 .mark::before,
+.mark::after,
 .head::before,
 .shelf::before,
 .row::after,
@@ -361,8 +362,14 @@
      「1 ページの LP は 150,000 円から」の上に墨が乗り、字が読めなかった。
      縦も、紙の下からの固定値では段の高さが変わるたびに掛かり方が変わるので、
      紙の高さに対する割合で置く。 */
-  right: -6vw;
-  bottom: clamp(190px, 38svh, 420px);
+  /* 紙の終わりの余韻。結びの塊の【下と右】に置く ──
+     字にも罫にも掛からない場所は、紙のいちばん下の右しかない。
+     ＊ 元のハブは紙が 7,400px あり、結びの下に余白が 180px 残っていたので
+     bottom: clamp(190px, 38svh, 420px) で結びの下に収まっていた。
+     紙が 2,000px を切ったいまは同じ値だと「制作のご相談」の見出しに
+     横から掛かるので、結びの字の欄（7 列）の右外へ逃がし、紙の下端に寄せる。 */
+  right: -30vw;
+  bottom: clamp(0px, 2svh, 24px);
   width: min(74vw, 900px);
   aspect-ratio: 3200 / 900;
   pointer-events: none;
@@ -527,7 +534,7 @@
   /* 段の下端では終わらない。結びの界線が始まる 3 行手前まで【同じ箱】で降りる ──
      区間を継がないので繋ぎ目の角が出ない。縦の線と横の罫が同じ帯で重なって
      方眼に見えないよう、止めるのは罫の 3 行手前のままである */
-  bottom: calc(-1 * var(--hi-void) + 3 * var(--hi-kei-pitch));
+  bottom: calc(-2 * var(--hi-kei-pitch));
   /* 上端は書き出しを、下端は筆が浮くところを掠れさせる（頭と尾の掠れを一枚に） */
   mask-image: var(--myaku-kasure-tail);
   /* 箱の上端は【前の段の下端】。段の余白と同じ値を読むので、区間は隙間なく継ぎ、
@@ -589,26 +596,43 @@
  * 大字の分だけを完全に抜き、その少し下から罫を起こす（界線案から引き継いだ処置）。
  * この抜きは脈の頭の通り道も同時に空けている ── 罫と脈はここでも交差しない。
  */
+/*
+ * 名乗りの版面は【二枚】。字の座る行にだけ罫を引く（2026-09-21）。
+ *
+ *   ::after  … 大字の下の二本と、英文（と落款）が座る一本。紙の幅いっぱい
+ *   ::before … 入口 3 行の版面。**右の柱の幅にだけ**引く
+ *
+ * ＊ もとは名乗りの段ぜんたいに一枚だけ敷いていた。入口を右の柱へ移したとき、
+ *   柱の左（紙の左端から柱まで）に【字の無い空の罫が 9〜10 本】並ぶことになり、
+ *   罫線ノートの余りのページに見えた。罫は字を載せるための線なので、
+ *   字の来ない所には引かない。
+ */
+.mark::after {
+  /* 大字の足元から、英文の一行の下までの 4 行ぶん（送り 2 行 ＋ 英文 1 行 ＋ 収め 1 行） */
+  top: calc(0.94 * var(--hi-mark-size) + var(--hi-kei-pitch));
+  height: calc(4 * var(--hi-kei-pitch));
+  background-position: 0 0;
+  mask-image: linear-gradient(
+    to bottom,
+    transparent 0,
+    #000 calc(0.6 * var(--hi-kei-pitch)),
+    #000 calc(100% - 0.6 * var(--hi-kei-pitch)),
+    transparent 100%
+  );
+}
+
 .mark::before {
   bottom: 0;
-  /* 下から積んだ寸法（余白 2 行・入口 5 行・英文（落款を含む）1 行・送り 2 行）
-     ＝ 10 行。そこへ大字の高さと、大字の上へ残す 2 行ぶんを足して 12 行ぶん。
-     下のマスクが大字の足元まで罫を出さないので、界線の版面の上端は大字の上端で
-     ぴたりと止まり、「Showcase」は必ずその外＝柱題の位置に残って罫を背負わない。
-     ＊ 目次の 1 行が入口の 3 行（行間の空き罫 2 本を含めて 5 行）に替わったので
-     9 行 → 12 行。さらに名乗りと入口を離したので 14 行（2026-09-21。
-     下から 余白 1・入口 5・送り 6・英文 1・送り 2 ＝ 15、そこへ大字と
-     その上に残す 2 行）。ここが半端だと罫の位相が狂う。 */
-  height: calc(0.94 * var(--hi-mark-size) + 17 * var(--hi-kei-pitch));
+  /* 入口 3 行の版面だけ。下から 余白 1 行・入口 5 行・書き出しの 1 行 ＝ 7 行 */
+  height: calc(7 * var(--hi-kei-pitch));
+  /* 柱の左端（12 列の 6 列目）から右端まで。左の紙は地のまま残す */
+  left: calc((5 * 100% + 5 * var(--hi-gap)) / 12);
   background-position: 0 100%;
   mask-image: linear-gradient(
     to bottom,
     transparent 0,
-    /* 大字の足元まで罫を出さない */ transparent
-      calc(0.94 * var(--hi-mark-size)),
-    #000 calc(0.94 * var(--hi-mark-size) + 1.6 * var(--hi-kei-pitch)),
-    /* 下端の消え際。1.9 行 → 0.9 行に詰めた（2026-09-21）── 入口の行が
-       下から 3 行目に来たので、その湿り（上下 1 行）が消え際に掛からないようにする */
+    #000 calc(1.2 * var(--hi-kei-pitch)),
+    /* 下端の消え際。入口の湿り（上下 1 行）が消え際に掛からない値 */
     #000 calc(100% - 0.9 * var(--hi-kei-pitch)),
     transparent 100%
   );
@@ -862,7 +886,7 @@
  *   「この先に品物がある」ことが折り返しの手前で分かる。
  */
 .mark + .shelf {
-  --hi-shelf-gap: calc(3 * var(--hi-kei-pitch));
+  --hi-shelf-gap: calc(2 * var(--hi-kei-pitch));
 }
 
 /*
@@ -879,9 +903,12 @@
  * 大きいので、隣の段の版面と重なることはない ── 罫が二本に割れる条件を作らない。
  * ホバー規則は一つも持たない ── 罫は紙の支度であって、出来事ではない。
  */
+/* ＊ 張り出しを 3 行 → 2 行（2026-09-21）。3 行だと段の上下に空の罫が
+   3 本ずつ並び、「字の無い罫が 3 本以上続く所」になっていた。
+   2 行なら間として読める一本が残り、段差もそのぶん詰められる */
 .shelf::before {
-  top: calc(-3 * var(--hi-kei-pitch));
-  bottom: calc(-3 * var(--hi-kei-pitch));
+  top: calc(-2 * var(--hi-kei-pitch));
+  bottom: calc(-2 * var(--hi-kei-pitch));
   background-position: 0 0;
   mask-image: linear-gradient(
     to bottom,
@@ -1358,14 +1385,15 @@
   position: relative;
   z-index: 1;
   grid-column: 1 / 8;
-  margin-top: var(--hi-void);
+  /* 段の版面（下へ 2 行）と結びの版面（上へ 2 行）の和が下限 */
+  margin-top: calc(4 * var(--hi-kei-pitch));
   /* 結語の下の空き罫一本（.closeLine の margin-bottom）が紙の終わりなので、
      ここに余白を足さない ── 足すと紙が字の無いところで長く続く */
   padding-bottom: 0;
 }
 
 .close::before {
-  top: calc(-3 * var(--hi-kei-pitch));
+  top: calc(-2 * var(--hi-kei-pitch));
   bottom: calc(2 * var(--hi-kei-pitch));
   background-position: 0 0;
   mask-image: linear-gradient(
@@ -1801,10 +1829,16 @@
      品書き 3 行が入って段が高くなったので、そのままだと最後の掠れが
      「1 ページの LP は 150,000 円から」の上に乗った（字の箱の最暗 152/255）。
      横の寸法は元のままで、上へ一段だけ逃がしてある */
+  /* 縦長の紙では結びが紙幅いっぱいなので、右へは逃げられない。
+     結びの下に一行ぶんの紙を足して、その余白に置く */
   .trace {
     right: -14vw;
     width: 92vw;
-    bottom: clamp(330px, 52svh, 470px);
+    bottom: clamp(0px, 1.5svh, 18px);
+  }
+
+  .close {
+    padding-bottom: calc(3 * var(--hi-kei-pitch));
   }
 
   /* 名乗りと入口 3 行で一画面。縦長の紙では 4 点が下に長いので、
