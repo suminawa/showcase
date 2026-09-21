@@ -1428,8 +1428,12 @@
   position: relative;
   z-index: 1;
   display: grid;
-  gap: calc(0.5 * var(--hi-kei-pitch));
-  padding-bottom: calc(0.5 * var(--hi-kei-pitch));
+  /* 隙間を持たない。四つの行（戻り・題・英字・一行）はどれも高さが罫の整数倍で、
+     頭の上端からそのまま積むので、全部が罫の上に座る。
+     ＊ 半端な隙間（0.5 行）を挟んでいたときは、行の箱が罫の格子から外れ、
+     390px の紙で罫が英字の真ん中を横切って【取り消し線】に見えた */
+  gap: 0;
+  padding-bottom: var(--hi-kei-pitch);
 }
 
 /* 頭の版面にだけ引く界線。下へは張り出さない（張り出すと段の版面と重なり、
@@ -1457,7 +1461,8 @@
   gap: 0.75em;
   justify-self: start;
   font-size: var(--hi-tiny);
-  line-height: 2;
+  /* 罫ちょうど一本。ここだけ 2 にすると、以降の行が全部そのぶん罫からずれる */
+  line-height: 2.3;
   letter-spacing: 0.2em;
   color: var(--hi-sumi-4);
   text-decoration: none;
