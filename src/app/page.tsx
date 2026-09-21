@@ -34,10 +34,9 @@ import Link from "next/link";
 import { REVEAL_FLAG, fontVars } from "@/components/ryoushi/fonts";
 import {
   GATES,
-  SERVICES_NOTE,
+  SERVICES_BRIEF,
   countLabel,
   featuredProjects,
-  projectFigure,
   projectHref,
   saleLabel,
 } from "@/lib/projects";
@@ -190,27 +189,24 @@ export default function Home() {
           </h2>
         </div>
 
-        {/* 4 点。図版は実画面の写しで、触れても動かない（動くのは字の墨だけ） */}
-        <ul className={s.picks}>
-          {picks.map((project) => {
-            const fig = projectFigure(project);
-            return (
-              <li key={project.slug} className={s.pick}>
-                <Link href={projectHref(project)} className={s.pickLink}>
-                  {fig && (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img
-                      className={s.fig}
-                      src={`${fig}-640.webp`}
-                      srcSet={`${fig}-320.webp 320w, ${fig}-640.webp 640w`}
-                      sizes="(max-width: 767px) 176px, 200px"
-                      width={640}
-                      height={480}
-                      loading="lazy"
-                      decoding="async"
-                      alt={`${project.title}の画面`}
-                    />
-                  )}
+        {/*
+          4 点。字だけの行で、触れるとその一行の紙が濡れる。
+
+          ＊ 小さな写しを行の横に置く形はやめた（2026-09-21）。
+            196px の四角に落ちた道具の画面は、何の画面かを形でしか言えず、
+            それでいて罫を隠し、行の高さを図版の側が決めてしまっていた。
+            ここに要るのは「どれを見に行くか」を選べることだけで、
+            それは 題・状態と定価・一行の説明 で足りる。
+            紙の上の出来事は湿りひとつに戻った。
+        */}
+        <ol className={s.picks} aria-label="いま見てほしいもの">
+          {picks.map((project) => (
+            <li key={project.slug} className={s.row}>
+              {/* 水の二枚。静止時は opacity 0 で、紙の上には何も無い */}
+              <span className={s.flow} aria-hidden="true" />
+              <span className={s.flowDeep} aria-hidden="true" />
+              <Link href={projectHref(project)} className={s.entry}>
+                <span className={s.text}>
                   <span className={s.line}>
                     <span className={s.title}>{project.title}</span>
                     {project.sale && (
@@ -218,11 +214,11 @@ export default function Home() {
                     )}
                   </span>
                   <span className={s.desc}>{project.description}</span>
-                </Link>
-              </li>
-            );
-          })}
-        </ul>
+                </span>
+              </Link>
+            </li>
+          ))}
+        </ol>
       </section>
 
       <footer className={s.close}>
@@ -238,20 +234,29 @@ export default function Home() {
           delayMs={1330}
         />
         <h2 className={s.closeHead}>制作のご相談</h2>
+        {/*
+          初めて来た人が、ここだけ読んで
+          「何を頼めるか」「いくらくらいからか」「次にどこを押すか」の
+          三つが分かるように組む。
+          ・頼めることは 3 行。題と目安を同じ罫に載せる（/contact と同じ組み方）
+          ・数字は公開済みの受託メニューにあるものだけ。ここで新しい額を作らない
+          ・押せるものは一つだけ。字の下に淡い一本を敷き、触れると墨を得る
+        */}
+        <ul className={s.closeMenu}>
+          {SERVICES_BRIEF.map((item) => (
+            <li key={item.title} className={s.menuItem}>
+              <span className={s.menuName}>{item.title}</span>
+              <span className={s.menuPrice}>{item.price}</span>
+            </li>
+          ))}
+        </ul>
         <p className={s.closeText}>
-          サイト・LP の制作、業務の自動化、埋め込み部品の設置、WebGL
-          の演出をお引き受けします。料金の目安と進め方は次の紙にまとめました。
+          料金は税別の目安です。ほかの内容もご相談いただけます。
         </p>
         <p className={s.closeLinks}>
-          <Link href="/contact" className={s.contact}>
-            頼めることと目安
+          <Link href="/contact" className={s.contactMain}>
+            料金の目安と進め方を見る
           </Link>
-          <a
-            className={s.contact}
-            href={`mailto:${SERVICES_NOTE.mail}`}
-          >
-            {SERVICES_NOTE.mail}
-          </a>
         </p>
         <p className={s.closeLine}>すべての作品は、その場で実際に動きます。</p>
       </footer>

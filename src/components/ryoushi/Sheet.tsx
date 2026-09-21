@@ -82,16 +82,24 @@ export function SheetSection({
   );
 }
 
-/** 一覧の紙を閉じる一行。三つの分類で同じものを使う */
+/**
+ * 一覧の紙を閉じる一行。四つの面で同じものを使う。
+ *
+ * 飛び先を二つ置く ── 相談へ進む道と、入口へ帰る道。
+ * 一覧は長い紙（/kits は 1280px の窓で 2,500px）なので、下まで読んだ人が
+ * 頭まで巻き戻さずに入口へ戻れる一行が要る。戻りの落款は頭に一つだけで、
+ * ここには捺さない（画面で朱を持つのは一箇所、という決まりを守る）。
+ */
 export function SheetClose() {
   return (
     <footer className={s.close}>
-      <p className={s.closeLine}>
-        ご用途に合わせた制作もお引き受けします。
-      </p>
+      <p className={s.closeLine}>ご用途に合わせた制作もお引き受けします。</p>
       <p className={s.closeLinks}>
         <Link href="/contact" className={s.contact}>
-          制作のご相談
+          料金の目安と進め方
+        </Link>
+        <Link href="/" className={s.contact}>
+          Showcase へ戻る
         </Link>
       </p>
     </footer>

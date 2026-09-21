@@ -139,6 +139,24 @@ export const SERVICES: { title: string; price: string }[] = [
   { title: "WebGL / GLSL の演出", price: "50,000 円から" },
 ];
 
+/**
+ * トップの結びに出す品書き（3 行）。
+ *
+ * 全部（4 行）を出すと、初めて来た人が一息で読める量を超える。
+ * ここは「何を頼めて、いくらくらいからか」を 5 秒で言うための場所なので、
+ * 頼まれることの多い 3 つだけに絞り、残りと進め方は /contact に置く。
+ * 数字は上の SERVICES と同じ出どころ（公開済みの受託メニュー）で、
+ * ここで新しい額を作らない ── 短くするのは語のほうだけである。
+ */
+export const SERVICES_BRIEF: { title: string; price: string }[] = [
+  { title: "サイト・LP の制作", price: "1 ページの LP は 150,000 円から" },
+  {
+    title: "業務の自動化（Google Apps Script）",
+    price: "既製キットの導入は 30,000 円から",
+  },
+  { title: "埋め込み部品の設置", price: "60,000 円から" },
+];
+
 /** 進め方。3 段だけ書く（出どころは同じく公開済みの受託メニュー） */
 export const STEPS: { title: string; detail: string }[] = [
   { title: "ご相談", detail: "目的と現在の状況をメールで伺います" },
@@ -351,16 +369,28 @@ export function featuredProjects(): Project[] {
 /**
  * その行に添える図版（実画面の写し）の出どころ。無ければ null。
  *
- * 規則は一つだけ ── **自分のページ（作品ページか見本）を持つ行だけが図版を持つ**。
- * note へ飛ぶ 2 本と、分類のページへ渡す 1 本は撮る画面が無いので、
- * 字だけの行として成立させる。撮るスクリプト（scripts/shoot-hub.mjs）も
- * 同じ規則で対象を決めるので、レジストリに 1 行足せば図版も 1 枚増える。
+ * 規則は **見た目そのものが中身であるものだけが図版を持つ**（2026-09-21）。
+ *
+ *   見本サイト 6 件 … 商品は「その見た目」そのもの。6 枚が並んで初めて
+ *                     「業種ごとに違う紙が 6 枚ある」と言える
+ *   墨流し          … 作品そのものが絵である
+ *
+ * 道具とキットは持たない。何をする道具かは【動き】にあり、静止した写しを
+ * 196px に落としても、白い枠のなかで字が潰れるだけだった（見積もり電卓・
+ * 予約ページ・AI 案内窓口・AI 書類読み取り・業務アプリの 5 件を実画面で確認）。
+ * 役に立たない図版は、紙の罫を隠し、行の高さを字より先に決めてしまう。
+ *
+ * ＊ もとの規則は「自分のページを持つ行はすべて図版を持つ」だった。
+ *   撮るスクリプト（scripts/shoot-hub.mjs）も同じ規則で対象を決める。
  */
+const FIGURE_SLUGS: ReadonlySet<string> = new Set(["suminagashi"]);
+
 export function projectFigure(project: Project): string | null {
   const href = projectHref(project);
-  return href.startsWith("/projects/") || href.startsWith("/demos/")
-    ? `/hub/${project.slug}`
-    : null;
+  if (href.startsWith("/demos/") || FIGURE_SLUGS.has(project.slug)) {
+    return `/hub/${project.slug}`;
+  }
+  return null;
 }
 
 /** 3 桁ごとの区切り。Intl に頼らないので、どこで組んでも同じ字が出る */

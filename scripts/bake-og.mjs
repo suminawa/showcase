@@ -21,7 +21,9 @@ import { tmpdir } from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
-import { chromium } from "/Users/anzai/Projects/creator-os/node_modules/playwright/index.mjs";
+/* Playwright の場所は環境変数で渡す（shoot-hub.mjs と同じ決まり）:
+     SHOWCASE_PLAYWRIGHT=/path/to/node_modules/playwright/index.mjs */
+const { chromium } = await import(process.env.SHOWCASE_PLAYWRIGHT ?? "playwright");
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const SIZE = { width: 1200, height: 630 };

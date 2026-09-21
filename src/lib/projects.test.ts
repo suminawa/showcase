@@ -86,9 +86,8 @@ describe("いま見てほしいもの 4 点", () => {
     expect(featuredProjects().map((p) => p.slug)).toEqual([...FEATURED]);
   });
 
-  it("4 点とも図版と、この紙の中の飛び先を持つ", () => {
+  it("4 点とも、この紙の中の作品ページへ飛ぶ", () => {
     for (const project of featuredProjects()) {
-      expect(projectFigure(project)).toBe(`/hub/${project.slug}`);
       expect(projectHref(project).startsWith("/projects/")).toBe(true);
     }
   });
@@ -213,15 +212,18 @@ describe("projects registry", () => {
     expect(projectHref(sites[sites.length - 1])).toBe("/demos/clinic-lp");
   });
 
-  it("図版を持つのは、自分のページ（作品・見本）を持つ行だけ", () => {
+  it("図版を持つのは、見た目そのものが中身である行だけ", () => {
     const by = Object.fromEntries(projects.map((p) => [p.slug, p]));
-    expect(projectFigure(by["quote-simulator"])).toBe("/hub/quote-simulator");
+    // 見本サイトは「その見た目」が商品。墨流しは作品そのものが絵である
     expect(projectFigure(by["corporate-site"])).toBe("/hub/corporate-site");
+    expect(projectFigure(by["suminagashi"])).toBe("/hub/suminagashi");
+    // 道具とキットは持たない。何をする道具かは動きにあり、
+    // 196px の写しでは白い枠のなかで字が潰れるだけだった
+    expect(projectFigure(by["quote-simulator"])).toBeNull();
+    expect(projectFigure(by["ai-concierge"])).toBeNull();
     expect(projectFigure(by["deadline-alert"])).toBeNull();
-    expect(projectFigure(by["form-intake"])).toBeNull();
-    // 分類のページへ渡す行にも、撮る画面は無い
     expect(projectFigure(by["lp-pack"])).toBeNull();
-    expect(projects.filter((p) => projectFigure(p) === null)).toHaveLength(3);
+    expect(projects.filter((p) => projectFigure(p) !== null)).toHaveLength(7);
   });
 
   it("sites は見本 6 件、works は作品と道具 4 件（無料で触れる電卓を含む）", () => {

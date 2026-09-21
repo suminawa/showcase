@@ -8,18 +8,18 @@
  * 「OG 画像を意匠の写しで作らない。実画面を焼く」と同じ考えで、目録に載るのは
  * 作品そのものの姿でなければならない。
  *
- * ── 合格の目安 ────────────────────────────────────────────────
- * **字が読めなくても、形で「何の画面か」が分かること。**
- * 最初はページの頭をそのまま撮っていたが、道具の画面は上のほうが余白なので、
- * 目録に並べると白い四角にしか見えなかった（見積もり電卓・AI 案内窓口・
- * AI 書類読み取り・予約ページの 4 件）。だから各作品について
- *   ① その作品だと分かる【状態】を作る（act）
- *   ② 中身の塊に寄せて切る（target + fit）
- * の二段を踏む。部品が途中で切れないよう、切り口は塊の外側に取る。
+ * ── 何に図版を添えるか（2026-09-21 に絞った）────────────────────
+ * **見た目そのものが中身であるものだけ**。見本サイト 6 件と、作品「墨流し」。
+ *
+ * 道具とキットには添えない。何をする道具かは【動き】にあり、静止した写しを
+ * 目録の寸法（196px）に落とすと、白い枠のなかで字が潰れるだけだった
+ * （見積もり電卓・予約ページ・AI 案内窓口・AI 書類読み取り・業務アプリの
+ * 5 件を実画面で確かめた）。役に立たない図版は、紙の罫を隠し、
+ * 行の高さを字より先に決めてしまう ── 無いほうが目録は読める。
+ * どの行が図版を持つかは src/lib/projects.ts の projectFigure() が決めており、
+ * ここと食い違うと src/lib/hub-shots.test.ts が落ちる。
  *
  * 品物を足したら、下の SHOTS に 1 行足して撮り直す。
- * 行と図版の対応は src/lib/projects.ts の projectFigure() が決めているので、
- * 足し忘れると src/lib/hub-shots.test.ts が落ちる。
  *
  * 先に本番ビルドを立てておくこと（開発サーバーだと初回描画が間に合わない）:
  *   npm run build && npx next start --port 3013
@@ -29,7 +29,13 @@ import { mkdirSync, rmSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
-import { chromium } from "/Users/anzai/Projects/creator-os/node_modules/playwright/index.mjs";
+/*
+ * Playwright はこの紙の依存ではない（本番に要らないものを package.json に
+ * 積まない）。入っている場所を環境変数で渡す ──
+ *   SHOWCASE_PLAYWRIGHT=/path/to/node_modules/playwright/index.mjs node scripts/shoot-hub.mjs
+ * 既定では素直に "playwright" を読むので、入れてあるなら何も渡さなくてよい。
+ */
+const { chromium } = await import(process.env.SHOWCASE_PLAYWRIGHT ?? "playwright");
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const OUT = path.join(ROOT, "public", "hub");
@@ -39,18 +45,6 @@ const TMP = path.join(ROOT, ".hub-shots");
 const WIDE = 640;
 const NARROW = 320;
 const RATIO = 4 / 3;
-
-/* -------------------------------------------------------------------------
-   その作品だと分かる状態を作る手（act）
-   ------------------------------------------------------------------------- */
-
-/** 塊の中の n 番目の押せるものを押す。無ければ黙って諦める（撮影は続ける） */
-async function clickNth(page, selector, n) {
-  const els = await page.$$(selector);
-  if (!els[n]) return false;
-  await els[n].click().catch(() => {});
-  return true;
-}
 
 /**
  * 撮るもの。
@@ -66,109 +60,9 @@ async function clickNth(page, selector, n) {
  *   anchor   fit:"width" で塊が縦に長いときの寄せ先。"top"（既定）か "center"
  */
 const SHOTS = [
-  /* ---- KITS ---------------------------------------------------------- */
-  {
-    // 合計と内訳が見えている塊。既定値（時間単価 5,000 × 10 時間）のままで
-    // 右に ¥55,000 が立つので、触らずにそのまま撮る
-    slug: "quote-simulator",
-    url: "/projects/quote-simulator",
-    where: "work",
-    viewport: { width: 1280, height: 1500 },
-    target: "layout",
-  },
-  {
-    // 3D の絵だけ。操作の部品を混ぜると、どれも「灰色の道具」に見えてしまう
-    slug: "floorplan",
-    url: "/projects/floorplan",
-    where: "work",
-    viewport: { width: 1280, height: 1500 },
-    wait: 5000,
-    target: "stage",
-    fit: "height",
-  },
-  {
-    /*
-     * 窓を開き、見本の質問を【打ち込んだところ】まで。送信はしない。
-     *
-     * 押して答えを待つほうが絵としては濃いが、鍵はお客さまのもので
-     * 手元の本番ビルドには入っていない ── 実際に押すと
-     * 「いまはお答えできません」の詫びが出て、それが目録に並ぶことになる。
-     * 撮影のために本番の窓口を叩くのも筋が違う。
-     * 挨拶・見本の質問・入力欄の三つが写っていれば、形は「案内の窓」と読める。
-     */
-    slug: "ai-concierge",
-    url: "/projects/ai-concierge",
-    where: "work",
-    viewport: { width: 900, height: 1400 },
-    target: "ac-panel",
-    act: async (page) => {
-      const chip = await page.$('[class*="ac-suggestions"] button');
-      const text = chip ? (await chip.textContent())?.trim() : null;
-      const input = await page.$(
-        '[class*="ac-form"] input, [class*="ac-form"] textarea',
-      );
-      if (input && text) {
-        await input.fill(text);
-        await page.waitForTimeout(400);
-      }
-    },
-  },
-  {
-    // 同梱の見本を 1 枚読み取り、確認の表が出ている状態
-    slug: "doc-reader",
-    url: "/projects/doc-reader",
-    where: "work",
-    viewport: { width: 1100, height: 1500 },
-    target: "layout",
-    act: async (page) => {
-      await clickNth(page, '[class*="__work"] button', 0);
-      await page
-        .waitForFunction(
-          () => !document.querySelector('[class*="placeholder"]'),
-          null,
-          { timeout: 45_000 },
-        )
-        .catch(() => console.log("  （読み取りを待てず、見本の一覧で撮る）"));
-      await page.waitForTimeout(1500);
-    },
-  },
-  {
-    // 日を選んで、時間の一覧が出ている状態
-    slug: "booking",
-    url: "/projects/booking",
-    where: "work",
-    viewport: { width: 900, height: 1400 },
-    target: "bk-shell",
-    act: async (page) => {
-      await clickNth(page, '[class*="bk-main"] button', 0);
-      await page.waitForTimeout(1200);
-      // カレンダーの、押せる日のうち最初のもの
-      const day = await page.$$(
-        '[class*="bk-"] button:not([disabled])[class*="day"], [class*="bk-cal"] button:not([disabled])',
-      );
-      if (day.length)
-        await day[Math.min(6, day.length - 1)].click().catch(() => {});
-      await page.waitForTimeout(1500);
-    },
-  },
-  {
-    slug: "sheet-app",
-    url: "/projects/sheet-app",
-    where: "work",
-    viewport: { width: 1100, height: 1500 },
-    target: "sa-shell",
-  },
-  {
-    // 3D の台と、右の選ぶ欄を一枚に。1280 の窓でだけ二段組みになる
-    slug: "configurator",
-    url: "/projects/configurator",
-    where: "work",
-    viewport: { width: 1280, height: 1500 },
-    wait: 6000,
-    target: "pc",
-  },
-
-  /* ---- SITES（見本サイトは頭をそのまま）-------------------------------- */
+  /* ---- SITES（見本サイトは頭をそのまま）--------------------------------
+     見本は【その見た目そのもの】が商品なので、窓を素直に撮れば図版になる。
+     6 枚が並んで初めて「業種ごとに違う紙が 6 枚ある」と言える。 */
   { slug: "corporate-site", url: "/demos/corporate-site", where: "demo" },
   { slug: "saas-lp", url: "/demos/saas-lp", where: "demo" },
   { slug: "shop-lp", url: "/demos/shop-lp", where: "demo" },
@@ -176,27 +70,15 @@ const SHOTS = [
   { slug: "professional-lp", url: "/demos/professional-lp", where: "demo" },
   { slug: "clinic-lp", url: "/demos/clinic-lp", where: "demo" },
 
-  /* ---- WORKS ---------------------------------------------------------- */
+  /* ---- WORKS ----------------------------------------------------------
+     作品そのものが絵であるものだけ。水盤は空のままでは紙にしか見えないので、
+     墨を落としてかき混ぜてから撮る。 */
   {
     slug: "suminagashi",
     url: "/projects/suminagashi",
     where: "canvas",
     viewport: { width: 1280, height: 900 },
     wait: 2500,
-  },
-  {
-    slug: "tax-back",
-    url: "/projects/tax-back",
-    where: "work",
-    viewport: { width: 1280, height: 1500 },
-  },
-  {
-    // 狭い窓で撮る。1280 だと帳面の一行が横に伸びて、字がただの灰色になる
-    slug: "30days",
-    url: "/projects/30days",
-    where: "work",
-    viewport: { width: 860, height: 1400 },
-    target: "board",
   },
 ];
 
@@ -267,7 +149,7 @@ function frameFor(box, view, { fit = "width", anchor = "top", pad = 14 }) {
 }
 
 /** 作品の塊。CSS Modules が吐く名は <file>-module__<hash>__<name> */
-async function boxOf(page, token) {
+async function boxOf(page, token, { scroll = true } = {}) {
   const handle = await page.evaluateHandle((t) => {
     const re = t
       ? new RegExp(`(^|__)${t.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}$`)
@@ -280,11 +162,13 @@ async function boxOf(page, token) {
   }, token ?? null);
   const el = handle.asElement();
   if (!el) throw new Error(`塊が見つからない: ${token ?? "work"}`);
-  await el.evaluate((node) => {
-    node.scrollIntoView({ block: "start", behavior: "instant" });
-    window.scrollBy(0, -28);
-  });
-  await page.waitForTimeout(500);
+  if (scroll) {
+    await el.evaluate((node) => {
+      node.scrollIntoView({ block: "start", behavior: "instant" });
+      window.scrollBy(0, -28);
+    });
+    await page.waitForTimeout(500);
+  }
   const b = await el.boundingBox();
   if (!b) throw new Error(`寸法が取れない: ${token ?? "work"}`);
   return { x: b.x, y: b.y, w: b.width, h: b.height };
