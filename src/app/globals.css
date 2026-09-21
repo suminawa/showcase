@@ -9,7 +9,7 @@
  *
  * このファイルが持つのは【面をまたいで共有するものだけ】── 色と、地と、
  * 折り返しの規則。各面の文法はそれぞれの CSS Modules に閉じている。
- *   トップ       src/app/page.module.css
+ *   トップと分類のページ  src/app/ryoushi.module.css
  *   作品ページ   src/app/projects/projects.module.css
  *   水盤の周り   src/components/suminagashi/basin.module.css
  *   帳面         src/components/quote-simulator/quote.module.css

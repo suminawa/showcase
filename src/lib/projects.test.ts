@@ -1,58 +1,101 @@
 import { describe, expect, it } from "vitest";
 import links from "../data/links.json";
 import {
+  CONTACT_PAGE,
+  FEATURED,
+  GATES,
+  INDEX_PAGES,
   SERVICES,
   SERVICES_NOTE,
-  SHELVES,
+  STEPS,
+  categoryCount,
+  countLabel,
+  featuredProjects,
   projectFigure,
   projectHref,
   projects,
   projectsByCategory,
   saleLabel,
-  shelfAnchors,
 } from "./projects";
 
-describe("段の並び", () => {
-  it("承ります → KITS → SITES → WORKS の順で 4 つ", () => {
-    expect(SHELVES.map((s) => s.id)).toEqual([
-      "services",
-      "kits",
-      "sites",
-      "works",
-    ]);
-    expect(SHELVES.map((s) => s.label)).toEqual([
-      "承ります",
-      "KITS",
-      "SITES",
-      "WORKS",
-    ]);
+describe("入口 3 行", () => {
+  it("Kits → Sites → Works の順で 3 本。飛び先は分類のページ", () => {
+    expect(GATES.map((g) => g.id)).toEqual(["kits", "sites", "works"]);
+    expect(GATES.map((g) => g.label)).toEqual(["Kits", "Sites", "Works"]);
+    expect(GATES.map((g) => g.href)).toEqual(["/kits", "/sites", "/works"]);
   });
 
-  it("GAMES の段は無い（中身の無い段は持たない）", () => {
-    expect(SHELVES.map((s) => s.id)).not.toContain("games");
-    for (const shelf of SHELVES) {
-      if (shelf.id === "services") continue;
-      expect(projectsByCategory(shelf.id).length).toBeGreaterThan(0);
+  it("どの行も日本語の一行を持つ", () => {
+    for (const gate of GATES) {
+      expect(gate.lead.length).toBeGreaterThan(0);
+      expect(gate.lead).not.toMatch(/[。]$/);
     }
   });
 
-  it("頭の一行を持つのは品物の段だけ。承ります は見出しだけ", () => {
-    expect(SHELVES[0].lead).toBeUndefined();
-    for (const shelf of SHELVES.slice(1)) {
-      expect(shelf.lead).toBeTruthy();
+  it("件数はレジストリから数える（手で書かない）", () => {
+    expect(categoryCount("kits")).toEqual({ total: 10, onsale: 7 });
+    expect(categoryCount("sites")).toEqual({ total: 6, onsale: 0 });
+    expect(categoryCount("works")).toEqual({ total: 4, onsale: 0 });
+
+    expect(countLabel("kits")).toBe("10 件　発売中 7 件");
+    expect(countLabel("sites")).toBe("6 件");
+    expect(countLabel("works")).toBe("4 件");
+  });
+
+  it("入口の件数と、その先のページに並ぶ行数が一致する", () => {
+    for (const gate of GATES) {
+      expect(countLabel(gate.id).startsWith(
+        `${projectsByCategory(gate.id).length} 件`,
+      )).toBe(true);
+    }
+  });
+});
+
+describe("分類のページの頭", () => {
+  it("入口の英字と、そのページの題に添える英字が同じ", () => {
+    for (const gate of GATES) {
+      expect(INDEX_PAGES[gate.id].latin).toBe(gate.label);
     }
   });
 
-  it("SITES の頭の一行が、見本と LP テンプレ パックの関係を言う", () => {
-    const sites = SHELVES.find((s) => s.id === "sites");
-    expect(sites?.lead).toBe(
+  it("題と一行を持ち、一行は敬体で終わる", () => {
+    for (const id of ["kits", "sites", "works"] as const) {
+      expect(INDEX_PAGES[id].title.length).toBeGreaterThan(0);
+      expect(INDEX_PAGES[id].lede).toMatch(/。$/);
+    }
+    expect(CONTACT_PAGE.title).toBe("制作のご相談");
+    expect(CONTACT_PAGE.latin).toBe("Contact");
+    expect(CONTACT_PAGE.lede).toMatch(/。$/);
+  });
+
+  it("SITES の一行が、見本と LP テンプレ パックの関係を言う", () => {
+    expect(INDEX_PAGES.sites.lede).toBe(
       "どれも架空の会社で作った見本です。業種別 LP テンプレ パックの中身でもあります。",
     );
   });
 });
 
-describe("承ります の品書き", () => {
-  it("4 行。数字は公開済みの受託メニューにあるものだけ", () => {
+describe("いま見てほしいもの 4 点", () => {
+  it("並びは 1 か所。AI 案内窓口・AI 書類読み取り・3D・墨流し", () => {
+    expect(FEATURED).toEqual([
+      "ai-concierge",
+      "doc-reader",
+      "configurator",
+      "suminagashi",
+    ]);
+    expect(featuredProjects().map((p) => p.slug)).toEqual([...FEATURED]);
+  });
+
+  it("4 点とも図版と、この紙の中の飛び先を持つ", () => {
+    for (const project of featuredProjects()) {
+      expect(projectFigure(project)).toBe(`/hub/${project.slug}`);
+      expect(projectHref(project).startsWith("/projects/")).toBe(true);
+    }
+  });
+});
+
+describe("制作のご相談", () => {
+  it("頼めること 4 行。数字は公開済みの受託メニューにあるものだけ", () => {
     expect(SERVICES.map((s) => s.title)).toEqual([
       "サイト・LP の制作",
       "業務の自動化（Google Apps Script）",
@@ -67,6 +110,14 @@ describe("承ります の品書き", () => {
     ]);
   });
 
+  it("進め方は 3 段", () => {
+    expect(STEPS.map((s) => s.title)).toEqual([
+      "ご相談",
+      "お見積もり",
+      "制作と納品",
+    ]);
+  });
+
   it("結びは税別の断りと宛先", () => {
     expect(SERVICES_NOTE.mail).toBe("hello@suminawa.dev");
     expect(SERVICES_NOTE.before).toContain("税別の目安");
@@ -74,14 +125,15 @@ describe("承ります の品書き", () => {
 });
 
 describe("projects registry", () => {
-  it("全作品が段のどれかに属する", () => {
-    const ids = SHELVES.map((s) => s.id);
+  it("全作品が分類のどれかに属する", () => {
+    const ids = GATES.map((g) => g.id);
     for (const project of projects) {
       expect(ids).toContain(project.category);
+      if (project.alsoIn) expect(ids).toContain(project.alsoIn);
     }
   });
 
-  it("KITS は発売中 5 本が先、発売前 5 本が後", () => {
+  it("kits は発売中 7 本が先、発売前 3 本が後", () => {
     const kits = projectsByCategory("kits");
     expect(kits.map((p) => p.slug)).toEqual([
       "quote-simulator",
@@ -90,18 +142,18 @@ describe("projects registry", () => {
       "floorplan",
       "lp-pack",
       "ai-concierge",
-      "sheet-app",
       "doc-reader",
+      "sheet-app",
       "booking",
       "configurator",
     ]);
     expect(kits.map((p) => p.sale?.status)).toEqual([
-      ...Array(5).fill("onsale"),
-      ...Array(5).fill("upcoming"),
+      ...Array(7).fill("onsale"),
+      ...Array(3).fill("upcoming"),
     ]);
   });
 
-  it("値段はレジストリの 1 か所。発売前には値段を持たせない", () => {
+  it("値段はレジストリの 1 か所。定価を持ち、発売前には持たせない", () => {
     const price = Object.fromEntries(
       projectsByCategory("kits").map((p) => [p.slug, p.sale?.price]),
     );
@@ -111,17 +163,20 @@ describe("projects registry", () => {
       "form-intake": 3480,
       floorplan: 9800,
       "lp-pack": 6980,
-      "ai-concierge": undefined,
+      // 2026-09-21 に発売した 2 本。どちらも定価（発売記念の値ではない）
+      "ai-concierge": 12800,
+      "doc-reader": 16800,
       "sheet-app": undefined,
-      "doc-reader": undefined,
       booking: undefined,
       configurator: undefined,
     });
   });
 
-  it("saleLabel は発売中なら値段、発売前なら言葉だけ", () => {
+  it("saleLabel は発売中なら定価、発売前なら言葉だけ", () => {
     expect(saleLabel({ status: "onsale", price: 2980 })).toBe("発売中 ¥2,980");
-    expect(saleLabel({ status: "onsale", price: 9800 })).toBe("発売中 ¥9,800");
+    expect(saleLabel({ status: "onsale", price: 12800 })).toBe(
+      "発売中 ¥12,800",
+    );
     expect(saleLabel({ status: "onsale", price: 150000 })).toBe(
       "発売中 ¥150,000",
     );
@@ -130,15 +185,19 @@ describe("projects registry", () => {
     expect(saleLabel({ status: "onsale" })).toBe("発売前");
   });
 
-  it("作品ページを持たない 3 本は、同じ名義の note の記事へ飛ぶ", () => {
+  it("作品ページを持たない 2 本は、同じ名義の note の記事へ飛ぶ", () => {
     const by = Object.fromEntries(projects.map((p) => [p.slug, p]));
     expect(projectHref(by["deadline-alert"])).toBe(links.s2.note);
     expect(projectHref(by["form-intake"])).toBe(links.s3.note);
-    expect(projectHref(by["lp-pack"])).toBe(links.lp.note);
-    // 紙の中の段へ跳ねる行はもう無い（買えるものは買えるところへ直接飛ばす）
+    // 紙の中の段へ跳ねる行はもう無い（段ではなくページへ渡す）
     for (const project of projects) {
       expect(projectHref(project).startsWith("#")).toBe(false);
     }
+  });
+
+  it("LP テンプレ パックは、中身の 6 本が並ぶ紙へ渡す", () => {
+    const by = Object.fromEntries(projects.map((p) => [p.slug, p]));
+    expect(projectHref(by["lp-pack"])).toBe("/sites");
   });
 
   it("projectHref は /projects/<slug>、見本は /demos/<slug> を返す", () => {
@@ -154,18 +213,18 @@ describe("projects registry", () => {
     expect(projectHref(sites[sites.length - 1])).toBe("/demos/clinic-lp");
   });
 
-  it("図版を持つのは、この紙の中に自分のページを持つ行だけ", () => {
+  it("図版を持つのは、自分のページ（作品・見本）を持つ行だけ", () => {
     const by = Object.fromEntries(projects.map((p) => [p.slug, p]));
     expect(projectFigure(by["quote-simulator"])).toBe("/hub/quote-simulator");
     expect(projectFigure(by["corporate-site"])).toBe("/hub/corporate-site");
     expect(projectFigure(by["deadline-alert"])).toBeNull();
     expect(projectFigure(by["form-intake"])).toBeNull();
+    // 分類のページへ渡す行にも、撮る画面は無い
     expect(projectFigure(by["lp-pack"])).toBeNull();
-    // 図版なしは 3 本だけ。ほかは全部 1 枚持つ
     expect(projects.filter((p) => projectFigure(p) === null)).toHaveLength(3);
   });
 
-  it("SITES は見本 6 件、WORKS は作品と道具 3 件", () => {
+  it("sites は見本 6 件、works は作品と道具 4 件（無料で触れる電卓を含む）", () => {
     expect(projectsByCategory("sites").map((p) => p.slug)).toEqual([
       "corporate-site",
       "saas-lp",
@@ -178,6 +237,8 @@ describe("projects registry", () => {
       "suminagashi",
       "tax-back",
       "30days",
+      // 主の分類は kits。借りてきた行は後ろに添える
+      "quote-simulator",
     ]);
   });
 
@@ -195,30 +256,5 @@ describe("projects registry", () => {
 
   it("slug は品物と見本をまたいで重ならない", () => {
     expect(new Set(projects.map((p) => p.slug)).size).toBe(projects.length);
-  });
-});
-
-describe("shelfAnchors", () => {
-  it("SHELVES と同じ順で 4 件を返す", () => {
-    const anchors = shelfAnchors();
-    expect(anchors).toHaveLength(4);
-    expect(anchors.map((a) => a.id)).toEqual(SHELVES.map((s) => s.id));
-    expect(anchors.map((a) => a.label)).toEqual(SHELVES.map((s) => s.label));
-  });
-
-  it("anchor は # + id の形", () => {
-    for (const anchor of shelfAnchors()) {
-      expect(anchor.anchor).toBe(`#${anchor.id}`);
-      expect(anchor.anchor).toMatch(/^#[a-z]+$/);
-    }
-  });
-
-  it("段の id は目次からだけ使う（行の飛び先には使わない）", () => {
-    expect(shelfAnchors().map((a) => a.anchor)).toEqual([
-      "#services",
-      "#kits",
-      "#sites",
-      "#works",
-    ]);
   });
 });

@@ -1,5 +1,8 @@
 import type { Metadata } from "next";
 import { Noto_Sans_JP } from "next/font/google";
+
+import { siteUrl } from "@/lib/site";
+
 import "./globals.css";
 
 const notoSansJp = Noto_Sans_JP({
@@ -7,16 +10,6 @@ const notoSansJp = Noto_Sans_JP({
   display: "swap",
   variable: "--font-noto-sans-jp",
 });
-
-/*
- * 共有カードの絶対 URL に要る。独自ドメインは未定なので、
- * 明示指定 → Vercel の割り当て → ローカル の順で解決する。
- */
-const siteUrl =
-  process.env.NEXT_PUBLIC_SITE_URL ??
-  (process.env.VERCEL_PROJECT_PRODUCTION_URL
-    ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
-    : "http://localhost:3010");
 
 /*
  * OGP の画像は src/app/opengraph-image.png（1200×630）。
@@ -46,7 +39,9 @@ export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="ja">
+    /* 現れる演出の印（data-hi）は、本文より先に走る一行の script が付ける。
+       サーバーが書いた html にはまだ無いので、その一点だけ照合を見送る */
+    <html lang="ja" suppressHydrationWarning>
       <body className={`${notoSansJp.variable} font-sans antialiased`}>
         {children}
       </body>
