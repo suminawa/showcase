@@ -16,7 +16,7 @@
     "@suminawa/ai-concierge": "file:vendor/suminawa-ai-concierge-1.0.0.tgz",
     "@suminawa/doc-reader": "file:vendor/suminawa-doc-reader-1.0.0.tgz",
     "@suminawa/product-configurator": "file:vendor/suminawa-product-configurator-1.0.0.tgz",
-    "next": "16.2.11",
+    "next": "16.3.5",
     "react": "19.2.4",
     "react-dom": "19.2.4",
     "three": "0.185.1"
@@ -28,7 +28,7 @@
     "@types/react-dom": "^19",
     "@types/three": "0.185.4",
     "eslint": "^9",
-    "eslint-config-next": "16.2.11",
+    "eslint-config-next": "16.3.5",
     "tailwindcss": "^4",
     "typescript": "^5",
     "vitest": "^4.1.10"

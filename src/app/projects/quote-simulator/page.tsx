@@ -56,7 +56,7 @@ export default function QuoteSimulatorPage() {
       <div className={s.work}>
         <QuoteSimulator />
         <p className={s.lede} style={{ marginTop: "calc(2 * var(--rp-pitch))" }}>
-          この電卓を自分のサイトに置ける版（¥1,980）
+          この電卓を自分のサイトに置ける版（¥2,980 の買い切り）
           {links.s1.note && (
             <>
               {" ── "}

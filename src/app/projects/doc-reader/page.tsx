@@ -8,6 +8,8 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 
+import links from "@/data/links.json";
+
 import { fontVars } from "../fonts";
 import s from "../projects.module.css";
 import { DocReaderDemo } from "./DocReaderDemo";
@@ -48,7 +50,19 @@ export default function DocReaderPage() {
           読み取った結果はこのブラウザの中にだけ残り、サーバーには保存しません。1 日の枚数には上限があります。
         </p>
         <p className={s.lede}>
-          この道具は「AI 書類読み取りキット」（2026 年 9 月 21 日発売予定、定価 ¥16,800）の実物です。帳票の型を JSON で書き、確認画面つきの Next.js テンプレを Vercel に置くと、自社の鍵で動きます。
+          この道具は「AI 書類読み取りキット」（定価 ¥16,800 の買い切り）の実物です。帳票の型を JSON で書き、確認画面つきの Next.js テンプレを Vercel に置くと、自社の鍵で動きます。
+          {links["doc-reader"].note && (
+            <>
+              {" ── "}
+              <a href={links["doc-reader"].note} className={s.textLink}>note</a>
+            </>
+          )}
+          {links["doc-reader"].booth && (
+            <>
+              {links["doc-reader"].note ? " / " : " ── "}
+              <a href={links["doc-reader"].booth} className={s.textLink}>BOOTH</a>
+            </>
+          )}
         </p>
         <p className={s.lede} id="contact">
           ご依頼・ご相談は{" "}
