@@ -118,6 +118,11 @@
      一行あたりの字数が増えたので、13px の明朝では罫と競って読みにくかった。
      pitch は字から決まるので、罫・行送り・余白・落款・図版も一緒に動く。 */
   --hi-tiny: clamp(0.875rem, 0.8rem + 0.25vw, 1rem); /* 14 → 16px */
+
+  /* 柱（入口 3 行と 4 点）の左端。紙の中身の左端からの距離。
+     入口の行・入口の版面・筆脈の通り道の三つが同じ値を読むので、
+     幅を変えるときはここ一箇所でよい */
+  --hi-column: calc((5 * 100% + 5 * var(--hi-gap)) / 12);
   /* 分類のページの題。作品ページの「大」と同じ寸法で、同じ役（面の名乗り）を持つ */
   --hi-large: clamp(1.75rem, 4.2vw, 3rem); /* 28 → 48px */
   /* 名乗りだけは別に持つ。界線の版面の高さがこの値から決まるため */
@@ -488,23 +493,21 @@
    -------------------------------------------------------------------------- */
 
 /*
- * 頭 ── 名乗りの「空白の行」そのもの（.mark の 1fr）。
- * grid item なので absolute にしない。紙が余っていなければ高さ 0 になり、
- * 脈の頭は自然に消える。文字とも、名乗りの版面に敷いた界線とも交差しない。
+ * 通り道 ── 【紙の左の縁】から【柱の左端】まで。
+ *
+ * x = 0   … 紙の左の縁（padding-inline の外側 ＝ 画面の左端）
+ * x = 100 … 柱（入口 3 行と 4 点）の左端
+ *
+ * 縁を通り道に入れてあるのがこの案の要で、名乗りの帯では脈が縁の内側
+ * （1280px の紙で x<67px）を降りて**大字の左をすり抜ける**。
+ * 二つの区間（名乗り／段から結びまで）はこの同じ通り道を共有するので、
+ * 箱の高さが違っても x は同じ物理位置を指し、継ぎ目で横に跳ばない。
  */
-.zHead {
-  position: relative;
-  justify-self: start;
-  align-self: stretch;
-  min-height: 0;
-  /* ＊ 3 列 → 5 列へ戻した（2026-09-21）。通り道の幅は区間ごとに
-     同じでなければならない ── viewBox の x=0..100 が同じ物理位置を
-     指さなくなると、繋ぎ目で線が横に跳ぶ。3 列にしていたあいだ、
-     頭の終点（x=31）と段の始点（x=33）が 26px ずれていて、
-     そこが「変な角」の正体だった。 */
-  width: calc((5 * 100% + 5 * var(--hi-gap)) / 12);
-  --myaku-draw: 860ms;
-  --myaku-draw-delay: 900ms;
+.zMark {
+  inset-block: 0;
+  left: calc(-1 * var(--hi-pad));
+  width: calc(var(--hi-pad) + var(--hi-column));
+  --myaku-draw: 1100ms;
   /* 紙の上端では筆はまだ紙に触れていない。上 2 割を掠れさせて始点を消す */
   mask-image: var(--myaku-kasure-head);
 }
@@ -527,15 +530,17 @@
  * の二点だけにしてある。
  */
 .zShelf {
+  /* 段の箱は 7 列幅なので、5 列ぶんはこの式で逆算する（.mark の --hi-column と
+     同じ物理の幅になる。読む器が違うので式だけ別に書いてある） */
   --myaku-band: calc((5 * 100% + 5 * var(--hi-gap)) / 7);
   --myaku-draw: 900ms;
-  left: calc(-1 * var(--myaku-band));
-  width: var(--myaku-band);
+  left: calc(-1 * var(--myaku-band) - var(--hi-pad));
+  width: calc(var(--myaku-band) + var(--hi-pad));
   /* 段の下端では終わらない。結びの界線が始まる 3 行手前まで【同じ箱】で降りる ──
      区間を継がないので繋ぎ目の角が出ない。縦の線と横の罫が同じ帯で重なって
      方眼に見えないよう、止めるのは罫の 3 行手前のままである */
-  bottom: calc(-2 * var(--hi-kei-pitch));
-  /* 上端は書き出しを、下端は筆が浮くところを掠れさせる（頭と尾の掠れを一枚に） */
+  bottom: calc(-1 * var(--hi-void-lg) + 3 * var(--hi-kei-pitch));
+  /* 下端は筆が浮くところを掠れさせる */
   mask-image: var(--myaku-kasure-tail);
   /* 箱の上端は【前の段の下端】。段の余白と同じ値を読むので、区間は隙間なく継ぎ、
      前の段へ食い込むこともない ── 終点 x と次の始点 x は変わらないので繋ぎ目は飛ばない */
@@ -570,12 +575,12 @@
      min-height はもう効かない（効くのは背の高い窓だけ）。 */
   min-height: min(72svh, 600px);
   display: grid;
-  /* 先頭の行は脈の頭の器。紙が余っていなくても罫 2 本ぶんは必ず残す ──
-     0 にすると脈の書き出しが紙の外から始まることになり、
-     一本の線が紙を降りるという絵の【入り】が消える */
-  grid-template-rows:
-    minmax(calc(2 * var(--hi-kei-pitch)), 1fr)
-    auto auto auto auto;
+  /* 脈は段ぜんたいを器にする絶対配置になったので、先頭の空行は要らない。
+     余った紙は上へ返し（align-content: end）、紙の上端には罫 2 本ぶんを必ず残す ──
+     0 にすると脈の書き出しが紙の外から始まり、一本の線が紙を降りる絵の【入り】が消える */
+  grid-template-rows: auto auto auto auto;
+  align-content: end;
+  padding-top: calc(2 * var(--hi-kei-pitch));
   /* 界線の整数倍。ここが半端だと下から数えた罫の位相が狂う。
      ＊ 3 行 → 2 行（2026-09-21）。名乗りの段に入口 3 行が入ったぶん、
      下の余白から返している。入口の湿りは 1 行しか漏れないので、
@@ -608,10 +613,13 @@
  *   字の来ない所には引かない。
  */
 .mark::after {
-  /* 大字の足元から、英文の一行の下までの 4 行ぶん（送り 2 行 ＋ 英文 1 行 ＋ 収め 1 行） */
-  top: calc(0.94 * var(--hi-mark-size) + var(--hi-kei-pitch));
+  /* 下から数えて 12 行目から 4 行ぶん ── 英文（と落款）が座る一行と、
+     その上の 3 行（大字の足元の二本を含む）。下から測るのは、
+     下の寸法（余白 1 ・入口 5 ・送り 6 ・英文 1）が全部罫の整数倍だからで、
+     上から測ると「Showcase」の送り（clamp）が半端を持ち込む */
+  bottom: calc(12 * var(--hi-kei-pitch));
   height: calc(4 * var(--hi-kei-pitch));
-  background-position: 0 0;
+  background-position: 0 100%;
   mask-image: linear-gradient(
     to bottom,
     transparent 0,
@@ -626,7 +634,7 @@
   /* 入口 3 行の版面だけ。下から 余白 1 行・入口 5 行・書き出しの 1 行 ＝ 7 行 */
   height: calc(7 * var(--hi-kei-pitch));
   /* 柱の左端（12 列の 6 列目）から右端まで。左の紙は地のまま残す */
-  left: calc((5 * 100% + 5 * var(--hi-gap)) / 12);
+  left: var(--hi-column);
   background-position: 0 100%;
   mask-image: linear-gradient(
     to bottom,
@@ -757,7 +765,7 @@
   /* 右の柱へ移す（2026-09-21）。左端は「いま見てほしいもの」の段とぴたり同じ
      ＝ 12 列の 6 列目。入口 → 4 点が縦に一本の柱で繋がり、左に空いた 5 列が
      そのまま筆脈の通り道になる（元のハブの構図と同じ役の配り方）。 */
-  margin-left: calc((5 * 100% + 5 * var(--hi-gap)) / 12);
+  margin-left: var(--hi-column);
   /* 英字の欄の幅。三行ともここで揃うので、日本語の頭が縦に一本の線で並ぶ
      （揃えないと Kits / Sites / Works の字幅の差がそのまま左端の段差になる）。
      名乗りの英文もこの欄の右端に送ってあり、見えない柱を共有する */
@@ -886,7 +894,7 @@
  *   「この先に品物がある」ことが折り返しの手前で分かる。
  */
 .mark + .shelf {
-  --hi-shelf-gap: calc(2 * var(--hi-kei-pitch));
+  --hi-shelf-gap: var(--hi-void);
 }
 
 /*
@@ -903,12 +911,9 @@
  * 大きいので、隣の段の版面と重なることはない ── 罫が二本に割れる条件を作らない。
  * ホバー規則は一つも持たない ── 罫は紙の支度であって、出来事ではない。
  */
-/* ＊ 張り出しを 3 行 → 2 行（2026-09-21）。3 行だと段の上下に空の罫が
-   3 本ずつ並び、「字の無い罫が 3 本以上続く所」になっていた。
-   2 行なら間として読める一本が残り、段差もそのぶん詰められる */
 .shelf::before {
-  top: calc(-2 * var(--hi-kei-pitch));
-  bottom: calc(-2 * var(--hi-kei-pitch));
+  top: calc(-3 * var(--hi-kei-pitch));
+  bottom: calc(-3 * var(--hi-kei-pitch));
   background-position: 0 0;
   mask-image: linear-gradient(
     to bottom,
@@ -1385,15 +1390,14 @@
   position: relative;
   z-index: 1;
   grid-column: 1 / 8;
-  /* 段の版面（下へ 2 行）と結びの版面（上へ 2 行）の和が下限 */
-  margin-top: calc(4 * var(--hi-kei-pitch));
+  margin-top: var(--hi-void-lg);
   /* 結語の下の空き罫一本（.closeLine の margin-bottom）が紙の終わりなので、
      ここに余白を足さない ── 足すと紙が字の無いところで長く続く */
   padding-bottom: 0;
 }
 
 .close::before {
-  top: calc(-2 * var(--hi-kei-pitch));
+  top: calc(-3 * var(--hi-kei-pitch));
   bottom: calc(2 * var(--hi-kei-pitch));
   background-position: 0 0;
   mask-image: linear-gradient(
@@ -1654,35 +1658,21 @@
   max-width: 40em;
 }
 
-/*
- * 分類のページでは、段の版面の張り出しを上下 3 行 → 2 行 / 1 行に締める。
- * 3 行が要るのは【段と段のあいだに空の罫を残す】ためだが、この面では
- * 頭の版面がすぐ上に在るので、罫はそもそも途切れない。
- * ＊ 締める前は、題の下から一覧の一行目まで空の罫が 5〜6 本（約 200px）並び、
- *   結びの手前も同じだけ開いていて、字より空白のほうが長い紙になっていた。
- */
-.sheet .shelf::before {
-  top: calc(-2 * var(--hi-kei-pitch));
-  bottom: calc(-1 * var(--hi-kei-pitch));
-}
-
-/* 頭と段のあいだ。頭の版面は下へ張り出さず、段の版面は上へ 2 行張り出すので、
-   2 行空ければ二枚は重ならず、空の罫は 2〜3 本に収まる */
+/* 頭と段のあいだ。頭の版面は下へ張り出さず、段の版面は上へ 3 行張り出すので、
+   4 行空ければ二枚は重ならず、あいだに空の罫が一本だけ残る */
 .sheet .head + .shelf {
-  margin-top: calc(2 * var(--hi-kei-pitch));
+  margin-top: calc(4 * var(--hi-kei-pitch));
 }
 
-/* 段と段のあいだ。締めた張り出し（上 2 行 / 下 1 行）の和より大きければよい */
+/* 段と段のあいだは、どちらの版面も上下 3 行ずつ張り出すので 6 行が下限 */
 .sheet .shelf {
   grid-column: auto;
-  margin-top: calc(4 * var(--hi-kei-pitch));
+  margin-top: var(--hi-void);
 }
 
-/* 段と結びのあいだ。段は下へ 1 行、結びの版面は上へ 3 行張り出すので、
-   4 行あれば重ならない ── 空の罫は 3 本 */
 .sheet .close {
   grid-column: auto;
-  margin-top: calc(4 * var(--hi-kei-pitch));
+  margin-top: var(--hi-void);
   padding-bottom: 0;
 }
 
@@ -1736,11 +1726,12 @@
   .close {
     grid-column: 1 / 11;
   }
-  .zHead {
-    width: calc((100% + var(--hi-gap)) / 6);
+  /* 柱は 2 列目から。入口の行・入口の版面・脈の通り道が同じ値を読む */
+  .paper {
+    --hi-column: calc((2 * 100% + 2 * var(--hi-gap)) / 12);
   }
   .zShelf {
-    --myaku-band: calc((100% + var(--hi-gap)) / 5);
+    --myaku-band: calc((2 * 100% + 2 * var(--hi-gap)) / 10);
   }
 
   /*
@@ -1881,14 +1872,16 @@
    * 9vw だけでは細すぎるため、紙の縁（padding-inline）の内側半分まで
    * 外へ広げる。x=0 は縁の中、x=100 は作品欄の左端で、全区間で共通。
    */
-  .zHead {
-    /* .zHead は grid item だが position: relative なので left がそのまま効く */
-    left: calc(-0.85 * var(--hi-pad));
-    width: calc(9vw + 0.85 * var(--hi-pad));
+  /* 柱は紙の縁から 9vw。段の padding-left と同じ値で、入口の行もここに揃う */
+  .paper {
+    --hi-column: 9vw;
   }
   .zShelf {
-    --myaku-band: calc(9vw + 0.85 * var(--hi-pad));
-    left: calc(-9vw - 0.85 * var(--hi-pad));
+    /* 段の箱は紙の中身の左端から始まり、9vw は padding として内側にある。
+       だから外へ出すのは紙の縁（--hi-pad）ぶんだけでよい */
+    --myaku-band: 9vw;
+    left: calc(-1 * var(--hi-pad));
+    width: calc(var(--hi-pad) + 9vw);
   }
 }
 
