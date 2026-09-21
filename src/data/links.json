@@ -33,5 +33,9 @@
   "booking": {
     "note": "",
     "booth": ""
+  },
+  "ai-concierge": {
+    "note": "https://note.com/suminawa/n/n4ca56c4ed189",
+    "booth": "https://suminawa.booth.pm/items/8877735"
   }
 }

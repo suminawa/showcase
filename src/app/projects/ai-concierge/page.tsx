@@ -10,6 +10,8 @@ import Script from "next/script";
 
 import "@suminawa/ai-concierge/ai-concierge.css";
 
+import links from "@/data/links.json";
+
 import { fontVars } from "../fonts";
 import s from "../projects.module.css";
 
@@ -77,8 +79,20 @@ export default function AiConciergePage() {
           答えの末尾の番号は出典です。文書に無いことは「資料に載っていません」と答え、問い合わせへ回します。1 日の質問数には上限があります。
         </p>
         <p className={s.lede}>
-          この窓口は「AI 案内窓口キット」（2026 年 9 月 17 日発売予定、定価 ¥12,800）の実物です。文書は Markdown で書き、
+          この窓口は「AI 案内窓口キット」（定価 ¥12,800 の買い切り）の実物です。文書は Markdown で書き、
           コマンド 1 つで索引を作り、サイトに 2 行貼るだけで置けます。Claude API の鍵はお客さまご自身のものを使います。
+          {links["ai-concierge"].note && (
+            <>
+              {" ── "}
+              <a href={links["ai-concierge"].note} className={s.textLink}>note</a>
+            </>
+          )}
+          {links["ai-concierge"].booth && (
+            <>
+              {links["ai-concierge"].note ? " / " : " ── "}
+              <a href={links["ai-concierge"].booth} className={s.textLink}>BOOTH</a>
+            </>
+          )}
         </p>
         <p className={s.lede} id="contact">
           ご依頼・ご相談は{" "}
