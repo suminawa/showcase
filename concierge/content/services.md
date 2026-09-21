@@ -1,10 +1,10 @@
 ---
 url: https://suminawa.dev
-updatedAt: 2026-09-13
+updatedAt: 2026-09-21
 ---
 # 受託のメニューと料金
 
-料金はすべて税別の目安です。内容を伺ってから見積もりをお出しします。ご依頼はココナラ・Lancers・Fiverr のいずれか、またはメールで受け付けています。
+料金はすべて税別の目安です。内容を伺ってから見積もりをお出しします。ご依頼はココナラ・Lancers・Fiverr のいずれか、またはメールで受け付けています。頼めることと目安、進め方は https://suminawa.dev/contact にもまとめてあります。
 
 ## Google Apps Script の自動化
 

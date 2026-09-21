@@ -1,6 +1,6 @@
 ---
 url: https://suminawa.dev/projects/ai-concierge#contact
-updatedAt: 2026-09-13
+updatedAt: 2026-09-21
 ---
 # お問い合わせ
 
@@ -10,7 +10,7 @@ updatedAt: 2026-09-13
 - X（旧 Twitter）: @suminawa_dev のダイレクトメッセージ
 - ココナラ・Lancers・Fiverr のトークルーム（各サービスの出品ページから）
 
-返信は 3 営業日以内、多くの場合は 1 営業日以内です。
+返信は 3 営業日以内、多くの場合は 1 営業日以内です。頼めることと料金の目安、進め方は https://suminawa.dev/contact にまとめてあります。
 
 ## ご依頼のときに教えていただきたいこと
 

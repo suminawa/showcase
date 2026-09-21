@@ -1,6 +1,6 @@
 ---
 url: https://suminawa.dev
-updatedAt: 2026-09-13
+updatedAt: 2026-09-21
 ---
 # suminawa について
 
@@ -19,4 +19,4 @@ suminawa（墨縄）は、自動化の仕組みとサイトの部品を作って
 
 ## 見本の置き場
 
-作品の見本は suminawa.dev でご覧いただけます。業種別のサイト見本、道具（見積もりシミュレーター・間取りシミュレーター・税込からの逆算）、30 日チャレンジの帳面があります。売り物は note と BOOTH で販売しています。
+作品の見本は suminawa.dev でご覧いただけます。業種別のサイト見本は https://suminawa.dev/sites 、その場で触れる作品と道具（見積もりの電卓・税込からの逆算・墨流し・30 日の帳面）は https://suminawa.dev/works にまとめてあります。売り物は note と BOOTH で販売しています。
