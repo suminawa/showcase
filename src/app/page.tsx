@@ -40,12 +40,7 @@ import {
   projectHref,
   saleLabel,
 } from "@/lib/projects";
-import {
-  STRANDS,
-  STRANDS_NARROW,
-  veinPlan,
-  type VeinSegment,
-} from "@/lib/vein";
+import { STRANDS, STRANDS_NARROW, type VeinSegment } from "@/lib/vein";
 
 import s from "./ryoushi.module.css";
 
@@ -124,8 +119,6 @@ function Myaku({
 }
 
 export default function Home() {
-  /* 段はこの一つだけ（いま見てほしいもの）。脈の区間もそれに合わせて一本 */
-  const plan = veinPlan(1);
   const picks = featuredProjects();
 
   return (
@@ -175,13 +168,10 @@ export default function Home() {
       </header>
 
       <section className={s.shelf} aria-labelledby="picks-name">
-        <Myaku
-          zone={s.zShelf}
-          at={plan.rows[0].at}
-          dx={plan.rows[0].dx}
-          dxNarrow={plan.rows[0].dxNarrow}
-          delayMs={1120}
-        />
+        {/* 脈の本体。段の上の間から、結びの界線が始まる手前までを【一つの箱】で
+            通す。区間を継がないので繋ぎ目の角が無く、曲率は全長でほぼ一定になる
+            （@/lib/vein の span の註）*/}
+        <Myaku zone={s.zShelf} at="span" dx={0} dxNarrow={0} delayMs={1120} />
 
         <div className={s.shelfHead}>
           <h2 className={s.shelfName} id="picks-name">
@@ -222,17 +212,6 @@ export default function Home() {
       </section>
 
       <footer className={s.close}>
-        {/* 脈の尾。段と結びのあいだの間を、左へ帰りながら埋める。
-            結びの界線が始まる 3 行手前で終わり、線が二重に走る帯を作らない */}
-        <Myaku
-          zone={s.zTail}
-          at="tail"
-          dx={plan.tailDx}
-          dxNarrow={plan.tailDxNarrow}
-          sx={plan.tailScale}
-          sxNarrow={plan.tailScaleNarrow}
-          delayMs={1330}
-        />
         <h2 className={s.closeHead}>制作のご相談</h2>
         {/*
           初めて来た人が、ここだけ読んで

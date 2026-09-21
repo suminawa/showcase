@@ -98,7 +98,7 @@ export const INDEX_PAGES: Record<Category, IndexPage> = {
   kits: {
     title: "キットとテンプレート",
     latin: "Kits",
-    lede: "そのまま使えるキットとテンプレです。発売中のものは定価を添えています。",
+    lede: "そのまま使えるキットとテンプレートです。発売中のものは定価を添えています。",
   },
   sites: {
     title: "見本サイト",

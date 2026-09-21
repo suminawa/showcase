@@ -93,10 +93,13 @@ export function SheetSection({
 export function SheetClose() {
   return (
     <footer className={s.close}>
-      <p className={s.closeLine}>ご用途に合わせた制作もお引き受けします。</p>
+      <p className={s.closeText}>
+        ご用途に合わせた制作もお引き受けします。
+      </p>
       <p className={s.closeLinks}>
-        <Link href="/contact" className={s.contact}>
-          料金の目安と進め方
+        {/* 押せるのは主の一本だけ。戻りは墨の淡い一本で、主従が濃さで読める */}
+        <Link href="/contact" className={s.contactMain}>
+          料金の目安と進め方を見る
         </Link>
         <Link href="/" className={s.contact}>
           Showcase へ戻る
