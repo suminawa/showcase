@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { siteUrl } from "@/lib/site";
 import { Noto_Sans_JP } from "next/font/google";
 import "./globals.css";
 
@@ -7,16 +8,6 @@ const notoSansJp = Noto_Sans_JP({
   display: "swap",
   variable: "--font-noto-sans-jp",
 });
-
-/*
- * 共有カードの絶対 URL に要る。独自ドメインは未定なので、
- * 明示指定 → Vercel の割り当て → ローカル の順で解決する。
- */
-const siteUrl =
-  process.env.NEXT_PUBLIC_SITE_URL ??
-  (process.env.VERCEL_PROJECT_PRODUCTION_URL
-    ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
-    : "http://localhost:3010");
 
 /*
  * OGP の画像は src/app/opengraph-image.png（1200×630）。
