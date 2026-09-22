@@ -138,9 +138,9 @@ export default function Home() {
       {/* 界線は要素を足さずに引く。各段の ::before が、その段の版面ぶんだけ罫を敷く
           （装飾は擬似要素なので支援技術には現れず、pointer-events も持たない） */}
       <header className={s.mark}>
-        {/* 脈の一区間め。名乗りの段ぜんたいを器にして、紙の左の縁を降りる。
-            大字の左をすり抜けるので、字とは一度も交わらない */}
-        <Myaku zone={s.zMark} at="mark" dx={0} dxNarrow={0} delayMs={760} />
+        {/* 入りの一筆。名乗りの上に残った空白の行を、そのまま器にしている。
+            元のハブと同じ部品で、下の本脈とは繋がない */}
+        <Myaku zone={s.zHead} at="head" dx={0} dxNarrow={0} delayMs={900} />
         <p className={s.showcase}>Showcase</p>
         <h1 className={s.wordmark}>SUMINAWA</h1>
         <p className={s.en}>
@@ -169,9 +169,8 @@ export default function Home() {
       </header>
 
       <section className={s.shelf} aria-labelledby="picks-name">
-        {/* 脈の二区間め。段の上の間から、結びの界線が始まる手前まで。
-            名乗りの区間と同じ通り道の上に置き、継ぎ目では両側の接線を垂直に
-            そろえてあるので、一本の線として繋がる（@/lib/vein の註）*/}
+        {/* 本脈。名乗りの塊のすぐ下（英文の行の直下）から、結びの界線が
+            始まる手前まで、一つの箱で降りる（@/lib/vein の註）*/}
         <Myaku zone={s.zShelf} at="span" dx={0} dxNarrow={0} delayMs={1120} />
 
         <div className={s.shelfHead}>

@@ -123,6 +123,10 @@
      入口の行・入口の版面・筆脈の通り道の三つが同じ値を読むので、
      幅を変えるときはここ一箇所でよい */
   --hi-column: calc((5 * 100% + 5 * var(--hi-gap)) / 12);
+  /* 入口 3 行が占める罫の本数（行 3 本 ＋ あいだの空き 2 本）。
+     狭い紙では件数が次の罫へ落ちるので 8 本になる。本脈の書き出しの位置が
+     これを読む（名乗りの直下から始めるため） */
+  --hi-gates-rows: 5;
   /* 分類のページの題。作品ページの「大」と同じ寸法で、同じ役（面の名乗り）を持つ */
   --hi-large: clamp(1.75rem, 4.2vw, 3rem); /* 28 → 48px */
   /* 名乗りだけは別に持つ。界線の版面の高さがこの値から決まるため */
@@ -493,21 +497,19 @@
    -------------------------------------------------------------------------- */
 
 /*
- * 通り道 ── 【紙の左の縁】から【柱の左端】まで。
- *
- * x = 0   … 紙の左の縁（padding-inline の外側 ＝ 画面の左端）
- * x = 100 … 柱（入口 3 行と 4 点）の左端
- *
- * 縁を通り道に入れてあるのがこの案の要で、名乗りの帯では脈が縁の内側
- * （1280px の紙で x<67px）を降りて**大字の左をすり抜ける**。
- * 二つの区間（名乗り／段から結びまで）はこの同じ通り道を共有するので、
- * 箱の高さが違っても x は同じ物理位置を指し、継ぎ目で横に跳ばない。
+ * 入りの一筆の器 ── 名乗りの「空白の行」そのもの（.mark の 1fr）。
+ * grid item なので absolute にしない。元のハブとまったく同じ置き方で、
+ * 紙が余っていなければ高さ 0 になり、一筆は自然に消える。
+ * 文字とも、名乗りの版面に敷いた界線とも交差しない。
  */
-.zMark {
-  inset-block: 0;
-  left: calc(-1 * var(--hi-pad));
-  width: calc(var(--hi-pad) + var(--hi-column));
-  --myaku-draw: 1100ms;
+.zHead {
+  position: relative;
+  justify-self: start;
+  align-self: stretch;
+  min-height: 0;
+  width: calc((5 * 100% + 5 * var(--hi-gap)) / 12);
+  --myaku-draw: 860ms;
+  --myaku-draw-delay: 900ms;
   /* 紙の上端では筆はまだ紙に触れていない。上 2 割を掠れさせて始点を消す */
   mask-image: var(--myaku-kasure-head);
 }
@@ -530,12 +532,12 @@
  * の二点だけにしてある。
  */
 .zShelf {
-  /* 段の箱は 7 列幅なので、5 列ぶんはこの式で逆算する（.mark の --hi-column と
-     同じ物理の幅になる。読む器が違うので式だけ別に書いてある） */
+  /* 段の箱は 7 列幅なので、5 列ぶんはこの式で逆算する（入りの一筆の器と
+     同じ物理の幅 ＝ 元のハブと同じ通り道になる） */
   --myaku-band: calc((5 * 100% + 5 * var(--hi-gap)) / 7);
-  --myaku-draw: 900ms;
-  left: calc(-1 * var(--myaku-band) - var(--hi-pad));
-  width: calc(var(--myaku-band) + var(--hi-pad));
+  --myaku-draw: 1150ms;
+  left: calc(-1 * var(--myaku-band));
+  width: var(--myaku-band);
   /* 段の下端では終わらない。結びの界線が始まる 3 行手前まで【同じ箱】で降りる ──
      区間を継がないので繋ぎ目の角が出ない。縦の線と横の罫が同じ帯で重なって
      方眼に見えないよう、止めるのは罫の 3 行手前のままである */
@@ -544,7 +546,12 @@
   mask-image: var(--myaku-kasure-tail);
   /* 箱の上端は【前の段の下端】。段の余白と同じ値を読むので、区間は隙間なく継ぎ、
      前の段へ食い込むこともない ── 終点 x と次の始点 x は変わらないので繋ぎ目は飛ばない */
-  top: calc(-1 * var(--hi-shelf-gap, var(--hi-void)));
+  /* 書き出しは【名乗りの塊のすぐ下】── 英文の行の直下。
+     名乗りの段の下端から数えて 余白 1 行 ＋ 入口（--hi-gates-rows 行）＋ 送り 6 行 */
+  top: calc(
+    -1 * var(--hi-shelf-gap, var(--hi-void)) -
+      (7 + var(--hi-gates-rows)) * var(--hi-kei-pitch)
+  );
 }
 
 @keyframes hi-myaku {
@@ -575,12 +582,13 @@
      min-height はもう効かない（効くのは背の高い窓だけ）。 */
   min-height: min(72svh, 600px);
   display: grid;
-  /* 脈は段ぜんたいを器にする絶対配置になったので、先頭の空行は要らない。
-     余った紙は上へ返し（align-content: end）、紙の上端には罫 2 本ぶんを必ず残す ──
-     0 にすると脈の書き出しが紙の外から始まり、一本の線が紙を降りる絵の【入り】が消える */
-  grid-template-rows: auto auto auto auto;
-  align-content: end;
-  padding-top: calc(2 * var(--hi-kei-pitch));
+  /* 先頭の行は入りの一筆の器。元のハブの一筆は 275px ほどの長い一本なので、
+     ここに罫 7 本ぶん（1280px の紙で 258px）は必ず残す ── 詰めると
+     同じ d が縦に潰れ、穏やかな一筆が小さな渦に化ける（実測で曲率が
+     0.003 → 0.44 /px に跳ねる）。余った紙はこの行が吸う */
+  grid-template-rows:
+    minmax(calc(7 * var(--hi-kei-pitch)), 1fr)
+    auto auto auto auto;
   /* 界線の整数倍。ここが半端だと下から数えた罫の位相が狂う。
      ＊ 3 行 → 2 行（2026-09-21）。名乗りの段に入口 3 行が入ったぶん、
      下の余白から返している。入口の湿りは 1 行しか漏れないので、
@@ -1730,6 +1738,9 @@
   .paper {
     --hi-column: calc((2 * 100% + 2 * var(--hi-gap)) / 12);
   }
+  .zHead {
+    width: calc((2 * 100% + 2 * var(--hi-gap)) / 12);
+  }
   .zShelf {
     --myaku-band: calc((2 * 100% + 2 * var(--hi-gap)) / 10);
   }
@@ -1876,9 +1887,18 @@
   .paper {
     --hi-column: 9vw;
   }
+  /* 狭い紙では入口の件数が次の罫へ落ちるので、入口は 3 行 × 2 ＋ 空き 2 ＝ 8 本 */
+  .paper {
+    --hi-gates-rows: 8;
+  }
+  .zHead {
+    left: calc(-0.85 * var(--hi-pad));
+    width: calc(9vw + 0.85 * var(--hi-pad));
+  }
   .zShelf {
     /* 段の箱は紙の中身の左端から始まり、9vw は padding として内側にある。
-       だから外へ出すのは紙の縁（--hi-pad）ぶんだけでよい */
+       だから外へ出すのは紙の縁（--hi-pad）ぶんだけでよい ── 通り道が
+       55px に広がり、狭い紙でも脈に振れが出る */
     --myaku-band: 9vw;
     left: calc(-1 * var(--hi-pad));
     width: calc(var(--hi-pad) + 9vw);
