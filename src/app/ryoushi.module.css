@@ -135,7 +135,11 @@
      1.235 × 大字 − 105px の直線で当て、10px の余裕を足して罫の整数倍へ切り上げた */
   --hi-gates-gap: max(
     calc(2 * var(--hi-kei-pitch)),
-    round(up, calc(1.235 * var(--hi-mark-size) - 95px), var(--hi-kei-pitch))
+    round(
+      up,
+      calc(1.235 * var(--hi-mark-size) - 95px + var(--hi-kei-pitch)),
+      var(--hi-kei-pitch)
+    )
   );
   /* 分類のページの題。作品ページの「大」と同じ寸法で、同じ役（面の名乗り）を持つ */
   --hi-large: clamp(1.75rem, 4.2vw, 3rem); /* 28 → 48px */
@@ -674,7 +678,7 @@
     var(--hi-kei-pitch) + var(--hi-gates-gap) +
       var(--hi-gates-rows) * var(--hi-kei-pitch)
   );
-  height: calc(4 * var(--hi-kei-pitch));
+  height: calc(3 * var(--hi-kei-pitch));
   background-position: 0 100%;
   mask-image: linear-gradient(
     to bottom,
@@ -738,8 +742,9 @@
      2 行のままだと英文が入口の 1 行目に貼り付き、名乗りの英文なのか
      Kits の行の添え書きなのかが読めなかった。合計は 2 行のままなので、
      下から数えた罫の位相（.mark::before の 12 行）は動かない。 */
-  margin-top: calc(2 * var(--hi-kei-pitch));
-  margin-left: clamp(28px, 20vw, 280px);
+  /* 大字の直下に寄せる ── 空きは罫 1 本だけ（2026-09-23） */
+  margin-top: var(--hi-kei-pitch);
+  margin-left: var(--hi-en-left, clamp(28px, 20vw, 280px));
 }
 
 /*
@@ -1935,6 +1940,13 @@
   /* 狭い紙では入口の件数が次の罫へ落ちるので、入口は 3 行 × 2 ＋ 空き 2 ＝ 8 本 */
   .paper {
     --hi-gates-rows: 8;
+  }
+
+  /* 英文と落款を大字の直下へ寄せると、縦長の紙では落款が右上の墨の
+     下の塊に乗る（390px で落款の箱に墨の画素 256、最暗 34/255）。
+     二つを一緒に左へ寄せ、墨の手前で止める（左端の下限は紙の左の縁） */
+  .paper {
+    --hi-en-left: 8vw;
   }
   .zHead {
     left: calc(-0.85 * var(--hi-pad));
