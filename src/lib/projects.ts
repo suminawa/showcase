@@ -269,20 +269,20 @@ export const projects: Project[] = [
     sale: { status: "onsale", price: 7980 },
   },
   {
+    slug: "dashboard",
+    title: "ダッシュボード キット",
+    description: "表や CSV の数字を、設定だけで KPI とグラフの画面にする。",
+    tags: ["JavaScript", "SVG", "Google Apps Script"],
+    category: "kits",
+    sale: { status: "onsale", price: 9800 },
+  },
+  {
     slug: "configurator",
     title: "3D 商品コンフィギュレーター",
     description: "回しながら色や素材を選び、価格をその場で確かめる。",
     tags: ["React Three Fiber", "glTF"],
     category: "kits",
     sale: { status: "upcoming" },
-  },
-  {
-    slug: "dashboard",
-    title: "ダッシュボード キット",
-    description: "表や CSV の数字を、設定だけで KPI とグラフの画面にする。",
-    tags: ["JavaScript", "SVG", "Google Apps Script"],
-    category: "kits",
-    sale: { status: "upcoming", price: 9800 },
   },
   {
     slug: "saas-starter",
