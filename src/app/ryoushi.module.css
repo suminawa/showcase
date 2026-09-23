@@ -127,10 +127,24 @@
      狭い紙では件数が次の罫へ落ちるので 8 本になる。本脈の書き出しの位置が
      これを読む（名乗りの直下から始めるため） */
   --hi-gates-rows: 5;
+  /* 名乗り（英文）と入口 3 行のあいだ。罫 2 本が基本だが、大字を紙幅いっぱいに
+     組んだので、墨（大字の 9 倍）の下の塊が広い紙ほど深く降りてくる ──
+     入口の件数を暗い地に乗せないために、その下端より下まで送る。
+     下端は大字に比例しない（紙の縁・罫が clamp で止まるため）ので、
+     1024〜2560px の 7 幅で「英文の下 → 柱の上の墨の下端」を測り、
+     1.235 × 大字 − 105px の直線で当て、10px の余裕を足して罫の整数倍へ切り上げた */
+  --hi-gates-gap: max(
+    calc(2 * var(--hi-kei-pitch)),
+    round(up, calc(1.235 * var(--hi-mark-size) - 95px), var(--hi-kei-pitch))
+  );
   /* 分類のページの題。作品ページの「大」と同じ寸法で、同じ役（面の名乗り）を持つ */
   --hi-large: clamp(1.75rem, 4.2vw, 3rem); /* 28 → 48px */
   /* 名乗りだけは別に持つ。界線の版面の高さがこの値から決まるため */
-  --hi-mark-size: clamp(2.85rem, 12.6vw, 8.75rem);
+  /* 大字は【紙の幅いっぱい】に組む（2026-09-23）。SUMINAWA の字幅は大字の
+     約 6.18 倍、紙の中身の幅は 100vw − 2 × 5.2vw ＝ 89.6vw なので、
+     14.5vw で左の縁から右の縁まで届く。上限は置かない ── 頭は画面の横幅を
+     使い切る面で、墨も一筆も大字に結びつけてあるので一緒に伸縮する */
+  --hi-mark-size: 14.5vw;
 
   /* ---- 界線 ---- */
   /* 罫の間隔＝本文一行。以下すべての行送り・行間・落款・湿りの寸法がこの整数倍になる */
@@ -326,14 +340,14 @@
    * 390〜2560px の 8 幅で実測した。
    * ＊ 196svh の上限は、横長で背の低い紙のとき筆が名乗りへ降りてくるのを止める。
    */
-  --hi-ink-w: min(calc(9 * var(--hi-mark-size)), 196svh);
+  --hi-ink-w: calc(9 * var(--hi-mark-size));
   width: var(--hi-ink-w);
   /* ＊ 最後の項は幅による補正。大字の字の中心は 0.47 × 大字で近似しているが、
      紙の縁・罫の間隔・柱題の送りは clamp で止まっているので、幅が小さいほど
      近似が下へずれる。390〜1920 の 7 幅で隙間の中心と字の中心を測って当てた（大字の寸法に
      比例させるのは、vw だと大字が頭打ちになる 1111px 以上でずれ続けるため）。 */
   top: calc(
-    var(--hi-pad-top) + 2 * var(--hi-kei-pitch) + clamp(12px, 2.2svh, 26px) +
+    var(--hi-pad-top) + 3 * var(--hi-kei-pitch) + clamp(12px, 2.2svh, 26px) +
       0.538 * var(--hi-mark-size) - 0.322 * var(--hi-ink-w)
   );
   right: calc(
@@ -573,8 +587,8 @@
   /* 書き出しは【名乗りの塊のすぐ下】── 英文の行の直下。
      名乗りの段の下端から数えて 余白 1 行 ＋ 入口（--hi-gates-rows 行）＋ 送り 6 行 */
   top: calc(
-    -1 * var(--hi-shelf-gap, var(--hi-void)) -
-      (3 + var(--hi-gates-rows)) * var(--hi-kei-pitch)
+    -1 * var(--hi-shelf-gap, var(--hi-void)) - var(--hi-kei-pitch) -
+      var(--hi-gates-gap) - var(--hi-gates-rows) * var(--hi-kei-pitch)
   );
 }
 
@@ -611,11 +625,12 @@
   /* 先頭の行は入りの一筆の器。罫 2 本ぶんは必ず残す ── 0 にすると
      一筆の書き出しが紙の外から始まり、紙に入る絵が消える。
      ＊ 一度 7 本（258px）まで広げたが、紙の頭が空きすぎた（「Showcase」が
-     y=294 まで落ちた）。1 本に戻すと y=73 で、初画面に 4 点の 1 件目まで入る。
+     y=294 まで落ちた）。2 本で y=110 ── 頭の縦はこの寸法で固定する
+     （一度 1 本まで詰めたが、頭は縦を詰めない面なので戻した）。
      余った紙はこの行が吸う ── 名乗りの塊も墨も一緒に上がるので、
      大字と墨の隙間の関係は動かない */
   grid-template-rows:
-    minmax(var(--hi-kei-pitch), 1fr)
+    minmax(calc(2 * var(--hi-kei-pitch)), 1fr)
     auto auto auto auto;
   /* 界線の整数倍。ここが半端だと下から数えた罫の位相が狂う。
      ＊ 3 行 → 2 行（2026-09-21）。名乗りの段に入口 3 行が入ったぶん、
@@ -655,7 +670,10 @@
      上から測ると「Showcase」の送り（clamp）が半端を持ち込む。
      ＊ 12 の決め打ちにしていたとき、入口が 8 行になる狭い紙では版面が
      4 行ぶんずれ、名乗りの塊から罫が 1 本も見えなくなっていた */
-  bottom: calc((3 + var(--hi-gates-rows)) * var(--hi-kei-pitch));
+  bottom: calc(
+    var(--hi-kei-pitch) + var(--hi-gates-gap) +
+      var(--hi-gates-rows) * var(--hi-kei-pitch)
+  );
   height: calc(4 * var(--hi-kei-pitch));
   background-position: 0 100%;
   mask-image: linear-gradient(
@@ -787,7 +805,7 @@
    *   塊のあいだが全部 190〜260px で同じになり、紙にリズムが無かった。
    *   墨は大字に結びつけて置いてあるので、ここを詰めても件数には掛からない。
    */
-  margin: calc(2 * var(--hi-kei-pitch)) 0 0;
+  margin: var(--hi-gates-gap) 0 0;
   /* 幅は柱いっぱい。件数は柱の右端で揃う */
   /* 起点は 1 列目 ── 名乗りと同じ左端に戻す。英文（と落款）だけが紙の
      中ほどへ送られ、入口はまた起点から始まる。
@@ -909,7 +927,7 @@
   position: relative;
   z-index: 1;
   grid-column: 6 / 13;
-  --hi-shelf-gap: var(--hi-kei-pitch);
+  --hi-shelf-gap: calc(2 * var(--hi-kei-pitch));
   margin-top: var(--hi-shelf-gap);
 }
 
@@ -930,7 +948,7 @@
  *   「この先に品物がある」ことが折り返しの手前で分かる。
  */
 .mark + .shelf {
-  --hi-shelf-gap: var(--hi-kei-pitch);
+  --hi-shelf-gap: calc(2 * var(--hi-kei-pitch));
 }
 
 /*
