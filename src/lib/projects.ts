@@ -284,6 +284,14 @@ export const projects: Project[] = [
     category: "kits",
     sale: { status: "upcoming", price: 9800 },
   },
+  {
+    slug: "saas-starter",
+    title: "SaaS スターター キット",
+    description: "ログイン・組織・権限・課金がそろった会員制サービスの土台。",
+    tags: ["Next.js", "TypeScript", "Supabase", "Stripe"],
+    category: "kits",
+    sale: { status: "upcoming", price: 19800 },
+  },
 
   /* ---- sites ── 架空の会社で作った見本 ---------------------------------- */
   ...siteProjects,

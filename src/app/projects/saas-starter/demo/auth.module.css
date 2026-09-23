@@ -1,0 +1,72 @@
+/*
+ * キットの app/(auth)/auth.module.css を手本にした、ログインの画面です。
+ * 見本ではメールアドレスをお伺いしないので、入る道は「見本の方を選ぶ」1 つだけです。
+ */
+
+.brand {
+  align-self: center;
+  color: var(--st-text-muted);
+  font-size: 0.875rem;
+  font-weight: 650;
+  text-decoration: none;
+}
+
+.title {
+  font-size: 1.375rem;
+}
+
+.lead {
+  margin-top: 0.35rem;
+  color: var(--st-text-muted);
+  font-size: 0.875rem;
+  line-height: 1.7;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+  margin-top: 1.25rem;
+}
+
+.demo {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.demoList {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.demoButton {
+  justify-content: space-between;
+  width: 100%;
+  padding: 0.5rem 0.75rem;
+}
+
+.demoName {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.1rem;
+  font-weight: 620;
+}
+
+.demoMail {
+  color: var(--st-text-muted);
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+/* 見本に入っていないものの断りです。ログインの紙の下に、静かに置きます */
+.omitted {
+  align-self: center;
+  max-width: 26rem;
+  color: var(--st-text-muted);
+  font-size: 0.8125rem;
+  line-height: 1.75;
+  text-align: center;
+}
