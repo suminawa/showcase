@@ -127,11 +127,11 @@
      件数は日本語の下の罫へ置くので、どの幅でも 8 本。本脈の書き出しと
      名乗りの帯の罫の位置がこれを読む */
   --hi-gates-rows: 8;
-  /* 塊と塊のあいだは【その塊の最後の行の下に空の罫 3 本】で一律（2026-09-23）。
-     名乗り → 入口、入口 → 4 点、4 点 → ご相談、頭 → 一覧、一覧 → 結び、の全部。
-     空きは次の塊の上ではなく【前の塊の中】（padding）に取る ── 罫は前の塊の
-     版面がそのまま引き受けるので、字の下に罫が 3 本続き、上には溜まらない */
-  --hi-block-gap: calc(3 * var(--hi-kei-pitch));
+  /* 塊と塊のあいだは【罫の無い紙の地】を罫 5 本ぶん（2026-09-23）。
+     名乗り → 入口、入口 → 4 点、4 点 → ご相談、頭 → 一覧、一覧 → 結び の全部。
+     罫は【字のある行】にだけ引く ── 塊のあいだに空の罫を並べると、
+     見出しの上や塊の下に字の無い罫が溜まって、紙が罫線ノートに見えた */
+  --hi-block-gap: calc(5 * var(--hi-kei-pitch));
   --hi-gates-gap: var(--hi-block-gap);
   /* 分類のページの題。作品ページの「大」と同じ寸法で、同じ役（面の名乗り）を持つ */
   --hi-large: clamp(1.75rem, 4.2vw, 3rem); /* 28 → 48px */
@@ -294,12 +294,9 @@
    敷き始めを pitch の整数倍ずらしても位相は狂わない ── これが重ね合わせの前提。
    罫はすべて擬似要素なので DOM にもアクセシビリティツリーにも現れず、
    pointer-events も持たない。 */
-.mark::before,
 .mark::after,
 .head::before,
-.shelf::before,
-.row::after,
-.close::before {
+.row::after {
   content: "";
   position: absolute;
   z-index: -2;
@@ -309,6 +306,31 @@
   background-image: var(--hi-kei-line);
   background-repeat: repeat-y;
   background-size: 100% calc(3 * var(--hi-kei-pitch));
+}
+
+/*
+ * 字のある行の罫（2026-09-23）。
+ * 罫は塊ごとの版面ではなく【字の行の箱の背景】として引く ── 行の高さは
+ * どれも罫の整数倍（小の字の行送り 2.3 ＝ ちょうど 1 行）なので、行の上端から
+ * 敷けば罫は必ず字の下に来て、行と行のあいだの空き（margin）には一本も出ない。
+ * 折り返して 2 行になった行には 2 本引かれる。
+ * 幅は行の箱の幅 ── 塊の中の行はどれも塊の幅いっぱいに組んである。
+ */
+.showcase,
+.gate,
+.shelfName,
+.text,
+.closeHead,
+.menuItem,
+.closeText,
+.closeLinks,
+.closeLine,
+.menuNote,
+.step {
+  background-image: var(--hi-kei-line);
+  background-repeat: repeat-y;
+  background-size: 100% calc(3 * var(--hi-kei-pitch));
+  background-position: 0 0;
 }
 
 /* ==========================================================================
@@ -590,7 +612,13 @@
      前の段へ食い込むこともない ── 終点 x と次の始点 x は変わらないので繋ぎ目は飛ばない */
   /* 書き出しは【名乗りの塊のすぐ下】── 英文の行の直下。
      名乗りの段の下端から数えて 余白 1 行 ＋ 入口（--hi-gates-rows 行）＋ 送り 6 行 */
-  top: calc(-1 * (6 + var(--hi-gates-rows)) * var(--hi-kei-pitch));
+  top: calc(
+    -1 *
+      (
+        var(--hi-block-gap) + var(--hi-gates-rows) * var(--hi-kei-pitch) +
+          var(--hi-gates-gap)
+      )
+  );
 }
 
 @keyframes hi-myaku {
@@ -667,15 +695,15 @@
  */
 .mark::after {
   /*
-   * 名乗りの帯の罫。大字の足元の一本・送りの一本・英文（と落款）が座る一本と、
-   * その下の空き（空の罫 3 本）を、紙幅いっぱいに一枚で敷く。
-   * 下から測る（下の寸法が全部罫の整数倍）。下端は入口 3 行の上端で、
-   * そこから下は入口の版面（::before）が同じ位相で続きを引き受ける ──
-   * 二枚は接するだけで重ならない。上端だけ消え際を持たせ、大字の足元で
-   * 罫が書き出す。
+   * 名乗りの帯の罫。大字の足元の一本・送りの一本・英文（と落款）が座る一本の
+   * 3 行だけを、紙幅いっぱいに引く。英文の下（入口までの空き）には引かない。
+   * 下から測る（下の寸法が全部罫の整数倍）── 余白（空き）＋ 入口の行 ＋ 空き。
    */
-  bottom: calc((3 + var(--hi-gates-rows)) * var(--hi-kei-pitch));
-  height: calc(3 * var(--hi-kei-pitch) + var(--hi-gates-gap));
+  bottom: calc(
+    var(--hi-block-gap) + var(--hi-gates-rows) * var(--hi-kei-pitch) +
+      var(--hi-gates-gap)
+  );
+  height: calc(3 * var(--hi-kei-pitch));
   background-position: 0 100%;
   mask-image: linear-gradient(
     to bottom,
@@ -685,15 +713,6 @@
   );
 }
 
-.mark::before {
-  /* 入口 3 行の版面。柱の幅にだけ引く（柱の左は紙の地のまま）。
-     入口の行と、その下の空き（空の罫 3 本）を覆い、段の下端でぴたりと終わる ──
-     次の段（いま見てほしいもの）は、ここから切れ目なく同じ位相で続く */
-  bottom: 0;
-  height: calc((3 + var(--hi-gates-rows)) * var(--hi-kei-pitch));
-  left: var(--hi-column);
-  background-position: 0 100%;
-}
 
 .showcase {
   position: relative;
@@ -705,20 +724,6 @@
 }
 
 /* 柱題の下の一本。字の行には必ず罫を通す（大字の帯だけは通さない） */
-.showcase::after {
-  content: "";
-  position: absolute;
-  z-index: -2;
-  left: 0;
-  right: 0;
-  top: 0;
-  height: var(--hi-kei-pitch);
-  pointer-events: none;
-  background-image: var(--hi-kei-line);
-  background-repeat: repeat-y;
-  background-size: 100% calc(3 * var(--hi-kei-pitch));
-  background-position: 0 0;
-}
 
 .wordmark {
   font-family: var(--hi-serif-display);
@@ -988,19 +993,7 @@
  * 大きいので、隣の段の版面と重なることはない ── 罫が二本に割れる条件を作らない。
  * ホバー規則は一つも持たない ── 罫は紙の支度であって、出来事ではない。
  */
-.shelf:has(.withFig) {
-  /* 図版つきの一覧は、最後の行が図版の高さ（4 行）で字（3 行）より 1 行長い。
-     その一行が空の罫になるので、下の空きは 2 行で「空の罫 3 本」になる */
-  padding-bottom: calc(2 * var(--hi-kei-pitch));
-}
 
-.shelf::before {
-  /* 段の版面は段の箱ちょうど（上端から下の空きの終わりまで）。張り出さない ──
-     上へ張り出すと見出しの上に空の罫が溜まり、下が足りなくなる */
-  top: 0;
-  bottom: 0;
-  background-position: 0 0;
-}
 
 /*
  * 段の頭 ── 名（KITS）と、その段に並ぶものを一度だけ言う一行。
@@ -1190,8 +1183,10 @@
  * すべて水（.flow）から借りている。単独のトリガも単独の時間も持たない。
  */
 .row::after {
-  top: calc(-1 * var(--hi-wet-y));
-  bottom: calc(-1 * var(--hi-wet-y));
+  /* 行の箱の中だけ。静止の罫が字の行にしか無いので、水が届いても
+     字の無い所に濡れた罫を生やさない */
+  top: 0;
+  bottom: 0;
   background-image: var(--hi-kei-line-wet);
   background-position: 0 0;
   mask-image: var(--hi-wet-cloud);
@@ -1401,7 +1396,6 @@
      献立表としての対応が切れる（実測で 1 行目に 460px の空きが開いた）。
      50em は、いちばん長い目安（既製キットの導入は…40,000 円から）が
      題と同じ罫に収まる下限である */
-  max-width: 52em;
 }
 
 /* 段の中の小見出し。段を二つに割らずに話題を継ぐ ── 上に空の罫を二本置く */
@@ -1442,7 +1436,6 @@
   line-height: 2.3;
   letter-spacing: 0.05em;
   color: var(--hi-sumi-2);
-  max-width: 40em;
 }
 
 /* 文の中に置く宛先。作品ページの .textLink と同じ文法をそのまま使う ──
@@ -1474,13 +1467,10 @@
   margin-top: 0;
   /* 結語の下も空の罫 3 本（結語の margin-bottom 1 本 ＋ ここ 2 本）で紙を閉じる */
   padding-bottom: calc(2 * var(--hi-kei-pitch));
+  /* 行ごとに幅を持たせず、結びの塊として止める（罫の長さがそろう） */
+  max-width: 44em;
 }
 
-.close::before {
-  top: 0;
-  bottom: 0;
-  background-position: 0 0;
-}
 
 /* 結びの見出し。字は段の名（.shelfName）と同じ「小」── 紙の上で見出しを
    名乗るのはこの一種類だけで、大きさでも太さでもなく字間だけが見出しを作る */
@@ -1507,7 +1497,6 @@
   list-style: none;
   margin: var(--hi-kei-pitch) 0 0;
   padding: 0;
-  max-width: 44em;
 }
 
 /* 目安の一文と、その先の頼み方。金額はもう上の 3 行が言っているので、
@@ -1518,7 +1507,6 @@
   line-height: 2.3;
   letter-spacing: 0.05em;
   color: var(--hi-sumi-2);
-  max-width: 40em;
 }
 
 /* 飛び先は二つ（頼めることと目安・宛先）。空き罫を一本はさんでから置く ──
@@ -1659,7 +1647,7 @@
  */
 .head::before {
   top: 0;
-  bottom: 0;
+  bottom: var(--hi-block-gap);
   background-position: 0 0;
   --hi-head-title-top: var(--hi-kei-pitch);
   --hi-head-title-h: round(
@@ -1733,7 +1721,6 @@
   line-height: 2.3;
   letter-spacing: 0.06em;
   color: var(--hi-sumi-2);
-  max-width: 40em;
 }
 
 /* 頭と一覧のあいだは罫 2 本（頭の下余白 1 行 ＋ ここ 1 行）。頭の版面は
