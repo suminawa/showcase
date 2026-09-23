@@ -33,11 +33,11 @@ describe("入口 3 行", () => {
   });
 
   it("件数はレジストリから数える（手で書かない）", () => {
-    expect(categoryCount("kits")).toEqual({ total: 10, onsale: 9 });
+    expect(categoryCount("kits")).toEqual({ total: 11, onsale: 9 });
     expect(categoryCount("sites")).toEqual({ total: 6, onsale: 0 });
     expect(categoryCount("works")).toEqual({ total: 4, onsale: 0 });
 
-    expect(countLabel("kits")).toBe("10 件　発売中 9 件");
+    expect(countLabel("kits")).toBe("11 件　発売中 9 件");
     expect(countLabel("sites")).toBe("6 件");
     expect(countLabel("works")).toBe("4 件");
   });
@@ -132,7 +132,7 @@ describe("projects registry", () => {
     }
   });
 
-  it("kits は発売中 9 本が先、発売前 1 本が後", () => {
+  it("kits は発売中 9 本が先、発売前 2 本が後", () => {
     const kits = projectsByCategory("kits");
     expect(kits.map((p) => p.slug)).toEqual([
       "quote-simulator",
@@ -145,14 +145,16 @@ describe("projects registry", () => {
       "sheet-app",
       "booking",
       "configurator",
+      "dashboard",
     ]);
     expect(kits.map((p) => p.sale?.status)).toEqual([
       ...Array(9).fill("onsale"),
       "upcoming",
+      "upcoming",
     ]);
   });
 
-  it("値段はレジストリの 1 か所。定価を持ち、発売前には持たせない", () => {
+  it("値段はレジストリの 1 か所。定価を持ち、発売前は決まったものだけが持つ", () => {
     const price = Object.fromEntries(
       projectsByCategory("kits").map((p) => [p.slug, p.sale?.price]),
     );
@@ -169,6 +171,8 @@ describe("projects registry", () => {
       "sheet-app": 9800,
       booking: 7980,
       configurator: undefined,
+      // 発売前だが定価は決まっている（一覧には「発売前」とだけ出る）
+      dashboard: 9800,
     });
   });
 

@@ -20,11 +20,13 @@ export type Category = "kits" | "sites" | "works";
  *
  * price は**定価**を持つ（発売記念の期間でも定価を出す）── 期限つきの数字を
  * 一覧に置くと、期間が終わった日から古い値が残りつづけるからである。
- * 発売前のものには値段を持たせない（出すと発売前に値が独り歩きする）。
+ * 発売前のものは、定価が決まっていれば持ってよいが、一覧には出さない
+ * （saleLabel は発売前なら「発売前」とだけ書く）── 発売の日に status を
+ * 替えるだけで済むようにするため。値が決まっていないものは持たせない。
  */
 export type Sale = {
   status: "onsale" | "upcoming";
-  /** 税込の定価（円）。発売中のものだけが持つ */
+  /** 税込の定価（円）。発売中のものと、定価の決まった発売前のものが持つ */
   price?: number;
 };
 
@@ -273,6 +275,14 @@ export const projects: Project[] = [
     tags: ["React Three Fiber", "glTF"],
     category: "kits",
     sale: { status: "upcoming" },
+  },
+  {
+    slug: "dashboard",
+    title: "ダッシュボード キット",
+    description: "表や CSV の数字を、設定だけで KPI とグラフの画面にする。",
+    tags: ["JavaScript", "SVG", "Google Apps Script"],
+    category: "kits",
+    sale: { status: "upcoming", price: 9800 },
   },
 
   /* ---- sites ── 架空の会社で作った見本 ---------------------------------- */
