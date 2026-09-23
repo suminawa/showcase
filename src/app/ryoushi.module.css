@@ -668,24 +668,25 @@
  *   字の来ない所には引かない。
  */
 .mark::after {
-  /* 下から数えて 余白 1 ＋ 入口（--hi-gates-rows 行）＋ 送り 6 ＝ その上から
-     4 行ぶん ── 英文（と落款）が座る一行と、その上の 3 行（大字の足元の
-     二本を含む）。下から測るのは、下の寸法が全部罫の整数倍だからで、
-     上から測ると「Showcase」の送り（clamp）が半端を持ち込む。
-     ＊ 12 の決め打ちにしていたとき、入口が 8 行になる狭い紙では版面が
-     4 行ぶんずれ、名乗りの塊から罫が 1 本も見えなくなっていた */
-  bottom: calc(
-    var(--hi-kei-pitch) + var(--hi-gates-gap) +
-      var(--hi-gates-rows) * var(--hi-kei-pitch)
-  );
-  height: calc(3 * var(--hi-kei-pitch));
+  /*
+   * 名乗りの帯の罫。大字の足元から、入口 3 行の手前までを紙幅いっぱいに敷く ──
+   * 大字の足元の一本・送りの一本・英文（と落款）が座る一本、そして英文と入口の
+   * あいだの空き（--hi-gates-gap）の全部。
+   *
+   * 下から測る（下の寸法が全部罫の整数倍だから）。下端は入口の版面の上端
+   * （余白 1 ＋ 入口 --hi-gates-rows 行）で、そこから上へ 3 行 ＋ 空きぶん。
+   * 下端は消え際を作らない ── 作ると英文の下の罫や入口の手前の罫が
+   * マスクで薄れて消える（2026-09-23 に一度、英文の行の下が紙の地になった）。
+   * 入口の左は紙の地のまま（字の来ない帯に罫を並べない）。
+   */
+  bottom: calc((1 + var(--hi-gates-rows)) * var(--hi-kei-pitch));
+  height: calc(3 * var(--hi-kei-pitch) + var(--hi-gates-gap));
   background-position: 0 100%;
   mask-image: linear-gradient(
     to bottom,
     transparent 0,
     #000 calc(0.6 * var(--hi-kei-pitch)),
-    #000 calc(100% - 0.6 * var(--hi-kei-pitch)),
-    transparent 100%
+    #000 100%
   );
 }
 
@@ -744,7 +745,12 @@
      下から数えた罫の位相（.mark::before の 12 行）は動かない。 */
   /* 大字の直下に寄せる ── 空きは罫 1 本だけ（2026-09-23） */
   margin-top: var(--hi-kei-pitch);
-  margin-left: var(--hi-en-left, clamp(28px, 20vw, 280px));
+  /* 英文と落款は、右上の墨の下の塊の【手前ぎりぎり】まで右へ送る。
+     墨は大字（14.5vw）に結びつけてあるので、その行の高さでの墨の左端も
+     幅に比例して動く。768〜1920px の 5 幅で「墨の左端 − 英文〜落款の幅 − 12px」
+     を測り、それを下回る直線で当てた（1280px で x=603、上限まで 3px）。
+     狭い紙では下の --hi-en-left が左寄せに上書きする */
+  margin-left: var(--hi-en-left, calc(59.46vw - 225px));
 }
 
 /*
@@ -1913,7 +1919,11 @@
    * 紙の余白が右に残ることで、図版は「貼ってある一枚」のままでいられる。
    * 高さは 4 行ちょうどなので、上に回しても行の高さは罫の整数倍のまま。
    */
-  .entry {
+  .entry,
+  .rows:has(.withFig) .entry {
+    /* 図版の欄を空ける規則（.rows:has(.withFig) .entry）は詳細度が高いので、
+       ここで名指しして一列に戻す ── 戻さないと、縦長の紙で字の欄が 130px ほどに
+       痩せ、説明が一行 7〜8 字で折れていた（/sites・/works の 390px） */
     grid-template-columns: minmax(0, 1fr);
     column-gap: 0;
   }
