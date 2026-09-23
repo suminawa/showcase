@@ -22,9 +22,13 @@
     "note": "https://note.com/suminawa/n/nbd61f412034d",
     "booth": "https://suminawa.booth.pm/items/8840258"
   },
-  "configurator": {
-    "note": "",
-    "booth": ""
+  "ai-concierge": {
+    "note": "https://note.com/suminawa/n/n4ca56c4ed189",
+    "booth": "https://suminawa.booth.pm/items/8877735"
+  },
+  "doc-reader": {
+    "note": "https://note.com/suminawa/n/n7b540f1733e1",
+    "booth": "https://suminawa.booth.pm/items/8878094"
   },
   "sheet-app": {
     "note": "https://note.com/suminawa/n/n206d0f5b8324",
@@ -34,17 +38,17 @@
     "note": "https://note.com/suminawa/n/n0066130e61b8",
     "booth": "https://suminawa.booth.pm/items/8884369"
   },
-  "ai-concierge": {
-    "note": "https://note.com/suminawa/n/n4ca56c4ed189",
-    "booth": "https://suminawa.booth.pm/items/8877735"
-  },
-  "doc-reader": {
-    "note": "https://note.com/suminawa/n/n7b540f1733e1",
-    "booth": "https://suminawa.booth.pm/items/8878094"
+  "inbox-triage": {
+    "note": "https://note.com/suminawa/n/nf977a574a179",
+    "booth": "https://suminawa.booth.pm/items/8887068"
   },
   "dashboard": {
     "note": "https://note.com/suminawa/n/n8790f2d59149",
     "booth": "https://suminawa.booth.pm/items/8888044"
+  },
+  "configurator": {
+    "note": "",
+    "booth": ""
   },
   "saas-starter": {
     "note": "",

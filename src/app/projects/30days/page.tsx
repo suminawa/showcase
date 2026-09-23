@@ -7,7 +7,6 @@
  * FORM: 料紙（作品ページ）— 文法は DESIGN.md
  */
 import type { Metadata } from "next";
-import { Fragment } from "react";
 import Link from "next/link";
 
 import { Board } from "@/components/thirtydays/Board";
@@ -17,13 +16,19 @@ import links from "@/data/links.json";
 import { fontVars } from "../fonts";
 import s from "../projects.module.css";
 
-/** チャレンジの中で出した売り物。URL は links.json（空なら出さない） */
+/** チャレンジの中で出した売り物（発売順）。URL は links.json（空なら値札を出さない） */
 const PRODUCTS = [
-  { name: "見積もり電卓テンプレ", links: links.s1 },
-  { name: "期限アラート GAS キット", links: links.s2 },
-  { name: "フォーム受付 GAS キット", links: links.s3 },
-  { name: "業種別 LP テンプレ パック", links: links.lp },
-  { name: "間取りシミュレーター", links: links.floorplan },
+  { name: "見積もり電卓テンプレ", date: "9/11", links: links.s1 },
+  { name: "期限アラート GAS キット", date: "9/12", links: links.s2 },
+  { name: "フォーム受付 GAS キット", date: "9/13", links: links.s3 },
+  { name: "業種別 LP テンプレ パック", date: "9/14", links: links.lp },
+  { name: "間取りシミュレーター", date: "9/16", links: links.floorplan },
+  { name: "AI 案内窓口キット", date: "9/21", links: links["ai-concierge"] },
+  { name: "AI 書類読み取りキット", date: "9/21", links: links["doc-reader"] },
+  { name: "スプレッドシート業務アプリ キット", date: "9/22", links: links["sheet-app"] },
+  { name: "予約ページ キット", date: "9/22", links: links.booking },
+  { name: "AI 問い合わせ整理キット", date: "9/23", links: links["inbox-triage"] },
+  { name: "ダッシュボード キット", date: "9/23", links: links.dashboard },
 ];
 
 export const metadata: Metadata = {
@@ -65,36 +70,11 @@ export default function ThirtyDaysPage() {
               </a>
             </>
           )}
-          <br />
-          {PRODUCTS.map((product, index) => (
-            <Fragment key={product.name}>
-              {index > 0 && "・"}
-              <span className={s.product}>
-                {product.name}
-                {product.links.note && (
-                  <>
-                    {" "}
-                    <a href={product.links.note} className={s.textLink}>
-                      note
-                    </a>
-                  </>
-                )}
-                {product.links.booth && (
-                  <>
-                    {product.links.note ? " / " : " "}
-                    <a href={product.links.booth} className={s.textLink}>
-                      BOOTH
-                    </a>
-                  </>
-                )}
-              </span>
-            </Fragment>
-          ))}
         </p>
       </header>
 
       <div className={s.work}>
-        <Board board={board} />
+        <Board board={board} products={PRODUCTS} />
       </div>
     </main>
   );

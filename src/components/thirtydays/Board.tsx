@@ -1,18 +1,34 @@
 import { formatYen } from "@/lib/format";
-import { cumulativeRevenue, sparklinePath, totals, type Board as BoardData } from "@/lib/thirtydays";
+import { cumulativeRevenue, sparklinePath, totals, type Board as BoardData, type DayRow } from "@/lib/thirtydays";
 import c from "./board.module.css";
 
 const WIDTH = 300;
 const HEIGHT = 40;
 
+export type Product = {
+  name: string;
+  date: string;
+  links: { note?: string; booth?: string };
+};
+
+/** "2026-09-22" → "9/22" */
+function shortDate(iso: string): string {
+  const [, m, d] = iso.split("-");
+  return `${Number(m)}/${Number(d)}`;
+}
+
 /**
  * 帳面。合計だけが「大」で、他はすべて「小」。枠を持たず、罫は墨の一本だけ。
  * 折れ線は累計売上。色は墨の一色で、軸も凡例も持たない（数字は表が持つ）。
+ *
+ * 表には数字だけを置く。文（出したもの・AI がやったこと）は表の列に入れると
+ * 一行が縦に伸びて読めなくなるので、表の下に「日々の記録」として普通の行幅で並べる。
  */
-export function Board({ board }: { board: BoardData }) {
+export function Board({ board, products }: { board: BoardData; products: Product[] }) {
   const t = totals(board.days);
   const cumulative = cumulativeRevenue(board.days);
   const latest = board.days[board.days.length - 1];
+  const newestFirst: DayRow[] = [...board.days].reverse();
 
   return (
     <div className={c.board}>
@@ -40,37 +56,84 @@ export function Board({ board }: { board: BoardData }) {
         </svg>
       )}
 
-      <div className={c.tableWrap}>
-        <table className={c.table}>
-          <caption className={c.srOnly}>日ごとの記録</caption>
-          <thead>
-            <tr>
-              <th scope="col">Day</th>
-              <th scope="col">売上</th>
-              <th scope="col">提案</th>
-              <th scope="col">返信</th>
-              <th scope="col">商談</th>
-              <th scope="col">人間（分）</th>
-              <th scope="col" className={c.textCol}>出したもの</th>
-              <th scope="col" className={c.textCol}>AI がやったこと</th>
-            </tr>
-          </thead>
-          <tbody>
-            {[...board.days].reverse().map((d) => (
-              <tr key={d.day}>
-                <th scope="row">{d.day}</th>
-                <td>{formatYen(d.revenue)}</td>
-                <td>{d.proposals}</td>
-                <td>{d.replies}</td>
-                <td>{d.meetings}</td>
-                <td>{d.humanMinutes}</td>
-                <td className={c.textCol}>{d.release || "—"}</td>
-                <td className={c.textCol}>{d.ai || "—"}</td>
+      <section className={c.section} aria-labelledby="products-heading">
+        <h2 id="products-heading" className={c.sectionTitle}>
+          出したもの <span className={c.count}>{products.length} 本</span>
+        </h2>
+        <ol className={c.products}>
+          {products.map((product) => (
+            <li key={product.name} className={c.productRow}>
+              <span className={c.productDate}>{product.date}</span>
+              <span className={c.productName}>{product.name}</span>
+              <span className={c.productLinks}>
+                {product.links.note && (
+                  <a href={product.links.note} className={c.link}>
+                    note
+                  </a>
+                )}
+                {product.links.note && product.links.booth && <span className={c.slash}>/</span>}
+                {product.links.booth && (
+                  <a href={product.links.booth} className={c.link}>
+                    BOOTH
+                  </a>
+                )}
+              </span>
+            </li>
+          ))}
+        </ol>
+      </section>
+
+      <section className={c.section} aria-labelledby="table-heading">
+        <h2 id="table-heading" className={c.sectionTitle}>
+          日ごとの数字
+        </h2>
+        <div className={c.tableWrap}>
+          <table className={c.table}>
+            <thead>
+              <tr>
+                <th scope="col">Day</th>
+                <th scope="col">日付</th>
+                <th scope="col">売上</th>
+                <th scope="col">提案</th>
+                <th scope="col">返信</th>
+                <th scope="col">商談</th>
+                <th scope="col">人間（分）</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+            </thead>
+            <tbody>
+              {newestFirst.map((d) => (
+                <tr key={d.day}>
+                  <th scope="row">{d.day}</th>
+                  <td>{shortDate(d.date)}</td>
+                  <td>{formatYen(d.revenue)}</td>
+                  <td>{d.proposals}</td>
+                  <td>{d.replies}</td>
+                  <td>{d.meetings}</td>
+                  <td>{d.humanMinutes}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section className={c.section} aria-labelledby="log-heading">
+        <h2 id="log-heading" className={c.sectionTitle}>
+          日々の記録
+        </h2>
+        <ol className={c.log}>
+          {newestFirst.map((d) => (
+            <li key={d.day} className={c.logEntry}>
+              <h3 className={c.logHead}>
+                Day {d.day}
+                <span className={c.logDate}>{shortDate(d.date)}</span>
+              </h3>
+              {d.release && <p className={c.logRelease}>出したもの: {d.release}</p>}
+              <p className={c.logBody}>{d.ai || "—"}</p>
+            </li>
+          ))}
+        </ol>
+      </section>
     </div>
   );
 }
