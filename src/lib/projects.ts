@@ -256,7 +256,7 @@ export const projects: Project[] = [
     description: "定義シートに列を書くと、一覧と登録の画面ができる。",
     tags: ["Google Apps Script"],
     category: "kits",
-    sale: { status: "upcoming" },
+    sale: { status: "onsale", price: 9800 },
   },
   {
     slug: "booking",
@@ -264,7 +264,7 @@ export const projects: Project[] = [
     description: "シートに枠を書くと、その URL が予約ページになる。",
     tags: ["Google Apps Script"],
     category: "kits",
-    sale: { status: "upcoming" },
+    sale: { status: "onsale", price: 7980 },
   },
   {
     slug: "configurator",

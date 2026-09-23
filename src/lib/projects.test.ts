@@ -33,11 +33,11 @@ describe("入口 3 行", () => {
   });
 
   it("件数はレジストリから数える（手で書かない）", () => {
-    expect(categoryCount("kits")).toEqual({ total: 10, onsale: 7 });
+    expect(categoryCount("kits")).toEqual({ total: 10, onsale: 9 });
     expect(categoryCount("sites")).toEqual({ total: 6, onsale: 0 });
     expect(categoryCount("works")).toEqual({ total: 4, onsale: 0 });
 
-    expect(countLabel("kits")).toBe("10 件　発売中 7 件");
+    expect(countLabel("kits")).toBe("10 件　発売中 9 件");
     expect(countLabel("sites")).toBe("6 件");
     expect(countLabel("works")).toBe("4 件");
   });
@@ -132,7 +132,7 @@ describe("projects registry", () => {
     }
   });
 
-  it("kits は発売中 7 本が先、発売前 3 本が後", () => {
+  it("kits は発売中 9 本が先、発売前 1 本が後", () => {
     const kits = projectsByCategory("kits");
     expect(kits.map((p) => p.slug)).toEqual([
       "quote-simulator",
@@ -147,8 +147,8 @@ describe("projects registry", () => {
       "configurator",
     ]);
     expect(kits.map((p) => p.sale?.status)).toEqual([
-      ...Array(7).fill("onsale"),
-      ...Array(3).fill("upcoming"),
+      ...Array(9).fill("onsale"),
+      "upcoming",
     ]);
   });
 
@@ -165,8 +165,9 @@ describe("projects registry", () => {
       // 2026-09-21 に発売した 2 本。どちらも定価（発売記念の値ではない）
       "ai-concierge": 12800,
       "doc-reader": 16800,
-      "sheet-app": undefined,
-      booking: undefined,
+      // 2026-09-22 に発売した 2 本。こちらも定価
+      "sheet-app": 9800,
+      booking: 7980,
       configurator: undefined,
     });
   });
