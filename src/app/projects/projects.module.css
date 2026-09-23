@@ -294,10 +294,14 @@
   .paper {
     gap: calc(0.75 * var(--rp-pitch));
   }
+  /* せまい紙では、墨を題の右上の外に置く。大きさも位置も幅だけから決める ──
+     高さ（svh）に結ぶと、背の高い画面ほど墨が下りてきて題と冒頭の段落に掛かる。
+     360〜767px の全作品ページで、字の箱に紙より Δ24 以上暗い画素が乗らないことを確かめた */
   .stroke {
-    top: -12svh;
-    right: -44vw;
-    width: 156vw;
+    --stroke-w: min(130vw, 510px);
+    top: calc(-0.367 * var(--stroke-w));
+    right: calc(-0.338 * var(--stroke-w));
+    width: var(--stroke-w);
   }
 }
 
