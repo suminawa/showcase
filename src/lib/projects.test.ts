@@ -33,11 +33,11 @@ describe("入口 3 行", () => {
   });
 
   it("件数はレジストリから数える（手で書かない）", () => {
-    expect(categoryCount("kits")).toEqual({ total: 12, onsale: 10 });
+    expect(categoryCount("kits")).toEqual({ total: 13, onsale: 11 });
     expect(categoryCount("sites")).toEqual({ total: 6, onsale: 0 });
     expect(categoryCount("works")).toEqual({ total: 4, onsale: 0 });
 
-    expect(countLabel("kits")).toBe("12 件　発売中 10 件");
+    expect(countLabel("kits")).toBe("13 件　発売中 11 件");
     expect(countLabel("sites")).toBe("6 件");
     expect(countLabel("works")).toBe("4 件");
   });
@@ -132,7 +132,7 @@ describe("projects registry", () => {
     }
   });
 
-  it("kits は発売中 10 本が先、発売前 2 本が後", () => {
+  it("kits は発売中 11 本が先、発売前 2 本が後", () => {
     const kits = projectsByCategory("kits");
     expect(kits.map((p) => p.slug)).toEqual([
       "quote-simulator",
@@ -144,12 +144,13 @@ describe("projects registry", () => {
       "doc-reader",
       "sheet-app",
       "booking",
+      "inbox-triage",
       "dashboard",
       "configurator",
       "saas-starter",
     ]);
     expect(kits.map((p) => p.sale?.status)).toEqual([
-      ...Array(10).fill("onsale"),
+      ...Array(11).fill("onsale"),
       "upcoming",
       "upcoming",
     ]);
@@ -171,9 +172,10 @@ describe("projects registry", () => {
       // 2026-09-22 に発売した 2 本。こちらも定価
       "sheet-app": 9800,
       booking: 7980,
-      configurator: undefined,
-      // 発売前だが定価は決まっている（一覧には「発売前」とだけ出る）
+      // 2026-09-23 に発売した 2 本（問い合わせ整理は作品ページ無し。note の記事へ直に）
+      "inbox-triage": 5980,
       dashboard: 9800,
+      configurator: undefined,
       "saas-starter": 19800,
     });
   });

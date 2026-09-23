@@ -269,6 +269,16 @@ export const projects: Project[] = [
     sale: { status: "onsale", price: 7980 },
   },
   {
+    slug: "inbox-triage",
+    title: "AI 問い合わせ整理キット",
+    description: "Gmail の問い合わせを AI が読み、分類と要約を表に、返信案を下書きに。",
+    tags: ["Google Apps Script", "Claude"],
+    category: "kits",
+    sale: { status: "onsale", price: 5980 },
+    // 作品ページを持たない（見本を置けない）ので、note の販売記事へ直に
+    href: links["inbox-triage"].note,
+  },
+  {
     slug: "dashboard",
     title: "ダッシュボード キット",
     description: "表や CSV の数字を、設定だけで KPI とグラフの画面にする。",
