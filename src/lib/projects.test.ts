@@ -152,7 +152,6 @@ describe("projects registry", () => {
       ...Array(10).fill("onsale"),
       "upcoming",
       "upcoming",
-      "upcoming",
     ]);
   });
 
