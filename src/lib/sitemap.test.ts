@@ -9,6 +9,8 @@ describe("sitemap", () => {
     expect(paths).toContain("/contact");
     expect(paths).toContain("/projects/booking");
     expect(paths).toContain("/demos/corporate-site");
+    expect(paths).toContain("/guides");
+    expect(paths).toContain("/guides/pdf-to-spreadsheet");
     expect(paths.some((p) => p.startsWith("/dl/"))).toBe(false);
     expect(paths.every((p) => p.startsWith("/"))).toBe(true);
     expect(new Set(paths).size).toBe(paths.length);

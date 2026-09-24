@@ -1,0 +1,81 @@
+/*
+ * 悩みから読む紙の本文。料紙（projects.module.css）の上に、段の見出しと箇条だけを足す。
+ * 字は料紙と同じ「小」の一段。行送りはすべて --rp-pitch の整数倍。
+ */
+
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: calc(0.5 * var(--rp-pitch));
+  max-width: 40em;
+  margin-top: var(--rp-pitch);
+}
+
+.heading {
+  font-family: var(--rp-serif-display);
+  font-weight: 400;
+  font-size: var(--rp-tiny);
+  line-height: var(--rp-pitch);
+  letter-spacing: 0.24em;
+  color: var(--rp-sumi);
+}
+
+.text {
+  font-size: var(--rp-tiny);
+  line-height: 2.3;
+  letter-spacing: 0.06em;
+  color: var(--rp-sumi-3);
+}
+
+.list {
+  margin: 0;
+  padding-left: 1.4em;
+  font-size: var(--rp-tiny);
+  line-height: 2.3;
+  letter-spacing: 0.06em;
+  color: var(--rp-sumi-3);
+}
+
+.figure {
+  margin: 0;
+  max-width: 40em;
+}
+
+.figure img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border: 1px solid color-mix(in srgb, var(--rp-sumi) 12%, transparent);
+}
+
+.caption {
+  margin-top: calc(0.25 * var(--rp-pitch));
+  font-size: var(--rp-tiny);
+  line-height: var(--rp-pitch);
+  color: var(--rp-sumi-4);
+}
+
+/* 一覧の行: 題（リンク）と一行の説明 */
+.rows {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--rp-pitch);
+  max-width: 40em;
+}
+
+.rowTitle {
+  font-size: var(--rp-tiny);
+  line-height: var(--rp-pitch);
+  letter-spacing: 0.06em;
+  color: var(--rp-sumi);
+}
+
+.rowLede {
+  font-size: var(--rp-tiny);
+  line-height: 2.3;
+  letter-spacing: 0.06em;
+  color: var(--rp-sumi-4);
+}
