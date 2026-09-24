@@ -302,7 +302,7 @@ export const projects: Project[] = [
     description: "回しながら色や素材を選び、価格をその場で確かめる。",
     tags: ["React Three Fiber", "glTF"],
     category: "kits",
-    sale: { status: "upcoming" },
+    sale: { status: "onsale", price: 12800 },
   },
   {
     slug: "saas-starter",
