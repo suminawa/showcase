@@ -29,6 +29,7 @@ const PRODUCTS = [
   { name: "予約ページ キット", date: "9/22", links: links.booking },
   { name: "AI 問い合わせ整理キット", date: "9/23", links: links["inbox-triage"] },
   { name: "ダッシュボード キット", date: "9/23", links: links.dashboard },
+  { name: "LINE 案内窓口キット", date: "9/24", links: links["line-concierge"] },
 ];
 
 export const metadata: Metadata = {

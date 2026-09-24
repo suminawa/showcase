@@ -279,6 +279,16 @@ export const projects: Project[] = [
     href: links["inbox-triage"].note,
   },
   {
+    slug: "line-concierge",
+    title: "LINE 案内窓口キット",
+    description: "LINE 公式アカウントに、自社の文書だけを根拠に敬体で答える窓口を置く。",
+    tags: ["Next.js", "TypeScript", "Claude"],
+    category: "kits",
+    sale: { status: "onsale", price: 12800 },
+    // 作品ページを持たない（LINE の中で動くので見本を置けない）。note の販売記事へ直に
+    href: links["line-concierge"].note,
+  },
+  {
     slug: "dashboard",
     title: "ダッシュボード キット",
     description: "表や CSV の数字を、設定だけで KPI とグラフの画面にする。",
