@@ -1867,7 +1867,7 @@ function renderLinePanel(friend, view, line, ai) {
   const templates = Array.isArray(line.templates) ? line.templates : [];
   const select =
     templates.length > 0
-      ? '<label class="sa-field">定型文<select data-field="line-template"><option value="">（定型文を選ぶ）</option>' + templates.map((t, i) => '<option value="' + i + '">' + escapeHtml(t.title) + "</option>").join("") + "</select></label>"
+      ? '<label class="sa-field">定型文<select data-field="line-template"><option value="">（定型文を選ぶ）</option>' + templates.map((t, i) => '<option value="' + i + '"' + (String(view.lineTemplate) === String(i) ? " selected" : "") + ">" + escapeHtml(t.title) + "</option>").join("") + "</select></label>"
       : "";
   const draft = ai
     ? '<div class="sa-ai"><input type="text" data-field="line-intent" value="' + attr_(view.lineIntent || "") + '" placeholder="用件（例: 先日の内見のお礼と、次の候補日を 2 つ聞く）" aria-label="AI に伝える用件"><button type="button" class="sa-btn" data-action="line-draft"' + (view.lineDrafting ? " disabled" : "") + ">" + (view.lineDrafting ? "下書きしています…" : "AI で下書き") + "</button></div>"
@@ -2146,7 +2146,7 @@ function reduce(state, action) {
   if (type === "ai-explanation") return assign_(state, { aiExplanation: String(action.text || "") });
   if (type === "open-detail") {
     return assign_(state, {
-      view: { kind: "detail", id: action.row ? action.row.ID : "", row: action.row, refs: action.refs || {}, summary: "", summaryLoading: false, history: Array.isArray(action.history) ? action.history : [], lineOpen: false, lineText: "", lineIntent: "", lineError: "", lineSending: false, lineDrafting: false },
+      view: { kind: "detail", id: action.row ? action.row.ID : "", row: action.row, refs: action.refs || {}, summary: "", summaryLoading: false, history: Array.isArray(action.history) ? action.history : [], lineOpen: false, lineText: "", lineTemplate: "", lineIntent: "", lineError: "", lineSending: false, lineDrafting: false },
       error: "",
       notice: "",
     });
@@ -2159,13 +2159,13 @@ function reduce(state, action) {
   if (type === "summary-loading") return withView_(state, { summaryLoading: action.on === true });
   if (type === "summary") return withView_(state, { summary: String(action.text || ""), summaryLoading: false });
   if (type === "line-toggle") return state.view === null ? state : withView_(state, { lineOpen: state.view.lineOpen !== true, lineError: "" });
-  if (type === "line-text") return withView_(state, { lineText: String(action.text || "") });
+  if (type === "line-text") return withView_(state, { lineText: String(action.text || ""), lineTemplate: action.template === undefined ? (state.view ? state.view.lineTemplate : "") : String(action.template) });
   if (type === "line-intent") return withView_(state, { lineIntent: String(action.text || "") });
   if (type === "line-drafting") return withView_(state, { lineDrafting: action.on === true, lineError: "" });
   if (type === "line-sending") return withView_(state, { lineSending: action.on === true, lineError: "" });
   if (type === "line-error") return withView_(state, { lineError: String(action.message || ""), lineSending: false, lineDrafting: false });
   if (type === "line-sent") {
-    const next = withView_(state, { history: Array.isArray(action.history) ? action.history : [], lineText: "", lineIntent: "", lineError: "", lineSending: false, lineOpen: false });
+    const next = withView_(state, { history: Array.isArray(action.history) ? action.history : [], lineText: "", lineTemplate: "", lineIntent: "", lineError: "", lineSending: false, lineOpen: false });
     return assign_(next, { line: Object.assign({}, next.line, { monthCount: Number(action.monthCount) || 0 }) });
   }
   if (type === "close") return assign_(state, { view: null });
@@ -2290,7 +2290,7 @@ function memoryApi(templateName) {
       pageSize: DEMO_PAGE_SIZE,
       dateFormat: "yyyy-MM-dd",
       today: toDateKey(new Date()),
-      line: { enabled: lineEnabled, friends: lineEnabled ? friends : [], templates: lineEnabled ? templates : [], canSend: lineEnabled, monthCount: sendLog.length, staffName: "見本" },
+      line: { enabled: lineEnabled, friends: lineEnabled ? friends : [], templates: lineEnabled ? templates : [], canSend: lineEnabled, monthCount: sendLog.length, staffName: "山田" },
     })),
     list: wrap((tableName, rawQuery) => {
       const table = tableOf(tableName);
@@ -2725,7 +2725,7 @@ function mountSheetApp(root, api) {
     const template = state.line.templates[Number(value)];
     if (!template) return;
     const values = detailValues(currentTable(state), view.row, view.refs, { dateFormat: state.dateFormat, friends: state.line.friends });
-    dispatch({ type: "line-text", text: fillLineTemplate(template.body, { values: values, staffName: state.line.staffName }) });
+    dispatch({ type: "line-text", template: value, text: fillLineTemplate(template.body, { values: values, staffName: state.line.staffName }) });
   }
 
   function lineDraft() {
