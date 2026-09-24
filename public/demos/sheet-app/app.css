@@ -77,3 +77,11 @@
   .sa-drawer { width: 100%; }
   .sa-detail dl { grid-template-columns: 1fr; }
 }
+.sa-line { margin: 0 0 12px; padding: 12px; border: 1px solid var(--sa-accent); border-radius: var(--sa-radius); background: var(--sa-paper); }
+.sa-line h3, .sa-line-history h3 { font-size: 1rem; margin: 0 0 8px; }
+.sa-line select, .sa-line input[type="text"] { padding: 6px 8px; border: 1px solid var(--sa-line); border-radius: 6px; font: inherit; }
+.sa-line textarea { width: 100%; padding: 8px 10px; border: 1px solid var(--sa-line); border-radius: 6px; font: inherit; background: var(--sa-paper); }
+.sa-warn { color: var(--sa-danger); }
+.sa-line-history { margin-top: 16px; padding-top: 12px; border-top: 1px solid var(--sa-line); }
+.sa-line-history-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
+.sa-line-search { margin-bottom: 4px; }

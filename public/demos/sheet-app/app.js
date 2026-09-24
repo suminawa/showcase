@@ -133,6 +133,8 @@ function dateTimeFromKey(key) {
 const TYPES = ["文字", "長文", "数値", "金額", "日付", "日時", "選択", "複数選択", "チェック", "メール", "電話", "URL"];
 const SYSTEM_COLUMNS = ["ID", "作成日時", "更新日時", "更新者"];
 const RESERVED_SHEETS = ["設定", "定義"];
+/** お客さまの LINE のユーザー ID を持つ型。参照 と同じく TYPES の外で読む。1 テーブルに 1 列まで */
+const LINE_TYPE = "LINE";
 /** 既定で検索欄の対象にする型 */
 const DEFAULT_SEARCHABLE = ["文字", "長文", "メール", "電話"];
 /** 定義シートの見出し → 内部の名前 */
@@ -184,8 +186,16 @@ function findColumn(table, name) {
   return null;
 }
 
+/** テーブルの LINE の列。無ければ null */
+function lineColumn(table) {
+  for (let i = 0; i < table.columns.length; i += 1) {
+    if (table.columns[i].type === LINE_TYPE) return table.columns[i];
+  }
+  return null;
+}
+
 function typeError_(line, typeText) {
-  return "sheet-app: 定義の " + line + " 行目: 型「" + typeText + "」は使えません。" + TYPES.join("・") + "・参照:<テーブル名> のいずれかにしてください";
+  return "sheet-app: 定義の " + line + " 行目: 型「" + typeText + "」は使えません。" + TYPES.join("・") + "・LINE・参照:<テーブル名> のいずれかにしてください";
 }
 
 /**
@@ -242,6 +252,8 @@ function parseDefinition(rows) {
     if (ref) {
       type = "参照";
       refTable = ref[1].trim();
+    } else if (typeText.toUpperCase() === LINE_TYPE) {
+      type = LINE_TYPE;
     } else if (TYPES.indexOf(typeText) < 0) {
       errors.push(typeError_(line, typeText));
       continue;
@@ -259,6 +271,10 @@ function parseDefinition(rows) {
     }
     if (findColumn(table, columnName) !== null) {
       errors.push("sheet-app: 定義の " + line + " 行目: テーブル「" + tableName + "」に列「" + columnName + "」が 2 回あります");
+      continue;
+    }
+    if (type === LINE_TYPE && lineColumn(table) !== null) {
+      errors.push("sheet-app: 定義の " + line + " 行目: テーブル「" + tableName + "」の LINE の列は 1 つまでです（すでに「" + lineColumn(table).name + "」があります）");
       continue;
     }
     table.columns.push({
@@ -287,6 +303,191 @@ function parseDefinition(rows) {
     errors.push("sheet-app: 「定義」シートにテーブルがありません。2 行目から、テーブル・列・型を書いてください");
   }
   return { tables: tables, errors: errors };
+}
+
+// ===== line.js =====
+/**
+ * お客さまへの LINE 送信の純粋な処理: webhook の本文の読み取り、ユーザー ID の形、定型文（題|本文）と置き換え、
+ * 友だちの一覧の整え、月の送信数、LINE の応答の言い換え、断りの文。画面（App.html）でも同じものを動かす。
+ */
+
+/** LINE のユーザー ID は U と 32 桁の 16 進 */
+const LINE_USER_ID = /^U[0-9a-f]{32}$/;
+/** LINE のテキストメッセージは 5,000 字まで */
+const LINE_TEXT_LIMIT = 5000;
+const FRIENDS_SHEET = "_LINE友だち";
+const FRIENDS_HEADER = ["ユーザー ID", "表示名", "追加日時", "状態"];
+const FRIEND_STATE = "友だち";
+const BLOCKED_STATE = "ブロック";
+const SEND_LOG_SHEET = "_LINE送信履歴";
+const SEND_LOG_HEADER = ["日時", "テーブル", "ID", "送り先ユーザー ID", "送信者", "本文", "結果"];
+const SENT = "送信済み";
+/** 詳細画面に出す送信履歴の件数 */
+const HISTORY_LIMIT = 20;
+/** 送信と下書きを断るときの文（サーバーと見本で同じものを使う） */
+const LINE_MESSAGES = {
+  noColumn: "このテーブルには LINE の列がありません",
+  viewer: "この画面では閲覧のみできます。LINE を送るには、スプレッドシートの編集者である必要があります",
+  notSender: "LINE を送れるのは、設定「LINE を送れる人」に書かれた方だけです。送る必要がある場合は、所有者に追加をご依頼ください",
+  noToken: "LINE の送信は使えません。設定「LINE チャネルアクセストークン」をご確認ください",
+  noFriend: "この記録には LINE の友だちが結びついていません。編集で LINE の欄を選んでから送ってください",
+  unknown: "この LINE のユーザー ID は友だちの一覧にありません。友だち追加をしていただいてから、もう一度お試しください",
+  blocked: "この方は LINE でブロック中のため送れません",
+  blockedChoice: "この方は LINE でブロック中のため選べません。ほかの友だちを選ぶか、空にしてください",
+  emptyText: "本文を入力してください",
+  emptyIntent: "用件を入力してください（例: 先日の内見のお礼と、次の候補日を 2 つ聞く）",
+};
+const LINE_MARK = /\{([^{}\n]{1,60})\}/g;
+
+function isLineUserId(value) {
+  return LINE_USER_ID.test(textOf(value));
+}
+
+/**
+ * LINE の webhook の本文から、友だち追加（follow）とブロック（unfollow）だけを取り出す。
+ * ほかの出来事（message など）・グループ・形の違う ID は捨てる。本文が JSON のオブジェクトでなければ error に文
+ */
+function parseWebhook(body) {
+  const broken = { events: [], error: "LINE からの本文を JSON として読めませんでした" };
+  let json;
+  try {
+    json = JSON.parse(String(body === null || body === undefined ? "" : body));
+  } catch (error) {
+    return broken;
+  }
+  if (json === null || typeof json !== "object" || Array.isArray(json)) return broken;
+  const list = Array.isArray(json.events) ? json.events : [];
+  const events = [];
+  for (let i = 0; i < list.length; i += 1) {
+    const event = list[i];
+    if (event === null || typeof event !== "object") continue;
+    if (event.type !== "follow" && event.type !== "unfollow") continue;
+    const source = event.source && typeof event.source === "object" ? event.source : {};
+    if (source.type !== "user" || !isLineUserId(source.userId)) continue;
+    events.push({ type: event.type, userId: String(source.userId).trim() });
+  }
+  return { events: events, error: "" };
+}
+
+/** 「LINE 定型文」の値。1 行 1 本の「題|本文」（全角の｜も可）、本文の \n は改行。空行は飛ばす */
+function parseLineTemplates(text) {
+  const lines = String(text === null || text === undefined ? "" : text).split(/\r?\n/);
+  const templates = [];
+  const errors = [];
+  for (let i = 0; i < lines.length; i += 1) {
+    const line = lines[i].trim();
+    if (line === "") continue;
+    const at = line.search(/[|｜]/);
+    if (at < 0) {
+      errors.push("設定「LINE 定型文」の " + (i + 1) + " 行目に「|」がありません。「題|本文」の形で書いてください");
+      continue;
+    }
+    const title = line.slice(0, at).trim();
+    const body = line.slice(at + 1).trim().replace(/\\n/g, "\n");
+    if (title === "" || body === "") {
+      errors.push("設定「LINE 定型文」の " + (i + 1) + " 行目は、題と本文の両方を書いてください");
+      continue;
+    }
+    templates.push({ title: title.slice(0, 40), body: body });
+  }
+  return { templates: templates, errors: errors };
+}
+
+/**
+ * 定型文の本文の置き換え。{担当者名} と列名そのもの（{会社名} など。values は画面に出ている文字）。
+ * 知らない印は残す。値の中に {…} があっても置き換えない（1 回の走査）
+ */
+function fillLineTemplate(body, context) {
+  const values = context && context.values ? context.values : {};
+  const staff = context && context.staffName ? String(context.staffName) : "";
+  return String(body === null || body === undefined ? "" : body).replace(LINE_MARK, (whole, key) => {
+    if (key === "担当者名") return staff;
+    if (Object.prototype.hasOwnProperty.call(values, key)) return String(values[key]);
+    return whole;
+  });
+}
+
+/** 本文に残っている {…} の印（重複なし） */
+function leftoverPlaceholders(text) {
+  const found = String(text === null || text === undefined ? "" : text).match(LINE_MARK) || [];
+  const out = [];
+  for (let i = 0; i < found.length; i += 1) if (out.indexOf(found[i]) < 0) out.push(found[i]);
+  return out;
+}
+
+/** 定型文の {担当者名}。設定「担当者名」、空ならメールの @ の前 */
+function staffNameFor(settings, email) {
+  const name = textOf(settings && settings.staffName);
+  if (name !== "") return name;
+  return textOf(email).split("@")[0];
+}
+
+/**
+ * _LINE友だち の行（{ userId, name, state }）を画面の候補の形 [{ id, name, blocked }] にする。
+ * 表示名が空（profile が取れなかった「未確認」）の ID と、形の違う ID と、2 回目以降の同じ ID は出さない。表示名の順
+ */
+function friendsForScreen(rows) {
+  const list = Array.isArray(rows) ? rows : [];
+  const seen = {};
+  const out = [];
+  for (let i = 0; i < list.length; i += 1) {
+    const row = list[i] || {};
+    const id = textOf(row.userId);
+    const name = textOf(row.name);
+    if (!isLineUserId(id) || name === "" || seen[id] === true) continue;
+    seen[id] = true;
+    out.push({ id: id, name: name, blocked: textOf(row.state) === BLOCKED_STATE });
+  }
+  out.sort((a, b) => a.name.localeCompare(b.name, "ja"));
+  return out;
+}
+
+function findFriend(friends, id) {
+  const key = textOf(id);
+  const list = Array.isArray(friends) ? friends : [];
+  for (let i = 0; i < list.length; i += 1) if (list[i].id === key) return list[i];
+  return null;
+}
+
+/** 一覧・詳細に出す LINE の列の文字。友だちなら表示名（ブロック中は印を添える）、一覧に無い ID はそのまま */
+function friendLabel(friends, id) {
+  const key = textOf(id);
+  if (key === "") return "";
+  const friend = findFriend(friends, key);
+  if (friend === null) return key;
+  return friend.name + (friend.blocked ? "（ブロック中）" : "");
+}
+
+/** _LINE送信履歴 の行（{ at, result }）のうち、monthKey（"2026-09"）の「送信済み」の数 */
+function countMonthSends(rows, monthKey) {
+  const prefix = textOf(monthKey) + "-";
+  const list = Array.isArray(rows) ? rows : [];
+  let count = 0;
+  for (let i = 0; i < list.length; i += 1) {
+    const row = list[i] || {};
+    if (textOf(row.result) === SENT && textOf(row.at).indexOf(prefix) === 0) count += 1;
+  }
+  return count;
+}
+
+/** LINE が送信を断ったときの文。LINE の message はそのまま出さず、状態コードごとに敬体で言い換える */
+function lineSendError(status) {
+  const code = Number(status) || 0;
+  if (code === 0) return "送れませんでした。LINE につながりませんでした。しばらくしてからもう一度お試しください";
+  const head = "送れませんでした（LINE の応答: " + code + "）。";
+  if (code === 400) return head + "本文か送り先の形が受け付けられませんでした。本文を短くするか、LINE の欄を選び直してください";
+  if (code === 401) return head + "設定「LINE チャネルアクセストークン」が正しくないか、失効しています";
+  if (code === 403) return head + "ブロックされているか、トークンが失効しています";
+  if (code === 429) return head + "今月の送信数の上限に達したか、短い間に送りすぎています。LINE Official Account Manager でプランと送信数をご確認ください";
+  return head + "しばらくしてからもう一度お試しください";
+}
+
+/** 送る本文の検査。問題が無ければ "" */
+function lineTextError(text) {
+  const body = String(text === null || text === undefined ? "" : text).trim();
+  if (body === "") return LINE_MESSAGES.emptyText;
+  if (body.length > LINE_TEXT_LIMIT) return "本文は 5,000 字以内にしてください（いまは " + body.length.toLocaleString("en-US") + " 字）";
+  return "";
 }
 
 // ===== validate.js =====
@@ -335,6 +536,10 @@ function checkValue(column, raw) {
   }
   const t = textOf(Array.isArray(raw) ? raw.join(", ") : raw);
   if (t === "") return { error: "", value: type === "数値" || type === "金額" ? null : "" };
+  if (type === "LINE") {
+    if (!isLineUserId(t)) return { error: "LINE の友だちから選んでください", value: t };
+    return { error: "", value: t };
+  }
   if (type === "文字" || type === "参照") {
     if (t.length > TEXT_LIMIT) return { error: TEXT_LIMIT + " 字以内で入力してください", value: t };
     return { error: "", value: t };
@@ -818,6 +1023,395 @@ function nextId(lastId, dateKey) {
   return formatId(dateKey, last.sequence + 1);
 }
 
+// ===== notify.js =====
+/**
+ * 登録・更新・削除の通知の純粋な処理: 変更点の整形、テンプレの置き換え、記録の URL、通知するかの判定、
+ * Slack / Discord / LINE の送信データ。Node でそのままテストできる。
+ * buildPayload と、テンプレを 1 回の走査で置き換える作りは packages/form-intake-gas/src/message.js から写した
+ * （build が src/ を 1 本に束ねる作りなので、パッケージをまたいで import しない）。
+ */
+
+const NOTIFY_TARGETS = ["slack", "discord", "line"];
+const NOTIFY_OPS = ["登録", "更新", "削除"];
+const NOTIFY_LOG_SHEET = "_通知ログ";
+const NOTIFY_LOG_HEADER = ["日時", "テーブル", "操作", "ID", "宛先", "結果"];
+/** 変更点の 1 つの値は 60 字で切る（長文の中身が Slack などに流れすぎないように） */
+const CHANGE_TEXT_LIMIT = 60;
+/** 変更点は 10 列まで。超えた分は「ほか n 列」 */
+const CHANGE_COLUMN_LIMIT = 10;
+const DEFAULT_NOTIFY_TEMPLATE = ["【{アプリ名}】{テーブル}を{操作}しました", "{表示名}（{ID}）", "{変更点}", "{更新者}", "{URL}"].join("\n");
+
+/** Slack の text は 40,000 字まで。余裕を見てここで切る */
+const SLACK_PAYLOAD_LIMIT = 39000;
+/** Discord の content は 2,000 字まで。余裕を見てここで切る */
+const DISCORD_PAYLOAD_LIMIT = 1900;
+/** LINE のテキストメッセージは 5,000 字まで */
+const LINE_PAYLOAD_LIMIT = 5000;
+const NOTIFY_MARK = /\{([^{}\n]{1,60})\}/g;
+
+function truncatePayload_(text, limit) {
+  if (text.length <= limit) return text;
+  // Slack の文字参照（&amp; など）を途中で切らない
+  return text.slice(0, limit - 8).replace(/&[a-z]{0,3}$/, "") + "\n…（以下省略）";
+}
+
+/** Slack の text では & < > が制御の字（<!channel> や <@U…> のメンション・リンク）なので、文字として送る */
+function escapeSlack(text) {
+  return String(text).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+}
+
+/** 1 行にして limit 字（既定 60 字）で切る。切ったら … を付ける */
+function shortText(text, limit) {
+  const max = limit === undefined ? CHANGE_TEXT_LIMIT : limit;
+  const t = String(text === null || text === undefined ? "" : text).replace(/\s*\r?\n\s*/g, " ").trim();
+  return t.length > max ? t.slice(0, max) + "…" : t;
+}
+
+function isBlank_(value) {
+  return value === null || value === undefined || value === "" || (Array.isArray(value) && value.length === 0);
+}
+
+/** 通知に出す 1 つの値（切らない）。チェックは はい / いいえ、labels にある値（参照・LINE）は表示名、ほかは画面と同じ書式 */
+function plainValue_(column, value, options) {
+  if (isBlank_(value)) return "";
+  if (column.type === "チェック") return value === true || String(value).toUpperCase() === "TRUE" ? "はい" : "いいえ";
+  const labels = options.labels && options.labels[column.name] ? options.labels[column.name] : null;
+  if (labels !== null && Object.prototype.hasOwnProperty.call(labels, String(value))) return String(labels[String(value)]);
+  return formatCell(column, value, { dateFormat: options.dateFormat });
+}
+
+/** 記録を { 列名: 表示の文字 } にする（テンプレの {列名} と表示名に使う。切らない） */
+function displayValues(table, record, options) {
+  const opts = options || {};
+  const source = record || {};
+  const values = {};
+  for (let i = 0; i < table.columns.length; i += 1) {
+    const column = table.columns[i];
+    values[column.name] = plainValue_(column, source[column.name], opts);
+  }
+  return values;
+}
+
+/**
+ * 変更点。op は 登録 / 更新 / 削除、before・after は API の形の記録（無い側は null）。
+ * 返り値 { items: [{ column, before, after }], more }。値は画面向けの文字で、60 字で切る。10 列を超えた数は more
+ */
+function buildChanges(table, op, before, after, options) {
+  const opts = options || {};
+  const items = [];
+  if (op !== "削除") {
+    for (let i = 0; i < table.columns.length; i += 1) {
+      const column = table.columns[i];
+      const raw = after ? after[column.name] : "";
+      const next = shortText(plainValue_(column, raw, opts));
+      if (op === "登録") {
+        // 登録は空でない列だけ（チェックの いいえ も空とみなす）
+        if (next === "" || raw === false) continue;
+        items.push({ column: column.name, before: "", after: next });
+      } else {
+        const prev = shortText(plainValue_(column, before ? before[column.name] : "", opts));
+        if (prev !== next) items.push({ column: column.name, before: prev, after: next });
+      }
+    }
+  }
+  return { items: items.slice(0, CHANGE_COLUMN_LIMIT), more: Math.max(0, items.length - CHANGE_COLUMN_LIMIT) };
+}
+
+/** {変更点} に入る文。1 行 1 列「列名: 前 → 後」（登録は「列名: 値」）。超えた分は「ほか n 列」 */
+function formatChanges(op, changes) {
+  const list = changes && Array.isArray(changes.items) ? changes.items : [];
+  const lines = [];
+  for (let i = 0; i < list.length; i += 1) {
+    const item = list[i];
+    if (op === "登録") lines.push(item.column + ": " + item.after);
+    else lines.push(item.column + ": " + (item.before === "" ? "（空）" : item.before) + " → " + (item.after === "" ? "（空）" : item.after));
+  }
+  if (changes && changes.more > 0) lines.push("ほか " + changes.more + " 列");
+  return lines.join("\n");
+}
+
+/**
+ * 通知の文面。{アプリ名} {テーブル} {操作} {ID} {表示名} {更新者} {変更点} {URL} と、列名そのもの（event.values）が使える。
+ * 知らない印はそのまま残す（書き間違いに気づけるように）。値の中に {…} があっても置き換えない（1 回の走査）。
+ * 印のあった行が置き換えの結果で空になったら、その行ごと省く（削除の {変更点}、URL が無いときの {URL} など）
+ */
+function buildNotifyText(template, event) {
+  const reserved = {
+    アプリ名: textOf(event.appName),
+    テーブル: textOf(event.table),
+    操作: textOf(event.op),
+    ID: textOf(event.id),
+    表示名: textOf(event.label),
+    更新者: textOf(event.actor),
+    変更点: formatChanges(event.op, event.changes),
+    URL: textOf(event.url),
+  };
+  const values = event.values || {};
+  const lines = String(template).split("\n");
+  const out = [];
+  for (let i = 0; i < lines.length; i += 1) {
+    let used = false;
+    const rendered = lines[i].replace(NOTIFY_MARK, (whole, key) => {
+      if (Object.prototype.hasOwnProperty.call(reserved, key)) {
+        used = true;
+        return reserved[key];
+      }
+      if (Object.prototype.hasOwnProperty.call(values, key)) {
+        used = true;
+        return String(values[key]);
+      }
+      return whole;
+    });
+    if (used && rendered.trim() === "") continue;
+    out.push(rendered);
+  }
+  return out.join("\n");
+}
+
+/** メニュー「通知のテストを送る」の本文 */
+function buildTestNotifyText(appName) {
+  return "【" + textOf(appName) + "】これはテストです。通知の設定ができています。";
+}
+
+/** 通知の URL。画面は #<テーブル>/<ID> で詳細を直接開く。Web アプリの URL が分からなければ "" */
+function recordUrl(appUrl, tableName, id) {
+  const base = textOf(appUrl);
+  if (base === "") return "";
+  return base + "#" + encodeURIComponent(textOf(tableName)) + "/" + encodeURIComponent(textOf(id));
+}
+
+/**
+ * 通知するか。event は { table, op, actor }。
+ * 「自分の操作は通知しない」（skipOwn）は、更新者がスプレッドシートの所有者のときだけ飛ばす（所有者が分からなければ飛ばさない）
+ */
+function shouldNotify(settings, event, ownerEmail) {
+  if (!Array.isArray(settings.notifyTargets) || settings.notifyTargets.length === 0) return false;
+  if (settings.notifyTables.length > 0 && settings.notifyTables.indexOf(event.table) < 0) return false;
+  if (settings.notifyOps.indexOf(event.op) < 0) return false;
+  const owner = textOf(ownerEmail).toLowerCase();
+  if (settings.skipOwn === true && owner !== "" && textOf(event.actor).toLowerCase() === owner) return false;
+  return true;
+}
+
+/**
+ * Slack は text、Discord は content、LINE は push message の中身（form-intake-gas の message.js と同じ形）。
+ * 通知にはお客さまが決めた名前（LINE の表示名など）も入るので、@everyone やメンションとして働かせない:
+ * Discord は allowed_mentions を空に、Slack は & < > を文字参照にする
+ */
+function buildPayload(text, target, options) {
+  if (target === "discord") return { content: truncatePayload_(text, DISCORD_PAYLOAD_LIMIT), allowed_mentions: { parse: [] } };
+  if (target === "line") {
+    const to = options === undefined || options === null || options.lineTo === undefined ? "" : String(options.lineTo);
+    return { to: to, messages: [{ type: "text", text: truncatePayload_(text, LINE_PAYLOAD_LIMIT) }] };
+  }
+  return { text: truncatePayload_(escapeSlack(text), SLACK_PAYLOAD_LIMIT) };
+}
+
+// ===== settings.js =====
+/**
+ * 「設定」シート（項目・値の 2 列）を読む。空欄は既定値、知らない行は無視。誤りは敬体の文で集める。
+ * errors は画面を止める誤り（1.0 の行）。notifyErrors は通知とお客さまへの LINE 送信の行の誤りで、
+ * 画面は止めず、メニュー「設定を確かめる」「通知のテストを送る」で知らせる。
+ */
+
+const SETTING_KEYS = ["アプリ名", "編集できる人", "1 ページの件数", "日付の書式", "AI を使う", "モデル", "AI の 1 日の上限"];
+/** 1.1 で足した行（通知とお客さまへの LINE 送信）。README の表と samples/設定.csv はこの並び */
+const LINE_SETTING_KEYS = ["通知先", "Slack Webhook URL", "Discord Webhook URL", "LINE チャネルアクセストークン", "LINE 送信先 ID", "通知するテーブル", "通知する操作", "自分の操作は通知しない", "通知の文面", "LINE 定型文", "LINE を送れる人", "担当者名", "画面の URL"];
+const DATE_FORMATS = ["yyyy-MM-dd", "yyyy/MM/dd"];
+/** 「LINE 定型文」の既定（見本 3 本）。1 行に 1 本の「題|本文」で、本文の改行は \n と書く */
+const DEFAULT_LINE_TEMPLATE_TEXT = [
+  "お礼|{会社名} {担当者} 様\\n\\nいつもお世話になっております。{担当者名}です。\\n先日はお時間をいただき、ありがとうございました。\\nご不明な点がございましたら、お気軽にお知らせください。",
+  "打ち合わせの確認|{会社名} {担当者} 様\\n\\nいつもお世話になっております。{担当者名}です。\\n次回のお打ち合わせについて、ご都合のよい日時の候補を 2 つほどお知らせいただけますでしょうか。\\nどうぞよろしくお願いいたします。",
+  "資料のご案内|{会社名} {担当者} 様\\n\\nいつもお世話になっております。{担当者名}です。\\n先日お話しした資料をご用意しました。メールでお送りしますので、届きましたらご確認をお願いいたします。",
+].join("\n");
+const DEFAULT_SETTINGS = {
+  appName: "業務アプリ",
+  editors: [],
+  pageSize: 50,
+  dateFormat: "yyyy-MM-dd",
+  aiEnabled: true,
+  model: "claude-sonnet-5",
+  aiDailyLimit: 200,
+  notifyTargets: [],
+  slackWebhookUrl: "",
+  discordWebhookUrl: "",
+  lineToken: "",
+  lineTo: "",
+  notifyTables: [],
+  notifyOps: NOTIFY_OPS.slice(),
+  skipOwn: false,
+  notifyTemplate: DEFAULT_NOTIFY_TEMPLATE,
+  lineTemplateText: DEFAULT_LINE_TEMPLATE_TEXT,
+  lineSenders: [],
+  staffName: "",
+  appUrl: "",
+};
+
+function normalizeKey_(value) {
+  return String(value === null || value === undefined ? "" : value).replace(/\s+/g, "").toLowerCase();
+}
+
+function integer_(value, min, max) {
+  // 全角で打たれた「１００」も数として読む
+  const n = Number(toHalfWidth(textOf(value)));
+  if (!Number.isInteger(n) || n < min || n > max) return null;
+  return n;
+}
+
+/** 通知先に書いた宛先の行が空なら、どの行を埋めればよいかを言う（フォーム受付キットの ConfigError と同じ文） */
+function requireFor_(errors, targets, target, value, label) {
+  if (targets.indexOf(target) < 0 || value !== "") return;
+  errors.push("「通知先」に " + target + " がありますが、「" + label + "」が空です。設定シートのその行を埋めてください。");
+}
+
+/** Webhook の URL は https:// から。URL は鍵なので、誤りの文には出さない */
+function requireHttps_(errors, targets, target, value, label) {
+  if (targets.indexOf(target) < 0 || value === "" || value.indexOf("https://") === 0) return;
+  errors.push("「" + label + "」は https:// で始まる URL です。設定シートのその行を確かめてください。");
+}
+
+/** rows は「設定」シートの 2 次元配列（1 行目の見出しはあってもなくてもよい） */
+function parseSettings(rows) {
+  const settings = {
+    appName: DEFAULT_SETTINGS.appName,
+    editors: [],
+    pageSize: DEFAULT_SETTINGS.pageSize,
+    dateFormat: DEFAULT_SETTINGS.dateFormat,
+    aiEnabled: DEFAULT_SETTINGS.aiEnabled,
+    model: DEFAULT_SETTINGS.model,
+    aiDailyLimit: DEFAULT_SETTINGS.aiDailyLimit,
+    notifyTargets: [],
+    slackWebhookUrl: "",
+    discordWebhookUrl: "",
+    lineToken: "",
+    lineTo: "",
+    notifyTables: [],
+    notifyOps: DEFAULT_SETTINGS.notifyOps.slice(),
+    skipOwn: false,
+    notifyTemplate: DEFAULT_SETTINGS.notifyTemplate,
+    lineTemplateText: DEFAULT_SETTINGS.lineTemplateText,
+    lineSenders: [],
+    staffName: "",
+    appUrl: "",
+  };
+  const errors = [];
+  const notifyErrors = [];
+  const list = Array.isArray(rows) ? rows : [];
+  for (let i = 0; i < list.length; i += 1) {
+    const key = normalizeKey_(list[i][0]);
+    const value = list[i].length > 1 ? list[i][1] : "";
+    const raw = textOf(value);
+    if (key === "アプリ名") {
+      if (raw !== "") settings.appName = raw.slice(0, 40);
+    } else if (key === "編集できる人") {
+      settings.editors = splitList(raw).map((s) => s.toLowerCase());
+    } else if (key === "1ページの件数") {
+      if (raw !== "") {
+        const n = integer_(raw, 10, 200);
+        if (n === null) errors.push("設定「1 ページの件数」は 10〜200 の整数にしてください（いまは「" + raw + "」）");
+        else settings.pageSize = n;
+      }
+    } else if (key === "日付の書式") {
+      if (raw !== "") {
+        if (DATE_FORMATS.indexOf(raw) < 0) errors.push("設定「日付の書式」は yyyy-MM-dd か yyyy/MM/dd にしてください（いまは「" + raw + "」）");
+        else settings.dateFormat = raw;
+      }
+    } else if (key === "aiを使う") {
+      settings.aiEnabled = boolOf(value, DEFAULT_SETTINGS.aiEnabled);
+    } else if (key === "モデル") {
+      if (raw !== "") settings.model = raw;
+    } else if (key === "aiの1日の上限") {
+      if (raw !== "") {
+        const n = integer_(raw, 1, 10000);
+        if (n === null) errors.push("設定「AI の 1 日の上限」は 1〜10000 の整数にしてください（いまは「" + raw + "」）");
+        else settings.aiDailyLimit = n;
+      }
+    } else if (key === "通知先") {
+      const wanted = splitList(raw);
+      for (let j = 0; j < wanted.length; j += 1) {
+        const name = wanted[j].toLowerCase();
+        if (NOTIFY_TARGETS.indexOf(name) < 0) notifyErrors.push("「通知先」に書けるのは slack / discord / line です: " + wanted[j]);
+        else if (settings.notifyTargets.indexOf(name) < 0) settings.notifyTargets.push(name);
+      }
+    } else if (key === "slackwebhookurl") {
+      settings.slackWebhookUrl = raw;
+    } else if (key === "discordwebhookurl") {
+      settings.discordWebhookUrl = raw;
+    } else if (key === "lineチャネルアクセストークン") {
+      settings.lineToken = raw;
+    } else if (key === "line送信先id") {
+      settings.lineTo = raw;
+    } else if (key === "通知するテーブル") {
+      settings.notifyTables = splitList(raw);
+    } else if (key === "通知する操作") {
+      if (raw !== "") {
+        const ops = [];
+        const wanted = splitList(raw);
+        for (let j = 0; j < wanted.length; j += 1) {
+          if (NOTIFY_OPS.indexOf(wanted[j]) < 0) notifyErrors.push("「通知する操作」に書けるのは 登録・更新・削除 です: " + wanted[j]);
+          else if (ops.indexOf(wanted[j]) < 0) ops.push(wanted[j]);
+        }
+        settings.notifyOps = ops;
+      }
+    } else if (key === "自分の操作は通知しない") {
+      settings.skipOwn = boolOf(value, false);
+    } else if (key === "通知の文面") {
+      if (raw !== "") settings.notifyTemplate = raw;
+    } else if (key === "line定型文") {
+      if (raw !== "") settings.lineTemplateText = raw;
+    } else if (key === "lineを送れる人") {
+      settings.lineSenders = splitList(raw).map((s) => s.toLowerCase());
+    } else if (key === "担当者名") {
+      settings.staffName = raw.slice(0, 40);
+    } else if (key === "画面のurl") {
+      // 通知の {URL} の元。画面用と webhook 用の 2 つのデプロイがあると、Apps Script の getUrl() がどちらを返すか決まらないため
+      if (raw === "") settings.appUrl = "";
+      else if (raw.indexOf("https://") !== 0) notifyErrors.push("「画面の URL」は https:// で始まる URL です（画面用のデプロイの URL を貼ってください）。いまは使わずに、Apps Script が返す URL で通知します");
+      else settings.appUrl = raw.replace(/#.*$/, "");
+    }
+  }
+  const targets = settings.notifyTargets;
+  requireFor_(notifyErrors, targets, "slack", settings.slackWebhookUrl, "Slack Webhook URL");
+  requireFor_(notifyErrors, targets, "discord", settings.discordWebhookUrl, "Discord Webhook URL");
+  requireFor_(notifyErrors, targets, "line", settings.lineToken, "LINE チャネルアクセストークン");
+  requireFor_(notifyErrors, targets, "line", settings.lineTo, "LINE 送信先 ID");
+  requireHttps_(notifyErrors, targets, "slack", settings.slackWebhookUrl, "Slack Webhook URL");
+  requireHttps_(notifyErrors, targets, "discord", settings.discordWebhookUrl, "Discord Webhook URL");
+  const templateErrors = parseLineTemplates(settings.lineTemplateText).errors;
+  for (let i = 0; i < templateErrors.length; i += 1) notifyErrors.push(templateErrors[i]);
+  return { settings: settings, errors: errors, notifyErrors: notifyErrors };
+}
+
+/** 定義と突き合わせる誤り（「通知するテーブル」に定義に無い名前） */
+function crossCheckSettings(settings, tables) {
+  const errors = [];
+  for (let i = 0; i < settings.notifyTables.length; i += 1) {
+    const name = settings.notifyTables[i];
+    if (findTable(tables, name) === null) errors.push("設定「通知するテーブル」の「" + name + "」は定義にありません。定義のテーブル名と同じに書いてください");
+  }
+  return errors;
+}
+
+/** 「設定を確かめる」で問題が無いときに添える、通知とお客さまへの LINE 送信の状態（2 行） */
+function settingsSummary(settings, tables) {
+  const lines = [];
+  if (settings.notifyTargets.length === 0) {
+    lines.push("通知: 使っていません（設定「通知先」が空です）");
+  } else {
+    const where = settings.notifyTables.length === 0 ? "すべてのテーブル" : settings.notifyTables.join("・");
+    lines.push("通知: " + settings.notifyTargets.join("・") + " に、" + where + "の" + settings.notifyOps.join("・") + "を知らせます");
+  }
+  const withLine = tables.filter((table) => lineColumn(table) !== null);
+  if (withLine.length === 0) {
+    lines.push("お客さまへの LINE 送信: 定義に LINE の列がないため使っていません");
+  } else if (settings.lineToken === "") {
+    lines.push("お客さまへの LINE 送信: 定義に LINE の列がありますが、設定「LINE チャネルアクセストークン」が空のため使えません。使うときは設定シートのその行を埋めてください");
+  } else {
+    lines.push("お客さまへの LINE 送信: 使えます（" + withLine.map((table) => table.name + "「" + lineColumn(table).name + "」").join("、") + "）");
+  }
+  return lines;
+}
+
 // ===== samples.js =====
 /**
  * 見本のテンプレ 3 種（顧客管理・案件管理・在庫管理）。メニュー「見本を読み込む」と、見本ページ（api-memory）が使う。
@@ -835,6 +1429,19 @@ const SETTINGS_ROWS = [
   ["AI を使う", "TRUE"],
   ["モデル", "claude-sonnet-5"],
   ["AI の 1 日の上限", "200"],
+  ["通知先", ""],
+  ["Slack Webhook URL", ""],
+  ["Discord Webhook URL", ""],
+  ["LINE チャネルアクセストークン", ""],
+  ["LINE 送信先 ID", ""],
+  ["通知するテーブル", ""],
+  ["通知する操作", "登録, 更新, 削除"],
+  ["自分の操作は通知しない", "FALSE"],
+  ["通知の文面", DEFAULT_NOTIFY_TEMPLATE],
+  ["LINE 定型文", DEFAULT_LINE_TEMPLATE_TEXT],
+  ["LINE を送れる人", ""],
+  ["担当者名", ""],
+  ["画面の URL", ""],
 ];
 
 const COMPANIES = ["うみかぜ商店", "みなと工務店", "さくら不動産", "ひだまり整体院", "あおば設計", "つばさ運送", "こもれび保育園", "なぎさ食堂", "かえで税理士事務所", "ふもと農園", "しおさい旅館", "ひかり電機", "まつかぜ薬局", "いぶき製作所", "そよかぜ美容室", "たかね建設", "わかば学習塾", "みどり造園", "はまべ水産", "ゆうひ写真館"];
@@ -895,6 +1502,7 @@ function customers_() {
     def_("顧客", "状況", "選択", false, STATUSES.join(", "), true, undefined, "見込み", ""),
     def_("顧客", "メール", "メール", false, "", false, undefined, "", ""),
     def_("顧客", "電話", "電話", false, "", true, undefined, "", ""),
+    def_("顧客", "LINE", "LINE", false, "", false, false, "", "LINE 公式アカウントの友だち。表示名から選びます"),
     def_("顧客", "住所", "文字", false, "", false, undefined, "", ""),
     def_("顧客", "最終連絡日", "日付", false, "", true, undefined, "今日", ""),
     def_("顧客", "年間取引額", "金額", false, "", true, undefined, "", "円。見込みは空のまま"),
@@ -915,6 +1523,7 @@ function customers_() {
     状況: pick_(STATUSES, i),
     メール: "info" + (i + 1) + "@example.com",
     電話: "045-000-00" + pad2(i + 1),
+    LINE: "",
     住所: pick_(TOWNS, i) + " " + (i + 1) + "-2-3",
     最終連絡日: dateAfter_(i * 5),
     年間取引額: pick_(STATUSES, i) === "見込み" ? null : (i + 1) * 120000,
@@ -1063,6 +1672,7 @@ function settingsCsv() {
 // ===== render.js =====
 /**
  * 画面の描画。state から HTML の文字列を作るだけ（DOM に触るのは main.js）。
+ * 1.1: LINE の列（友だちの表示名）、詳細の「LINE で送る」と送信の欄、LINE の送信履歴。
  */
 
 const OP_LABELS = { contains: "を含む", eq: "と等しい", ne: "と等しくない", gt: "より大きい", gte: "以上", lt: "より小さい", lte: "以下", between: "の範囲", in: "のいずれか", empty: "が空", notEmpty: "が空でない" };
@@ -1072,8 +1682,11 @@ const TYPE_INPUT = { 文字: "text", メール: "email", 電話: "tel", URL: "ur
 const TEXT_OPS = ["contains", "eq", "ne", "empty", "notEmpty"];
 const ORDER_OPS = ["eq", "ne", "gt", "gte", "lt", "lte", "between", "empty", "notEmpty"];
 const CHOICE_OPS = ["eq", "ne", "empty", "notEmpty"];
-const FILTER_OPS = { 文字: TEXT_OPS, 長文: TEXT_OPS, メール: TEXT_OPS, 電話: TEXT_OPS, URL: TEXT_OPS, 数値: ORDER_OPS, 金額: ORDER_OPS, 日付: ORDER_OPS, 日時: ORDER_OPS, 選択: CHOICE_OPS, 参照: CHOICE_OPS, 複数選択: ["in", "contains", "empty", "notEmpty"], チェック: ["eq"] };
+const FILTER_OPS = { 文字: TEXT_OPS, 長文: TEXT_OPS, メール: TEXT_OPS, 電話: TEXT_OPS, URL: TEXT_OPS, 数値: ORDER_OPS, 金額: ORDER_OPS, 日付: ORDER_OPS, 日時: ORDER_OPS, 選択: CHOICE_OPS, 参照: CHOICE_OPS, 複数選択: ["in", "contains", "empty", "notEmpty"], チェック: ["eq"], LINE: ["empty", "notEmpty"] };
 const FILTER_PLACEHOLDER = "範囲は 最小,最大。いずれかは 値1,値2";
+/** 友だちがこれより多いときは、LINE の欄の上に表示名で探す欄を出す */
+const LINE_SEARCH_THRESHOLD = 500;
+const LINE_NO_FRIENDS_NOTE = "友だちがまだいません。LINE 公式アカウントを友だち追加していただくと、ここに表示名が出ます。";
 
 function escapeHtml(value) {
   return String(value === null || value === undefined ? "" : value)
@@ -1088,7 +1701,7 @@ function attr_(value) {
   return escapeHtml(value);
 }
 
-/** 一覧・詳細に出す文字。参照は refs（{ 列名: { ID: 表示名 } }）で表示名に */
+/** 一覧・詳細に出す文字。参照は refs（{ 列名: { ID: 表示名 } }）で、LINE は opts.friends で表示名に */
 function labelFor(column, value, refs, opts) {
   if (column.type === "参照") {
     const id = value === null || value === undefined ? "" : String(value);
@@ -1096,6 +1709,7 @@ function labelFor(column, value, refs, opts) {
     const map = refs && refs[column.name] ? refs[column.name] : {};
     return map[id] !== undefined ? map[id] : id;
   }
+  if (column.type === "LINE") return friendLabel(opts && Array.isArray(opts.friends) ? opts.friends : [], value);
   return formatCell(column, value, opts);
 }
 
@@ -1206,24 +1820,116 @@ function valueHtml_(column, row, refs, opts) {
   return escapeHtml(text);
 }
 
-/** refs は { 列名: 表示名 }（api_get の形） */
-function renderDetail(table, row, refs, opts) {
-  const flat = {};
+/** api_get の refs（{ 列名: 表示名 }）を、labelFor の形（{ 列名: { ID: 表示名 } }）にする */
+function nestRefs_(row, refs) {
+  const nested = {};
   Object.keys(refs || {}).forEach((name) => {
-    flat[name] = {};
-    flat[name][String(row[name])] = refs[name];
+    nested[name] = {};
+    nested[name][String(row[name])] = refs[name];
   });
-  const rows = table.columns.map((c) => "<dt>" + escapeHtml(c.name) + "</dt><dd>" + valueHtml_(c, row, flat, opts) + "</dd>").join("");
+  return nested;
+}
+
+/** 詳細に出ている文字を { 列名: 文字 } に（定型文の {列名} の置き換えに使う） */
+function detailValues(table, row, refs, opts) {
+  const nested = nestRefs_(row, refs);
+  const values = {};
+  table.columns.forEach((column) => {
+    values[column.name] = labelFor(column, row[column.name], nested, opts || {});
+  });
+  return values;
+}
+
+/** 本文の残り字数（LINE は 5,000 字まで） */
+function remainingText(text) {
+  const rest = LINE_TEXT_LIMIT - String(text === null || text === undefined ? "" : text).length;
+  return rest >= 0 ? "残り " + withCommas(rest) + " 字" : withCommas(-rest) + " 字多すぎます";
+}
+
+/** 送る前の確認の文 */
+function lineConfirmText(name) {
+  const who = String(name === null || name === undefined ? "" : name).trim();
+  return (who === "" ? "この方" : who + " さん") + "の LINE に送ります。送ったあとは取り消せません。よろしいですか？";
+}
+
+/** 詳細の下の「LINE の送信履歴」（新しい順） */
+function renderLineHistory(history) {
+  const list = Array.isArray(history) ? history : [];
+  const items =
+    list.length === 0
+      ? '<p class="sa-note">まだ送っていません</p>'
+      : '<ol class="sa-line-history-list">' + list.map((h) => '<li><div class="sa-muted">' + escapeHtml(h.at) + " " + escapeHtml(h.sender) + '</div><div class="sa-pre">' + escapeHtml(h.text) + "</div></li>").join("") + "</ol>";
+  return '<section class="sa-line-history"><h3>LINE の送信履歴</h3>' + items + "</section>";
+}
+
+/** 「LINE で送る」を押したあとの欄。friend は送り先、view は state.view、line は state.line */
+function renderLinePanel(friend, view, line, ai) {
+  const templates = Array.isArray(line.templates) ? line.templates : [];
+  const select =
+    templates.length > 0
+      ? '<label class="sa-field">定型文<select data-field="line-template"><option value="">（定型文を選ぶ）</option>' + templates.map((t, i) => '<option value="' + i + '">' + escapeHtml(t.title) + "</option>").join("") + "</select></label>"
+      : "";
+  const draft = ai
+    ? '<div class="sa-ai"><input type="text" data-field="line-intent" value="' + attr_(view.lineIntent || "") + '" placeholder="用件（例: 先日の内見のお礼と、次の候補日を 2 つ聞く）" aria-label="AI に伝える用件"><button type="button" class="sa-btn" data-action="line-draft"' + (view.lineDrafting ? " disabled" : "") + ">" + (view.lineDrafting ? "下書きしています…" : "AI で下書き") + "</button></div>"
+    : "";
+  const leftovers = leftoverPlaceholders(view.lineText || "");
+  const warn = leftovers.length > 0 ? '<div class="sa-note sa-warn">置き換わっていない印があります: ' + escapeHtml(leftovers.join(" ")) + "。送る前に直してください</div>" : "";
+  const error = view.lineError ? '<div class="sa-error" role="alert">' + escapeHtml(view.lineError) + "</div>" : "";
+  return (
+    '<section class="sa-line" aria-labelledby="sa-line-title"><h3 id="sa-line-title">LINE で送る</h3>' +
+    '<p class="sa-note">送り先: ' + escapeHtml(friend.name) + " さん。今月の送信数: " + escapeHtml(line.monthCount || 0) + " 通</p>" +
+    select +
+    draft +
+    '<textarea data-field="line-text" rows="8" maxlength="' + LINE_TEXT_LIMIT + '" aria-label="送る本文">' + escapeHtml(view.lineText || "") + "</textarea>" +
+    '<div class="sa-note" data-role="line-count" aria-live="polite">' + escapeHtml(remainingText(view.lineText || "")) + "</div>" +
+    warn +
+    error +
+    '<div class="sa-actions"><button type="button" class="sa-btn sa-btn-primary" data-action="line-send"' + (view.lineSending ? " disabled" : "") + ">" + (view.lineSending ? "送っています…" : "送る") + "</button></div></section>"
+  );
+}
+
+/** refs は { 列名: 表示名 }（api_get の形）。opts.friends・opts.line（state.line）・opts.view（state.view）は 1.1 から */
+function renderDetail(table, row, refs, opts) {
+  const flat = nestRefs_(row, refs);
+  const friends = Array.isArray(opts.friends) ? opts.friends : [];
+  const shown = Object.assign({}, opts, { friends: friends });
+  const rows = table.columns.map((c) => "<dt>" + escapeHtml(c.name) + "</dt><dd>" + valueHtml_(c, row, flat, shown) + "</dd>").join("");
   const system = '<dt class="sa-muted">ID</dt><dd class="sa-muted">' + escapeHtml(row.ID) + '</dd><dt class="sa-muted">作成</dt><dd class="sa-muted">' + escapeHtml(row.作成日時 || "") + '</dd><dt class="sa-muted">更新</dt><dd class="sa-muted">' + escapeHtml(row.更新日時 || "") + " " + escapeHtml(row.更新者 || "") + "</dd>";
-  const buttons = (opts.canEdit ? '<button type="button" class="sa-btn" data-action="edit">編集</button><button type="button" class="sa-btn sa-btn-danger" data-action="delete">削除</button>' : "") + (opts.ai ? '<button type="button" class="sa-btn sa-btn-quiet" data-action="ai-summary"' + (opts.summaryLoading ? " disabled" : "") + ">AI 要約</button>" : "");
+  const line = opts.line || { canSend: false, templates: [], monthCount: 0 };
+  const view = opts.view || {};
+  const column = lineColumn(table);
+  const friend = column === null ? null : findFriend(friends, row[column.name]);
+  const canLine = line.canSend === true && friend !== null && !friend.blocked;
+  const buttons =
+    (opts.canEdit ? '<button type="button" class="sa-btn" data-action="edit">編集</button><button type="button" class="sa-btn sa-btn-danger" data-action="delete">削除</button>' : "") +
+    (canLine ? '<button type="button" class="sa-btn" data-action="line-open" aria-expanded="' + (view.lineOpen === true ? "true" : "false") + '">LINE で送る</button>' : "") +
+    (opts.ai ? '<button type="button" class="sa-btn sa-btn-quiet" data-action="ai-summary"' + (opts.summaryLoading ? " disabled" : "") + ">AI 要約</button>" : "");
   const summary = opts.summaryLoading ? '<div class="sa-summary sa-muted">要約しています…</div>' : opts.summary ? '<div class="sa-summary"><div class="sa-pre">' + escapeHtml(opts.summary) + "</div></div>" : "";
-  return '<div class="sa-detail"><header class="sa-drawer-head"><h2 id="sa-drawer-title">' + escapeHtml(labelFor(table.columns.find((c) => c.name === table.display) || { name: "ID", type: "文字" }, row[table.display], flat, opts) || row.ID) + '</h2><button type="button" class="sa-close" data-action="close" aria-label="閉じる">×</button></header><div class="sa-actions">' + buttons + "</div>" + summary + "<dl>" + rows + system + "</dl></div>";
+  const panel = canLine && view.lineOpen === true ? renderLinePanel(friend, view, line, opts.ai === true) : "";
+  const history = column === null ? "" : renderLineHistory(view.history);
+  const title = labelFor(table.columns.find((c) => c.name === table.display) || { name: "ID", type: "文字" }, row[table.display], flat, shown) || row.ID;
+  return '<div class="sa-detail"><header class="sa-drawer-head"><h2 id="sa-drawer-title">' + escapeHtml(title) + '</h2><button type="button" class="sa-close" data-action="close" aria-label="閉じる">×</button></header><div class="sa-actions">' + buttons + "</div>" + summary + panel + "<dl>" + rows + system + "</dl>" + history + "</div>";
 }
 
 /** 参照の候補はサーバー側で先頭 2,000 件に切られる（gas_web.js の OPTIONS_LIMIT）。切れているときは欄の下に出す */
 const OPTIONS_TRUNCATED_NOTE = "候補が多いため、表示名の順で先頭の 2,000 件だけを出しています。";
 
-function fieldHtml_(column, values, errors, options, truncated) {
+/** LINE の欄。新しく選べるのはブロック中でない友だち。いまの値はブロック中や一覧に無い ID でも残す */
+function lineSelect_(column, value, id, describe, friends) {
+  const current = value === null || value === undefined ? "" : String(value);
+  const list = friends.filter((f) => !f.blocked || f.id === current);
+  const known = list.some((f) => f.id === current);
+  const options = ['<option value="">（未選択）</option>'];
+  if (current !== "" && !known) options.push('<option value="' + attr_(current) + '" selected>' + escapeHtml(current) + "</option>");
+  list.forEach((f) => {
+    options.push('<option value="' + attr_(f.id) + '"' + (f.id === current ? " selected" : "") + ">" + escapeHtml(f.name + (f.blocked ? "（ブロック中）" : "")) + "</option>");
+  });
+  const search = friends.length > LINE_SEARCH_THRESHOLD ? '<input type="search" class="sa-line-search" data-line-search="' + attr_(column.name) + '" placeholder="表示名で探す" aria-label="LINE の友だちを表示名で探す">' : "";
+  const empty = friends.length === 0 ? '<div class="sa-note">' + LINE_NO_FRIENDS_NOTE + "</div>" : "";
+  return search + '<select name="' + attr_(column.name) + '" id="' + attr_(id) + '"' + describe + ">" + options.join("") + "</select>" + empty;
+}
+
+function fieldHtml_(column, values, errors, options, truncated, friends) {
   const value = values[column.name];
   const error = errors[column.name] || "";
   const id = "sa-f-" + column.name;
@@ -1245,6 +1951,8 @@ function fieldHtml_(column, values, errors, options, truncated) {
     const opts = ['<option value="">（未選択）</option>'].concat(list.map((o) => '<option value="' + attr_(o.id) + '"' + (String(value) === o.id ? " selected" : "") + ">" + escapeHtml(o.label) + "</option>"));
     input = '<select name="' + attr_(column.name) + '" id="' + attr_(id) + '"' + describe + ">" + opts.join("") + "</select>";
     if (truncated && truncated[column.name] === true) input += '<div class="sa-note">' + OPTIONS_TRUNCATED_NOTE + "</div>";
+  } else if (column.type === "LINE") {
+    input = lineSelect_(column, value, id, describe, friends);
   } else if (column.type === "数値" || column.type === "金額") {
     input = '<input type="text" inputmode="' + (column.type === "金額" ? "numeric" : "decimal") + '" name="' + attr_(column.name) + '" id="' + attr_(id) + '" value="' + attr_(value === null || value === undefined ? "" : value) + '"' + describe + ">";
   } else {
@@ -1255,9 +1963,10 @@ function fieldHtml_(column, values, errors, options, truncated) {
   return '<div class="sa-field' + (error ? " sa-field-error" : "") + '"><label for="' + attr_(id) + '">' + escapeHtml(column.name) + (column.required ? ' <span class="sa-required">必須</span>' : "") + "</label>" + input + (column.note ? '<div class="sa-note">' + escapeHtml(column.note) + "</div>" : "") + (error ? '<div class="sa-error" id="' + attr_(errId) + '">' + escapeHtml(error) + "</div>" : "") + "</div>";
 }
 
-/** options は { 参照の列名: [{ id, label }] }、opts.optionsTruncated は { 参照の列名: true }（候補が切れている列） */
+/** options は { 参照の列名: [{ id, label }] }、opts.optionsTruncated は { 参照の列名: true }、opts.friends は LINE の友だち */
 function renderForm(table, values, errors, options, opts) {
-  const fields = table.columns.map((c) => fieldHtml_(c, values || {}, errors || {}, options || {}, opts.optionsTruncated || {})).join("");
+  const friends = Array.isArray(opts.friends) ? opts.friends : [];
+  const fields = table.columns.map((c) => fieldHtml_(c, values || {}, errors || {}, options || {}, opts.optionsTruncated || {}, friends)).join("");
   const title = opts.isNew ? table.name + " を登録" : table.name + " を編集";
   return '<form class="sa-form" data-form="record" novalidate><header class="sa-drawer-head"><h2 id="sa-drawer-title">' + escapeHtml(title) + '</h2><button type="button" class="sa-close" data-action="close" aria-label="閉じる">×</button></header>' + fields + '<div class="sa-actions"><button type="submit" class="sa-btn sa-btn-primary">' + (opts.isNew ? "登録" : "保存") + '</button><button type="button" class="sa-btn sa-btn-quiet" data-action="close">やめる</button></div></form>';
 }
@@ -1273,7 +1982,7 @@ function renderList(state) {
   const table = currentTable(state);
   if (table === null) return "";
   if (state.total === 0) return '<p class="sa-empty">' + (state.loading ? "読み込んでいます…" : "該当する記録はありません") + "</p>";
-  const opts = { dateFormat: state.dateFormat };
+  const opts = { dateFormat: state.dateFormat, friends: state.line.friends };
   return renderTable(table, state.rows, state.refs, state.sort, opts) + renderCards(table, state.rows, state.refs, opts) + renderPager(state.total, state.page, state.pageSize);
 }
 
@@ -1281,8 +1990,11 @@ function renderDrawer(state) {
   const table = currentTable(state);
   if (table === null || state.view === null) return "";
   let inner = "";
-  if (state.view.kind === "detail") inner = renderDetail(table, state.view.row, state.view.refs, { dateFormat: state.dateFormat, canEdit: state.user.canEdit, ai: state.ai, summary: state.view.summary, summaryLoading: state.view.summaryLoading });
-  else inner = renderForm(table, state.view.values, state.view.errors, state.view.options, { isNew: state.view.isNew, id: state.view.id, optionsTruncated: state.view.optionsTruncated });
+  if (state.view.kind === "detail") {
+    inner = renderDetail(table, state.view.row, state.view.refs, { dateFormat: state.dateFormat, canEdit: state.user.canEdit, ai: state.ai, summary: state.view.summary, summaryLoading: state.view.summaryLoading, friends: state.line.friends, line: state.line, view: state.view });
+  } else {
+    inner = renderForm(table, state.view.values, state.view.errors, state.view.options, { isNew: state.view.isNew, id: state.view.id, optionsTruncated: state.view.optionsTruncated, friends: state.line.friends });
+  }
   return '<div class="sa-backdrop" data-action="close"></div><aside class="sa-drawer" role="dialog" aria-modal="true" aria-labelledby="sa-drawer-title">' + inner + "</aside>";
 }
 
@@ -1305,7 +2017,20 @@ function renderApp(state) {
 // ===== state.js =====
 /**
  * 画面の状態と、それを変える reduce。純粋（DOM にも google にも触らない）。
+ * 1.1: state.line（LINE の友だち・定型文・送れるか・今月の送信数・担当者名）と、詳細の送信欄。URL のハッシュの読み書き。
  */
+function normalizeLine_(line) {
+  const source = line && typeof line === "object" ? line : {};
+  return {
+    enabled: source.enabled === true,
+    friends: Array.isArray(source.friends) ? source.friends : [],
+    templates: Array.isArray(source.templates) ? source.templates : [],
+    canSend: source.canSend === true,
+    monthCount: Number(source.monthCount) || 0,
+    staffName: String(source.staffName || ""),
+  };
+}
+
 function initialState() {
   return {
     ready: false,
@@ -1335,12 +2060,30 @@ function initialState() {
     aiExplanation: "",
     view: null,
     csv: null,
+    line: normalizeLine_(null),
   };
 }
 
 function currentTable(state) {
   for (let i = 0; i < state.tables.length; i += 1) if (state.tables[i].name === state.current) return state.tables[i];
   return null;
+}
+
+/** URL のハッシュ（#<テーブル>/<ID>。# は無くてもよい）を読む。読めなければ null */
+function parseHash(hash) {
+  const text = String(hash === null || hash === undefined ? "" : hash).replace(/^#/, "");
+  const at = text.lastIndexOf("/");
+  if (at <= 0 || at === text.length - 1) return null;
+  try {
+    return { table: decodeURIComponent(text.slice(0, at)), id: decodeURIComponent(text.slice(at + 1)) };
+  } catch (error) {
+    return null;
+  }
+}
+
+/** 詳細を開いているときの URL のハッシュ（# は付けない） */
+function hashFor(table, id) {
+  return encodeURIComponent(String(table)) + "/" + encodeURIComponent(String(id));
 }
 
 function assign_(state, patch) {
@@ -1368,6 +2111,7 @@ function reduce(state, action) {
       today: data.today || "",
       bootErrors: Array.isArray(data.errors) ? data.errors : [],
       current: tables.length > 0 ? tables[0].name : "",
+      line: normalizeLine_(data.line),
     });
   }
   if (type === "select-table") {
@@ -1400,7 +2144,13 @@ function reduce(state, action) {
   if (type === "filter-column") return assign_(state, { filterColumn: String(action.column || ""), filterOptions: Array.isArray(action.options) ? action.options : null });
   if (type === "ai-text") return assign_(state, { aiText: String(action.text || "") });
   if (type === "ai-explanation") return assign_(state, { aiExplanation: String(action.text || "") });
-  if (type === "open-detail") return assign_(state, { view: { kind: "detail", id: action.row ? action.row.ID : "", row: action.row, refs: action.refs || {}, summary: "", summaryLoading: false }, error: "", notice: "" });
+  if (type === "open-detail") {
+    return assign_(state, {
+      view: { kind: "detail", id: action.row ? action.row.ID : "", row: action.row, refs: action.refs || {}, summary: "", summaryLoading: false, history: Array.isArray(action.history) ? action.history : [], lineOpen: false, lineText: "", lineIntent: "", lineError: "", lineSending: false, lineDrafting: false },
+      error: "",
+      notice: "",
+    });
+  }
   if (type === "open-form") {
     return assign_(state, { view: { kind: "form", isNew: action.isNew === true, id: action.id || "", seenUpdatedAt: action.seenUpdatedAt || "", values: action.values || {}, errors: {}, options: action.options || {}, optionsTruncated: action.optionsTruncated || {} }, error: "", notice: "" });
   }
@@ -1408,6 +2158,16 @@ function reduce(state, action) {
   if (type === "form-values") return withView_(state, { values: action.values || {} });
   if (type === "summary-loading") return withView_(state, { summaryLoading: action.on === true });
   if (type === "summary") return withView_(state, { summary: String(action.text || ""), summaryLoading: false });
+  if (type === "line-toggle") return state.view === null ? state : withView_(state, { lineOpen: state.view.lineOpen !== true, lineError: "" });
+  if (type === "line-text") return withView_(state, { lineText: String(action.text || "") });
+  if (type === "line-intent") return withView_(state, { lineIntent: String(action.text || "") });
+  if (type === "line-drafting") return withView_(state, { lineDrafting: action.on === true, lineError: "" });
+  if (type === "line-sending") return withView_(state, { lineSending: action.on === true, lineError: "" });
+  if (type === "line-error") return withView_(state, { lineError: String(action.message || ""), lineSending: false, lineDrafting: false });
+  if (type === "line-sent") {
+    const next = withView_(state, { history: Array.isArray(action.history) ? action.history : [], lineText: "", lineIntent: "", lineError: "", lineSending: false, lineOpen: false });
+    return assign_(next, { line: Object.assign({}, next.line, { monthCount: Number(action.monthCount) || 0 }) });
+  }
   if (type === "close") return assign_(state, { view: null });
   if (type === "csv") return assign_(state, { csv: action.text === null || action.text === undefined ? null : String(action.text) });
   return state;
@@ -1416,14 +2176,23 @@ function reduce(state, action) {
 // ===== api-memory.js =====
 /**
  * 見本ページ用の api。GAS に触らず、見本のテンプレをブラウザの中の配列で動かす。ページを閉じれば消える。
+ * 1.1: 顧客の先頭 8 件に架空の LINE の友だちを結びつけ（8 人目はブロック中）、「送る」は送ったことにして履歴に足す。
  */
 
 const DEMO_EMAIL = "demo@example.com";
 const DEMO_PAGE_SIZE = 20;
 const DELAY_MS = 120;
+/** 見本の友だちの表示名（架空）。最後の 1 人はブロック中 */
+const DEMO_FRIEND_NAMES = ["はるか", "けんた", "みさき", "ゆうと", "あかり", "そうた", "りな", "だいき"];
 
 function delay_(value) {
   return new Promise((resolve) => setTimeout(() => resolve(value), DELAY_MS));
+}
+
+/** 見本の友だちのユーザー ID（U と 32 桁の 16 進） */
+function demoLineId_(index) {
+  const hex = (index + 1).toString(16);
+  return "U" + "0".repeat(32 - hex.length) + hex;
 }
 
 function memoryApi(templateName) {
@@ -1432,9 +2201,19 @@ function memoryApi(templateName) {
   const tables = parseDefinition(template.definition).tables;
   const store = {};
   const lastIds = {};
+  const friendRows = DEMO_FRIEND_NAMES.map((friendName, i) => ({ userId: demoLineId_(i), name: friendName, state: i === DEMO_FRIEND_NAMES.length - 1 ? BLOCKED_STATE : FRIEND_STATE }));
+  const friends = friendsForScreen(friendRows);
+  const templates = parseLineTemplates(DEFAULT_LINE_TEMPLATE_TEXT).templates;
+  const sendLog = [];
   tables.forEach((t) => {
     store[t.name] = (template.tables[t.name] || []).map((r) => Object.assign({}, r));
+    const column = lineColumn(t);
+    if (column === null) return;
+    store[t.name].slice(0, friendRows.length).forEach((row, i) => {
+      row[column.name] = friendRows[i].userId;
+    });
   });
+  const lineEnabled = tables.some((t) => lineColumn(t) !== null);
 
   function tableOf(tableName) {
     const table = findTable(tables, textOf(tableName));
@@ -1481,6 +2260,16 @@ function memoryApi(templateName) {
     return Object.keys(errors).map((k) => errors[k]).join("\n");
   }
 
+  /** 1 件の記録の送信履歴（新しい順・20 件まで） */
+  function historyFor(tableName, id) {
+    const out = [];
+    for (let i = sendLog.length - 1; i >= 0 && out.length < HISTORY_LIMIT; i -= 1) {
+      const entry = sendLog[i];
+      if (entry.table === tableName && entry.id === id) out.push({ at: entry.at, sender: entry.sender, text: entry.text, result: entry.result });
+    }
+    return out;
+  }
+
   function wrap(fn) {
     return function () {
       try {
@@ -1492,7 +2281,17 @@ function memoryApi(templateName) {
   }
 
   return {
-    bootstrap: wrap(() => ({ appName: "見本: " + name, tables: tables, errors: [], user: { email: DEMO_EMAIL, canEdit: true }, ai: true, pageSize: DEMO_PAGE_SIZE, dateFormat: "yyyy-MM-dd", today: toDateKey(new Date()) })),
+    bootstrap: wrap(() => ({
+      appName: "見本: " + name,
+      tables: tables,
+      errors: [],
+      user: { email: DEMO_EMAIL, canEdit: true },
+      ai: true,
+      pageSize: DEMO_PAGE_SIZE,
+      dateFormat: "yyyy-MM-dd",
+      today: toDateKey(new Date()),
+      line: { enabled: lineEnabled, friends: lineEnabled ? friends : [], templates: lineEnabled ? templates : [], canSend: lineEnabled, monthCount: sendLog.length, staffName: "見本" },
+    })),
     list: wrap((tableName, rawQuery) => {
       const table = tableOf(tableName);
       const query = normalizeQuery(table, Object.assign({ pageSize: DEMO_PAGE_SIZE }, rawQuery || {}));
@@ -1508,7 +2307,7 @@ function memoryApi(templateName) {
         const value = textOf(found.row[column]);
         if (value !== "" && refs[column][value] !== undefined) flat[column] = refs[column][value];
       });
-      return { row: Object.assign({}, found.row), refs: flat };
+      return { row: Object.assign({}, found.row), refs: flat, history: historyFor(table.name, found.row.ID) };
     }),
     options: wrap((tableName, columnName) => {
       const table = tableOf(tableName);
@@ -1567,6 +2366,40 @@ function memoryApi(templateName) {
       const filled = table.columns.filter((c) => textOf(found.row[c.name]) !== "" && found.row[c.name] !== false).length;
       return { text: "（見本の要約）" + title + " の記録です。" + table.columns.length + " 項目のうち " + filled + " 項目が入力されています。実物では、記録の内容を AI が敬体で要約します。\n次の一手: 最終連絡日から間が空いていれば、ご連絡の予定を入れます" };
     }),
+    lineSend: wrap((tableName, id, text) => {
+      const table = tableOf(tableName);
+      const column = lineColumn(table);
+      if (column === null) throw new Error(LINE_MESSAGES.noColumn);
+      const problem = lineTextError(text);
+      if (problem !== "") throw new Error(problem);
+      const found = find(table, id);
+      const userId = textOf(found.row[column.name]);
+      if (userId === "") throw new Error(LINE_MESSAGES.noFriend);
+      const friend = findFriend(friends, userId);
+      if (friend === null) throw new Error(LINE_MESSAGES.unknown);
+      if (friend.blocked) throw new Error(LINE_MESSAGES.blocked);
+      // 見本は送ったことにするだけ（LINE には何も届かない）
+      sendLog.push({ table: table.name, id: found.row.ID, at: formatStamp(new Date()), sender: DEMO_EMAIL, text: String(text).trim(), result: SENT });
+      return { history: historyFor(table.name, found.row.ID), monthCount: sendLog.length };
+    }),
+    aiDraft: wrap((tableName, id, intent) => {
+      const table = tableOf(tableName);
+      const words = textOf(intent);
+      if (words === "") throw new Error(LINE_MESSAGES.emptyIntent);
+      const found = find(table, id);
+      const title = textOf(found.row[table.display]) || found.row.ID;
+      return { text: title + " 様\n\nいつもお世話になっております。見本の担当です。\n（見本の下書き）用件「" + words + "」に沿って、実物では記録の内容から AI が敬体で下書きを作ります。送る前に読み直して整えてください。" };
+    }),
+    readHash: () => Promise.resolve(typeof window !== "undefined" && window.location ? String(window.location.hash || "").replace(/^#/, "") : ""),
+    writeHash: (hash) => {
+      try {
+        if (typeof window === "undefined" || !window.history || !window.history.replaceState) return;
+        const base = window.location.pathname + window.location.search;
+        window.history.replaceState(null, "", hash ? base + "#" + hash : base);
+      } catch (error) {
+        // 見本のページで履歴を書けなくても、動きは変わらない
+      }
+    },
   };
 }
 
@@ -1574,6 +2407,7 @@ function memoryApi(templateName) {
 /**
  * 画面の組み立て。state と api をつなぐ。DOM に触るのはこのファイルだけ。
  * mountSheetApp(root, api) → { getState, dispatch, load }
+ * 1.1: URL のハッシュ #<テーブル>/<ID> で詳細を直接開く（通知の URL から来たとき）。詳細の「LINE で送る」。
  */
 
 const SEARCH_WAIT_MS = 300;
@@ -1597,7 +2431,7 @@ function mountSheetApp(root, api) {
         try {
           el.setSelectionRange(keep.start, keep.end);
         } catch (error) {
-          // type=search は setSelectionRange を持たないブラウザがある
+          // type=search や select は setSelectionRange を持たない
         }
       }
     }
@@ -1608,8 +2442,12 @@ function mountSheetApp(root, api) {
     paint();
   }
 
+  function messageOf(error) {
+    return error && error.message ? error.message : String(error);
+  }
+
   function fail(error) {
-    dispatch({ type: "error", message: error && error.message ? error.message : String(error) });
+    dispatch({ type: "error", message: messageOf(error) });
   }
 
   function query() {
@@ -1634,8 +2472,34 @@ function mountSheetApp(root, api) {
       });
   }
 
-  function openDetail(id) {
-    api.get(state.current, id).then((result) => dispatch({ type: "open-detail", row: result.row, refs: result.refs })).catch(fail);
+  /** 画面の外の URL のハッシュ（読み書きは api に任せる: 実物は api-gas.js、見本は location）。api に無ければ何もしない */
+  function writeHash(hash) {
+    if (typeof api.writeHash === "function") api.writeHash(hash);
+  }
+
+  function readHash() {
+    if (typeof api.readHash !== "function") return Promise.resolve("");
+    return Promise.resolve(api.readHash()).catch(() => "");
+  }
+
+  /** fromHash: URL のハッシュから開いたとき。記録が無ければ、誤りを出してからハッシュを消す（読み直しで同じ誤りを繰り返さない） */
+  function openDetail(id, fromHash) {
+    const table = state.current;
+    return api
+      .get(table, id)
+      .then((result) => {
+        dispatch({ type: "open-detail", row: result.row, refs: result.refs, history: result.history });
+        writeHash(hashFor(table, result.row.ID));
+      })
+      .catch((error) => {
+        fail(error);
+        if (fromHash === true) writeHash("");
+      });
+  }
+
+  function closeView() {
+    dispatch({ type: "close" });
+    writeHash("");
   }
 
   /** 参照の列の候補をまとめて取る */
@@ -1702,7 +2566,7 @@ function mountSheetApp(root, api) {
     request
       .then(() => {
         submitting = false;
-        dispatch({ type: "close" });
+        closeView();
         dispatch({ type: "notice", message: view.isNew ? "登録しました" : "保存しました" });
         return load();
       })
@@ -1720,7 +2584,7 @@ function mountSheetApp(root, api) {
     api
       .remove(state.current, view.id)
       .then(() => {
-        dispatch({ type: "close" });
+        closeView();
         dispatch({ type: "notice", message: "削除しました" });
         return load();
       })
@@ -1845,6 +2709,74 @@ function mountSheetApp(root, api) {
     field.placeholder = op === "between" ? "最小,最大（例: 2026-08-01,2026-08-31）" : field.dataset.placeholder;
   }
 
+  /** 詳細の記録に結びついた LINE の友だち（無ければ null） */
+  function lineFriend() {
+    const table = currentTable(state);
+    const view = state.view;
+    const column = table === null ? null : lineColumn(table);
+    if (column === null || !view || view.kind !== "detail") return null;
+    return findFriend(state.line.friends, view.row[column.name]);
+  }
+
+  /** 定型文を選んだら、詳細に出ている値と担当者名で置き換えて本文の欄に入れる */
+  function applyTemplate(value) {
+    const view = state.view;
+    if (value === "" || !view || view.kind !== "detail") return;
+    const template = state.line.templates[Number(value)];
+    if (!template) return;
+    const values = detailValues(currentTable(state), view.row, view.refs, { dateFormat: state.dateFormat, friends: state.line.friends });
+    dispatch({ type: "line-text", text: fillLineTemplate(template.body, { values: values, staffName: state.line.staffName }) });
+  }
+
+  function lineDraft() {
+    const view = state.view;
+    if (!view || view.kind !== "detail" || view.lineDrafting) return;
+    const intent = view.lineIntent.trim();
+    if (intent === "") {
+      dispatch({ type: "line-error", message: LINE_MESSAGES.emptyIntent });
+      return;
+    }
+    dispatch({ type: "line-drafting", on: true });
+    api
+      .aiDraft(state.current, view.id, intent)
+      .then((result) => {
+        dispatch({ type: "line-text", text: result.text });
+        dispatch({ type: "line-drafting", on: false });
+      })
+      .catch((error) => dispatch({ type: "line-error", message: messageOf(error) }));
+  }
+
+  function lineSend() {
+    const view = state.view;
+    if (!view || view.kind !== "detail" || view.lineSending) return;
+    if (view.lineText.trim() === "") {
+      dispatch({ type: "line-error", message: LINE_MESSAGES.emptyText });
+      return;
+    }
+    const friend = lineFriend();
+    if (!window.confirm(lineConfirmText(friend ? friend.name : ""))) return;
+    dispatch({ type: "line-sending", on: true });
+    api
+      .lineSend(state.current, view.id, view.lineText)
+      .then((result) => {
+        dispatch({ type: "line-sent", history: result.history, monthCount: result.monthCount });
+        // 送れたが履歴に書けなかったときは、送り直さないよう server の文（note）を出す
+        dispatch({ type: "notice", message: result && result.note ? String(result.note) : "LINE を送りました" });
+      })
+      .catch((error) => dispatch({ type: "line-error", message: messageOf(error) }));
+  }
+
+  /** 友だちが多いときの「表示名で探す」欄: 合わない option を隠す（選んでいるものは隠さない） */
+  function filterLineOptions(input) {
+    const form = input.form;
+    const select = form ? form.elements.namedItem(input.dataset.lineSearch) : null;
+    if (!select || !select.options) return;
+    const word = input.value.trim().toLowerCase();
+    Array.prototype.forEach.call(select.options, (option) => {
+      option.hidden = word !== "" && option.value !== "" && !option.selected && option.text.toLowerCase().indexOf(word) < 0;
+    });
+  }
+
   root.addEventListener("click", (event) => {
     const el = event.target.closest("[data-action]");
     if (!el || !root.contains(el)) return;
@@ -1852,6 +2784,7 @@ function mountSheetApp(root, api) {
     if (action === "select-table") {
       clearTimeout(searchTimer);
       dispatch({ type: "select-table", name: el.dataset.table });
+      writeHash("");
       load();
     } else if (action === "toggle-filters") dispatch({ type: "toggle-filter-panel" });
     else if (action === "remove-filter") {
@@ -1870,31 +2803,43 @@ function mountSheetApp(root, api) {
     else if (action === "new") openForm(true, null);
     else if (action === "edit") openForm(false, state.view.row);
     else if (action === "delete") remove();
-    else if (action === "close") dispatch({ type: "close" });
+    else if (action === "close") closeView();
     else if (action === "csv") exportCsv();
     else if (action === "csv-close") dispatch({ type: "csv", text: null });
     else if (action === "copy-csv") copyCsv();
     else if (action === "ai-filter") aiFilter();
     else if (action === "ai-summary") aiSummary();
+    else if (action === "line-open") dispatch({ type: "line-toggle" });
+    else if (action === "line-draft") lineDraft();
+    else if (action === "line-send") lineSend();
     else if (action === "dismiss-error") dispatch({ type: "error", message: "" });
   });
 
   root.addEventListener("keydown", (event) => {
     const target = event.target;
-    if (event.key === "Enter" && target.dataset && target.dataset.field === "ai") {
+    const data = target.dataset || {};
+    if (event.key === "Enter" && data.field === "ai") {
       event.preventDefault();
       state = reduce(state, { type: "ai-text", text: target.value });
       aiFilter();
-    } else if (event.key === "Enter" && target.dataset && target.dataset.action === "open") {
-      openDetail(target.dataset.id);
+    } else if (event.key === "Enter" && data.field === "line-intent") {
+      event.preventDefault();
+      state = reduce(state, { type: "line-intent", text: target.value });
+      lineDraft();
+    } else if (event.key === "Enter" && data.lineSearch !== undefined) {
+      // 探す欄で Enter を押しても、フォームを送らない
+      event.preventDefault();
+    } else if (event.key === "Enter" && data.action === "open") {
+      openDetail(data.id);
     } else if (event.key === "Escape" && state.view !== null) {
-      dispatch({ type: "close" });
+      closeView();
     }
   });
 
   root.addEventListener("input", (event) => {
     const target = event.target;
-    const field = target.dataset ? target.dataset.field : "";
+    const data = target.dataset || {};
+    const field = data.field || "";
     if (field === "q") {
       const value = target.value;
       clearTimeout(searchTimer);
@@ -1904,11 +2849,24 @@ function mountSheetApp(root, api) {
       }, SEARCH_WAIT_MS);
     } else if (field === "ai") {
       state = reduce(state, { type: "ai-text", text: target.value });
+    } else if (field === "line-text") {
+      // 打つたびに描き直すとカーソルが飛ぶので、状態だけ変えて残り字数の表示を直接直す
+      state = reduce(state, { type: "line-text", text: target.value });
+      const counter = root.querySelector('[data-role="line-count"]');
+      if (counter) counter.textContent = remainingText(target.value);
+    } else if (field === "line-intent") {
+      state = reduce(state, { type: "line-intent", text: target.value });
+    } else if (data.lineSearch !== undefined) {
+      filterLineOptions(target);
     }
   });
 
   root.addEventListener("change", (event) => {
     const el = event.target;
+    if (el && el.dataset && el.dataset.field === "line-template") {
+      applyTemplate(el.value);
+      return;
+    }
     const form = el ? el.form : null;
     if (!form || form.dataset.form !== "filter") return;
     if (el.name === "column") filterColumn(el.value);
@@ -1931,6 +2889,17 @@ function mountSheetApp(root, api) {
     .bootstrap()
     .then((data) => {
       dispatch({ type: "bootstrap", data: data });
+      return readHash();
+    })
+    .then((hash) => {
+      // 通知の URL（#<テーブル>/<ID>）から来たら、そのテーブルに切り替えて詳細を開く
+      const target = parseHash(hash);
+      if (target !== null && state.bootErrors.length === 0 && state.tables.some((t) => t.name === target.table)) {
+        dispatch({ type: "select-table", name: target.table });
+        load();
+        openDetail(target.id, true);
+        return undefined;
+      }
       return load();
     })
     .catch(fail);
