@@ -37,7 +37,7 @@ describe("入口 3 行", () => {
     expect(categoryCount("sites")).toEqual({ total: 6, onsale: 0 });
     expect(categoryCount("works")).toEqual({ total: 4, onsale: 0 });
 
-    expect(countLabel("kits")).toBe("14 件　発売中 12 件");
+    expect(countLabel("kits")).toBe("14 件　発売中 14 件");
     expect(countLabel("sites")).toBe("6 件");
     expect(countLabel("works")).toBe("4 件");
   });
