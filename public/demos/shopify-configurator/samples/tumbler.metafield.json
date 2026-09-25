@@ -1,0 +1,58 @@
+{
+  "model": {
+    "src": "https://cdn.shopify.com/s/files/1/0000/0000/files/tumbler.glb",
+    "camera": { "distance": 2.6, "elevation": 18, "azimuth": -35 }
+  },
+  "scene": { "background": "#f4efe6", "floor": "#e8e2d6", "autoRotate": true },
+  "price": { "note": { "ja": "税込", "en": "Tax included" } },
+  "groups": [
+    {
+      "id": "body",
+      "label": { "ja": "本体の色", "en": "Body color" },
+      "type": "color",
+      "target": ["body-350", "body-500"],
+      "required": true,
+      "options": [
+        { "id": "navy", "label": { "ja": "ネイビー", "en": "Navy" }, "color": "#243a5e" },
+        { "id": "sand", "label": { "ja": "サンド", "en": "Sand" }, "color": "#d9c8a9" }
+      ]
+    },
+    {
+      "id": "lid",
+      "label": { "ja": "フタ", "en": "Lid" },
+      "type": "material",
+      "target": ["lid"],
+      "required": true,
+      "options": [
+        { "id": "steel", "label": { "ja": "ステンレス", "en": "Stainless steel" }, "color": "#b8b8b8", "roughness": 0.35, "metalness": 0.9 },
+        { "id": "black", "label": { "ja": "マットブラック", "en": "Matte black" }, "color": "#26231e", "roughness": 0.9, "metalness": 0.1 }
+      ]
+    },
+    {
+      "id": "size",
+      "label": { "ja": "容量", "en": "Size" },
+      "type": "variant",
+      "required": true,
+      "options": [
+        { "id": "350", "label": "350 ml", "show": ["body-350"], "hide": ["body-500", "strap"] },
+        { "id": "500", "label": "500 ml", "show": ["body-500"], "hide": ["body-350", "strap"] }
+      ]
+    },
+    {
+      "id": "engrave",
+      "label": { "ja": "刻印", "en": "Engraving" },
+      "type": "text",
+      "target": ["label"],
+      "maxChars": 12,
+      "pattern": "[A-Za-z0-9 .&-]*",
+      "placeholder": { "ja": "例: MINATO", "en": "e.g. MINATO" },
+      "font": "serif",
+      "background": "#f4efe6"
+    }
+  ],
+  "shopify": {
+    "priceMode": "variant",
+    "options": { "body": "カラー", "size": "容量", "engrave": "刻印" },
+    "values": { "engrave": { "filled": "あり", "empty": "なし" } }
+  }
+}

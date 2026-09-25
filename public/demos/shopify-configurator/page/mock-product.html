@@ -1,0 +1,418 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ステンレスタンブラー ── みなと工房 オンラインストア（見本）</title>
+  <!-- Shopify を使わずに動きを見るための見本の商品ページです。3D コンフィギュレーターの部分は、section が書き出すものと同じです -->
+  <link rel="stylesheet" href="../theme/assets/product-configurator.css">
+  <link rel="stylesheet" href="../theme/assets/suminawa-configurator.css">
+  <style>
+    :root {
+      color-scheme: light;
+      --page-bg: #faf8f3;
+      --page-fg: #1c1a15;
+      --page-muted: #6a665d;
+      --page-line: rgba(28, 26, 21, 0.14);
+      --page-accent: #243a5e;
+      --color-button: 36, 58, 94;
+      --color-button-text: 255, 255, 255;
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; font-family: system-ui, -apple-system, "Hiragino Sans", "Noto Sans JP", sans-serif; line-height: 1.7; color: var(--page-fg); background: var(--page-bg); }
+    .page-width { max-width: 78rem; margin: 0 auto; padding: 0 1rem; }
+    .mock-banner { margin: 0; padding: 0.5rem 1rem; font-size: 0.8125rem; text-align: center; color: #fff; background: var(--page-accent); }
+    .mock-header { border-bottom: 1px solid var(--page-line); background: #fff; }
+    .mock-header .page-width { display: flex; flex-wrap: wrap; gap: 0.5rem 1.5rem; align-items: center; justify-content: space-between; min-height: 4rem; }
+    .mock-store { margin: 0; font-size: 1.0625rem; font-weight: 700; letter-spacing: 0.04em; }
+    .mock-lang { display: flex; gap: 0.75rem; font-size: 0.875rem; }
+    .mock-lang a { color: var(--page-muted); }
+    .mock-lang a[aria-current="true"] { color: var(--page-fg); font-weight: 600; text-decoration: none; }
+    .mock-product { padding-block: 2rem 1rem; }
+    .mock-crumbs { margin: 0 0 0.5rem; font-size: 0.8125rem; color: var(--page-muted); }
+    .mock-product h1 { margin: 0 0 0.5rem; font-size: clamp(1.375rem, 3vw, 1.875rem); line-height: 1.3; }
+    .mock-lede { max-width: 44rem; margin: 0; color: var(--page-muted); }
+    .mock-cart { margin-block: 1rem 3rem; padding: 1rem 1.25rem; border: 1px dashed var(--page-line); border-radius: 0.75rem; background: #fff; }
+    .mock-cart h2 { margin: 0 0 0.25rem; font-size: 1rem; }
+    .mock-cart p { margin: 0 0 0.75rem; font-size: 0.8125rem; color: var(--page-muted); }
+    .mock-cart dl { display: grid; grid-template-columns: minmax(7rem, max-content) minmax(0, 1fr); gap: 0.25rem 1rem; margin: 0; font-size: 0.875rem; }
+    .mock-cart dt { color: var(--page-muted); }
+    .mock-cart dd { margin: 0; overflow-wrap: anywhere; }
+    .mock-footer { padding-block: 1.5rem 3rem; font-size: 0.8125rem; color: var(--page-muted); border-top: 1px solid var(--page-line); }
+    @media (max-width: 40rem) { .mock-cart dl { grid-template-columns: minmax(0, 1fr); } .mock-cart dd { margin-bottom: 0.5rem; } }
+  </style>
+</head>
+<body>
+  <p class="mock-banner" data-ja="これは見本の商品ページです。カートは本物ではなく、カートに届く内容をページの下に表示します。" data-en="This is a sample product page. The cart is not real: what would be sent to the cart is shown below.">これは見本の商品ページです。カートは本物ではなく、カートに届く内容をページの下に表示します。</p>
+  <header class="mock-header">
+    <div class="page-width">
+      <p class="mock-store" data-ja="みなと工房 オンラインストア" data-en="Minato Kobo Online Store">みなと工房 オンラインストア</p>
+      <nav class="mock-lang" aria-label="Language">
+        <a href="?lang=ja" data-lang-link="ja">日本語</a>
+        <a href="?lang=en" data-lang-link="en">English</a>
+      </nav>
+    </div>
+  </header>
+  <main>
+    <section class="mock-product page-width">
+      <p class="mock-crumbs" data-ja="ホーム / タンブラー" data-en="Home / Tumblers">ホーム / タンブラー</p>
+      <h1 data-ja="ステンレスタンブラー" data-en="Stainless tumbler">ステンレスタンブラー</h1>
+      <p class="mock-lede" data-ja="色・容量・刻印をお選びください。3D の見本は、ドラッグで回して確かめられます。" data-en="Choose the color, size and engraving. Drag the 3D preview to look around.">色・容量・刻印をお選びください。3D の見本は、ドラッグで回して確かめられます。</p>
+    </section>
+
+    <!-- ここから: section（theme/sections/suminawa-configurator.liquid）が書き出すものと同じ -->
+    <div
+      class="suminawa-configurator page-width"
+      id="SuminawaConfigurator-mock"
+      data-suminawa-configurator
+      data-scene-src="../theme/assets/product-configurator-3d.global.js"
+      style="--sc-height-desktop: 560px; --sc-height-mobile: 420px;"
+    >
+      <script type="application/json" data-sc-config>
+      {
+        "model": {
+          "src": "../samples/tumbler.glb",
+          "camera": {
+            "distance": 2.6,
+            "elevation": 18,
+            "azimuth": -35
+          }
+        },
+        "scene": {
+          "background": "#f4efe6",
+          "floor": "#e8e2d6",
+          "autoRotate": true
+        },
+        "price": {
+          "note": {
+            "ja": "税込",
+            "en": "Tax included"
+          }
+        },
+        "groups": [
+          {
+            "id": "body",
+            "label": {
+              "ja": "本体の色",
+              "en": "Body color"
+            },
+            "type": "color",
+            "target": [
+              "body-350",
+              "body-500"
+            ],
+            "required": true,
+            "options": [
+              {
+                "id": "navy",
+                "label": {
+                  "ja": "ネイビー",
+                  "en": "Navy"
+                },
+                "color": "#243a5e"
+              },
+              {
+                "id": "sand",
+                "label": {
+                  "ja": "サンド",
+                  "en": "Sand"
+                },
+                "color": "#d9c8a9"
+              }
+            ]
+          },
+          {
+            "id": "lid",
+            "label": {
+              "ja": "フタ",
+              "en": "Lid"
+            },
+            "type": "material",
+            "target": [
+              "lid"
+            ],
+            "required": true,
+            "options": [
+              {
+                "id": "steel",
+                "label": {
+                  "ja": "ステンレス",
+                  "en": "Stainless steel"
+                },
+                "color": "#b8b8b8",
+                "roughness": 0.35,
+                "metalness": 0.9
+              },
+              {
+                "id": "black",
+                "label": {
+                  "ja": "マットブラック",
+                  "en": "Matte black"
+                },
+                "color": "#26231e",
+                "roughness": 0.9,
+                "metalness": 0.1
+              }
+            ]
+          },
+          {
+            "id": "size",
+            "label": {
+              "ja": "容量",
+              "en": "Size"
+            },
+            "type": "variant",
+            "required": true,
+            "options": [
+              {
+                "id": "350",
+                "label": "350 ml",
+                "show": [
+                  "body-350"
+                ],
+                "hide": [
+                  "body-500",
+                  "strap"
+                ]
+              },
+              {
+                "id": "500",
+                "label": "500 ml",
+                "show": [
+                  "body-500"
+                ],
+                "hide": [
+                  "body-350",
+                  "strap"
+                ]
+              }
+            ]
+          },
+          {
+            "id": "engrave",
+            "label": {
+              "ja": "刻印",
+              "en": "Engraving"
+            },
+            "type": "text",
+            "target": [
+              "label"
+            ],
+            "maxChars": 12,
+            "pattern": "[A-Za-z0-9 .&-]*",
+            "placeholder": {
+              "ja": "例: MINATO",
+              "en": "e.g. MINATO"
+            },
+            "font": "serif",
+            "background": "#f4efe6"
+          }
+        ],
+        "shopify": {
+          "priceMode": "variant",
+          "options": {
+            "body": "カラー",
+            "size": "容量",
+            "engrave": "刻印"
+          },
+          "values": {
+            "engrave": {
+              "filled": "あり",
+              "empty": "なし"
+            }
+          }
+        }
+      }
+      </script>
+      <script type="application/json" data-sc-context>
+      {
+        "lang": "ja",
+        "currency": "JPY",
+        "shopCurrency": "JPY",
+        "routesRoot": "/",
+        "designMode": false,
+        "mock": true,
+        "settings": {
+          "priceMode": "variant",
+          "cartMode": "own",
+          "showQuantity": true,
+          "buttonLabel": "",
+          "showErrors": true
+        },
+        "product": {
+          "id": 8800001,
+          "title": "ステンレスタンブラー",
+          "handle": "stainless-tumbler",
+          "url": "/products/stainless-tumbler",
+          "options": [
+            "カラー",
+            "容量",
+            "刻印"
+          ],
+          "selectedVariantId": 4101,
+          "variants": [
+            {
+              "id": 4101,
+              "title": "ネイビー / 350 ml / なし",
+              "options": [
+                "ネイビー",
+                "350 ml",
+                "なし"
+              ],
+              "price": 380000,
+              "available": true,
+              "sku": "TB-4101"
+            },
+            {
+              "id": 4102,
+              "title": "ネイビー / 350 ml / あり",
+              "options": [
+                "ネイビー",
+                "350 ml",
+                "あり"
+              ],
+              "price": 430000,
+              "available": true,
+              "sku": "TB-4102"
+            },
+            {
+              "id": 4103,
+              "title": "ネイビー / 500 ml / なし",
+              "options": [
+                "ネイビー",
+                "500 ml",
+                "なし"
+              ],
+              "price": 420000,
+              "available": true,
+              "sku": "TB-4103"
+            },
+            {
+              "id": 4104,
+              "title": "ネイビー / 500 ml / あり",
+              "options": [
+                "ネイビー",
+                "500 ml",
+                "あり"
+              ],
+              "price": 470000,
+              "available": true,
+              "sku": "TB-4104"
+            },
+            {
+              "id": 4105,
+              "title": "サンド / 350 ml / なし",
+              "options": [
+                "サンド",
+                "350 ml",
+                "なし"
+              ],
+              "price": 380000,
+              "available": true,
+              "sku": "TB-4105"
+            },
+            {
+              "id": 4106,
+              "title": "サンド / 350 ml / あり",
+              "options": [
+                "サンド",
+                "350 ml",
+                "あり"
+              ],
+              "price": 430000,
+              "available": true,
+              "sku": "TB-4106"
+            },
+            {
+              "id": 4107,
+              "title": "サンド / 500 ml / なし",
+              "options": [
+                "サンド",
+                "500 ml",
+                "なし"
+              ],
+              "price": 420000,
+              "available": true,
+              "sku": "TB-4107"
+            },
+            {
+              "id": 4108,
+              "title": "サンド / 500 ml / あり",
+              "options": [
+                "サンド",
+                "500 ml",
+                "あり"
+              ],
+              "price": 470000,
+              "available": false,
+              "sku": "TB-4108"
+            }
+          ]
+        }
+      }
+      </script>
+      <div class="sc-errors" data-sc-errors hidden></div>
+      <div class="sc-mount" data-sc-mount></div>
+    </div>
+    <!-- ここまで -->
+
+    <section class="mock-cart page-width" aria-live="polite">
+      <h2 data-ja="カートに届いた内容（見本）" data-en="What the cart received (sample)">カートに届いた内容（見本）</h2>
+      <p data-ja="_ で始まる行は、カートとチェックアウトには出ず、管理画面の注文詳細にだけ残ります。" data-en="Lines starting with _ are hidden in the cart and checkout, and kept in the order details in the admin.">_ で始まる行は、カートとチェックアウトには出ず、管理画面の注文詳細にだけ残ります。</p>
+      <dl id="mock-cart-list"></dl>
+    </section>
+  </main>
+  <footer class="mock-footer">
+    <div class="page-width" data-ja="このページはファイルを直接開くと 3D のデータを読めません。zip を展開したフォルダで npx serve などの簡易サーバーを起動し、/page/mock-product.html をお開きください。" data-en="Opening this file directly can't load the 3D data. Start a simple server (for example npx serve) in the unzipped folder and open /page/mock-product.html.">このページはファイルを直接開くと 3D のデータを読めません。zip を展開したフォルダで npx serve などの簡易サーバーを起動し、/page/mock-product.html をお開きください。</div>
+  </footer>
+
+  <script>
+    // 見本だけの下ごしらえ: 言語を ?lang= で選び、/cart/add.js を偽物で受けて、届いた内容を下に出す
+    (function () {
+      var lang = new URLSearchParams(location.search).get("lang") === "en" ? "en" : "ja";
+      document.documentElement.lang = lang;
+      document.querySelectorAll("[data-ja]").forEach(function (node) {
+        node.textContent = node.getAttribute("data-" + lang);
+      });
+      document.querySelectorAll("[data-lang-link]").forEach(function (link) {
+        link.setAttribute("aria-current", String(link.getAttribute("data-lang-link") === lang));
+      });
+      document.title = lang === "en" ? "Stainless tumbler — Minato Kobo Online Store (sample)" : document.title;
+
+      var contextNode = document.querySelector("[data-sc-context]");
+      var context = JSON.parse(contextNode.textContent);
+      context.lang = lang;
+      contextNode.textContent = JSON.stringify(context);
+
+      var list = document.getElementById("mock-cart-list");
+      function row(key, value) {
+        var dt = document.createElement("dt");
+        var dd = document.createElement("dd");
+        dt.textContent = key;
+        dd.textContent = value;
+        list.append(dt, dd);
+      }
+      var realFetch = window.fetch.bind(window);
+      window.fetch = function (input, init) {
+        var url = typeof input === "string" ? input : input.url;
+        if (!/\/cart\/add\.js$/.test(url)) return realFetch(input, init);
+        var item = JSON.parse(init.body).items[0];
+        list.replaceChildren();
+        row("variant", String(item.id));
+        row("quantity", String(item.quantity));
+        Object.keys(item.properties).forEach(function (key) {
+          row(key, item.properties[key]);
+        });
+        return Promise.resolve(new Response(JSON.stringify({ items: [item] }), { status: 200, headers: { "Content-Type": "application/json" } }));
+      };
+      // 本物のストアでは /cart へ移る。見本ではページに残って、届いた内容を見せる
+      document.addEventListener("suminawa-configurator:added", function (event) {
+        event.preventDefault();
+        list.scrollIntoView({ behavior: "smooth", block: "center" });
+      });
+    })();
+  </script>
+  <script src="../theme/assets/product-configurator.global.js" defer></script>
+  <script src="../theme/assets/suminawa-configurator.js" defer></script>
+</body>
+</html>

@@ -33,11 +33,11 @@ describe("入口 3 行", () => {
   });
 
   it("件数はレジストリから数える（手で書かない）", () => {
-    expect(categoryCount("kits")).toEqual({ total: 14, onsale: 14 });
+    expect(categoryCount("kits")).toEqual({ total: 15, onsale: 14 });
     expect(categoryCount("sites")).toEqual({ total: 6, onsale: 0 });
     expect(categoryCount("works")).toEqual({ total: 4, onsale: 0 });
 
-    expect(countLabel("kits")).toBe("14 件　発売中 14 件");
+    expect(countLabel("kits")).toBe("15 件　発売中 14 件");
     expect(countLabel("sites")).toBe("6 件");
     expect(countLabel("works")).toBe("4 件");
   });
@@ -132,7 +132,7 @@ describe("projects registry", () => {
     }
   });
 
-  it("kits は 14 本すべて発売中（発売の順）", () => {
+  it("kits は発売中 14 本（発売の順）のあとに発売前 1 本", () => {
     const kits = projectsByCategory("kits");
     expect(kits.map((p) => p.slug)).toEqual([
       "quote-simulator",
@@ -149,8 +149,12 @@ describe("projects registry", () => {
       "dashboard",
       "configurator",
       "saas-starter",
+      "shopify-configurator",
     ]);
-    expect(kits.map((p) => p.sale?.status)).toEqual(Array(14).fill("onsale"));
+    expect(kits.map((p) => p.sale?.status)).toEqual([
+      ...Array(14).fill("onsale"),
+      "upcoming",
+    ]);
   });
 
   it("値段はレジストリの 1 か所。定価を持ち、発売前は決まったものだけが持つ", () => {
@@ -176,6 +180,8 @@ describe("projects registry", () => {
       dashboard: 9800,
       configurator: 12800,
       "saas-starter": 19800,
+      // 発売前。定価はまだ決めていないので持たない
+      "shopify-configurator": undefined,
     });
   });
 
@@ -200,6 +206,14 @@ describe("projects registry", () => {
     for (const project of projects) {
       expect(projectHref(project).startsWith("#")).toBe(false);
     }
+  });
+
+  it("Shopify 版は、3D 商品コンフィギュレーターの紙の「Shopify 版」の節へ渡す", () => {
+    const by = Object.fromEntries(projects.map((p) => [p.slug, p]));
+    expect(projectHref(by["shopify-configurator"])).toBe(
+      "/projects/configurator#shopify",
+    );
+    expect(saleLabel(by["shopify-configurator"].sale!)).toBe("発売前");
   });
 
   it("LP テンプレ パックは、中身の 6 本が並ぶ紙へ渡す", () => {

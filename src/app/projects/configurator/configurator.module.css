@@ -25,3 +25,43 @@
   color: var(--pc-muted);
   font-family: var(--pc-font);
 }
+
+/*
+ * Shopify 版の節。頭の字は悩みから読む紙（guides）の節見出しと同じ小の明朝で、
+ * 大字は使わない ── この紙の題は一つだけ。
+ */
+.shopify {
+  display: flex;
+  flex-direction: column;
+  gap: calc(0.5 * var(--rp-pitch));
+  margin-top: calc(2 * var(--rp-pitch));
+  /* 節へ直に飛んで来たとき、見出しが画面の縁に貼りつかないように */
+  scroll-margin-top: var(--rp-pitch);
+}
+
+.heading {
+  font-family: var(--rp-serif-display);
+  font-weight: 400;
+  font-size: var(--rp-tiny);
+  line-height: var(--rp-pitch);
+  letter-spacing: 0.24em;
+  color: var(--rp-sumi);
+}
+
+/*
+ * 枠。架空の店の紙は自前の色（生成りと紺）を持つので、料紙との境に髪の毛ほどの線を一本だけ引く。
+ * 高さは読み込み前の目安で、読み込んだあとは中の紙の高さに合わせて伸び縮みする（ShopifyFrame）。
+ */
+.shopifyFrame {
+  display: block;
+  width: 100%;
+  height: 1300px;
+  border: 1px solid rgba(28, 26, 21, 0.14);
+  background: #faf8f3;
+}
+
+@media (max-width: 767px) {
+  .shopifyFrame {
+    height: 2080px;
+  }
+}

@@ -312,6 +312,17 @@ export const projects: Project[] = [
     category: "kits",
     sale: { status: "onsale", price: 19800 },
   },
+  {
+    slug: "shopify-configurator",
+    title: "Shopify 用 3D コンフィギュレーター",
+    description: "Shopify の商品ページに 3D の選択を置く。選んだ内容は注文に残る。",
+    tags: ["Three.js", "Shopify"],
+    category: "kits",
+    // 定価は発売の日に決める（決まるまでは値を持たせない）
+    sale: { status: "upcoming" },
+    // 作品ページは持たない。見本は 3D 商品コンフィギュレーターの紙の「Shopify 版」の節にある
+    href: "/projects/configurator#shopify",
+  },
 
   /* ---- sites ── 架空の会社で作った見本 ---------------------------------- */
   ...siteProjects,

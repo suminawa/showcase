@@ -7,7 +7,8 @@ import { siteUrl } from "./site";
 export function sitemapPaths(): string[] {
   const paths = ["/", ...GATES.map((gate) => gate.href), "/contact"];
   for (const p of projects) {
-    const href = projectHref(p);
+    // 紙の中の節へ飛ぶ行（#…）は、その紙を 1 度だけ載せる
+    const href = projectHref(p).split("#")[0];
     if (href.startsWith("/")) paths.push(href);
   }
   for (const d of demos) paths.push(demoHref(d));

@@ -1,0 +1,71 @@
+/* 3D コンフィギュレーター for Shopify（suminawa-configurator 1.0.0）。product-configurator.css のあとに読む */
+.suminawa-configurator { margin-block: 2rem; }
+.suminawa-configurator[hidden] { display: none; }
+
+/* 価格はつなぎが出す（請求されるのはバリエーションの価格なので、核の価格欄は使わない） */
+.suminawa-configurator .pc-price { display: none; }
+.suminawa-configurator[data-sc-mode="variant"] .pc-option-price { display: none; }
+/* 参考価格方式で、表示中の通貨が店の通貨と違うときは、選択肢ごとの差額を出さない（合計だけ「参考価格は○○でご案内します」で示す） */
+.suminawa-configurator[data-sc-currency-mismatch] .pc-option-price { display: none; }
+
+/* 3D の高さは section の設定 */
+.suminawa-configurator .pc-stage { aspect-ratio: auto; height: var(--sc-height-mobile, 420px); }
+@media (min-width: 60rem) {
+  .suminawa-configurator .pc-stage { height: var(--sc-height-desktop, 560px); }
+}
+
+.sc-cart {
+  display: grid;
+  gap: 0.75rem;
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--pc-line, rgba(28, 26, 21, 0.18));
+}
+.sc-price { display: flex; flex-wrap: wrap; align-items: baseline; gap: 0.5rem; }
+.sc-price-label { font-size: 0.875rem; color: var(--pc-muted, #6a665d); }
+.sc-price-amount { font-size: 1.5rem; }
+.sc-price-note { font-size: 0.8125rem; color: var(--pc-muted, #6a665d); }
+.sc-reason, .sc-status { margin: 0; min-height: 1.5em; font-size: 0.875rem; }
+.sc-reason { color: var(--pc-muted, #6a665d); }
+.sc-status { color: #a23b2a; }
+.sc-buy { display: flex; flex-wrap: wrap; gap: 0.75rem; align-items: end; }
+.sc-qty { display: grid; gap: 0.25rem; font-size: 0.875rem; }
+.sc-qty-input {
+  width: 5.5rem;
+  min-height: 2.75rem;
+  padding: 0.5rem;
+  font: inherit;
+  border: 1px solid var(--pc-line, rgba(28, 26, 21, 0.3));
+  border-radius: 0.5rem;
+  background: #fff;
+}
+/* ボタンの色は Dawn の色の設定（--color-button）に合わせる */
+.sc-add {
+  flex: 1 1 12rem;
+  min-height: 2.75rem;
+  padding: 0.625rem 1.25rem;
+  font: inherit;
+  font-weight: 600;
+  color: rgb(var(--color-button-text, 255, 255, 255));
+  background: rgb(var(--color-button, 28, 26, 21));
+  border: 0;
+  border-radius: 0.5rem;
+  cursor: pointer;
+}
+.sc-add:disabled { opacity: 0.45; cursor: not-allowed; }
+.sc-add:focus-visible, .sc-qty-input:focus-visible { outline: 2px solid #2f5d9b; outline-offset: 2px; }
+
+/* 設定の誤り・お知らせ（テーマエディタの中だけ） */
+.sc-errors[hidden] { display: none; }
+.sc-problems, .suminawa-configurator-note {
+  margin-bottom: 1rem;
+  padding: 0.75rem 1rem;
+  font-size: 0.875rem;
+  line-height: 1.6;
+  border: 1px solid #c9a227;
+  border-radius: 0.5rem;
+  background: #fdf8e6;
+}
+.sc-problems--error { border-color: #a23b2a; background: #fbeeec; }
+.sc-problems-title { margin: 0 0 0.25rem; font-weight: 600; }
+.sc-problems-list { margin: 0; padding-left: 1.25rem; }

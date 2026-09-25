@@ -1,0 +1,76 @@
+{
+  "model": {
+    "src": "https://cdn.shopify.com/s/files/1/0000/0000/files/tumbler.glb",
+    "camera": { "distance": 2.6, "elevation": 16, "azimuth": -28 }
+  },
+  "scene": { "background": "#f4efe6", "floor": "#e8e2d6", "autoRotate": true },
+  "price": { "note": { "ja": "税込・送料別", "en": "Tax included, shipping extra" } },
+  "groups": [
+    {
+      "id": "body",
+      "label": { "ja": "本体の色", "en": "Body color" },
+      "type": "color",
+      "target": ["body-350", "body-500"],
+      "required": true,
+      "options": [
+        { "id": "navy", "label": { "ja": "ネイビー", "en": "Navy" }, "color": "#243a5e" },
+        { "id": "sand", "label": { "ja": "サンド", "en": "Sand" }, "color": "#d9c8a9" },
+        { "id": "silver", "label": { "ja": "シルバー（ヘアライン）", "en": "Silver (hairline)" }, "color": "#c9c9c9", "roughness": 0.3, "metalness": 1, "price": 200 }
+      ]
+    },
+    {
+      "id": "lid",
+      "label": { "ja": "フタ", "en": "Lid" },
+      "type": "material",
+      "target": ["lid"],
+      "required": true,
+      "options": [
+        { "id": "steel", "label": { "ja": "ステンレス", "en": "Stainless steel" }, "color": "#b8b8b8", "roughness": 0.35, "metalness": 0.9 },
+        { "id": "walnut", "label": { "ja": "ウォールナット調", "en": "Walnut finish" }, "color": "#5a3a22", "roughness": 0.7, "metalness": 0, "price": 500 }
+      ]
+    },
+    {
+      "id": "size",
+      "label": { "ja": "容量", "en": "Size" },
+      "type": "variant",
+      "required": true,
+      "options": [
+        { "id": "350", "label": "350 ml", "show": ["body-350"], "hide": ["body-500"] },
+        { "id": "500", "label": "500 ml", "show": ["body-500"], "hide": ["body-350"], "price": 400 }
+      ]
+    },
+    {
+      "id": "strap",
+      "label": { "ja": "ストラップ", "en": "Strap" },
+      "type": "variant",
+      "options": [{ "id": "leather", "label": { "ja": "本革", "en": "Leather" }, "show": ["strap"], "price": 600 }]
+    },
+    {
+      "id": "engrave",
+      "label": { "ja": "刻印（英数字 12 字まで）", "en": "Engraving (up to 12 letters)" },
+      "type": "text",
+      "target": ["label"],
+      "maxChars": 12,
+      "pattern": "[A-Za-z0-9 .&-]*",
+      "placeholder": { "ja": "例: MINATO 2026", "en": "e.g. MINATO 2026" },
+      "font": "serif",
+      "background": "#f4efe6",
+      "price": 500
+    },
+    {
+      "id": "logo",
+      "label": { "ja": "ロゴ入れ（PNG / JPEG / SVG、2 MB まで）", "en": "Logo (PNG / JPEG / SVG, up to 2 MB)" },
+      "type": "image",
+      "target": ["label"],
+      "background": "#f4efe6",
+      "price": 800
+    }
+  ],
+  "shopify": {
+    "priceMode": "reference",
+    "referenceNote": {
+      "ja": "お支払い金額は、ご注文確認のメールで確定します（差額は確認後にご案内します）。",
+      "en": "The final amount will be confirmed by email after you order (we'll tell you about any difference)."
+    }
+  }
+}

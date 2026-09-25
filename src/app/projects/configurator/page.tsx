@@ -5,6 +5,7 @@
  *   色も字も道具自身が持つ（--pc-*）。
  * COLOR: 紙の側で色を持つのは朱の落款ひとつだけ。
  * STORY: 選ぶたびに商品が変わり、選んだ内容は JSON・PNG・共有 URL で持ち出せる。
+ *   結びの下に「Shopify 版」の節（#shopify）。売り物に同梱の架空の商品ページを枠で見せる。
  * FORM: 料紙（作品ページ）— 文法は DESIGN.md
  * このページはサーバー部品のまま。three.js は Tool の中で、この画面だけに読み込む。
  */
@@ -17,7 +18,12 @@ import links from "@/data/links.json";
 
 import { fontVars } from "../fonts";
 import s from "../projects.module.css";
+import c from "./configurator.module.css";
+import { ShopifyFrame } from "./ShopifyFrame";
 import { Tool } from "./Tool";
+
+/** Shopify 版の見本。売り物に同梱の page/mock-product.html を、並びごと public/demos/shopify-configurator/ に写してある */
+const SHOPIFY_DEMO_SRC = "/demos/shopify-configurator/page/mock-product.html";
 
 export const metadata: Metadata = {
   title: "3D 商品コンフィギュレーター",
@@ -75,6 +81,26 @@ export default function ConfiguratorPage() {
             </>
           )}
         </p>
+
+        {/* Shopify 版。売り物に同梱の架空の商品ページを、そのまま枠で見せる */}
+        <section id="shopify" className={c.shopify} aria-labelledby="shopify-heading">
+          <h2 id="shopify-heading" className={c.heading}>
+            Shopify 版
+          </h2>
+          <p className={s.lede}>
+            同じコンフィギュレーターを、Shopify の商品ページに置ける形にした版です。アプリではなく、テーマにファイルを足して使うので、審査も月額の利用料も要りません。選んだ色・容量・刻印は、カートの商品と注文の詳細に残ります。
+          </p>
+          <p className={s.lede}>
+            下は架空の店「みなと工房」の商品ページの見本です。カートは本物ではなく、「カートに入れる」を押すと、カートに届く内容をページの下に表示します。ページの上の「English」を押すと、英語の表示に切り替わります。
+          </p>
+          <ShopifyFrame src={SHOPIFY_DEMO_SRC} />
+          <p className={s.lede}>
+            Shopify 版は発売前です ──{" "}
+            <a href={SHOPIFY_DEMO_SRC} className={s.textLink} target="_blank" rel="noopener">
+              見本を別の画面で開く
+            </a>
+          </p>
+        </section>
       </div>
     </main>
   );

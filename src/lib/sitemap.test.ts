@@ -13,6 +13,7 @@ describe("sitemap", () => {
     expect(paths).toContain("/guides/pdf-to-spreadsheet");
     expect(paths.some((p) => p.startsWith("/dl/"))).toBe(false);
     expect(paths.every((p) => p.startsWith("/"))).toBe(true);
+    expect(paths.some((p) => p.includes("#"))).toBe(false);
     expect(new Set(paths).size).toBe(paths.length);
   });
   it("URL は絶対で、トップだけ priority 1", () => {
