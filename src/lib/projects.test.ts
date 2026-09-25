@@ -33,7 +33,7 @@ describe("入口 3 行", () => {
   });
 
   it("件数はレジストリから数える（手で書かない）", () => {
-    expect(categoryCount("kits")).toEqual({ total: 14, onsale: 12 });
+    expect(categoryCount("kits")).toEqual({ total: 14, onsale: 14 });
     expect(categoryCount("sites")).toEqual({ total: 6, onsale: 0 });
     expect(categoryCount("works")).toEqual({ total: 4, onsale: 0 });
 
@@ -132,7 +132,7 @@ describe("projects registry", () => {
     }
   });
 
-  it("kits は発売中 12 本が先、発売前 2 本が後", () => {
+  it("kits は 14 本すべて発売中（発売の順）", () => {
     const kits = projectsByCategory("kits");
     expect(kits.map((p) => p.slug)).toEqual([
       "quote-simulator",
@@ -150,11 +150,7 @@ describe("projects registry", () => {
       "configurator",
       "saas-starter",
     ]);
-    expect(kits.map((p) => p.sale?.status)).toEqual([
-      ...Array(12).fill("onsale"),
-      "upcoming",
-      "upcoming",
-    ]);
+    expect(kits.map((p) => p.sale?.status)).toEqual(Array(14).fill("onsale"));
   });
 
   it("値段はレジストリの 1 か所。定価を持ち、発売前は決まったものだけが持つ", () => {
@@ -178,7 +174,7 @@ describe("projects registry", () => {
       // 2026-09-24 に発売。作品ページ無し（LINE の中で動く）
       "line-concierge": 12800,
       dashboard: 9800,
-      configurator: undefined,
+      configurator: 12800,
       "saas-starter": 19800,
     });
   });
