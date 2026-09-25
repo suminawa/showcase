@@ -28,6 +28,12 @@ export type Sale = {
   status: "onsale" | "upcoming";
   /** 税込の定価（円）。発売中のものと、定価の決まった発売前のものが持つ */
   price?: number;
+  /**
+   * 発売の予定日（「10/2」の形）。発売前で日が決まっているものだけが持つ。
+   * 一覧には出さず（一覧は「発売前」とだけ書く）、作品ページの頭でだけ
+   * saleLabel(sale, { detail: true }) が「10/2 発売予定 ¥9,800」と書く。
+   */
+  launch?: string;
 };
 
 export type Project = {
@@ -323,6 +329,15 @@ export const projects: Project[] = [
     // 作品ページは持たない。見本は 3D 商品コンフィギュレーターの紙の「Shopify 版」の節にある
     href: "/projects/configurator#shopify",
   },
+  {
+    slug: "mcp-server",
+    title: "MCP サーバー キット",
+    description: "業務アプリ・予約・書類のシートを、Claude や ChatGPT との会話から探して登録する。",
+    tags: ["MCP", "TypeScript", "Claude"],
+    category: "kits",
+    // 定価は設計どおり。一覧は「発売前」のまま、作品ページの頭だけが予定日と定価を書く
+    sale: { status: "upcoming", price: 9800, launch: "10/2" },
+  },
 
   /* ---- sites ── 架空の会社で作った見本 ---------------------------------- */
   ...siteProjects,
@@ -450,9 +465,17 @@ function yen(price: number): string {
 /**
  * 売り物の状態を小の字の言葉にする。チップにも印にもしない ──
  * 朱は「決めた」ことの印なので、売っていることに朱は使わない。
+ *
+ * detail は作品ページの頭でだけ使う。発売前で予定日と定価の両方が決まって
+ * いれば「10/2 発売予定 ¥9,800」と書く。一覧（detail なし）は「発売前」のまま ──
+ * 予定日は動くことがあり、動いた日に一覧の全部の行を直すことになるため。
  */
-export function saleLabel(sale: Sale): string {
-  return sale.status === "onsale" && sale.price != null
-    ? `発売中 ${yen(sale.price)}`
-    : "発売前";
+export function saleLabel(sale: Sale, opts: { detail?: boolean } = {}): string {
+  if (sale.status === "onsale" && sale.price != null) {
+    return `発売中 ${yen(sale.price)}`;
+  }
+  if (opts.detail && sale.status === "upcoming" && sale.launch && sale.price != null) {
+    return `${sale.launch} 発売予定 ${yen(sale.price)}`;
+  }
+  return "発売前";
 }

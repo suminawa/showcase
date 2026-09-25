@@ -33,11 +33,11 @@ describe("入口 3 行", () => {
   });
 
   it("件数はレジストリから数える（手で書かない）", () => {
-    expect(categoryCount("kits")).toEqual({ total: 15, onsale: 14 });
+    expect(categoryCount("kits")).toEqual({ total: 16, onsale: 14 });
     expect(categoryCount("sites")).toEqual({ total: 6, onsale: 0 });
     expect(categoryCount("works")).toEqual({ total: 4, onsale: 0 });
 
-    expect(countLabel("kits")).toBe("15 件　発売中 14 件");
+    expect(countLabel("kits")).toBe("16 件　発売中 14 件");
     expect(countLabel("sites")).toBe("6 件");
     expect(countLabel("works")).toBe("4 件");
   });
@@ -132,7 +132,7 @@ describe("projects registry", () => {
     }
   });
 
-  it("kits は発売中 14 本（発売の順）のあとに発売前 1 本", () => {
+  it("kits は発売中 14 本（発売の順）のあとに発売前 2 本", () => {
     const kits = projectsByCategory("kits");
     expect(kits.map((p) => p.slug)).toEqual([
       "quote-simulator",
@@ -150,9 +150,11 @@ describe("projects registry", () => {
       "configurator",
       "saas-starter",
       "shopify-configurator",
+      "mcp-server",
     ]);
     expect(kits.map((p) => p.sale?.status)).toEqual([
       ...Array(14).fill("onsale"),
+      "upcoming",
       "upcoming",
     ]);
   });
@@ -182,6 +184,8 @@ describe("projects registry", () => {
       "saas-starter": 19800,
       // 発売前。定価はまだ決めていないので持たない
       "shopify-configurator": undefined,
+      // 発売前。定価は設計で決めてあるので持つ（一覧には出さない）
+      "mcp-server": 9800,
     });
   });
 
@@ -196,6 +200,20 @@ describe("projects registry", () => {
     expect(saleLabel({ status: "upcoming" })).toBe("発売前");
     // 値段の抜けた発売中は、嘘の値を出すより「発売前」に倒す
     expect(saleLabel({ status: "onsale" })).toBe("発売前");
+  });
+
+  it("予定日と定価は作品ページの頭（detail）にだけ出し、一覧は「発売前」のまま", () => {
+    const sale = { status: "upcoming" as const, price: 9800, launch: "10/2" };
+    expect(saleLabel(sale)).toBe("発売前");
+    expect(saleLabel(sale, { detail: true })).toBe("10/2 発売予定 ¥9,800");
+    // どちらかが欠けたら言葉だけ
+    expect(saleLabel({ status: "upcoming", launch: "10/2" }, { detail: true })).toBe("発売前");
+    expect(saleLabel({ status: "upcoming", price: 9800 }, { detail: true })).toBe("発売前");
+    // 発売したら detail でも定価だけ
+    expect(saleLabel({ ...sale, status: "onsale" }, { detail: true })).toBe("発売中 ¥9,800");
+    const mcp = projects.find((p) => p.slug === "mcp-server")!;
+    expect(saleLabel(mcp.sale!, { detail: true })).toBe("10/2 発売予定 ¥9,800");
+    expect(projectHref(mcp)).toBe("/projects/mcp-server");
   });
 
   it("作品ページを持たない 2 本は、同じ名義の note の記事へ飛ぶ", () => {

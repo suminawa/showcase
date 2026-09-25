@@ -1,0 +1,662 @@
+/*
+ * MCP サーバー キットの紙。料紙（projects.module.css）の上に、節と再生の帳面を足す。
+ * 字は料紙と同じ「小」の一段だけ（等幅はツール名・引数・JSON にだけ使う ── 中身がコードだから）。
+ * 行送り・余白は --rp-pitch の整数倍か半分。
+ * 朱は「選んでいる」ことの印にだけ使う（問いと、サーバーの設定の切り替え）。
+ */
+
+/* 頭の小の字: 「10/2 発売予定 ¥9,800」。lede と同じ段、色だけ一段濃く */
+.sale {
+  font-size: var(--rp-tiny);
+  line-height: var(--rp-pitch);
+  letter-spacing: 0.12em;
+  color: var(--rp-sumi-2);
+  /* 頭の段どうしの間は半行。ここだけ半行詰めて一行の直下に置き、字を罫の格子（1 行ごと）へ戻す ──
+     半端のままだと罫が字の真ん中を横切り、取り消し線に見える */
+  margin-top: calc(-0.5 * var(--rp-pitch));
+}
+
+/* ---- 節 ------------------------------------------------------------------ */
+
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: calc(0.5 * var(--rp-pitch));
+  margin-top: var(--rp-pitch);
+  /* 節へ直に飛んで来たとき、見出しが画面の縁に貼りつかないように */
+  scroll-margin-top: var(--rp-pitch);
+}
+
+.section:first-child {
+  margin-top: 0;
+}
+
+.heading {
+  font-family: var(--rp-serif-display);
+  font-weight: 400;
+  font-size: var(--rp-tiny);
+  line-height: var(--rp-pitch);
+  letter-spacing: 0.24em;
+  color: var(--rp-sumi);
+}
+
+.text,
+.list,
+.steps {
+  font-size: var(--rp-tiny);
+  line-height: 2.3;
+  letter-spacing: 0.06em;
+  color: var(--rp-sumi-3);
+  max-width: 40em;
+}
+
+.list {
+  margin: 0;
+  padding-left: 1.4em;
+  list-style: disc;
+}
+
+.steps {
+  margin: 0;
+  padding-left: 1.6em;
+  list-style: decimal;
+  display: flex;
+  flex-direction: column;
+  gap: calc(0.25 * var(--rp-pitch));
+}
+
+.steps li::marker {
+  color: var(--rp-sumi-4);
+}
+
+.stepTitle {
+  display: block;
+  color: var(--rp-sumi);
+}
+
+.stepText {
+  display: block;
+}
+
+.inlineCode,
+.mono,
+.env,
+.toolName,
+.args,
+.raw pre {
+  font-family: ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+  font-feature-settings: normal;
+  letter-spacing: 0;
+}
+
+.inlineCode {
+  font-size: 0.92em;
+  color: var(--rp-sumi-2);
+  overflow-wrap: anywhere;
+}
+
+/* ---- 再生の帳面 ------------------------------------------------------------
+   紙の上に置いた一枚。枠は髪の毛ほどの線一本、角も影も持たない。 */
+
+.replay {
+  --mc-sheet: #fbf9f3;
+  --mc-line: rgba(28, 26, 21, 0.14);
+  --mc-faint: rgba(28, 26, 21, 0.06);
+  --mc-mono: 0.8125rem;
+
+  margin-top: calc(0.5 * var(--rp-pitch));
+  border: 1px solid var(--mc-line);
+  background: var(--mc-sheet);
+  color: var(--rp-sumi);
+  font-size: var(--rp-tiny);
+  letter-spacing: 0.04em;
+  line-height: 1.9;
+}
+
+.status {
+  margin-top: calc(0.5 * var(--rp-pitch));
+  min-height: calc(8 * var(--rp-pitch));
+  display: grid;
+  place-items: center;
+  border: 1px solid rgba(28, 26, 21, 0.14);
+  color: var(--rp-sumi-4);
+  font-size: var(--rp-tiny);
+}
+
+.muted {
+  color: var(--rp-sumi-4);
+}
+
+/* 上の帯: サーバーの設定と、AI に見えているツールの一覧 */
+.bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: calc(0.25 * var(--rp-pitch)) var(--rp-pitch);
+  padding: calc(0.5 * var(--rp-pitch)) var(--rp-pitch);
+  border-bottom: 1px solid var(--mc-line);
+}
+
+.modeGroup {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0 calc(0.5 * var(--rp-pitch));
+}
+
+.modeLabel {
+  color: var(--rp-sumi-4);
+  letter-spacing: 0.16em;
+}
+
+.modes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0 calc(0.75 * var(--rp-pitch));
+}
+
+/* 動詞と同じく箱を持たない。選んでいるほうにだけ朱の印が点く */
+.mode,
+.question,
+.verb {
+  appearance: none;
+  background: none;
+  border: 0;
+  padding: 0;
+  margin: 0;
+  font: inherit;
+  letter-spacing: inherit;
+  color: var(--rp-sumi-3);
+  text-align: left;
+  cursor: pointer;
+  min-height: 44px;
+}
+
+.mode {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5em;
+  transition: color 200ms var(--rp-brush);
+}
+
+.mode:hover,
+.mode[aria-checked="true"] {
+  color: var(--rp-sumi);
+}
+
+.env {
+  font-size: var(--mc-mono);
+  color: var(--rp-sumi-4);
+}
+
+/* 朱の印。選ばれていないときは墨の淡い一点の枠だけ */
+.mark {
+  flex: none;
+  width: 0.55em;
+  height: 0.55em;
+  box-shadow: inset 0 0 0 1px rgba(28, 26, 21, 0.35);
+  transition:
+    background-color 200ms var(--rp-brush),
+    box-shadow 200ms var(--rp-brush);
+}
+
+.mode[aria-checked="true"] .mark,
+.question[aria-pressed="true"] .mark {
+  background: var(--rp-shu);
+  box-shadow: none;
+}
+
+.toolList {
+  flex: 1 1 18em;
+  min-width: 0;
+}
+
+.toolList summary {
+  cursor: pointer;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0 0.5em;
+  color: var(--rp-sumi-2);
+}
+
+.toolList ul {
+  list-style: none;
+  margin: 0;
+  padding: 0 0 calc(0.25 * var(--rp-pitch));
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(17em, 1fr));
+  gap: 0 var(--rp-pitch);
+}
+
+.toolList li {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0 0.75em;
+  color: var(--rp-sumi-3);
+}
+
+.toolList .mono {
+  font-size: var(--mc-mono);
+  color: var(--rp-sumi);
+}
+
+.writeTag {
+  color: var(--rp-sumi-2);
+  letter-spacing: 0.12em;
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.35em;
+  text-decoration-color: rgba(28, 26, 21, 0.4);
+}
+
+/* 本体: 左に問い、右に会話。せまい紙では上下に積む */
+.stage {
+  display: grid;
+  grid-template-columns: minmax(15em, 19em) minmax(0, 1fr);
+}
+
+.questions {
+  padding: calc(0.5 * var(--rp-pitch)) var(--rp-pitch) var(--rp-pitch);
+  border-right: 1px solid var(--mc-line);
+}
+
+.questionsHead {
+  color: var(--rp-sumi-4);
+  letter-spacing: 0.16em;
+  line-height: var(--rp-pitch);
+}
+
+.questions ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.question {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  column-gap: 0.75em;
+  align-items: baseline;
+  width: 100%;
+  padding: calc(0.25 * var(--rp-pitch)) 0;
+  border-top: 1px solid var(--mc-faint);
+  transition: color 200ms var(--rp-brush);
+}
+
+.questions li:first-child .question {
+  border-top: 0;
+}
+
+.question .mark {
+  grid-row: 1 / span 2;
+  align-self: start;
+  margin-top: 0.7em;
+}
+
+.question:hover,
+.question[aria-pressed="true"] {
+  color: var(--rp-sumi);
+}
+
+.qTopic {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0 0.75em;
+  font-size: var(--mc-mono);
+  color: var(--rp-sumi-4);
+  letter-spacing: 0.14em;
+}
+
+.qKit {
+  color: var(--rp-sumi-4);
+}
+
+.qText {
+  grid-column: 2;
+  line-height: 1.8;
+}
+
+/* 会話 */
+.chat {
+  min-width: 0;
+  padding: calc(0.5 * var(--rp-pitch)) var(--rp-pitch) var(--rp-pitch);
+  /* 問いを替えても帳面の背が跳ねすぎないように、いちばん短い場面より少し高く取る */
+  min-height: calc(14 * var(--rp-pitch));
+}
+
+.chat:focus-visible {
+  outline: 1px solid var(--rp-sumi);
+  outline-offset: -6px;
+}
+
+.turns {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: calc(0.5 * var(--rp-pitch));
+}
+
+.turns > li {
+  animation: mc-in 420ms var(--rp-brush) both;
+}
+
+@keyframes mc-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.who {
+  display: block;
+  font-size: var(--mc-mono);
+  letter-spacing: 0.2em;
+  color: var(--rp-sumi-4);
+}
+
+.user {
+  align-self: flex-end;
+  max-width: min(32em, 88%);
+  padding: calc(0.25 * var(--rp-pitch)) calc(0.5 * var(--rp-pitch));
+  background: rgba(28, 26, 21, 0.05);
+}
+
+.assistant {
+  max-width: 40em;
+  color: var(--rp-sumi);
+}
+
+.assistant p {
+  line-height: 2;
+}
+
+.thinking {
+  color: var(--rp-sumi-4);
+  letter-spacing: 0.3em;
+}
+
+/* ツールの呼び出し。紙に書かれた記録の一段として、左に墨の細い一本だけを引く */
+.call,
+.confirm {
+  min-width: 0;
+  padding: calc(0.25 * var(--rp-pitch)) 0 calc(0.25 * var(--rp-pitch)) calc(0.5 * var(--rp-pitch));
+  box-shadow: inset 1px 0 0 rgba(28, 26, 21, 0.3);
+}
+
+.callHead,
+.resultHead {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0 0.75em;
+}
+
+.resultHead {
+  margin-top: calc(0.25 * var(--rp-pitch));
+  color: var(--rp-sumi-2);
+}
+
+.callVerb {
+  font-size: var(--mc-mono);
+  letter-spacing: 0.16em;
+  color: var(--rp-sumi-4);
+}
+
+.toolName {
+  font-size: var(--mc-mono);
+  color: var(--rp-sumi);
+}
+
+.toolTitle {
+  color: var(--rp-sumi-3);
+}
+
+.args,
+.raw pre {
+  margin: 0;
+  font-size: var(--mc-mono);
+  line-height: 1.6;
+  color: var(--rp-sumi-2);
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.args {
+  margin-top: calc(0.125 * var(--rp-pitch));
+  padding: calc(0.25 * var(--rp-pitch)) calc(0.5 * var(--rp-pitch));
+  background: rgba(28, 26, 21, 0.04);
+}
+
+.tableWrap {
+  margin-top: calc(0.125 * var(--rp-pitch));
+  overflow-x: auto;
+}
+
+.table {
+  border-collapse: collapse;
+  min-width: 100%;
+  font-size: var(--mc-mono);
+  line-height: 1.6;
+}
+
+.table th,
+.table td {
+  padding: 0.35em 1em 0.35em 0;
+  text-align: left;
+  vertical-align: top;
+  border-bottom: 1px solid var(--mc-faint);
+}
+
+.table th {
+  font-weight: 400;
+  color: var(--rp-sumi-4);
+  white-space: nowrap;
+}
+
+.table td {
+  color: var(--rp-sumi);
+  /* せまい紙では表だけが横に流れる（紙は横に流れない）。字の途中では割らない */
+  white-space: nowrap;
+}
+
+.table td.mono {
+  color: var(--rp-sumi-3);
+  white-space: nowrap;
+}
+
+.fields {
+  margin: calc(0.125 * var(--rp-pitch)) 0 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(13em, 1fr));
+  gap: 0 var(--rp-pitch);
+  font-size: var(--mc-mono);
+  line-height: 1.6;
+}
+
+.field {
+  display: flex;
+  gap: 0.75em;
+  padding: 0.3em 0;
+  border-bottom: 1px solid var(--mc-faint);
+  min-width: 0;
+}
+
+.field dt {
+  flex: none;
+  color: var(--rp-sumi-4);
+}
+
+.field dd {
+  margin: 0;
+  color: var(--rp-sumi);
+  overflow-wrap: anywhere;
+}
+
+.serverNote {
+  margin-top: calc(0.25 * var(--rp-pitch));
+  font-size: var(--mc-mono);
+  line-height: 1.8;
+  color: var(--rp-sumi-3);
+}
+
+.raw {
+  margin-top: calc(0.125 * var(--rp-pitch));
+}
+
+.raw summary {
+  cursor: pointer;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  font-size: var(--mc-mono);
+  color: var(--rp-sumi-3);
+}
+
+.raw pre {
+  max-height: 22em;
+  overflow: auto;
+  padding: calc(0.25 * var(--rp-pitch)) calc(0.5 * var(--rp-pitch));
+  background: rgba(28, 26, 21, 0.04);
+}
+
+/* 許可の確認。AI のアプリが書く前に出す問いの見た目。ここだけは押すまで進まない */
+.confirm {
+  box-shadow: inset 1px 0 0 var(--rp-shu);
+}
+
+.confirmText code {
+  margin: 0 0.15em;
+}
+
+.confirmActions,
+.after {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0 var(--rp-pitch);
+}
+
+/* 動詞: 箱を持たない。淡い一本を敷き、触れると墨を得る */
+.verb {
+  display: inline-flex;
+  align-items: center;
+  color: var(--rp-sumi-2);
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.45em;
+  text-decoration-color: rgba(28, 26, 21, 0.3);
+  transition:
+    color 200ms var(--rp-brush),
+    text-decoration-color 200ms var(--rp-brush);
+}
+
+.verb:hover {
+  color: var(--rp-sumi);
+  text-decoration-color: var(--rp-sumi);
+}
+
+.after {
+  margin-top: calc(0.5 * var(--rp-pitch));
+}
+
+/* フォーカスの輪は料紙と同じく細い一本。帳面の中では輪を近くに寄せる */
+.replay button:focus-visible,
+.replay summary:focus-visible {
+  outline: 1px solid var(--rp-sumi);
+  outline-offset: 4px;
+}
+
+/* ---- 仕組みの図 ------------------------------------------------------------ */
+
+.diagram {
+  margin: calc(0.5 * var(--rp-pitch)) 0 0;
+  max-width: 60em;
+}
+
+.dgWide,
+.dgNarrow {
+  display: block;
+  width: 100%;
+  height: auto;
+  overflow: visible;
+}
+
+.dgNarrow {
+  display: none;
+  max-width: 22rem;
+}
+
+.dgHead {
+  font-family: var(--rp-serif-display);
+  font-size: 19px;
+  letter-spacing: 0.12em;
+  fill: var(--rp-sumi);
+}
+
+.dgText {
+  font-family: var(--rp-serif);
+  font-size: 16px;
+  letter-spacing: 0.04em;
+  fill: var(--rp-sumi-3);
+}
+
+.dgSmall {
+  font-family: var(--rp-serif);
+  font-size: 13px;
+  letter-spacing: 0.06em;
+  fill: var(--rp-sumi-4);
+}
+
+.dgRead path,
+.dgWrite path {
+  stroke: var(--rp-sumi-2);
+  stroke-width: 1.6;
+}
+
+.dgWrite path {
+  stroke-width: 2;
+}
+
+/* ---- せまい紙 --------------------------------------------------------------- */
+
+@media (max-width: 859px) {
+  .stage {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .questions {
+    border-right: 0;
+    border-bottom: 1px solid var(--mc-line);
+  }
+}
+
+@media (max-width: 639px) {
+  .dgWide {
+    display: none;
+  }
+  .dgNarrow {
+    display: block;
+  }
+  .bar,
+  .questions,
+  .chat {
+    padding-left: calc(0.5 * var(--rp-pitch));
+    padding-right: calc(0.5 * var(--rp-pitch));
+  }
+  .user {
+    max-width: 94%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .turns > li {
+    animation: none;
+  }
+}

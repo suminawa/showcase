@@ -8,6 +8,7 @@ describe("sitemap", () => {
     expect(paths).toContain("/kits");
     expect(paths).toContain("/contact");
     expect(paths).toContain("/projects/booking");
+    expect(paths).toContain("/projects/mcp-server");
     expect(paths).toContain("/demos/corporate-site");
     expect(paths).toContain("/guides");
     expect(paths).toContain("/guides/pdf-to-spreadsheet");
