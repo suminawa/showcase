@@ -29,6 +29,13 @@ export const guides: Guide[] = [
     kit: "sheet-app",
     date: "2026-09-26",
   },
+  {
+    slug: "line-auto-reply",
+    title: "LINE 公式アカウントの問い合わせに、自社の資料だけで答えさせる",
+    lede: "LINE に同じ質問が何度も届くとき、標準の機能でできることと、資料を根拠に AI が答えて担当者へ引き継ぐ組み方です。",
+    kit: "ai-concierge",
+    date: "2026-09-27",
+  },
 ];
 
 export const guideHref = (guide: Guide) => `/guides/${guide.slug}`;
