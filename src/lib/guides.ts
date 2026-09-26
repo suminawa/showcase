@@ -22,6 +22,13 @@ export const guides: Guide[] = [
     kit: "doc-reader",
     date: "2026-09-25",
   },
+  {
+    slug: "customer-sheet",
+    title: "顧客管理のスプレッドシートが、いつの間にか崩れていく",
+    lede: "お客さまの一覧を表で持ったまま、入力の揺れ・重複・上書きを防ぐ手順と、画面を足すときの組み方です。",
+    kit: "sheet-app",
+    date: "2026-09-26",
+  },
 ];
 
 export const guideHref = (guide: Guide) => `/guides/${guide.slug}`;
