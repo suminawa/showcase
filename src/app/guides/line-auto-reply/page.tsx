@@ -18,6 +18,7 @@ import g from "../guides.module.css";
 const guide = guideBySlug("line-auto-reply");
 
 const NOTE_ARTICLE = "https://note.com/suminawa/n/n22cdeff34999";
+const ZENN_ARTICLE = "https://zenn.dev/suminawa/articles/5d034a5f40dec6";
 const COCONALA = "https://coconala.com/services/4416823";
 const LANCERS = "https://www.lancers.jp/menu/detail/1345031";
 
@@ -95,6 +96,10 @@ export default function LineAutoReplyGuide() {
             詳しい手順は note の記事{" "}
             <a href={NOTE_ARTICLE} className={s.textLink}>
               「{guide.title}」
+            </a>
+            に、Messaging API と Claude での実装は Zenn の記事{" "}
+            <a href={ZENN_ARTICLE} className={s.textLink}>
+              「LINE の Webhook に Claude で答える」
             </a>
             に書きました。
           </p>
