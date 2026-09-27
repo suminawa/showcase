@@ -176,6 +176,28 @@
       "humanMinutes": 0,
       "release": "",
       "ai": "GAS キット 3 本 1.1 の初期化・設定確認と Shorts 14 本"
+    },
+    {
+      "day": 16,
+      "date": "2026-09-26",
+      "revenue": 0,
+      "proposals": 10,
+      "replies": 0,
+      "meetings": 0,
+      "humanMinutes": 0,
+      "release": "",
+      "ai": "お客さまアンケート キット 1.0.0 を実装（9 タスク、各タスク審査、枝全体の審査で致命 3・重要 2 を直し、再審査で merge 可。products main adc0b95、173 テスト、zip 252,789 B、配布 URL 設置）。販売文・BOOTH 説明・出品文（ココナラ 17・Lancers 16・Fiverr 15）・発売手順・アイキャッチ。改良の枠: Slack の文字参照・Discord の呼び出し対策を問い合わせ整理 1.0.1 と 1.1.0 の 3 本に移植（main 3c473e2、配布 zip 差し替え）。Fiverr 14（MCP）も下書き。YouTube: 他の人の知見を集めた手順書（研究 30 出典）を当てた: チャンネルの説明・リンク・キーワード・既定、再生リスト 4 本、ホームタブ（紹介動画）、45 本の題名【検索語】化・説明・ハッシュタグ・タグ、Shorts 30 本の関連動画と固定コメント、Shorts の雛形と切り出し（在庫 34 本）を新形式に。横 15 本に終了画面（同じカテゴリの再生リスト + 登録）とカスタムサムネ（結果の画面 + 一言。`thumbnails.mjs`）も入れた。12:00 の Shorts の定期実行を登録（13:20 に手で公開、遅れの原因は未登録）"
+    },
+    {
+      "day": 17,
+      "date": "2026-09-27",
+      "revenue": 0,
+      "proposals": 9,
+      "replies": 0,
+      "meetings": 0,
+      "humanMinutes": 0,
+      "release": "",
+      "ai": "LINE 自動応答の記事と着地ページ、提案 9 本、Shorts 4 本"
     }
   ]
 }
