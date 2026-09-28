@@ -43,6 +43,13 @@ export const guides: Guide[] = [
     kit: "booking",
     date: "2026-09-28",
   },
+  {
+    slug: "monthly-sales-report",
+    title: "毎月の売上の集計とグラフを、スプレッドシートで手で作り直している",
+    lede: "月例の集計表とグラフを毎月作り直す手間を減らす手順と、集計の決まりを 1 か所に書いて 1 枚の画面にする組み方です。",
+    kit: "dashboard",
+    date: "2026-09-29",
+  },
 ];
 
 export const guideHref = (guide: Guide) => `/guides/${guide.slug}`;
