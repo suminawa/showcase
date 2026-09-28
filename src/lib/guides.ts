@@ -36,6 +36,13 @@ export const guides: Guide[] = [
     kit: "ai-concierge",
     date: "2026-09-27",
   },
+  {
+    slug: "booking-page",
+    title: "電話と LINE で受けている予約を、空いている時間から選んでもらう",
+    lede: "電話と LINE に分かれた予約の受付を 1 つの台帳にまとめる手順と、空いている時間から選んでもらう予約ページの組み方です。",
+    kit: "booking",
+    date: "2026-09-28",
+  },
 ];
 
 export const guideHref = (guide: Guide) => `/guides/${guide.slug}`;
