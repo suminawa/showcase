@@ -198,6 +198,17 @@
       "humanMinutes": 0,
       "release": "",
       "ai": "LINE 自動応答の記事と着地ページ、提案 9 本、Shorts 4 本"
+    },
+    {
+      "day": 18,
+      "date": "2026-09-28",
+      "revenue": 0,
+      "proposals": 0,
+      "replies": 0,
+      "meetings": 0,
+      "humanMinutes": 0,
+      "release": "無料更新 4 本（GAS キット 3 本 1.1・業務アプリ 1.1.1）と問い合わせ整理 1.0.1",
+      "ai": "RAG 評価ハーネスの Task 1〜7 前半と GAS 3 本の 1.1 告知"
     }
   ]
 }
