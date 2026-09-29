@@ -337,8 +337,8 @@ export const projects: Project[] = [
     description: "業務アプリ・予約・書類のシートを、Claude や ChatGPT との会話から探して登録する。",
     tags: ["MCP", "TypeScript", "Claude"],
     category: "kits",
-    // 定価は設計どおり。一覧は「発売前」のまま、作品ページの頭だけが予定日と定価を書く
-    sale: { status: "upcoming", price: 9800, launch: "10/2" },
+    // 2026-09-30: 単体では売らず、無料の見本として配る（準備中）。値段と予定日は持たない
+    sale: { status: "upcoming" },
   },
 
   /* ---- sites ── 架空の会社で作った見本 ---------------------------------- */

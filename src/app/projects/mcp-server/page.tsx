@@ -138,7 +138,7 @@ export default function McpServerPage() {
           <p className={m.text}>
             {onSale
               ? `MCP サーバー キット（${saleLabel(sale)}、買い切り）`
-              : `MCP サーバー キットは発売前です（${saleLabel(sale, { detail: true })}、買い切り）。`}
+              : "MCP サーバー キットは、無料の見本として配る準備をしています。"}
             TypeScript のソース・ビルド済みのファイル・説明書・設定の見本を zip 1 本でお渡しします。業務アプリ・予約ページ・書類読み取りのキットと組むと、画面と会話の両方から同じ台帳を使えます。
             {shop.note && (
               <>

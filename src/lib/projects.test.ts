@@ -185,7 +185,6 @@ describe("projects registry", () => {
       // 発売前。定価はまだ決めていないので持たない
       "shopify-configurator": undefined,
       // 発売前。定価は設計で決めてあるので持つ（一覧には出さない）
-      "mcp-server": 9800,
     });
   });
 
@@ -212,7 +211,8 @@ describe("projects registry", () => {
     // 発売したら detail でも定価だけ
     expect(saleLabel({ ...sale, status: "onsale" }, { detail: true })).toBe("発売中 ¥9,800");
     const mcp = projects.find((p) => p.slug === "mcp-server")!;
-    expect(saleLabel(mcp.sale!, { detail: true })).toBe("10/2 発売予定 ¥9,800");
+    // 2026-09-30: 無料の見本として配る準備中。値段と予定日は出さない
+    expect(saleLabel(mcp.sale!, { detail: true })).toBe("発売前");
     expect(projectHref(mcp)).toBe("/projects/mcp-server");
   });
 
