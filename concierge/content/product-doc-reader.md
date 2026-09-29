@@ -1,6 +1,6 @@
 ---
 url: https://suminawa.dev/projects/doc-reader
-updatedAt: 2026-09-21
+updatedAt: 2026-09-29
 ---
 # AI 書類読み取りキット
 

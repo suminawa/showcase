@@ -1,6 +1,6 @@
 ---
 url: https://suminawa.dev/projects/30days
-updatedAt: 2026-09-19
+updatedAt: 2026-09-29
 ---
 # 30 日チャレンジ「30日 — Thirty Days」
 

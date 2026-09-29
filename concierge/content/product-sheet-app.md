@@ -1,6 +1,6 @@
 ---
 url: https://suminawa.dev/projects/sheet-app
-updatedAt: 2026-09-22
+updatedAt: 2026-09-29
 ---
 # スプレッドシート業務アプリ キット
 

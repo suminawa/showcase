@@ -1,6 +1,6 @@
 ---
 url: https://note.com/suminawa/n/n31eb9b92a0e0
-updatedAt: 2026-09-19
+updatedAt: 2026-09-29
 ---
 # 業種別 LP テンプレ パック
 

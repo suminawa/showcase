@@ -1,6 +1,6 @@
 ---
 url: https://suminawa.dev/projects/booking
-updatedAt: 2026-09-22
+updatedAt: 2026-09-29
 ---
 # 予約ページ キット
 

@@ -1,6 +1,6 @@
 ---
 url: https://suminawa.dev/projects/configurator
-updatedAt: 2026-09-19
+updatedAt: 2026-09-29
 ---
 # 3D 商品コンフィギュレーター
 
