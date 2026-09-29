@@ -3,7 +3,10 @@ import { afterEach, beforeEach, describe, expect, it, vi, type MockInstance } fr
 import links from "@/data/links.json";
 import { goHref, resolveGo } from "@/lib/go";
 
+import { track } from "@vercel/analytics/server";
 import { GET } from "./route";
+
+vi.mock("@vercel/analytics/server", () => ({ track: vi.fn(async () => undefined) }));
 
 function call(key: string, dest: string, query = "", headers: Record<string, string> = {}) {
   const request = new Request(`https://suminawa.dev/go/${key}/${dest}${query}`, { headers });
@@ -87,5 +90,27 @@ describe("/go/[key]/[dest]", () => {
   it("resolveGo は https の URL だけを返す", () => {
     expect(resolveGo("s1", "booth")).toBe(links.s1.booth);
     expect(resolveGo("s1", "toString")).toBeNull();
+  });
+
+  it("押された回数をカスタムイベント go で送る（添えるのは key・dest・from だけ）", async () => {
+    vi.mocked(track).mockClear();
+    const key = Object.keys(links).find((k) => (links as Record<string, { note?: string }>)[k].note) as string;
+    const res = await GET(new Request(`https://suminawa.dev/go/${key}/note?from=/kits`), {
+      params: Promise.resolve({ key, dest: "note" }),
+    });
+    expect(res.status).toBe(302);
+    expect(track).toHaveBeenCalledTimes(1);
+    const [name, props] = vi.mocked(track).mock.calls[0];
+    expect(name).toBe("go");
+    expect(Object.keys(props as object).sort()).toEqual(["dest", "from", "key"]);
+  });
+
+  it("イベントの送信に失敗しても転送する", async () => {
+    vi.mocked(track).mockRejectedValueOnce(new Error("down"));
+    const key = Object.keys(links).find((k) => (links as Record<string, { note?: string }>)[k].note) as string;
+    const res = await GET(new Request(`https://suminawa.dev/go/${key}/note`), {
+      params: Promise.resolve({ key, dest: "note" }),
+    });
+    expect(res.status).toBe(302);
   });
 });

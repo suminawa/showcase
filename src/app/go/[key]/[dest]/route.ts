@@ -2,10 +2,12 @@
  * 売り場（note・BOOTH）への渡し口。/go/<key>/<dest>?from=<紙の道>
  *
  * - 渡し先は links.json にある URL だけ。知らない key・空の URL は 404（開いた転送にしない）
- * - 押された回数は Vercel の実行ログに 1 行の JSON で残す。残すのは key・dest・from の 3 つだけで、
- *   IP・Cookie・UA・Referer は読まない。from は既知の紙の道と照らし、知らない値は "unknown"
- *   （Vercel Web Analytics のサーバー側カスタムイベントは Pro 以上なので、ここではログに書く）
+ * - 押された回数は Vercel Web Analytics のカスタムイベント「go」で数える（Cookie を使わない計測。
+ *   こちらが添える値は key・dest・from の 3 つだけ）。実行ログにも同じ 3 つを 1 行の JSON で残す。
+ *   from は既知の紙の道と照らし、知らない値は "unknown"。こちらのコードは IP・Cookie・UA を読まず、保存もしない
+ * - イベントの送信に失敗しても転送は止めない
  */
+import { track } from "@vercel/analytics/server";
 import { resolveGo } from "@/lib/go";
 import { sitemapPaths } from "@/lib/sitemap";
 
@@ -35,6 +37,11 @@ export async function GET(
 
   const from = recordFrom(new URL(request.url).searchParams.get("from"));
   console.log(JSON.stringify({ event: "go", key, dest, from }));
+  try {
+    await track("go", { key, dest, from }, { request });
+  } catch {
+    // 計測の失敗で売り場への案内を止めない
+  }
 
   return new Response(null, {
     status: 302,
