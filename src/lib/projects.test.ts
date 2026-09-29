@@ -135,8 +135,8 @@ describe("projects registry", () => {
     const kits = projectsByCategory("kits");
     expect(kits.map((p) => p.slug)).toEqual([
       "quote-simulator",
-      "deadline-alert",
-      "form-intake",
+      "deadline",
+      "form",
       "floorplan",
       "lp-pack",
       "ai-concierge",
@@ -164,8 +164,8 @@ describe("projects registry", () => {
     );
     expect(price).toEqual({
       "quote-simulator": 2980,
-      "deadline-alert": 2980,
-      "form-intake": 3480,
+      deadline: 2980,
+      form: 3480,
       floorplan: 9800,
       "lp-pack": 6980,
       // 2026-09-21 に発売した 2 本。どちらも定価（発売記念の値ではない）
@@ -174,7 +174,7 @@ describe("projects registry", () => {
       // 2026-09-22 に発売した 2 本。こちらも定価
       "sheet-app": 12800,
       booking: 7980,
-      // 2026-09-23 に発売した 2 本（問い合わせ整理は作品ページ無し。note の記事へ直に）
+      // 2026-09-23 に発売した 2 本（問い合わせ整理は定価。9/29 までの記念の値は作品ページだけ）
       "inbox-triage": 5980,
       // 2026-09-24 に発売。作品ページ無し（LINE の中で動く）
       "line-concierge": 12800,
@@ -217,10 +217,11 @@ describe("projects registry", () => {
 
   it("作品ページを持たないものは、/go/ を通して同じ名義の note の記事へ飛ぶ", () => {
     const by = Object.fromEntries(projects.map((p) => [p.slug, p]));
-    expect(projectHref(by["deadline-alert"])).toBe("/go/s2/note");
-    expect(projectHref(by["form-intake"])).toBe("/go/s3/note");
-    expect(projectHref(by["inbox-triage"])).toBe("/go/inbox-triage/note");
     expect(projectHref(by["line-concierge"])).toBe("/go/line-concierge/note");
+    // GAS キット 3 本は 2026-09-29 から見本のページを持つ
+    expect(projectHref(by["deadline"])).toBe("/projects/deadline");
+    expect(projectHref(by["form"])).toBe("/projects/form");
+    expect(projectHref(by["inbox-triage"])).toBe("/projects/inbox-triage");
     // 紙の中の段へ跳ねる行はもう無い（段ではなくページへ渡す）
     for (const project of projects) {
       expect(projectHref(project).startsWith("#")).toBe(false);
@@ -262,7 +263,7 @@ describe("projects registry", () => {
     // 196px の写しでは白い枠のなかで字が潰れるだけだった
     expect(projectFigure(by["quote-simulator"])).toBeNull();
     expect(projectFigure(by["ai-concierge"])).toBeNull();
-    expect(projectFigure(by["deadline-alert"])).toBeNull();
+    expect(projectFigure(by["deadline"])).toBeNull();
     expect(projectFigure(by["lp-pack"])).toBeNull();
     expect(projects.filter((p) => projectFigure(p) !== null)).toHaveLength(7);
   });

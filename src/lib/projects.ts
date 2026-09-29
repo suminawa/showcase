@@ -195,7 +195,7 @@ const siteProjects: Project[] = demos.map((demo) => ({
 export const projects: Project[] = [
   /* ---- kits ── 売っているもの ------------------------------------------
      発売中を先に、発売前を後に。飛び先は作品ページ（購入の導線は作品ページの
-     結びにある）。作品ページを持たない 2 本だけ、同じ名義の note の記事へ飛ばす。 */
+     結びにある）。作品ページを持たない LINE 案内窓口だけ、同じ名義の note の記事へ飛ばす。 */
   {
     slug: "quote-simulator",
     title: "見積もり電卓テンプレ",
@@ -207,22 +207,20 @@ export const projects: Project[] = [
     sale: { status: "onsale", price: 2980 },
   },
   {
-    slug: "deadline-alert",
+    slug: "deadline",
     title: "期限アラート GAS キット",
     description: "シートに書いた期限を、毎朝 1 通にまとめて知らせる。",
     tags: ["Google Apps Script"],
     category: "kits",
     sale: { status: "onsale", price: 2980 },
-    href: goHref("s2", "note"),
   },
   {
-    slug: "form-intake",
+    slug: "form",
     title: "フォーム受付 GAS キット",
     description: "問い合わせの受け口。シートに貯め、通知と自動返信まで。",
     tags: ["Google Apps Script"],
     category: "kits",
     sale: { status: "onsale", price: 3480 },
-    href: goHref("s3", "note"),
   },
   {
     slug: "floorplan",
@@ -280,9 +278,8 @@ export const projects: Project[] = [
     description: "Gmail の問い合わせを AI が読み、分類と要約を表に、返信案を下書きに。",
     tags: ["Google Apps Script", "Claude"],
     category: "kits",
+    // 定価。9/29 までの発売記念の値（¥4,980）は作品ページの結びだけが書く（src/lib/kit-demos.ts）
     sale: { status: "onsale", price: 5980 },
-    // 作品ページを持たない（見本を置けない）ので、note の販売記事へ直に
-    href: goHref("inbox-triage", "note"),
   },
   {
     slug: "line-concierge",
