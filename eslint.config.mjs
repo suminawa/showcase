@@ -21,6 +21,11 @@ const eslintConfig = defineConfig([
     // 自前のソースではなく、直すのはキットの側なので対象外。
     // 型は tsc --noEmit がこちらでも見ている
     "src/app/projects/saas-starter/kit/**",
+    // GAS キット 3 本の src/ からの写し（scripts/sync-gas-kits.mjs が作る）。同じ理由で対象外。
+    // 写しが元と 1 字も違わないことは各見本の demo.test.ts が確かめる
+    "src/app/projects/deadline/kit/**",
+    "src/app/projects/form/kit/**",
+    "src/app/projects/inbox-triage/kit/**",
   ]),
 ]);
 

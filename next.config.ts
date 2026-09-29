@@ -16,6 +16,8 @@ const nextConfig: NextConfig = {
       { source: "/30days", destination: "/projects/30days", permanent: false },
       // 一覧は /kits にある。/projects だけを開いた人を一覧へ送る
       { source: "/projects", destination: "/kits", permanent: false },
+      // 見本サイトの一覧は /sites にある。/demos だけを開いた人（LP パックの説明文の URL）を一覧へ送る
+      { source: "/demos", destination: "/sites", permanent: false },
     ];
   },
 };
