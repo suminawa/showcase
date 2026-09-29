@@ -50,6 +50,13 @@ export const guides: Guide[] = [
     kit: "dashboard",
     date: "2026-09-29",
   },
+  {
+    slug: "inbox-triage",
+    title: "問い合わせのメールが埋もれて、返信が遅れたり漏れたりする",
+    lede: "見積もり依頼・クレーム・営業が同じ受信箱に混ざるとき、Gmail の標準の機能で仕分ける手順と、分類と返信の下書きまでを仕組みにする組み方です。",
+    kit: "inbox-triage",
+    date: "2026-09-30",
+  },
 ];
 
 export const guideHref = (guide: Guide) => `/guides/${guide.slug}`;
