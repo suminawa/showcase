@@ -1,6 +1,7 @@
 /* 3D コンフィギュレーター for Shopify（suminawa-configurator 1.0.0）。product-configurator.css のあとに読む */
 .suminawa-configurator { margin-block: 2rem; }
 .suminawa-configurator[hidden] { display: none; }
+.suminawa-configurator .sc-mount[hidden] { display: none; }
 
 /* 価格はつなぎが出す（請求されるのはバリエーションの価格なので、核の価格欄は使わない） */
 .suminawa-configurator .pc-price { display: none; }
@@ -54,6 +55,9 @@
 }
 .sc-add:disabled { opacity: 0.45; cursor: not-allowed; }
 .sc-add:focus-visible, .sc-qty-input:focus-visible { outline: 2px solid #2f5d9b; outline-offset: 2px; }
+
+/* 設定の誤りで動かせないときに、お客さまの画面に出す一言 */
+.sc-unavailable { margin: 0; padding: 1rem 1.25rem; font-size: 0.9375rem; line-height: 1.7; border: 1px solid rgba(28, 26, 21, 0.18); border-radius: 0.5rem; }
 
 /* 設定の誤り・お知らせ（テーマエディタの中だけ） */
 .sc-errors[hidden] { display: none; }

@@ -1,6 +1,6 @@
 {
   "model": {
-    "src": "https://cdn.shopify.com/s/files/1/0000/0000/files/tumbler.glb",
+    "src": "https://cdn.shopify.com/3d/models/o/0000000000000000/tumbler.glb",
     "camera": { "distance": 2.6, "elevation": 16, "azimuth": -28 }
   },
   "scene": { "background": "#f4efe6", "floor": "#e8e2d6", "autoRotate": true },
@@ -47,7 +47,7 @@
     },
     {
       "id": "engrave",
-      "label": { "ja": "刻印（英数字 12 字まで）", "en": "Engraving (up to 12 letters)" },
+      "label": { "ja": "刻印の文字", "en": "Engraving text" },
       "type": "text",
       "target": ["label"],
       "maxChars": 12,
@@ -59,7 +59,7 @@
     },
     {
       "id": "logo",
-      "label": { "ja": "ロゴ入れ（PNG / JPEG / SVG、2 MB まで）", "en": "Logo (PNG / JPEG / SVG, up to 2 MB)" },
+      "label": { "ja": "ロゴ入れ", "en": "Logo" },
       "type": "image",
       "target": ["label"],
       "background": "#f4efe6",
@@ -69,8 +69,8 @@
   "shopify": {
     "priceMode": "reference",
     "referenceNote": {
-      "ja": "お支払い金額は、ご注文確認のメールで確定します（差額は確認後にご案内します）。",
-      "en": "The final amount will be confirmed by email after you order (we'll tell you about any difference)."
+      "ja": "カートとお支払いの画面には、基本の価格が出ます。お選びの内容による差額は、ご注文のあとにメールでご案内します。お支払い金額は、ご注文確認のメールで確定します。",
+      "en": "The cart and checkout show the base price. We'll email you the difference for your choices after you order. The final amount will be confirmed by email."
     }
   }
 }

@@ -1,6 +1,6 @@
 {
   "model": {
-    "src": "https://cdn.shopify.com/s/files/1/0000/0000/files/tumbler.glb",
+    "src": "https://cdn.shopify.com/3d/models/o/0000000000000000/tumbler.glb",
     "camera": { "distance": 2.6, "elevation": 18, "azimuth": -35 }
   },
   "scene": { "background": "#f4efe6", "floor": "#e8e2d6", "autoRotate": true },
@@ -40,7 +40,7 @@
     },
     {
       "id": "engrave",
-      "label": { "ja": "刻印", "en": "Engraving" },
+      "label": { "ja": "刻印の文字", "en": "Engraving text" },
       "type": "text",
       "target": ["label"],
       "maxChars": 12,
@@ -52,7 +52,7 @@
   ],
   "shopify": {
     "priceMode": "variant",
-    "options": { "body": "カラー", "size": "容量", "engrave": "刻印" },
+    "options": { "body": "カラー", "size": "容量", "engrave": "刻印の有無" },
     "values": { "engrave": { "filled": "あり", "empty": "なし" } }
   }
 }
