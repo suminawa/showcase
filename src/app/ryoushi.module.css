@@ -1287,17 +1287,25 @@
 
 /*
  * 売り物の状態。チップにも枠にもしない ── ただの小の字の言葉で、
- * 「発売中 ¥2,980」か「発売前」しか書かない。
+ * 「発売中 ¥2,980」「発売記念 ¥9,800（10/2 まで・定価 ¥12,800）」「発売前」しか書かない。
  * 朱は使わない。朱は【決めた】ことの印であって、売っていることの印ではない。
+ * 縮めてよい（flex-shrink 1）── 記念価格の札は 375px の紙で一行に収まらないので、
+ * 題の下の行に落ちたうえで、そこでも収まらなければ括弧の前で折り返す
+ * （値段と括弧はそれぞれ一塊 = .saleChunk。塊の中では折らない）。
  */
 .sale {
-  flex: none;
+  flex: 0 1 auto;
+  min-width: 0;
   font-size: var(--hi-tiny);
   line-height: 2.3;
   letter-spacing: 0.08em;
   color: var(--hi-sumi-3);
   font-variant-numeric: tabular-nums;
   transition: color var(--hi-soak);
+}
+
+.saleChunk {
+  display: inline-block;
 }
 
 .desc {

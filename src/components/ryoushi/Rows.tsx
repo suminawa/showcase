@@ -12,12 +12,28 @@ import { isGoHref, withFrom } from "@/lib/go";
 
 import {
   projectFigure,
+  priceLabel,
   projectHref,
-  saleLabel,
   type Project,
 } from "@/lib/projects";
 
 import s from "@/app/ryoushi.module.css";
+
+/**
+ * 値札の字。発売記念の札（「発売記念 ¥9,800（10/2 まで・定価 ¥12,800）」）は
+ * 狭い紙で一行に収まらないので、値段と括弧を別の塊にして、折れるのは
+ * その間だけにする（「¥12,」で割れると値段が読めない）。
+ */
+export function SaleText({ label }: { label: string }) {
+  const at = label.indexOf("（");
+  if (at < 0) return <>{label}</>;
+  return (
+    <>
+      <span className={s.saleChunk}>{label.slice(0, at)}</span>
+      <span className={s.saleChunk}>{label.slice(at)}</span>
+    </>
+  );
+}
 
 /** 行に添える図版。実画面の写しで、すでに出す寸法ちょうどに焼いてある */
 function Figure({ src, title }: { src: string; title: string }) {
@@ -56,7 +72,9 @@ function Row({
         <span className={s.line}>
           <span className={s.title}>{project.title}</span>
           {showSale && project.sale && (
-            <span className={s.sale}>{saleLabel(project.sale)}</span>
+            <span className={s.sale}>
+              <SaleText label={priceLabel(project) ?? ""} />
+            </span>
           )}
         </span>
         <span className={s.desc}>{project.description}</span>

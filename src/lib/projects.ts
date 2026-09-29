@@ -1,6 +1,7 @@
 import { goHref } from "./go";
 
 import { demoHref, demos } from "./demos";
+import { priceNow, shortDate } from "./prices";
 
 /**
  * 分類。トップの入口 3 行と、その先の一覧ページが同じ名前を使う。
@@ -18,8 +19,12 @@ export type Category = "kits" | "sites" | "works";
  * 売り物の状態。**値段と状態の出どころはここ一箇所だけ**で、
  * 発売・値上げのときに直すのもここだけ。
  *
- * price は**定価**を持つ（発売記念の期間でも定価を出す）── 期限つきの数字を
- * 一覧に置くと、期間が終わった日から古い値が残りつづけるからである。
+ * price は**定価**を持つ（発売記念の期間でも定価のまま）── 期限つきの数字を
+ * ここに置くと、期間が終わった日から古い値が残りつづけるからである。
+ * 発売記念の価格は日付つきで src/lib/prices.ts の表が持ち、一覧の札は
+ * saleLabel(sale, { slug }) が日付を見て「いま払う値段」を出す（期間中は
+ * 「発売記念 ¥9,800（10/2 まで・定価 ¥12,800）」、翌日 00:00 からは「発売中 ¥12,800」）。
+ * 値上げの日にここを直す必要はない。
  * 発売前のものは、定価が決まっていれば持ってよいが、一覧には出さない
  * （saleLabel は発売前なら「発売前」とだけ書く）── 発売の日に status を
  * 替えるだけで済むようにするため。値が決まっていないものは持たせない。
@@ -106,7 +111,7 @@ export const INDEX_PAGES: Record<Category, IndexPage> = {
   kits: {
     title: "キットとテンプレート",
     latin: "Kits",
-    lede: "そのまま使えるキットとテンプレートです。発売中のものは定価を添えています。",
+    lede: "そのまま使えるキットとテンプレートです。発売中のものは、いまのお値段を添えています（発売記念の期間中は、終わる日と定価も）。",
   },
   sites: {
     title: "見本サイト",
@@ -466,16 +471,33 @@ function yen(price: number): string {
  * 売り物の状態を小の字の言葉にする。チップにも印にもしない ──
  * 朱は「決めた」ことの印なので、売っていることに朱は使わない。
  *
+ * slug を渡すと、発売記念の期間中は記念の値・最終日・定価を書く（一覧の札はこちら）。
+ * now はテスト用で、既定は呼んだ時刻。
+ *
  * detail は作品ページの頭でだけ使う。発売前で予定日と定価の両方が決まって
  * いれば「10/2 発売予定 ¥9,800」と書く。一覧（detail なし）は「発売前」のまま ──
  * 予定日は動くことがあり、動いた日に一覧の全部の行を直すことになるため。
  */
-export function saleLabel(sale: Sale, opts: { detail?: boolean } = {}): string {
+export function saleLabel(
+  sale: Sale,
+  opts: { detail?: boolean; slug?: string; now?: Date } = {},
+): string {
   if (sale.status === "onsale" && sale.price != null) {
-    return `発売中 ${yen(sale.price)}`;
+    // slug があれば発売記念の表を引く。無ければ定価（表を引かない呼び方は定価だけを言う）
+    const now = opts.slug ? priceNow(opts.slug, sale.price, opts.now) : { price: sale.price };
+    if (now.intro) {
+      return `発売記念 ${yen(now.price)}（${shortDate(now.intro.until)} まで・定価 ${yen(now.intro.list)}）`;
+    }
+    return `発売中 ${yen(now.price)}`;
   }
   if (opts.detail && sale.status === "upcoming" && sale.launch && sale.price != null) {
     return `${sale.launch} 発売予定 ${yen(sale.price)}`;
   }
   return "発売前";
+}
+
+/** 一覧の札。発売記念の表を引く（saleLabel に slug を渡すだけの近道） */
+export function priceLabel(project: Project, now?: Date): string | null {
+  if (!project.sale) return null;
+  return saleLabel(project.sale, { slug: project.slug, now });
 }

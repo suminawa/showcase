@@ -31,18 +31,22 @@
  */
 import Link from "next/link";
 
+import { SaleText } from "@/components/ryoushi";
 import { REVEAL_FLAG, fontVars } from "@/components/ryoushi/fonts";
 import {
   GATES,
   SERVICES_BRIEF,
   countLabel,
   featuredProjects,
+  priceLabel,
   projectHref,
-  saleLabel,
 } from "@/lib/projects";
 import { STRANDS, STRANDS_NARROW, type VeinSegment } from "@/lib/vein";
 
 import s from "./ryoushi.module.css";
+
+/** いま見てほしいもの 4 点の札は日付で値段が変わる（/kits と同じ）。5 分ごとに焼き直す */
+export const revalidate = 300;
 
 /** 芯 / 添え / 乾き の三筋。太さと不透明度は CSS 側で与える */
 const STRAND_CLASS = [s.strandCore, s.strandSide, s.strandDry];
@@ -200,7 +204,9 @@ export default function Home() {
                   <span className={s.line}>
                     <span className={s.title}>{project.title}</span>
                     {project.sale && (
-                      <span className={s.sale}>{saleLabel(project.sale)}</span>
+                      <span className={s.sale}>
+                        <SaleText label={priceLabel(project) ?? ""} />
+                      </span>
                     )}
                   </span>
                   <span className={s.desc}>{project.description}</span>
