@@ -5,6 +5,9 @@
  * 読み終わるまでは枠だけ置いて、高さが動かないようにする。
  */
 import dynamic from "next/dynamic";
+import { useRef } from "react";
+
+import { useCanvasKick } from "@/components/demos/useCanvasKick";
 
 import s from "./configurator.module.css";
 
@@ -76,8 +79,11 @@ const CONFIG = {
 };
 
 export function Tool() {
+  // 開いただけで 3D が出るように。背面のタブでは枠を測る知らせが来ず、スクロールまで止まっていた
+  const ref = useRef<HTMLDivElement>(null);
+  useCanvasKick(ref);
   return (
-    <div className={s.tool}>
+    <div ref={ref} className={s.tool}>
       <ProductConfigurator config={CONFIG} />
     </div>
   );

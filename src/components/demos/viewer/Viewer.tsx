@@ -20,6 +20,7 @@ import {
   type ViewMode,
   type WallColor,
 } from "./house";
+import { useCanvasKick } from "../useCanvasKick";
 import { PlanEditor } from "./PlanEditor";
 import {
   defaultPlanState,
@@ -134,6 +135,9 @@ export function Viewer() {
   // 書き出しを待っている plan と、その時計。同じ plan で effect が走り直しても取りこぼさない
   const pendingSave = useRef<PlanState | null>(null);
   const saveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  // 開いただけで 3D が出るように。背面のタブでは枠を測る知らせが来ず、スクロールまで止まっていた
+  const stageRef = useRef<HTMLDivElement>(null);
+  useCanvasKick(stageRef);
 
   useEffect(() => {
     // 描いたあとに調べる。サーバーとの食い違い（ハイドレーション）を避けるため
@@ -344,7 +348,7 @@ export function Viewer() {
             </p>
           </div>
         ) : (
-          <div className={s.stage}>
+          <div ref={stageRef} className={s.stage}>
             {support === "ok" ? (
               <Scene
                 plan={plan}
