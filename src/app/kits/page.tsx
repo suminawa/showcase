@@ -17,9 +17,9 @@ const sheet = INDEX_PAGES.kits;
 
 /**
  * 札の値段は日付で変わる（発売記念の最終日の翌 00:00 JST に定価へ）。
- * 静的に焼いたままだと切り替わらないので、5 分ごとに焼き直す。
+ * 焼き直しの間隔を置くと、切れた記念の値を数分のあいだ出してしまうので、要求のたびに組む。
  */
-export const revalidate = 300;
+export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
   title: sheet.title,

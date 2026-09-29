@@ -1,15 +1,16 @@
 /*
  * GAS キットの見本ページの結びと、頭の値段の一行。
  * 中身・導入の時間・比べ方の文は src/lib/kit-demos.ts の一箇所から写す。
+ * 値段は要求の時刻で決まる（kitDemo は既定で今の時刻）。置くページは dynamic = "force-dynamic"。
  * 売り場への道は /go/ の渡し口（goHref）を通す。
  */
 import { goHref } from "@/lib/go";
-import { CHECKED_ON, KIT_DEMOS, type KitDemoSlug } from "@/lib/kit-demos";
+import { CHECKED_ON, kitDemo, type KitDemoSlug } from "@/lib/kit-demos";
 
 import s from "./kit-demo.module.css";
 
 function BuyLinks({ slug }: { slug: KitDemoSlug }) {
-  const demo = KIT_DEMOS[slug];
+  const demo = kitDemo(slug);
   const from = `/projects/${slug}`;
   return (
     <span className={s.buy}>
@@ -26,7 +27,7 @@ function BuyLinks({ slug }: { slug: KitDemoSlug }) {
 
 /** 頭の下に置く一行。値段と買う道だけ */
 export function KitPriceLine({ slug }: { slug: KitDemoSlug }) {
-  const demo = KIT_DEMOS[slug];
+  const demo = kitDemo(slug);
   return (
     <p className={s.priceLine}>
       <span>
@@ -40,7 +41,7 @@ export function KitPriceLine({ slug }: { slug: KitDemoSlug }) {
 
 /** 結び。これが実物の仕組みであること・値段・中身・導入の時間・比べ方・買う道 */
 export function KitClose({ slug, made }: { slug: KitDemoSlug; made: string }) {
-  const demo = KIT_DEMOS[slug];
+  const demo = kitDemo(slug);
   return (
     <section className={s.close} aria-labelledby="kit-close-title">
       <h2 id="kit-close-title" className={s.closeTitle}>

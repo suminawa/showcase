@@ -6,6 +6,7 @@
  * 数字を書くときは、その数字が載っている公式のページを必ず href に置く ── 出どころの無い数字は書かない。
  */
 import type { LinkKey } from "./go";
+import { nextDate, priceNow, shortDate, yen } from "./prices";
 import { projects } from "./projects";
 
 export type KitDemoSlug = "deadline" | "form" | "inbox-triage";
@@ -33,11 +34,6 @@ export type KitDemo = {
 /** 比べる相手のページを読んだ日 */
 export const CHECKED_ON = "2026-09-29";
 
-/** 3 桁ごとの区切り */
-export function yen(price: number): string {
-  return `¥${String(price).replace(/\B(?=(\d{3})+(?!\d))/g, ",")}`;
-}
-
 function listPrice(slug: string): number {
   const price = projects.find((p) => p.slug === slug)?.sale?.price;
   if (price == null) throw new Error(`定価が無い: ${slug}`);
@@ -45,27 +41,34 @@ function listPrice(slug: string): number {
 }
 
 /**
- * AI 問い合わせ整理の値段。
- * ＊ 日付の決まり: 2026-09-29 までは発売記念の ¥4,980、2026-09-30 から定価 ¥5,980
- *   （定価はレジストリの sale.price）。このページは 9/29 に置いたので記念の値で書いてある。
- *   9/30 朝の値上げ（price-restore）で、price を INBOX_LIST_PRICE_TEXT に替え、priceNote を消すこと。
+ * いま払う値段の一句と、発売記念の期間中だけ添える一文。
+ * 定価はレジストリ（projects.ts の sale.price）、記念の値と最終日は src/lib/prices.ts の表から引く。
+ * 最終日の翌 00:00（日本時間）に定価の一句へ切り替わり、添える一文も消える ── ここは手で直さない。
  */
-export const INBOX_SALE_PRICE = 4980;
-export const INBOX_LIST_PRICE_TEXT = `${yen(listPrice("inbox-triage"))}（税込）の買い切り`;
-const INBOX_PRICE_TEXT = `${yen(INBOX_SALE_PRICE)}（税込）の買い切り`;
-const INBOX_PRICE_NOTE = `9/29 までの発売記念の値で、9/30 から定価 ${yen(listPrice("inbox-triage"))} になります。`;
+export function kitPrice(slug: KitDemoSlug, now: Date = new Date()): { price: string; priceNote?: string } {
+  const current = priceNow(slug, listPrice(slug), now);
+  const price = `${yen(current.price)}（税込）の買い切り`;
+  if (!current.intro) return { price };
+  const { until, list } = current.intro;
+  return {
+    price,
+    priceNote: `${shortDate(until)} までの発売記念の値で、${shortDate(nextDate(until))} から定価 ${yen(list)} になります。`,
+  };
+}
 
 const GAS_SETUP =
   "スプレッドシートにコードを貼り、メニューから初期化するまで 15〜20 分ほどです。途中で Google の確認画面（「このアプリは Google で確認されていません」）が出ます。ご自身で貼ったスクリプトなので出るのが正常で、手順書に進み方を画面の言葉のまま書いてあります。";
 
 const LICENSE_LINE = "LICENSE.md（ご購入者の業務で自由にお使いいただけます。改変したものをお客さまのスプレッドシートに組み込んで納品することもできます。再配布・転売はできません）";
 
-export const KIT_DEMOS: Record<KitDemoSlug, KitDemo> = {
+/** 値段を除いた、日付で変わらない部分 */
+type KitDemoBase = Omit<KitDemo, "price" | "priceNote">;
+
+const BASES: Record<KitDemoSlug, KitDemoBase> = {
   deadline: {
     slug: "deadline",
     linkKey: "s2",
     name: "期限アラート GAS キット",
-    price: `${yen(listPrice("deadline"))}（税込）の買い切り`,
     box: [
       "dist/Code.gs（Apps Script に貼る 1 本）と appsscript.json",
       "見本の期限シートと設定シート（CSV）",
@@ -120,7 +123,6 @@ export const KIT_DEMOS: Record<KitDemoSlug, KitDemo> = {
     slug: "form",
     linkKey: "s3",
     name: "フォーム受付 GAS キット",
-    price: `${yen(listPrice("form"))}（税込）の買い切り`,
     box: [
       "dist/Code.gs（Apps Script に貼る 1 本）と appsscript.json",
       "そのまま使える見本のフォーム（form-sample.html）",
@@ -174,8 +176,6 @@ export const KIT_DEMOS: Record<KitDemoSlug, KitDemo> = {
     slug: "inbox-triage",
     linkKey: "inbox-triage",
     name: "AI 問い合わせ整理キット",
-    price: INBOX_PRICE_TEXT,
-    priceNote: INBOX_PRICE_NOTE,
     box: [
       "dist/Code.gs（Apps Script に貼る 1 本）と appsscript.json",
       "見本のメール 8 通とその答え、設定シートの見本（CSV）",
@@ -222,3 +222,17 @@ export const KIT_DEMOS: Record<KitDemoSlug, KitDemo> = {
     ],
   },
 };
+
+/** 見本ページ 1 本の結び。値段はその時刻で決まる（ページは要求のたびに組む） */
+export function kitDemo(slug: KitDemoSlug, now: Date = new Date()): KitDemo {
+  return { ...BASES[slug], ...kitPrice(slug, now) };
+}
+
+/** 3 本ぶんの結び。値段はその時刻で決まる */
+export function kitDemos(now: Date = new Date()): Record<KitDemoSlug, KitDemo> {
+  return {
+    deadline: kitDemo("deadline", now),
+    form: kitDemo("form", now),
+    "inbox-triage": kitDemo("inbox-triage", now),
+  };
+}

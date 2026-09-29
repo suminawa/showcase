@@ -53,6 +53,17 @@ export function priceNow(slug: string, list: number, now: Date = new Date()): Pr
   return { price: list };
 }
 
+/** 3 桁ごとの区切り。Intl に頼らないので、どこで組んでも同じ字が出る */
+export function yen(price: number): string {
+  return `¥${String(price).replace(/\B(?=(\d{3})+(?!\d))/g, ",")}`;
+}
+
+/** 「2026-09-29」→「2026-09-30」（暦の翌日） */
+export function nextDate(iso: string): string {
+  const [y, m, d] = iso.split("-").map(Number);
+  return new Date(Date.UTC(y, m - 1, d + 1)).toISOString().slice(0, 10);
+}
+
 /** 「2026-10-02」→「10/2」 */
 export function shortDate(iso: string): string {
   const [, m, d] = iso.split("-");

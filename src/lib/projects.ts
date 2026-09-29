@@ -1,7 +1,7 @@
 import { goHref } from "./go";
 
 import { demoHref, demos } from "./demos";
-import { priceNow, shortDate } from "./prices";
+import { priceNow, shortDate, yen } from "./prices";
 
 /**
  * 分類。トップの入口 3 行と、その先の一覧ページが同じ名前を使う。
@@ -283,7 +283,7 @@ export const projects: Project[] = [
     description: "Gmail の問い合わせを AI が読み、分類と要約を表に、返信案を下書きに。",
     tags: ["Google Apps Script", "Claude"],
     category: "kits",
-    // 定価。9/29 までの発売記念の値（¥4,980）は作品ページの結びだけが書く（src/lib/kit-demos.ts）
+    // 定価。発売記念の値と最終日は src/lib/prices.ts の表が持ち、一覧・トップ・作品ページの札はそこから出す
     sale: { status: "onsale", price: 5980 },
   },
   {
@@ -457,11 +457,6 @@ export function projectFigure(project: Project): string | null {
     return `/hub/${project.slug}`;
   }
   return null;
-}
-
-/** 3 桁ごとの区切り。Intl に頼らないので、どこで組んでも同じ字が出る */
-function yen(price: number): string {
-  return `¥${String(price).replace(/\B(?=(\d{3})+(?!\d))/g, ",")}`;
 }
 
 /**

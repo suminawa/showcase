@@ -15,6 +15,9 @@ import { fontVars } from "../fonts";
 import s from "../projects.module.css";
 import { InboxDemo } from "./InboxDemo";
 
+/** 値段の一行は発売記念の最終日の翌 00:00（日本時間）に定価へ変わる。要求のたびに組む */
+export const dynamic = "force-dynamic";
+
 export const metadata: Metadata = {
   title: "AI 問い合わせ整理キット",
   description:

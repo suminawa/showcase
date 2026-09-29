@@ -2,11 +2,18 @@ import { describe, expect, it } from "vitest";
 
 import links from "@/data/links.json";
 
-import { INBOX_LIST_PRICE_TEXT, INBOX_SALE_PRICE, KIT_DEMOS, yen } from "./kit-demos";
+import { kitDemos, kitPrice } from "./kit-demos";
+import { INTRO_PRICES, yen } from "./prices";
 import { projectHref, projects } from "./projects";
 import { sitemapPaths } from "./sitemap";
 
+/** 2026-09-29 23:59:59 JST（問い合わせ整理の発売記念の最終日の終わり） */
+const LAST_SALE_MOMENT = new Date("2026-09-29T23:59:59+09:00");
+/** 2026-09-30 00:00:00 JST（定価に切り替わる時刻） */
+const FIRST_LIST_MOMENT = new Date("2026-09-30T00:00:00+09:00");
+
 describe("GAS キット 3 本の見本の結び", () => {
+  const KIT_DEMOS = kitDemos(LAST_SALE_MOMENT);
   const demos = Object.values(KIT_DEMOS);
 
   it("3 本とも、一覧から見本のページへ渡し、sitemap に載る", () => {
@@ -18,14 +25,43 @@ describe("GAS キット 3 本の見本の結び", () => {
     }
   });
 
-  it("値段は商品の値段の表と同じ（期限 ¥2,980・フォーム ¥3,480・問い合わせ整理は 9/29 まで ¥4,980、定価 ¥5,980）", () => {
-    expect(KIT_DEMOS.deadline.price.startsWith("¥2,980（税込）")).toBe(true);
-    expect(KIT_DEMOS.form.price.startsWith("¥3,480（税込）")).toBe(true);
-    expect(INBOX_SALE_PRICE).toBe(4980);
-    expect(KIT_DEMOS["inbox-triage"].price).toContain("¥4,980");
-    expect(KIT_DEMOS["inbox-triage"].priceNote).toBe("9/29 までの発売記念の値で、9/30 から定価 ¥5,980 になります。");
+  it("9/29 23:59:59（日本時間）までは、問い合わせ整理が記念の ¥4,980 で、最終日と定価を添える", () => {
+    expect(INTRO_PRICES["inbox-triage"]).toEqual({ price: 4980, until: "2026-09-29" });
+    expect(kitPrice("inbox-triage", LAST_SALE_MOMENT)).toEqual({
+      price: "¥4,980（税込）の買い切り",
+      priceNote: "9/29 までの発売記念の値で、9/30 から定価 ¥5,980 になります。",
+    });
+    // 記念の値を持たない 2 本は、いつでも定価だけ
+    expect(kitPrice("deadline", LAST_SALE_MOMENT)).toEqual({ price: "¥2,980（税込）の買い切り" });
+    expect(kitPrice("form", LAST_SALE_MOMENT)).toEqual({ price: "¥3,480（税込）の買い切り" });
+    expect(KIT_DEMOS["inbox-triage"].price).toBe("¥4,980（税込）の買い切り");
     expect(KIT_DEMOS.deadline.priceNote).toBeUndefined();
-    expect(INBOX_LIST_PRICE_TEXT).toBe("¥5,980（税込）の買い切り");
+  });
+
+  it("9/30 00:00（日本時間）からは、問い合わせ整理も定価 ¥5,980 だけで、記念の一文は出ない", () => {
+    expect(kitPrice("inbox-triage", FIRST_LIST_MOMENT)).toEqual({ price: "¥5,980（税込）の買い切り" });
+    const later = kitDemos(FIRST_LIST_MOMENT);
+    expect(later["inbox-triage"].price).toBe("¥5,980（税込）の買い切り");
+    expect(later["inbox-triage"].priceNote).toBeUndefined();
+    expect(later.deadline.price).toBe("¥2,980（税込）の買い切り");
+    expect(later.form.price).toBe("¥3,480（税込）の買い切り");
+    // 値段のほかは日付で変わらない
+    expect({ ...later["inbox-triage"], price: "", priceNote: undefined }).toEqual({
+      ...KIT_DEMOS["inbox-triage"],
+      price: "",
+      priceNote: undefined,
+    });
+  });
+
+  it("見本ページの値段の一句は、手書きの値を持たず prices.ts と projects.ts から出す", async () => {
+    const { readFile } = await import("node:fs/promises");
+    const source = await readFile(new URL("./kit-demos.ts", import.meta.url), "utf8");
+    expect(source).not.toMatch(/4980|5980|2980|3480/);
+    expect(source).not.toContain("price-restore");
+    for (const page of ["deadline", "form", "inbox-triage"]) {
+      const tsx = await readFile(new URL(`../app/projects/${page}/page.tsx`, import.meta.url), "utf8");
+      expect(tsx).toContain('export const dynamic = "force-dynamic"');
+    }
   });
 
   it("買う道は note と BOOTH の両方が links.json にある", () => {

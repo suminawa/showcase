@@ -45,8 +45,8 @@ import { STRANDS, STRANDS_NARROW, type VeinSegment } from "@/lib/vein";
 
 import s from "./ryoushi.module.css";
 
-/** いま見てほしいもの 4 点の札は日付で値段が変わる（/kits と同じ）。5 分ごとに焼き直す */
-export const revalidate = 300;
+/** いま見てほしいもの 4 点の札は日付で値段が変わる（/kits と同じ）。切れた記念の値を出さないよう、要求のたびに組む */
+export const dynamic = "force-dynamic";
 
 /** 芯 / 添え / 乾き の三筋。太さと不透明度は CSS 側で与える */
 const STRAND_CLASS = [s.strandCore, s.strandSide, s.strandDry];
