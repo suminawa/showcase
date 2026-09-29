@@ -1,4 +1,5 @@
 import { formatYen } from "@/lib/format";
+import { goHref, type LinkKey } from "@/lib/go";
 import { cumulativeRevenue, sparklinePath, totals, type Board as BoardData, type DayRow } from "@/lib/thirtydays";
 import c from "./board.module.css";
 
@@ -8,8 +9,13 @@ const HEIGHT = 40;
 export type Product = {
   name: string;
   date: string;
+  /** links.json のキー。売り場へは /go/<key>/<note|booth> を通す */
+  key: LinkKey;
   links: { note?: string; booth?: string };
 };
+
+/** この帳面が置かれている紙の道（/go/ の数え分けに使う） */
+const FROM = "/projects/30days";
 
 /** "2026-09-22" → "9/22" */
 function shortDate(iso: string): string {
@@ -67,13 +73,13 @@ export function Board({ board, products }: { board: BoardData; products: Product
               <span className={c.productName}>{product.name}</span>
               <span className={c.productLinks}>
                 {product.links.note && (
-                  <a href={product.links.note} className={c.link}>
+                  <a href={goHref(product.key, "note", FROM)} className={c.link} rel="nofollow">
                     note
                   </a>
                 )}
                 {product.links.note && product.links.booth && <span className={c.slash}>/</span>}
                 {product.links.booth && (
-                  <a href={product.links.booth} className={c.link}>
+                  <a href={goHref(product.key, "booth", FROM)} className={c.link} rel="nofollow">
                     BOOTH
                   </a>
                 )}

@@ -14,6 +14,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 
 import links from "@/data/links.json";
+import { goHref } from "@/lib/go";
 import { projects, saleLabel } from "@/lib/projects";
 
 import { fontVars } from "../fonts";
@@ -142,7 +143,7 @@ export default function McpServerPage() {
             {shop.note && (
               <>
                 {" ── "}
-                <a href={shop.note} className={s.textLink}>
+                <a href={goHref("mcp-server", "note", "/projects/mcp-server")} rel="nofollow" className={s.textLink}>
                   note
                 </a>
               </>
@@ -150,7 +151,7 @@ export default function McpServerPage() {
             {shop.booth && (
               <>
                 {shop.note ? " / " : " ── "}
-                <a href={shop.booth} className={s.textLink}>
+                <a href={goHref("mcp-server", "booth", "/projects/mcp-server")} rel="nofollow" className={s.textLink}>
                   BOOTH
                 </a>
               </>

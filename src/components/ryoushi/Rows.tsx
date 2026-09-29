@@ -8,6 +8,8 @@
  */
 import Link from "next/link";
 
+import { isGoHref, withFrom } from "@/lib/go";
+
 import {
   projectFigure,
   projectHref,
@@ -37,7 +39,15 @@ function Figure({ src, title }: { src: string; title: string }) {
   );
 }
 
-function Row({ project, showSale }: { project: Project; showSale: boolean }) {
+function Row({
+  project,
+  showSale,
+  from,
+}: {
+  project: Project;
+  showSale: boolean;
+  from: string;
+}) {
   const href = projectHref(project);
   const fig = projectFigure(project);
   const inner = (
@@ -74,18 +84,19 @@ function Row({ project, showSale }: { project: Project; showSale: boolean }) {
       <span className={s.flow} aria-hidden="true" />
       <span className={s.flowDeep} aria-hidden="true" />
 
-      {href.startsWith("/") ? (
+      {href.startsWith("/") && !isGoHref(href) ? (
         <Link href={href} className={cls}>
           {inner}
         </Link>
       ) : (
         /* 紙の外（同じ名義の note）へ出る行。作品ページを持たないので
-           図版は無く、字だけで一行が成立する */
+           図版は無く、字だけで一行が成立する。/go/ を通して、どの紙から出たかを数える
+           （next/link で描くと先読みが渡し口を叩いて数が狂うので、素の a のまま） */
         <a
-          href={href}
+          href={isGoHref(href) ? withFrom(href, from) : href}
           className={cls}
           target="_blank"
-          rel="noopener noreferrer"
+          rel="nofollow noopener noreferrer"
         >
           {inner}
         </a>
@@ -97,18 +108,21 @@ function Row({ project, showSale }: { project: Project; showSale: boolean }) {
 /**
  * 一覧。`showSale` は売り物の分類でだけ真にする ── 道具として無料で使える
  * 行に値札を添えると、その場で触れることと買うことが混ざる。
+ * `from` はこの一覧を置いている紙の道（/kits など）。売り場へ出る行の数え分けに使う。
  */
 export function Rows({
   items,
+  from,
   showSale = false,
 }: {
   items: Project[];
+  from: string;
   showSale?: boolean;
 }) {
   return (
     <ol className={s.rows}>
       {items.map((project) => (
-        <Row key={project.slug} project={project} showSale={showSale} />
+        <Row key={project.slug} project={project} showSale={showSale} from={from} />
       ))}
     </ol>
   );

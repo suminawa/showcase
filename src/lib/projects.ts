@@ -1,4 +1,4 @@
-import links from "../data/links.json";
+import { goHref } from "./go";
 
 import { demoHref, demos } from "./demos";
 
@@ -213,7 +213,7 @@ export const projects: Project[] = [
     tags: ["Google Apps Script"],
     category: "kits",
     sale: { status: "onsale", price: 2980 },
-    href: links.s2.note,
+    href: goHref("s2", "note"),
   },
   {
     slug: "form-intake",
@@ -222,7 +222,7 @@ export const projects: Project[] = [
     tags: ["Google Apps Script"],
     category: "kits",
     sale: { status: "onsale", price: 3480 },
-    href: links.s3.note,
+    href: goHref("s3", "note"),
   },
   {
     slug: "floorplan",
@@ -282,7 +282,7 @@ export const projects: Project[] = [
     category: "kits",
     sale: { status: "onsale", price: 5980 },
     // 作品ページを持たない（見本を置けない）ので、note の販売記事へ直に
-    href: links["inbox-triage"].note,
+    href: goHref("inbox-triage", "note"),
   },
   {
     slug: "line-concierge",
@@ -292,7 +292,7 @@ export const projects: Project[] = [
     category: "kits",
     sale: { status: "onsale", price: 12800 },
     // 作品ページを持たない（LINE の中で動くので見本を置けない）。note の販売記事へ直に
-    href: links["line-concierge"].note,
+    href: goHref("line-concierge", "note"),
   },
   {
     slug: "dashboard",

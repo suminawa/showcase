@@ -16,6 +16,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 
 import links from "@/data/links.json";
+import { goHref } from "@/lib/go";
 
 import { fontVars } from "../fonts";
 import s from "../projects.module.css";
@@ -84,7 +85,7 @@ export default function DashboardPage() {
           {links.dashboard.note && (
             <>
               {" ── "}
-              <a href={links.dashboard.note} className={s.textLink}>
+              <a href={goHref("dashboard", "note", "/projects/dashboard")} rel="nofollow" className={s.textLink}>
                 note
               </a>
             </>
@@ -92,7 +93,7 @@ export default function DashboardPage() {
           {links.dashboard.booth && (
             <>
               {links.dashboard.note ? " / " : " ── "}
-              <a href={links.dashboard.booth} className={s.textLink}>
+              <a href={goHref("dashboard", "booth", "/projects/dashboard")} rel="nofollow" className={s.textLink}>
                 BOOTH
               </a>
             </>

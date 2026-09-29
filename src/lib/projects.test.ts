@@ -1,5 +1,4 @@
 import { describe, expect, it } from "vitest";
-import links from "../data/links.json";
 import {
   CONTACT_PAGE,
   FEATURED,
@@ -216,10 +215,12 @@ describe("projects registry", () => {
     expect(projectHref(mcp)).toBe("/projects/mcp-server");
   });
 
-  it("作品ページを持たない 2 本は、同じ名義の note の記事へ飛ぶ", () => {
+  it("作品ページを持たないものは、/go/ を通して同じ名義の note の記事へ飛ぶ", () => {
     const by = Object.fromEntries(projects.map((p) => [p.slug, p]));
-    expect(projectHref(by["deadline-alert"])).toBe(links.s2.note);
-    expect(projectHref(by["form-intake"])).toBe(links.s3.note);
+    expect(projectHref(by["deadline-alert"])).toBe("/go/s2/note");
+    expect(projectHref(by["form-intake"])).toBe("/go/s3/note");
+    expect(projectHref(by["inbox-triage"])).toBe("/go/inbox-triage/note");
+    expect(projectHref(by["line-concierge"])).toBe("/go/line-concierge/note");
     // 紙の中の段へ跳ねる行はもう無い（段ではなくページへ渡す）
     for (const project of projects) {
       expect(projectHref(project).startsWith("#")).toBe(false);

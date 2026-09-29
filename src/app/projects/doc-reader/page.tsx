@@ -9,6 +9,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 
 import links from "@/data/links.json";
+import { goHref } from "@/lib/go";
 
 import { fontVars } from "../fonts";
 import s from "../projects.module.css";
@@ -54,13 +55,13 @@ export default function DocReaderPage() {
           {links["doc-reader"].note && (
             <>
               {" ── "}
-              <a href={links["doc-reader"].note} className={s.textLink}>note</a>
+              <a href={goHref("doc-reader", "note", "/projects/doc-reader")} rel="nofollow" className={s.textLink}>note</a>
             </>
           )}
           {links["doc-reader"].booth && (
             <>
               {links["doc-reader"].note ? " / " : " ── "}
-              <a href={links["doc-reader"].booth} className={s.textLink}>BOOTH</a>
+              <a href={goHref("doc-reader", "booth", "/projects/doc-reader")} rel="nofollow" className={s.textLink}>BOOTH</a>
             </>
           )}
         </p>

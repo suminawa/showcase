@@ -7,7 +7,7 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 
-import links from "@/data/links.json";
+import { goHref } from "@/lib/go";
 import { guideBySlug } from "@/lib/guides";
 
 import { fontVars } from "../../projects/fonts";
@@ -108,11 +108,11 @@ export default function PdfToSpreadsheetGuide() {
           <h2 className={g.heading}>キット</h2>
           <p className={g.text}>
             見本と同じものを「AI 書類読み取りキット」として販売しています（定価 ¥16,800 の買い切り）。帳票の型 5 種、確認画面つきの Next.js テンプレ、スプレッドシートの受け口が入っていて、API の鍵はご自身のものを使います。 ──{" "}
-            <a href={links["doc-reader"].booth} className={s.textLink}>
+            <a href={goHref("doc-reader", "booth", "/guides/pdf-to-spreadsheet")} rel="nofollow" className={s.textLink}>
               BOOTH
             </a>
             {" / "}
-            <a href={links["doc-reader"].note} className={s.textLink}>
+            <a href={goHref("doc-reader", "note", "/guides/pdf-to-spreadsheet")} rel="nofollow" className={s.textLink}>
               note
             </a>
           </p>

@@ -8,7 +8,7 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 
-import links from "@/data/links.json";
+import { goHref } from "@/lib/go";
 import { guideBySlug } from "@/lib/guides";
 
 import { fontVars } from "../../projects/fonts";
@@ -109,11 +109,11 @@ export default function LineAutoReplyGuide() {
           <h2 className={g.heading}>キット</h2>
           <p className={g.text}>
             この組み方を「LINE 案内窓口キット」として販売しています（定価 ¥12,800 の買い切り）。根拠の URL つきの答え、質問の候補ボタン、担当者への引き継ぎと Slack への通知、署名の確認、1 日の上限が入っていて、Vercel にそのまま置ける Next.js のテンプレートとソース・テストも同梱しています。 ──{" "}
-            <a href={links["line-concierge"].booth} className={s.textLink}>
+            <a href={goHref("line-concierge", "booth", "/guides/line-auto-reply")} rel="nofollow" className={s.textLink}>
               BOOTH
             </a>
             {" / "}
-            <a href={links["line-concierge"].note} className={s.textLink}>
+            <a href={goHref("line-concierge", "note", "/guides/line-auto-reply")} rel="nofollow" className={s.textLink}>
               note
             </a>
           </p>

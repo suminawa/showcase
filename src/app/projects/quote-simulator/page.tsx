@@ -18,6 +18,7 @@ import Link from "next/link";
 
 import { QuoteSimulator } from "@/components/quote-simulator/QuoteSimulator";
 import links from "@/data/links.json";
+import { goHref } from "@/lib/go";
 
 import { fontVars } from "../fonts";
 import s from "../projects.module.css";
@@ -60,13 +61,13 @@ export default function QuoteSimulatorPage() {
           {links.s1.note && (
             <>
               {" ── "}
-              <a href={links.s1.note} className={s.textLink}>note</a>
+              <a href={goHref("s1", "note", "/projects/quote-simulator")} rel="nofollow" className={s.textLink}>note</a>
             </>
           )}
           {links.s1.booth && (
             <>
               {links.s1.note ? " / " : " ── "}
-              <a href={links.s1.booth} className={s.textLink}>BOOTH</a>
+              <a href={goHref("s1", "booth", "/projects/quote-simulator")} rel="nofollow" className={s.textLink}>BOOTH</a>
             </>
           )}
         </p>

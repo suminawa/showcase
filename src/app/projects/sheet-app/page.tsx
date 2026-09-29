@@ -15,6 +15,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 
 import links from "@/data/links.json";
+import { goHref } from "@/lib/go";
 
 import { fontVars } from "../fonts";
 import s from "../projects.module.css";
@@ -77,13 +78,13 @@ export default function SheetAppPage() {
           {links["sheet-app"].note && (
             <>
               {" ── "}
-              <a href={links["sheet-app"].note} className={s.textLink}>note</a>
+              <a href={goHref("sheet-app", "note", "/projects/sheet-app")} rel="nofollow" className={s.textLink}>note</a>
             </>
           )}
           {links["sheet-app"].booth && (
             <>
               {links["sheet-app"].note ? " / " : " ── "}
-              <a href={links["sheet-app"].booth} className={s.textLink}>BOOTH</a>
+              <a href={goHref("sheet-app", "booth", "/projects/sheet-app")} rel="nofollow" className={s.textLink}>BOOTH</a>
             </>
           )}
         </p>

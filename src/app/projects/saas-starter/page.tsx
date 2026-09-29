@@ -16,6 +16,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 
 import links from "@/data/links.json";
+import { goHref } from "@/lib/go";
 
 import { fontVars } from "../fonts";
 import s from "../projects.module.css";
@@ -94,7 +95,7 @@ export default function SaasStarterPage() {
           {links["saas-starter"].note && (
             <>
               {" ── "}
-              <a href={links["saas-starter"].note} className={s.textLink}>
+              <a href={goHref("saas-starter", "note", "/projects/saas-starter")} rel="nofollow" className={s.textLink}>
                 note
               </a>
             </>
@@ -102,7 +103,7 @@ export default function SaasStarterPage() {
           {links["saas-starter"].booth && (
             <>
               {links["saas-starter"].note ? " / " : " ── "}
-              <a href={links["saas-starter"].booth} className={s.textLink}>
+              <a href={goHref("saas-starter", "booth", "/projects/saas-starter")} rel="nofollow" className={s.textLink}>
                 BOOTH
               </a>
             </>

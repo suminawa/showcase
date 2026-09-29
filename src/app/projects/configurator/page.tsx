@@ -15,6 +15,7 @@ import Link from "next/link";
 import "@suminawa/product-configurator/styles.css";
 
 import links from "@/data/links.json";
+import { goHref } from "@/lib/go";
 
 import { fontVars } from "../fonts";
 import s from "../projects.module.css";
@@ -67,7 +68,7 @@ export default function ConfiguratorPage() {
           {links.configurator.note && (
             <>
               {" ── "}
-              <a href={links.configurator.note} className={s.textLink}>
+              <a href={goHref("configurator", "note", "/projects/configurator")} rel="nofollow" className={s.textLink}>
                 note
               </a>
             </>
@@ -75,7 +76,7 @@ export default function ConfiguratorPage() {
           {links.configurator.booth && (
             <>
               {links.configurator.note ? " / " : " ── "}
-              <a href={links.configurator.booth} className={s.textLink}>
+              <a href={goHref("configurator", "booth", "/projects/configurator")} rel="nofollow" className={s.textLink}>
                 BOOTH
               </a>
             </>

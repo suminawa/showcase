@@ -15,6 +15,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 
 import links from "@/data/links.json";
+import { goHref } from "@/lib/go";
 
 import { fontVars } from "../fonts";
 import s from "../projects.module.css";
@@ -85,7 +86,7 @@ export default function BookingPage() {
           {links.booking.note && (
             <>
               {" ── "}
-              <a href={links.booking.note} className={s.textLink}>
+              <a href={goHref("booking", "note", "/projects/booking")} rel="nofollow" className={s.textLink}>
                 note
               </a>
             </>
@@ -93,7 +94,7 @@ export default function BookingPage() {
           {links.booking.booth && (
             <>
               {links.booking.note ? " / " : " ── "}
-              <a href={links.booking.booth} className={s.textLink}>
+              <a href={goHref("booking", "booth", "/projects/booking")} rel="nofollow" className={s.textLink}>
                 BOOTH
               </a>
             </>

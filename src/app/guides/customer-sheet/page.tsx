@@ -7,7 +7,7 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 
-import links from "@/data/links.json";
+import { goHref } from "@/lib/go";
 import { guideBySlug } from "@/lib/guides";
 
 import { fontVars } from "../../projects/fonts";
@@ -108,11 +108,11 @@ export default function CustomerSheetGuide() {
           <h2 className={g.heading}>キット</h2>
           <p className={g.text}>
             見本と同じものを「スプレッドシート業務アプリ キット」として販売しています（定価 ¥12,800 の買い切り）。一覧・検索・絞り込み・登録・編集・削除・CSV 出力の画面と、顧客管理・案件管理・在庫管理の見本、LINE・Slack・Discord への通知が入っています。 ──{" "}
-            <a href={links["sheet-app"].booth} className={s.textLink}>
+            <a href={goHref("sheet-app", "booth", "/guides/customer-sheet")} rel="nofollow" className={s.textLink}>
               BOOTH
             </a>
             {" / "}
-            <a href={links["sheet-app"].note} className={s.textLink}>
+            <a href={goHref("sheet-app", "note", "/guides/customer-sheet")} rel="nofollow" className={s.textLink}>
               note
             </a>
           </p>

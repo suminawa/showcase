@@ -7,7 +7,7 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 
-import links from "@/data/links.json";
+import { goHref } from "@/lib/go";
 import { guideBySlug } from "@/lib/guides";
 
 import { fontVars } from "../../projects/fonts";
@@ -103,11 +103,11 @@ export default function MonthlySalesReportGuide() {
           <h2 className={g.heading}>キット</h2>
           <p className={g.text}>
             この組み方を「ダッシュボード キット」として販売しています（定価 ¥9,800 の買い切り）。置き方は、いまのサイトへの埋め込み・Next.js のひな型・Google スプレッドシートの 3 通りで、外部の API を使わないので月額の費用はかかりません。前の期間との比較、月ごとの目標、絞り込んだ画面を URL で渡すしくみ、表での表示と CSV の書き出しが入っています。ソースと検査も同梱しています。 ──{" "}
-            <a href={links.dashboard.booth} className={s.textLink}>
+            <a href={goHref("dashboard", "booth", "/guides/monthly-sales-report")} rel="nofollow" className={s.textLink}>
               BOOTH
             </a>
             {" / "}
-            <a href={links.dashboard.note} className={s.textLink}>
+            <a href={goHref("dashboard", "note", "/guides/monthly-sales-report")} rel="nofollow" className={s.textLink}>
               note
             </a>
           </p>

@@ -29,7 +29,7 @@ export default function SitesPage() {
   return (
     <Sheet title={sheet.title} latin={sheet.latin} lede={sheet.lede}>
       <SheetSection>
-        <Rows items={projectsByCategory("sites")} />
+        <Rows items={projectsByCategory("sites")} from="/sites" />
       </SheetSection>
       <SheetClose />
     </Sheet>

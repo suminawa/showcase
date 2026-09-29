@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { Analytics } from "@vercel/analytics/next";
 import { Noto_Sans_JP } from "next/font/google";
 
 import { siteUrl } from "@/lib/site";
@@ -44,6 +45,8 @@ export default function RootLayout({
     <html lang="ja" suppressHydrationWarning>
       <body className={`${notoSansJp.variable} font-sans antialiased`}>
         {children}
+        {/* Vercel Web Analytics。Cookie を使わず、個人を特定する情報も持たないページビューの数だけ */}
+        <Analytics />
       </body>
     </html>
   );

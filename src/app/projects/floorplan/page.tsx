@@ -18,6 +18,7 @@ import Link from "next/link";
 
 import { Viewer } from "@/components/demos/viewer/Viewer";
 import links from "@/data/links.json";
+import { goHref } from "@/lib/go";
 
 import { fontVars } from "../fonts";
 import s from "../projects.module.css";
@@ -70,13 +71,13 @@ export default function FloorplanPage() {
           {links.floorplan.note && (
             <>
               {" ── "}
-              <a href={links.floorplan.note} className={s.textLink}>note</a>
+              <a href={goHref("floorplan", "note", "/projects/floorplan")} rel="nofollow" className={s.textLink}>note</a>
             </>
           )}
           {links.floorplan.booth && (
             <>
               {links.floorplan.note ? " / " : " ── "}
-              <a href={links.floorplan.booth} className={s.textLink}>BOOTH</a>
+              <a href={goHref("floorplan", "booth", "/projects/floorplan")} rel="nofollow" className={s.textLink}>BOOTH</a>
             </>
           )}
         </p>

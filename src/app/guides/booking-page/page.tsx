@@ -7,7 +7,7 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 
-import links from "@/data/links.json";
+import { goHref } from "@/lib/go";
 import { guideBySlug } from "@/lib/guides";
 
 import { fontVars } from "../../projects/fonts";
@@ -108,11 +108,11 @@ export default function BookingPageGuide() {
           <h2 className={g.heading}>キット</h2>
           <p className={g.text}>
             この組み方を「予約ページ キット」として販売しています（定価 ¥7,980 の買い切り）。サーバーも月額の費用も要らず、確認メール・前日のリマインド・お客さまご自身でのキャンセル、Google カレンダーへの登録（任意）、Slack・Discord・LINE への通知、いたずらの送信を止める仕組みが入っています。スプレッドシートに貼る 3 ファイルと、ソース・テストも同梱しています。 ──{" "}
-            <a href={links.booking.booth} className={s.textLink}>
+            <a href={goHref("booking", "booth", "/guides/booking-page")} rel="nofollow" className={s.textLink}>
               BOOTH
             </a>
             {" / "}
-            <a href={links.booking.note} className={s.textLink}>
+            <a href={goHref("booking", "note", "/guides/booking-page")} rel="nofollow" className={s.textLink}>
               note
             </a>
           </p>

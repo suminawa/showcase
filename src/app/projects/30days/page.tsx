@@ -9,27 +9,28 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 
-import { Board } from "@/components/thirtydays/Board";
+import { Board, type Product } from "@/components/thirtydays/Board";
 import board from "@/data/thirtydays.json";
 import links from "@/data/links.json";
+import { goHref } from "@/lib/go";
 
 import { fontVars } from "../fonts";
 import s from "../projects.module.css";
 
 /** チャレンジの中で出した売り物（発売順）。URL は links.json（空なら値札を出さない） */
-const PRODUCTS = [
-  { name: "見積もり電卓テンプレ", date: "9/11", links: links.s1 },
-  { name: "期限アラート GAS キット", date: "9/12", links: links.s2 },
-  { name: "フォーム受付 GAS キット", date: "9/13", links: links.s3 },
-  { name: "業種別 LP テンプレ パック", date: "9/14", links: links.lp },
-  { name: "間取りシミュレーター", date: "9/16", links: links.floorplan },
-  { name: "AI 案内窓口キット", date: "9/21", links: links["ai-concierge"] },
-  { name: "AI 書類読み取りキット", date: "9/21", links: links["doc-reader"] },
-  { name: "スプレッドシート業務アプリ キット", date: "9/22", links: links["sheet-app"] },
-  { name: "予約ページ キット", date: "9/22", links: links.booking },
-  { name: "AI 問い合わせ整理キット", date: "9/23", links: links["inbox-triage"] },
-  { name: "ダッシュボード キット", date: "9/23", links: links.dashboard },
-  { name: "LINE 案内窓口キット", date: "9/24", links: links["line-concierge"] },
+const PRODUCTS: Product[] = [
+  { name: "見積もり電卓テンプレ", date: "9/11", key: "s1", links: links.s1 },
+  { name: "期限アラート GAS キット", date: "9/12", key: "s2", links: links.s2 },
+  { name: "フォーム受付 GAS キット", date: "9/13", key: "s3", links: links.s3 },
+  { name: "業種別 LP テンプレ パック", date: "9/14", key: "lp", links: links.lp },
+  { name: "間取りシミュレーター", date: "9/16", key: "floorplan", links: links.floorplan },
+  { name: "AI 案内窓口キット", date: "9/21", key: "ai-concierge", links: links["ai-concierge"] },
+  { name: "AI 書類読み取りキット", date: "9/21", key: "doc-reader", links: links["doc-reader"] },
+  { name: "スプレッドシート業務アプリ キット", date: "9/22", key: "sheet-app", links: links["sheet-app"] },
+  { name: "予約ページ キット", date: "9/22", key: "booking", links: links.booking },
+  { name: "AI 問い合わせ整理キット", date: "9/23", key: "inbox-triage", links: links["inbox-triage"] },
+  { name: "ダッシュボード キット", date: "9/23", key: "dashboard", links: links.dashboard },
+  { name: "LINE 案内窓口キット", date: "9/24", key: "line-concierge", links: links["line-concierge"] },
 ];
 
 export const metadata: Metadata = {
@@ -66,7 +67,7 @@ export default function ThirtyDaysPage() {
           {links.challenge.note && (
             <>
               {" ── "}
-              <a href={links.challenge.note} className={s.textLink}>
+              <a href={goHref("challenge", "note", "/projects/30days")} rel="nofollow" className={s.textLink}>
                 毎日の記事
               </a>
             </>

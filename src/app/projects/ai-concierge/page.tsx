@@ -11,6 +11,7 @@ import Script from "next/script";
 import "@suminawa/ai-concierge/ai-concierge.css";
 
 import links from "@/data/links.json";
+import { goHref } from "@/lib/go";
 
 import { fontVars } from "../fonts";
 import s from "../projects.module.css";
@@ -84,13 +85,13 @@ export default function AiConciergePage() {
           {links["ai-concierge"].note && (
             <>
               {" ── "}
-              <a href={links["ai-concierge"].note} className={s.textLink}>note</a>
+              <a href={goHref("ai-concierge", "note", "/projects/ai-concierge")} rel="nofollow" className={s.textLink}>note</a>
             </>
           )}
           {links["ai-concierge"].booth && (
             <>
               {links["ai-concierge"].note ? " / " : " ── "}
-              <a href={links["ai-concierge"].booth} className={s.textLink}>BOOTH</a>
+              <a href={goHref("ai-concierge", "booth", "/projects/ai-concierge")} rel="nofollow" className={s.textLink}>BOOTH</a>
             </>
           )}
         </p>

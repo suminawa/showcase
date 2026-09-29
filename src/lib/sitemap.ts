@@ -1,5 +1,6 @@
 import { demoHref, demos } from "./demos";
 import { guideHref, guides } from "./guides";
+import { isGoHref } from "./go";
 import { GATES, projectHref, projects } from "./projects";
 import { siteUrl } from "./site";
 
@@ -9,7 +10,8 @@ export function sitemapPaths(): string[] {
   for (const p of projects) {
     // 紙の中の節へ飛ぶ行（#…）は、その紙を 1 度だけ載せる
     const href = projectHref(p).split("#")[0];
-    if (href.startsWith("/")) paths.push(href);
+    // /go/ は売り場への渡し口で、紙ではない
+    if (href.startsWith("/") && !isGoHref(href)) paths.push(href);
   }
   for (const d of demos) paths.push(demoHref(d));
   paths.push("/guides");

@@ -30,7 +30,7 @@ export default function KitsPage() {
   return (
     <Sheet title={sheet.title} latin={sheet.latin} lede={sheet.lede}>
       <SheetSection>
-        <Rows items={projectsByCategory("kits")} showSale />
+        <Rows items={projectsByCategory("kits")} from="/kits" showSale />
       </SheetSection>
       <SheetClose />
     </Sheet>
