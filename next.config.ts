@@ -12,7 +12,11 @@ const nextConfig: NextConfig = {
   },
   serverExternalPackages: ["@anthropic-ai/sdk", "@suminawa/doc-reader"],
   async redirects() {
-    return [{ source: "/30days", destination: "/projects/30days", permanent: false }];
+    return [
+      { source: "/30days", destination: "/projects/30days", permanent: false },
+      // 一覧は /kits にある。/projects だけを開いた人を一覧へ送る
+      { source: "/projects", destination: "/kits", permanent: false },
+    ];
   },
 };
 
