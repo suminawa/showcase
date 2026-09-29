@@ -205,7 +205,7 @@ export const projects: Project[] = [
     slug: "quote-simulator",
     title: "見積もり電卓テンプレ",
     description: "条件を入れると、見積もりの内訳と合計がその場で出る電卓。",
-    tags: ["Next.js", "TypeScript"],
+    tags: ["JavaScript", "React", "TypeScript"],
     category: "kits",
     // この紙の上では誰でも無料で使えるので、道具の一覧にも並ぶ
     alsoIn: "works",

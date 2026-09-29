@@ -21,9 +21,9 @@ import s from "../projects.module.css";
 const PRODUCTS: Product[] = [
   { name: "見積もり電卓テンプレ", date: "9/11", key: "s1", links: links.s1 },
   { name: "期限アラート GAS キット", date: "9/12", key: "s2", links: links.s2 },
-  { name: "フォーム受付 GAS キット", date: "9/13", key: "s3", links: links.s3 },
-  { name: "業種別 LP テンプレ パック", date: "9/14", key: "lp", links: links.lp },
-  { name: "間取りシミュレーター", date: "9/16", key: "floorplan", links: links.floorplan },
+  { name: "フォーム受付 GAS キット", date: "9/12", key: "s3", links: links.s3 },
+  { name: "業種別 LP テンプレ パック", date: "9/13", key: "lp", links: links.lp },
+  { name: "間取りシミュレーター", date: "9/13", key: "floorplan", links: links.floorplan },
   { name: "AI 案内窓口キット", date: "9/21", key: "ai-concierge", links: links["ai-concierge"] },
   { name: "AI 書類読み取りキット", date: "9/21", key: "doc-reader", links: links["doc-reader"] },
   { name: "スプレッドシート業務アプリ キット", date: "9/22", key: "sheet-app", links: links["sheet-app"] },
@@ -31,6 +31,8 @@ const PRODUCTS: Product[] = [
   { name: "AI 問い合わせ整理キット", date: "9/23", key: "inbox-triage", links: links["inbox-triage"] },
   { name: "ダッシュボード キット", date: "9/23", key: "dashboard", links: links.dashboard },
   { name: "LINE 案内窓口キット", date: "9/24", key: "line-concierge", links: links["line-concierge"] },
+  { name: "3D 商品コンフィギュレーター", date: "9/24", key: "configurator", links: links.configurator },
+  { name: "SaaS スターター キット", date: "9/24", key: "saas-starter", links: links["saas-starter"] },
 ];
 
 export const metadata: Metadata = {

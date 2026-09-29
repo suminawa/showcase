@@ -85,8 +85,8 @@ export default function SaasStarterPage() {
         <p className={s.lede}>
           キットは Next.js（App Router）と TypeScript
           で、ログイン、組織とご招待、役割ごとの権限、プロジェクトの管理、Stripe
-          の定期課金、法務の 3
-          枚のひな形、日本語と英語の切り替えが入っています。画面とサーバーの処理は 4
+          の定期課金、法務の 3 種（日本語と英語で 6
+          枚）のひな形、日本語と英語の切り替えが入っています。画面とサーバーの処理は 4
           つの口だけを見る作りなので、つなぎ先を入れ替えても、画面はそのままお使いいただけます。
         </p>
         <p className={s.lede}>
