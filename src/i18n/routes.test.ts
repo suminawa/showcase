@@ -3,7 +3,7 @@ import path from "node:path";
 
 import { describe, expect, it } from "vitest";
 
-import { languageAlternates, pageMetadata } from "./meta";
+import { ROOT_OG_IMAGE, languageAlternates, pageMetadata } from "./meta";
 import { TRANSLATED_PATHS, hrefFor, localePath, splitLang } from "./routes";
 
 const APP = path.resolve(__dirname, "../app");
@@ -49,5 +49,17 @@ describe("hreflang と canonical", () => {
     expect(meta.alternates?.canonical).toBe("/fr/projects/booking");
     expect(meta.alternates?.languages).toEqual(languageAlternates("/projects/booking"));
     expect(meta.openGraph).toMatchObject({ locale: "fr_FR", url: "/fr/projects/booking", images: ["/og/booking.png"] });
+  });
+  it("twitter はいつもその言語の字で書き、画の無い紙には根の OGP の画を渡す", () => {
+    const own = pageMetadata("en", "/projects/booking", { title: "Booking", description: "Book online", image: "/og/booking.png" });
+    expect(own.twitter).toEqual({
+      card: "summary_large_image",
+      title: "Booking",
+      description: "Book online",
+      images: ["/og/booking.png"],
+    });
+    const none = pageMetadata("fr", "/projects/deadline", { title: "Échéances", description: "Alertes" });
+    expect(none.openGraph).toMatchObject({ images: [ROOT_OG_IMAGE] });
+    expect(none.twitter).toMatchObject({ title: "Échéances", description: "Alertes", images: [ROOT_OG_IMAGE] });
   });
 });
