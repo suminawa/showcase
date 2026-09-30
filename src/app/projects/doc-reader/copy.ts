@@ -23,12 +23,12 @@ export const copy: Record<"ja" | "en" | "fr", typeof ja> = {
   },
   fr: {
     meta: {
-      title: "Lecture de documents IA",
+      title: "Lecture de documents par IA",
       description: "Lit factures, reçus et formulaires, puis place les données dans un tableau après votre vérification. Essayez tout de suite avec les exemples fournis ou vos propres documents.",
     },
-    title: "Lecture de documents IA",
+    title: "Lecture de documents par IA",
     lede: "Lit factures, reçus et formulaires, puis place les données dans un tableau après votre vérification",
     privacy: "Les résultats restent uniquement dans ce navigateur et ne sont pas enregistrés sur le serveur. Le nombre de pages par jour est limité.",
-    kit: "Cet outil est le véritable Kit de lecture de documents IA (prix normal 16 800 ¥, achat unique). Décrivez vos modèles de documents en JSON, déployez le modèle Next.js avec son écran de vérification sur Vercel : il fonctionne avec votre propre clé.",
+    kit: "Cet outil est le véritable Kit de lecture de documents par IA (prix normal 16 800 ¥, achat unique). Décrivez la structure de vos documents en JSON, déployez sur Vercel le modèle Next.js et son écran de vérification : il fonctionne avec votre propre clé API.",
   },
 };

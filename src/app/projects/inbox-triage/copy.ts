@@ -22,10 +22,10 @@ export const copy: Record<"ja" | "en" | "fr", typeof ja> = {
   fr: {
     meta: {
       title: "Kit de tri des demandes par IA",
-      description: "Démo d’un kit Apps Script : l’IA lit les demandes arrivées dans Gmail, note catégorie, urgence et résumé dans un tableur et prépare des brouillons de réponse. Consultez le résultat du tri de cinq e-mails d’exemple.",
+      description: "Démo d’un kit Apps Script : l’IA lit les demandes arrivées dans Gmail, note catégorie, urgence et résumé dans un tableur et prépare des brouillons de réponse. Consultez le résultat du tri de cinq e-mails d’exemple.",
     },
     title: "Kit de tri des demandes par IA",
-    lede: "L’IA lit les demandes arrivées dans Gmail, note catégorie, urgence et résumé dans un tableur et laisse des brouillons de réponse dans Gmail. C’est une personne qui envoie ; rien ne part automatiquement.",
-    made: "La notification, les lignes du tableur, le texte des brouillons, les libellés et le texte envoyé à Claude sont produits en exécutant directement sur cette page les fonctions src/ du kit. Seules les réponses de l’IA sont des enregistrements d’exemple ; cette page n’appelle jamais l’IA. Dans le kit, les mêmes fonctions lisent Gmail toutes les 15 minutes et interrogent Claude avec votre propre clé API.",
+    lede: "L’IA lit les demandes arrivées dans Gmail, note catégorie, urgence et résumé dans un tableur et laisse des brouillons de réponse dans Gmail. C’est une personne qui envoie ; rien ne part automatiquement.",
+    made: "La notification, les lignes du tableur, le texte des brouillons, les libellés et le texte envoyé à Claude sont produits en exécutant directement sur cette page les fonctions src/ du kit. Seules les réponses de l’IA sont des enregistrements d’exemple ; cette page n’appelle jamais l’IA. Dans le kit, les mêmes fonctions lisent Gmail toutes les 15 minutes et interrogent Claude avec votre propre clé API.",
   },
 };

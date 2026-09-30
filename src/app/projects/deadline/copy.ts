@@ -25,7 +25,7 @@ export const copy: Record<"ja" | "en" | "fr", typeof ja> = {
       description: "Démo d’un kit Apps Script qui regroupe chaque matin les échéances d’un tableur en un seul message sur Slack ou Discord. Modifiez le tableau et voyez aussitôt le message obtenu.",
     },
     title: "Kit GAS d’alertes d’échéances",
-    lede: "Regroupe chaque matin à 8 h les échéances de votre tableur en un seul message, les échéances dépassées en tête.",
-    made: "Le message ci-dessus et le texte de vérification des réglages sont produits en exécutant directement sur cette page les fonctions src/ du kit. Ce ne sont pas des imitations. Dans le kit, les mêmes fonctions lisent le tableur chaque matin à 8 h et envoient le message sur Slack ou Discord.",
+    lede: "Regroupe chaque matin à 8 h les échéances de votre tableur en un seul message, les échéances dépassées en tête.",
+    made: "Le message ci-dessus et le texte de vérification des réglages sont produits en exécutant directement sur cette page les fonctions src/ du kit. Ce ne sont pas des imitations. Dans le kit, les mêmes fonctions lisent le tableur chaque matin à 8 h et envoient le message sur Slack ou Discord.",
   },
 };

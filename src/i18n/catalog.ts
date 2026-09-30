@@ -46,14 +46,6 @@ type Catalog = {
   guides: { heading: string; related: string; marker: string; titles: Record<string, string> };
 };
 
-/**
- * 品書きの結びに足す「返信の言語」の一文。持ち主の承認待ち ── 外すときは両方を "" にする。
- */
-export const REPLY_LANGUAGE: Record<ForeignLang, string> = {
-  en: "Replies in English or Japanese.",
-  fr: "Réponses en anglais ou en japonais.",
-};
-
 export const CATALOG: Record<ForeignLang, Catalog> = {
   en: {
     gates: {
@@ -64,7 +56,7 @@ export const CATALOG: Record<ForeignLang, Catalog> = {
     index: {
       kits: {
         title: "Kits and templates",
-        lede: "Ready-to-use kits and templates, with today’s price (during a launch offer, also its end date and the regular price). Sold in Japanese on BOOTH or note, priced in yen.",
+        lede: "Ready-to-use kits and templates, shown at today’s price (during a launch offer, with its end date and the regular price). Sold on BOOTH or note, in Japanese and priced in yen.",
       },
       sites: {
         title: "Sample sites",
@@ -80,7 +72,7 @@ export const CATALOG: Record<ForeignLang, Catalog> = {
       lede: "Websites and landing pages, business automation, embedded components, and WebGL visuals, built to order.",
     },
     services: [
-      { title: "Websites and landing pages", price: "A landing page from ¥150,000" },
+      { title: "Websites and landing pages", price: "From ¥150,000 per landing page" },
       {
         title: "Business automation (Google Apps Script)",
         price: "Setting up a ready-made kit: ¥30,000. Custom development from ¥40,000",
@@ -92,7 +84,7 @@ export const CATALOG: Record<ForeignLang, Catalog> = {
       { title: "WebGL / GLSL visuals", price: "From ¥50,000" },
     ],
     servicesBrief: [
-      { title: "Websites and landing pages", price: "A landing page from ¥150,000" },
+      { title: "Websites and landing pages", price: "From ¥150,000 per landing page" },
       { title: "Business automation (Google Apps Script)", price: "Ready-made kit setup from ¥30,000" },
       { title: "Embedded components", price: "From ¥60,000" },
     ],
@@ -105,9 +97,7 @@ export const CATALOG: Record<ForeignLang, Catalog> = {
       },
     ],
     servicesNote: {
-      before: ["Prices are estimates, excluding tax.", REPLY_LANGUAGE.en, "For requests and questions, write to "]
-        .filter(Boolean)
-        .join(" "),
+      before: "Prices are estimates, excluding tax. For requests and questions, write to ",
       after: ".",
     },
     projects: {
@@ -121,11 +111,11 @@ export const CATALOG: Record<ForeignLang, Catalog> = {
       },
       form: {
         title: "Form Intake GAS Kit",
-        description: "A home for inquiries: saved to a sheet, with notifications and auto-replies.",
+        description: "Takes in your website’s inquiries: saves them to a sheet, with notifications and auto-replies.",
       },
       floorplan: {
         title: "Floor Plan Simulator",
-        description: "Paint a grid to draw a floor plan, add furniture, and view it in 3D.",
+        description: "Paint grid squares to draw a floor plan, add furniture, and view it in 3D.",
       },
       "lp-pack": {
         title: "Industry Landing Page Template Pack",
@@ -141,7 +131,7 @@ export const CATALOG: Record<ForeignLang, Catalog> = {
       },
       "sheet-app": {
         title: "Spreadsheet Business App Kit",
-        description: "List your columns in a definition sheet and get list and entry screens. Version 1.1 adds LINE notifications and sending.",
+        description: "List your columns in a definition sheet and get list and entry screens. Version 1.1 adds LINE notifications and messaging.",
       },
       booking: {
         title: "Booking Page Kit",
@@ -157,7 +147,7 @@ export const CATALOG: Record<ForeignLang, Catalog> = {
       },
       dashboard: {
         title: "Dashboard Kit",
-        description: "Turns spreadsheet or CSV numbers into KPIs and charts, with configuration alone.",
+        description: "Turns spreadsheet or CSV numbers into KPIs and charts, just by writing a configuration.",
       },
       configurator: {
         title: "3D Product Configurator",
@@ -169,7 +159,7 @@ export const CATALOG: Record<ForeignLang, Catalog> = {
       },
       "shopify-configurator": {
         title: "3D Configurator for Shopify",
-        description: "Adds 3D options to Shopify product pages. The chosen options stay on the order.",
+        description: "Adds 3D options to Shopify product pages. The chosen options are saved with the order.",
       },
       "mcp-server": {
         title: "MCP Server Kit",
@@ -177,7 +167,7 @@ export const CATALOG: Record<ForeignLang, Catalog> = {
       },
       "corporate-site": {
         title: "Company Website",
-        description: "Company site for a fictional measurement firm, with three inner pages.",
+        description: "A company site for a fictional measurement firm, with three subpages.",
       },
       "saas-lp": {
         title: "B2B SaaS Landing Page",
@@ -212,7 +202,7 @@ export const CATALOG: Record<ForeignLang, Catalog> = {
         description: "30 days of letting AI do all the work. A public log of sales and hours, updated daily.",
       },
     },
-    tags: { 公開ログ: "Public log", 見本サイト: "Sample site", "見本 LP": "Sample LP" },
+    tags: { 公開ログ: "Public log", 見本サイト: "Sample site", "見本 LP": "Sample landing page" },
     japaneseTag: "In Japanese",
     guides: {
       heading: "Guides (Japanese only)",
@@ -221,7 +211,7 @@ export const CATALOG: Record<ForeignLang, Catalog> = {
       titles: {
         "pdf-to-spreadsheet": "Stop retyping PDF invoices into a spreadsheet",
         "customer-sheet": "When a customer spreadsheet slowly falls apart",
-        "line-auto-reply": "Answer LINE Official Account inquiries from your own documents only",
+        "line-auto-reply": "Answer LINE Official Account inquiries using only your own documents",
         "booking-page": "Let customers pick an open slot instead of booking by phone and LINE",
         "monthly-sales-report": "Stop rebuilding monthly sales totals and charts by hand",
         "inbox-triage": "When inquiry emails get buried and replies are late or missed",
@@ -238,11 +228,11 @@ export const CATALOG: Record<ForeignLang, Catalog> = {
     index: {
       kits: {
         title: "Kits et modèles",
-        lede: "Des kits et des modèles prêts à l’emploi, avec le prix du jour (pendant une offre de lancement, aussi sa date de fin et le prix normal). Vente en japonais sur BOOTH ou note, en yens.",
+        lede: "Des kits et des modèles prêts à l’emploi, affichés au prix du jour (avec, pendant une offre de lancement, sa date de fin et le prix normal). Vendus en japonais sur BOOTH ou note, en yens.",
       },
       sites: {
         title: "Sites d’exemple",
-        lede: "Chaque site est un exemple réalisé pour une entreprise japonaise fictive ; le contenu est donc en japonais. Ensemble, ils forment le pack de modèles de landing pages par secteur.",
+        lede: "Chaque site est un exemple réalisé pour une entreprise japonaise fictive ; le contenu est donc en japonais. Ensemble, ils forment le pack de modèles de landing pages par secteur.",
       },
       works: {
         title: "Réalisations et outils",
@@ -250,42 +240,42 @@ export const CATALOG: Record<ForeignLang, Catalog> = {
       },
     },
     contact: {
-      title: "Demandes de projet",
+      title: "Confier un projet",
       lede: "Sites et landing pages, automatisation des tâches, intégration de composants et effets WebGL, réalisés sur mesure.",
     },
     services: [
-      { title: "Sites et landing pages", price: "Landing page à partir de 150 000 ¥" },
+      { title: "Sites et landing pages", price: "Landing page à partir de 150 000 ¥" },
       {
         title: "Automatisation des tâches (Google Apps Script)",
-        price: "Mise en place d’un kit existant : 30 000 ¥. Développement sur mesure à partir de 40 000 ¥",
+        price: "Mise en place d’un kit existant : 30 000 ¥. Développement sur mesure à partir de 40 000 ¥",
       },
       {
-        title: "Intégration de composants (accueil IA, plan, page produit 3D)",
-        price: "À partir de 60 000 ¥",
+        title: "Intégration de composants (assistant IA, simulateur de plan, page produit 3D)",
+        price: "À partir de 60 000 ¥",
       },
-      { title: "Effets WebGL / GLSL", price: "À partir de 50 000 ¥" },
+      { title: "Effets WebGL / GLSL", price: "À partir de 50 000 ¥" },
     ],
     servicesBrief: [
-      { title: "Sites et landing pages", price: "Landing page à partir de 150 000 ¥" },
-      { title: "Automatisation des tâches (Google Apps Script)", price: "Mise en place d’un kit existant à partir de 30 000 ¥" },
-      { title: "Intégration de composants", price: "À partir de 60 000 ¥" },
+      { title: "Sites et landing pages", price: "Landing page à partir de 150 000 ¥" },
+      { title: "Automatisation des tâches (Google Apps Script)", price: "Mise en place d’un kit existant à partir de 30 000 ¥" },
+      { title: "Intégration de composants", price: "À partir de 60 000 ¥" },
     ],
     steps: [
-      { title: "Premier contact", detail: "Par e-mail : vos objectifs et la situation actuelle" },
+      { title: "Premier contact", detail: "Par e-mail : vos objectifs et la situation actuelle" },
       { title: "Devis", detail: "Un devis écrit précisant le périmètre, le délai et le prix" },
       {
         title: "Réalisation et livraison",
-        detail: "L’avancement vous est montré à l’écran en cours de route ; la livraison comprend un guide d’utilisation",
+        detail: "Vous suivez l’avancement à l’écran au fil du projet ; la livraison comprend un guide d’utilisation",
       },
     ],
     servicesNote: {
-      before: ["Tarifs indicatifs, hors taxes.", REPLY_LANGUAGE.fr, "Pour toute demande : "].filter(Boolean).join(" "),
+      before: "Tarifs indicatifs, hors taxes. Pour toute demande : ",
       after: ".",
     },
     projects: {
       "quote-simulator": {
         title: "Modèle de calculateur de devis",
-        description: "Saisissez les conditions : le détail du devis et le total s’affichent aussitôt.",
+        description: "Saisissez les paramètres : le détail du devis et le total s’affichent aussitôt.",
       },
       deadline: {
         title: "Kit GAS d’alertes d’échéances",
@@ -293,39 +283,39 @@ export const CATALOG: Record<ForeignLang, Catalog> = {
       },
       form: {
         title: "Kit GAS de réception de formulaires",
-        description: "Les demandes reçues vont dans un tableur, avec notification et réponse automatique.",
+        description: "Les demandes reçues sont enregistrées dans un tableur, avec notification et réponse automatique.",
       },
       floorplan: {
         title: "Simulateur de plan",
-        description: "Peignez une grille pour dessiner le plan, placez les meubles et voyez le tout en 3D.",
+        description: "Coloriez les cases d’une grille pour dessiner le plan, placez les meubles et voyez le tout en 3D.",
       },
       "lp-pack": {
         title: "Pack de modèles de landing pages par secteur",
         description: "Les six sites d’exemple en un seul pack. Changez les textes et les couleurs pour les adapter.",
       },
       "ai-concierge": {
-        title: "Kit d’accueil IA",
+        title: "Kit d’assistant IA",
         description: "Répond aux questions sur votre site, à partir de vos seuls documents.",
       },
       "doc-reader": {
-        title: "Kit de lecture de documents IA",
-        description: "Lit factures et reçus, puis les place dans un tableau après votre vérification.",
+        title: "Kit de lecture de documents par IA",
+        description: "Lit factures et reçus, puis les ajoute à un tableau une fois que vous les avez vérifiés.",
       },
       "sheet-app": {
         title: "Kit d’application métier sur tableur",
-        description: "Décrivez vos colonnes dans une feuille de définition : les écrans de liste et de saisie sont prêts. La 1.1 ajoute les notifications et l’envoi LINE.",
+        description: "Décrivez vos colonnes dans une feuille de définition : les écrans de liste et de saisie sont prêts. La version 1.1 ajoute les notifications et l’envoi de messages LINE.",
       },
       booking: {
         title: "Kit de page de réservation",
-        description: "Inscrivez vos créneaux dans un tableur : son URL devient une page de réservation.",
+        description: "Inscrivez vos créneaux dans un tableur : son URL devient une page de réservation.",
       },
       "inbox-triage": {
         title: "Kit de tri des demandes par IA",
         description: "L’IA lit les demandes reçues dans Gmail, note catégorie et résumé dans un tableur et prépare des brouillons de réponse.",
       },
       "line-concierge": {
-        title: "Kit d’accueil LINE",
-        description: "Ajoute à votre compte officiel LINE un accueil qui répond poliment, à partir de vos seuls documents.",
+        title: "Kit d’assistant LINE",
+        description: "Ajoute à votre compte officiel LINE un assistant qui répond poliment, à partir de vos seuls documents.",
       },
       dashboard: {
         title: "Kit de tableau de bord",
@@ -337,11 +327,11 @@ export const CATALOG: Record<ForeignLang, Catalog> = {
       },
       "saas-starter": {
         title: "Kit de démarrage SaaS",
-        description: "La base d’un service avec comptes membres : connexion, organisations, droits et facturation.",
+        description: "La base d’un service avec comptes membres : connexion, organisations, droits et facturation.",
       },
       "shopify-configurator": {
         title: "Configurateur 3D pour Shopify",
-        description: "Ajoute des options en 3D aux pages produit Shopify. Les choix restent sur la commande.",
+        description: "Ajoute des options en 3D aux pages produit Shopify. Les options choisies sont enregistrées avec la commande.",
       },
       "mcp-server": {
         title: "Kit de serveur MCP",
@@ -384,11 +374,11 @@ export const CATALOG: Record<ForeignLang, Catalog> = {
         description: "30 jours à tout confier à l’IA. Un journal public des ventes et du temps passé, mis à jour chaque jour.",
       },
     },
-    tags: { 公開ログ: "Journal public", 見本サイト: "Site d’exemple", "見本 LP": "LP d’exemple" },
+    tags: { 公開ログ: "Journal public", 見本サイト: "Site d’exemple", "見本 LP": "Landing page d’exemple" },
     japaneseTag: "En japonais",
     guides: {
       heading: "Guides (en japonais uniquement)",
-      related: "Kit associé : ",
+      related: "Kit associé : ",
       marker: "Japonais",
       titles: {
         "pdf-to-spreadsheet": "Ne plus recopier à la main les factures PDF dans un tableur",

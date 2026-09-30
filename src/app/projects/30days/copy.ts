@@ -16,7 +16,7 @@ export const copy: Record<"ja" | "en" | "fr", typeof ja> = {
   en: {
     meta: {
       title: "Thirty Days",
-      description: "Let AI agents do all the work and earn as much as possible from zero in 30 days. A public log that adds sales, proposals sent, and human hours every day.",
+      description: "Let AI agents do all the work and earn as much as possible from zero in 30 days. A public log of sales, proposals sent, and human hours, updated every day.",
     },
     title: "Thirty Days",
     lede: "Let AI agents do all the work, and earn as much as possible from zero in 30 days.",
@@ -27,9 +27,9 @@ export const copy: Record<"ja" | "en" | "fr", typeof ja> = {
   fr: {
     meta: {
       title: "Trente jours",
-      description: "Confier tout le travail à des agents IA et gagner le plus possible en 30 jours, en partant de zéro. Un journal public qui ajoute chaque jour les ventes, les propositions envoyées et le temps humain passé.",
+      description: "Confier tout le travail à des agents IA et gagner le plus possible en 30 jours, en partant de zéro. Un journal public des ventes, des propositions envoyées et du temps d’intervention humaine, mis à jour chaque jour.",
     },
-    title: "30 jours",
+    title: "Trente jours",
     lede: "Confier tout le travail à des agents IA et gagner le plus possible en 30 jours, en partant de zéro.",
     daily: "Les chiffres sont ajoutés ici chaque jour",
     posts: "Articles quotidiens (en japonais)",

@@ -13,7 +13,7 @@ const ja = {
 export const copy: Record<"ja" | "en" | "fr", typeof ja> = {
   ja,
   en: {
-    description: "Things I've built — a portfolio of work that runs live in the browser.",
+    description: "Things I’ve built — a portfolio of work that runs live in the browser.",
     tagline: "Things I've built.",
     categories: "Categories",
     picks: "Start here",
@@ -23,11 +23,11 @@ export const copy: Record<"ja" | "en" | "fr", typeof ja> = {
     closeLine: "Everything here runs live, right on the page.",
   },
   fr: {
-    description: "Ce que j’ai construit — un portfolio de réalisations qui fonctionnent en direct dans le navigateur.",
-    tagline: "Ce que j’ai construit.",
+    description: "Ce que j’ai réalisé — un portfolio de projets qui fonctionnent en direct dans le navigateur.",
+    tagline: "Ce que j’ai réalisé.",
     categories: "Catégories",
     picks: "Pour commencer",
-    closeHead: "Demandes de projet",
+    closeHead: "Confier un projet",
     closeText: "Tarifs indicatifs, hors taxes. D’autres demandes sont les bienvenues.",
     closeCta: "Voir les tarifs et le déroulement",
     closeLine: "Tout ici fonctionne en direct, sur la page.",

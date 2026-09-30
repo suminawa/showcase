@@ -23,6 +23,6 @@ export const copy: Record<"ja" | "en" | "fr", typeof ja> = {
       description: "Un bassin de fluide sur GPU où l’indigo et l’encre tourbillonnent à la surface. Mélangez, déposez de l’encre et enregistrez les motifs qui vous plaisent.",
     },
     title: "Suminagashi",
-    lede: "Glissez pour mélanger. Touchez pour déposer l’encre",
+    lede: "Glissez pour mélanger. Touchez pour déposer de l’encre",
   },
 };

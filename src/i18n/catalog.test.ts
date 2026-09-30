@@ -35,6 +35,11 @@ describe("目録の英仏", () => {
     }
   });
 
+  it("品書きの結びに返信の言語の一文を入れない（9/30 持ち主の判断）", () => {
+    expect(CATALOG.en.servicesNote.before).toBe("Prices are estimates, excluding tax. For requests and questions, write to ");
+    expect(CATALOG.fr.servicesNote.before).toBe("Tarifs indicatifs, hors taxes. Pour toute demande : ");
+  });
+
   it("料金の目安の行数は日本語と同じ", async () => {
     const { SERVICES, SERVICES_BRIEF, STEPS } = await import("@/lib/projects");
     for (const lang of FOREIGN_LANGS) {

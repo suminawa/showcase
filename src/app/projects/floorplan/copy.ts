@@ -24,11 +24,11 @@ export const copy: Record<"ja" | "en" | "fr", typeof ja> = {
   fr: {
     meta: {
       title: "Simulateur de plan",
-      description: "Redessinez le plan, placez les meubles et vérifiez en 3D. Peignez les cases de la grille pour tracer couloirs et pièces en L. Un outil pour préparer un logement.",
+      description: "Redessinez le plan, placez les meubles et vérifiez en 3D. Coloriez les cases de la grille pour tracer couloirs et pièces en L. Un outil pour préparer un logement.",
     },
     title: "Simulateur de plan",
-    lede: "Peignez les cases pour dessiner le plan ; les meubles placés apparaissent en 3D",
-    how: "Aucun fichier 3D n’est chargé : la scène est construite à partir de deux tableaux, une grille pour le plan et une liste de boîtes pour les meubles. Les modifications sont enregistrées uniquement dans votre navigateur, jamais envoyées à un serveur.",
-    kit: "Une version de ce simulateur pour votre propre site (9 800 ¥, achat unique ; avec portes et fenêtres, rangements, cotes et meubles à taille réelle)",
+    lede: "Coloriez les cases pour dessiner le plan ; les meubles placés apparaissent en 3D",
+    how: "Aucun fichier 3D n’est chargé : la scène est construite à partir de deux tableaux, une grille pour le plan et une liste de boîtes pour les meubles. Les modifications sont enregistrées uniquement dans votre navigateur, jamais envoyées à un serveur.",
+    kit: "Une version de ce simulateur pour votre propre site (9 800 ¥, achat unique ; avec portes et fenêtres, rangements, cotes et meubles aux dimensions réelles)",
   },
 };

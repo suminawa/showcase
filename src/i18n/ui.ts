@@ -42,7 +42,7 @@ export const UI = {
     categories: "Catégories",
     closeText: "Réalisations sur mesure possibles, selon vos besoins.",
     closeCta: "Voir les tarifs et le déroulement",
-    figureAlt: (title: string) => `Capture d’écran : ${title}`,
+    figureAlt: (title: string) => `Capture d’écran : ${title}`,
     free: "Exemple gratuit",
     upcoming: "Bientôt disponible",
     onsale: (price: string) => price,

@@ -31,13 +31,13 @@ export const copy: Record<"ja" | "en" | "fr", typeof ja> = {
   fr: {
     meta: {
       title: "Application métier sur tableur",
-      description: "Gardez votre tableur comme registre : décrivez les colonnes dans une feuille de définition et obtenez des écrans de liste, recherche, saisie et modification, y compris sur mobile. Démo d’un kit publié comme application web Apps Script.",
+      description: "Gardez votre tableur comme registre : décrivez les colonnes dans une feuille de définition et obtenez des écrans de liste, recherche, saisie et modification, y compris sur mobile. Démo d’un kit publié comme application web Apps Script.",
     },
     title: "Application métier sur tableur",
-    lede: "Décrivez les colonnes dans la feuille de définition du tableur : vous obtenez les écrans de liste, recherche, saisie et modification pour vos clients, affaires ou stocks",
-    demo: "Cette démo fait tourner dans votre navigateur le modèle de gestion clients fourni avec le kit (20 clients, 30 suivis). Les saisies et modifications disparaissent à la fermeture de la page. La version réelle utilise un tableur Google comme registre et se publie comme application web Apps Script.",
+    lede: "Décrivez les colonnes dans la feuille de définition du tableur : vous obtenez les écrans de liste, recherche, saisie et modification pour vos clients, affaires ou stocks",
+    demo: "Cette démo fait tourner dans votre navigateur le modèle de gestion clients fourni avec le kit (20 clients, 30 actions de suivi). Les saisies et modifications disparaissent à la fermeture de la page. La version réelle utilise un tableur Google comme registre et se publie comme application web Apps Script.",
     access: "Les droits suivent les paramètres de partage du tableur, sans serveur ni abonnement. Avec l’IA (facultative), filtrez en langage naturel et résumez une fiche.",
     kit: (p: PriceNow) =>
-      `Cette démo est le véritable Kit d’application métier sur tableur (prix normal ${money("fr", listOf(p))}, achat unique${p.intro ? ` ; prix de lancement de la 1.1 : ${money("fr", p.price)} jusqu’au ${longDate("fr", p.intro.until)}` : ""}). Écrans générés depuis la feuille de définition, CSV, filtrage et résumés par IA, trois modèles d’exemple, et avec la 1.1 : notifications LINE et Slack à l’ajout et à la mise à jour, et envoi de messages LINE depuis une fiche (le bouton d’envoi LINE s’essaie aussi dans cette démo)`,
+      `Cette démo est le véritable Kit d’application métier sur tableur (prix normal ${money("fr", listOf(p))}, achat unique${p.intro ? ` ; prix de lancement de la 1.1 : ${money("fr", p.price)} jusqu’au ${longDate("fr", p.intro.until)}` : ""}). Écrans générés depuis la feuille de définition, CSV, filtrage et résumés par IA, trois modèles d’exemple, et avec la 1.1 : notifications LINE et Slack à l’ajout et à la mise à jour, et envoi de messages LINE depuis une fiche (le bouton d’envoi LINE s’essaie aussi dans cette démo)`,
   },
 };

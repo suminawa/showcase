@@ -14,7 +14,7 @@ type KitDemoBase = Omit<KitDemo, "price" | "priceNote">;
 
 const LICENSE = {
   en: "LICENSE.md (use it freely in your own business; you may also deliver modified versions built into your clients’ spreadsheets. No redistribution or resale)",
-  fr: "LICENSE.md (utilisation libre dans votre activité ; vous pouvez aussi livrer une version modifiée intégrée au tableur de vos clients. Ni redistribution ni revente)",
+  fr: "LICENSE.md (utilisation libre dans votre activité ; vous pouvez aussi livrer une version modifiée intégrée au tableur de vos clients. Ni redistribution ni revente)",
 };
 
 const GAS_BUNDLE = {
@@ -30,8 +30,8 @@ const SOURCE = {
 const NO_MONTHLY = { en: " No monthly fees.", fr: " Aucun abonnement." };
 
 const GAS_SETUP = {
-  en: "About 15–20 minutes to paste the code into a spreadsheet and initialize it from the menu. Along the way, Google shows a warning screen (“This app isn’t verified”). That’s expected for a script you pasted yourself, and the guide walks you through it using the exact on-screen wording.",
-  fr: "Environ 15 à 20 minutes pour coller le code dans un tableur et l’initialiser depuis le menu. En cours de route, Google affiche un écran d’avertissement (« Cette application n’a pas été validée »). C’est normal pour un script que vous avez collé vous-même, et le guide explique la marche à suivre avec les mots exacts de l’écran.",
+  en: "About 15–20 minutes to paste the code into a spreadsheet and initialize it from the menu. Along the way, Google shows a warning screen (“Google hasn’t verified this app”). That’s expected for a script you pasted yourself, and the guide walks you through it using the exact on-screen wording.",
+  fr: "Environ 15 à 20 minutes pour coller le code dans un tableur et l’initialiser depuis le menu. En cours de route, Google affiche un écran d’avertissement (« Google n’a pas validé cette application »). C’est normal pour un script que vous avez collé vous-même, et le guide explique la marche à suivre avec les mots exacts de l’écran.",
 };
 
 export const KIT_DEMOS_I18N: Record<ForeignLang, Record<KitDemoSlug, KitDemoBase>> = {
@@ -102,7 +102,7 @@ export const KIT_DEMOS_I18N: Record<ForeignLang, Record<KitDemoSlug, KitDemoBase
         LICENSE.en,
       ],
       setup:
-        "About 20 minutes to paste the code into a spreadsheet, initialize it, and publish it as a web app. Google shows a warning screen (“This app isn’t verified”) twice along the way. That’s expected for a script you pasted yourself, and the guide walks you through it using the exact on-screen wording." +
+        "About 20 minutes to paste the code into a spreadsheet, initialize it, and publish it as a web app. Google shows a warning screen (“Google hasn’t verified this app”) twice along the way. That’s expected for a script you pasted yourself, and the guide walks you through it using the exact on-screen wording." +
         NO_MONTHLY.en,
       freeEnough: [
         {
@@ -241,7 +241,7 @@ export const KIT_DEMOS_I18N: Record<ForeignLang, Record<KitDemoSlug, KitDemoBase
             {
               name: "Tarifs de Check Sheet Notifications",
               href: "https://workspace.google.com/marketplace/app/check_sheet_notifications/239755856136",
-              note: "9,99 $ par mois au-delà de l’offre gratuite.",
+              note: "9,99 $ par mois au-delà de l’offre gratuite.",
             },
           ],
         },
@@ -260,7 +260,7 @@ export const KIT_DEMOS_I18N: Record<ForeignLang, Record<KitDemoSlug, KitDemoBase
         LICENSE.fr,
       ],
       setup:
-        "Environ 20 minutes pour coller le code dans un tableur, l’initialiser et le publier comme application web. Google affiche deux fois un écran d’avertissement (« Cette application n’a pas été validée »). C’est normal pour un script que vous avez collé vous-même, et le guide explique la marche à suivre avec les mots exacts de l’écran." +
+        "Environ 20 minutes pour coller le code dans un tableur, l’initialiser et le publier comme application web. Google affiche deux fois un écran d’avertissement (« Google n’a pas validé cette application »). C’est normal pour un script que vous avez collé vous-même, et le guide explique la marche à suivre avec les mots exacts de l’écran." +
         NO_MONTHLY.fr,
       freeEnough: [
         {
@@ -308,7 +308,7 @@ export const KIT_DEMOS_I18N: Record<ForeignLang, Record<KitDemoSlug, KitDemoBase
         GAS_BUNDLE.fr,
         "8 e-mails d’exemple avec les résultats attendus, et une feuille de réglages d’exemple (CSV)",
         "Le texte exact envoyé à l’IA (prompt-sample.md)",
-        "Un guide d’installation en japonais (README.ja.md) : sens de l’écran d’autorisation, estimation des coûts, compte sous lequel il tourne",
+        "Un guide d’installation en japonais (README.ja.md) : sens de l’écran d’autorisation, estimation des coûts, compte sous lequel il tourne",
         "Le code source complet (src/) et les tests (qui vérifient aussi l’absence de toute commande d’envoi ou de suppression d’e-mail)",
         LICENSE.fr,
       ],
@@ -318,7 +318,7 @@ export const KIT_DEMOS_I18N: Record<ForeignLang, Record<KitDemoSlug, KitDemoBase
         {
           who: "Si noter catégorie et résumé dans un tableur suffit, sans brouillons ni notifications",
           alt: {
-            name: "Article Qiita « Classer les demandes avec GAS × Gemini » (en japonais)",
+            name: "Article Qiita « Classer les demandes avec GAS × Gemini » (en japonais)",
             href: "https://qiita.com/rira__/items/c336673b3bbcaebdf3f8",
             note: "Le code complet est publié gratuitement. Ni brouillons de réponse ni notifications.",
           },
@@ -326,9 +326,9 @@ export const KIT_DEMOS_I18N: Record<ForeignLang, Record<KitDemoSlug, KitDemoBase
         {
           who: "Si vous utilisez déjà n8n",
           alt: {
-            name: "Modèle n8n n° 14852",
+            name: "Modèle n8n n° 14852",
             href: "https://n8n.io/workflows/14852-triage-gmail-inbox-draft-replies-and-alert-urgent-emails-with-claude-and-slack/",
-            note: "Très proche : classement avec Claude, brouillons, alertes Slack pour l’urgent et journal dans un tableur. Le modèle est gratuit ; il faut n8n Cloud ou votre propre serveur pour le faire tourner.",
+            note: "Très proche : classement avec Claude, brouillons, alertes Slack pour l’urgent et journal dans un tableur. Le modèle est gratuit ; il faut n8n Cloud ou votre propre serveur pour le faire tourner.",
           },
         },
         {
@@ -343,9 +343,9 @@ export const KIT_DEMOS_I18N: Record<ForeignLang, Record<KitDemoSlug, KitDemoBase
       fits: [
         {
           who: "Vous voulez tout garder dans Gmail et le tableur, sans serveur ni abonnement. n8n Cloud est payant au mois",
-          alts: [{ name: "Tarifs de n8n", href: "https://n8n.io/pricing/", note: "n8n Cloud à partir de 20 € par mois." }],
+          alts: [{ name: "Tarifs de n8n", href: "https://n8n.io/pricing/", note: "n8n Cloud à partir de 20 € par mois." }],
         },
-        { who: "Vous voulez 8 catégories, l’urgence et un résumé en japonais, avec des brouillons de réponse polis. C’est une personne qui envoie ; rien ne part automatiquement" },
+        { who: "Vous voulez 8 catégories, l’urgence et un résumé en japonais, avec des brouillons de réponse polis. C’est une personne qui envoie ; rien ne part automatiquement" },
         { who: "Vous voulez un seul message, les actions à faire en tête, sur Slack, Discord ou LINE" },
       ],
     },

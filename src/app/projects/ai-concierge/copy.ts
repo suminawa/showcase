@@ -18,17 +18,17 @@ export const copy: Record<"ja" | "en" | "fr", typeof ja> = {
     },
     title: "AI Help Desk",
     lede: "A help desk that answers only from your own documents. Here it reads this site’s own information (products, service pricing, how projects work)",
-    sources: "The numbers at the end of each answer are its sources. When something isn’t in the documents, it says so and points you to the contact details. Questions are limited per day.",
+    sources: "The numbers at the end of each answer are its sources. When something isn’t in the documents, it says so and points you to the contact details. There is a daily limit on questions.",
     kit: "This help desk is the actual AI Help Desk Kit (regular price ¥12,800, one-time purchase). Write your documents in Markdown, build the index with one command, and add it to your site with two lines. It runs on your own Claude API key.",
   },
   fr: {
     meta: {
-      title: "Accueil IA",
-      description: "Un accueil sur votre site qui répond aux questions des clients à partir de vos seuls documents. Il cite ses sources et renvoie vers le contact ce à quoi il ne peut pas répondre.",
+      title: "Assistant IA",
+      description: "Un assistant sur votre site qui répond aux questions des clients à partir de vos seuls documents. Il cite ses sources et renvoie vers le contact ce à quoi il ne peut pas répondre.",
     },
-    title: "Accueil IA",
-    lede: "Un accueil qui répond uniquement à partir de vos propres documents. Ici, il s’appuie sur les informations de ce site (produits, tarifs des prestations, déroulement)",
+    title: "Assistant IA",
+    lede: "Un assistant qui répond uniquement à partir de vos propres documents. Ici, il s’appuie sur les informations de ce site (produits, tarifs des prestations, déroulement)",
     sources: "Les numéros en fin de réponse renvoient aux sources. Si l’information n’est pas dans les documents, il le dit et vous oriente vers le contact. Le nombre de questions par jour est limité.",
-    kit: "Cet accueil est le véritable Kit d’accueil IA (prix normal 12 800 ¥, achat unique). Rédigez vos documents en Markdown, créez l’index en une commande et ajoutez-le à votre site en deux lignes. Il fonctionne avec votre propre clé API Claude.",
+    kit: "Cet assistant est le véritable Kit d’assistant IA (prix normal 12 800 ¥, achat unique). Rédigez vos documents en Markdown, créez l’index en une commande et ajoutez-le à votre site en deux lignes. Il fonctionne avec votre propre clé API Claude.",
   },
 };

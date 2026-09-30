@@ -16,7 +16,7 @@ import s from "./japanese-only.module.css";
 const TEXT = {
   demos: {
     en: "This is a sample site for a fictional Japanese company, so it is in Japanese.",
-    fr: "Ceci est un site d’exemple pour une entreprise japonaise fictive ; il est donc en japonais.",
+    fr: "Ceci est un site d’exemple pour une entreprise japonaise fictive ; il est donc en japonais.",
   },
   guides: {
     en: "This guide is available in Japanese only.",
