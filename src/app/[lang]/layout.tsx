@@ -5,6 +5,8 @@
  */
 import { notFound } from "next/navigation";
 
+import { HtmlLang } from "@/components/lang/HtmlLang";
+
 import type { LangParams } from "@/i18n/params";
 import { FOREIGN_LANGS, isForeignLang } from "@/i18n/routes";
 
@@ -20,6 +22,7 @@ export default async function LangLayout({ children, params }: LangParams & { ch
   return (
     <>
       <script dangerouslySetInnerHTML={{ __html: `document.documentElement.lang=${JSON.stringify(lang)}` }} />
+      <HtmlLang lang={lang} />
       {children}
     </>
   );

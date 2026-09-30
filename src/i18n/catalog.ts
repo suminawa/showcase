@@ -28,6 +28,7 @@ type Line = { title: string; description: string };
 type Menu = { title: string; price: string }[];
 
 type Catalog = {
+  /** トップの入口 3 行。375px の紙で英字の見出しの横に一行で収まる長さ（24 字前後まで）にする */
   gates: Record<Category, string>;
   index: Record<Category, Omit<IndexPage, "latin">>;
   contact: Omit<IndexPage, "latin">;
@@ -46,14 +47,14 @@ type Catalog = {
 export const CATALOG: Record<ForeignLang, Catalog> = {
   en: {
     gates: {
-      kits: "Kits and templates you can buy",
+      kits: "Kits & templates to buy",
       sites: "Sample sites by industry",
-      works: "Works and tools, plus a 30-day log",
+      works: "Works, tools, 30 Days",
     },
     index: {
       kits: {
         title: "Kits and templates",
-        lede: "Ready-to-use kits and templates. Items on sale show today’s price (during a launch offer, also the end date and the regular price). Purchases are made in Japanese on BOOTH or note, and priced in Japanese yen.",
+        lede: "Ready-to-use kits and templates, with today’s price (during a launch offer, also its end date and the regular price). Sold in Japanese on BOOTH or note, priced in yen.",
       },
       sites: {
         title: "Sample sites",
@@ -219,13 +220,13 @@ export const CATALOG: Record<ForeignLang, Catalog> = {
   fr: {
     gates: {
       kits: "Kits et modèles à acheter",
-      sites: "Sites d’exemple par secteur",
-      works: "Réalisations et outils, et un journal de 30 jours",
+      sites: "Sites types par secteur",
+      works: "Œuvres, outils, 30 jours",
     },
     index: {
       kits: {
         title: "Kits et modèles",
-        lede: "Des kits et des modèles prêts à l’emploi. Les articles en vente affichent le prix du jour (pendant une offre de lancement, aussi la date de fin et le prix normal). L’achat se fait en japonais sur BOOTH ou note, avec paiement en yens.",
+        lede: "Des kits et des modèles prêts à l’emploi, avec le prix du jour (pendant une offre de lancement, aussi sa date de fin et le prix normal). Vente en japonais sur BOOTH ou note, en yens.",
       },
       sites: {
         title: "Sites d’exemple",

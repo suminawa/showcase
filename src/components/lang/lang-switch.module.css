@@ -1,6 +1,7 @@
 /*
  * 言語の切り替え。紙の右上に、小の字で一行。
- * 入りの一筆（墨）の上に載ることがあるので、字の下にだけ紙の色を敷いて読めるようにする。
+ * 入りの一筆（墨）の上に載ることがあるので、字の下に紙の色を敷く。縁はぼかす
+ * （くっきり四角く敷くと墨が矩形に欠けて見え、字のまわりのにじみだけでは濃い墨の上で読めなかった）。
  */
 .switch {
   position: absolute;
@@ -11,9 +12,10 @@
   flex-wrap: wrap;
   align-items: baseline;
   gap: 0;
-  padding: 0.1em 0.5em;
+  padding: 0 0.4em;
   background: var(--ryoushi-paper);
-  border-radius: 2px;
+  box-shadow: 0 0 10px 8px var(--ryoushi-paper);
+  border-radius: 999px;
   font-size: clamp(0.75rem, 0.72rem + 0.15vw, 0.875rem);
   line-height: 2;
   letter-spacing: 0.08em;
