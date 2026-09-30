@@ -1,0 +1,19 @@
+/* 日本語だけの紙の頭に置く一行。見本サイトそれぞれの意匠に寄せず、料紙の墨と紙の二色だけで置く */
+.note {
+  position: relative;
+  z-index: 1000;
+  padding: 8px 16px;
+  background: var(--ryoushi-sumi, #1c1a15);
+  color: var(--ryoushi-paper, #f6f3eb);
+  font-family: system-ui, sans-serif;
+  font-size: 13px;
+  line-height: 1.6;
+  text-align: center;
+}
+
+.link {
+  color: inherit;
+  text-decoration: underline;
+  text-underline-offset: 0.25em;
+  white-space: nowrap;
+}
