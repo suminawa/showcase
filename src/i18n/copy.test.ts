@@ -9,7 +9,10 @@ import { BASES_FOR_TEST } from "@/lib/kit-demos";
 import { KIT_DEMOS_I18N } from "./kit-demos";
 import { FOREIGN_LANGS, TRANSLATED_PATHS } from "./routes";
 
-const COPIES = import.meta.glob<{ copy: Record<string, unknown> }>("../app/**/copy.ts", { eager: true });
+const COPIES = import.meta.glob("../app/**/copy.ts", { eager: true }) as unknown as Record<
+  string,
+  { copy: Record<string, unknown> }
+>;
 
 /** 値の形（鍵と配列の長さ）。文字列は "s"、関数は "f" */
 function shape(v: unknown): unknown {

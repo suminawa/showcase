@@ -17,10 +17,24 @@ describe("sitemap", () => {
     expect(paths.some((p) => p.includes("#"))).toBe(false);
     expect(new Set(paths).size).toBe(paths.length);
   });
-  it("URL は絶対で、トップだけ priority 1", () => {
+  it("URL は絶対で、トップ（三言語）だけ priority 1", () => {
     const entries = sitemapEntries(new Date("2026-09-22T00:00:00Z"));
     expect(entries[0].url).toMatch(/^https?:\/\/.+\/$/);
-    expect(entries[0].priority).toBe(1);
-    expect(entries.slice(1).every((e) => e.priority === 0.7)).toBe(true);
+    const tops = entries.filter((e) => e.priority === 1).map((e) => new URL(e.url).pathname);
+    expect(tops).toEqual(["/", "/en", "/fr"]);
+    expect(entries.every((e) => e.priority === 1 || e.priority === 0.7)).toBe(true);
+  });
+  it("英仏の道が載り、訳のある紙には hreflang の組が付く（見本と guides には付かない）", () => {
+    const paths = sitemapPaths();
+    expect(paths).toContain("/en");
+    expect(paths).toContain("/fr/kits");
+    expect(paths).toContain("/en/projects/booking");
+    expect(paths.some((p) => p.startsWith("/en/demos") || p.startsWith("/fr/guides"))).toBe(false);
+    const entries = sitemapEntries(new Date("2026-09-22T00:00:00Z"));
+    const kits = entries.find((e) => new URL(e.url).pathname === "/fr/kits");
+    expect(Object.keys(kits?.alternates?.languages ?? {}).sort()).toEqual(["en", "fr", "ja", "x-default"]);
+    expect(kits?.alternates?.languages?.["x-default"]).toMatch(/\/kits$/);
+    const demo = entries.find((e) => new URL(e.url).pathname === "/demos/shop-lp");
+    expect(demo?.alternates).toBeUndefined();
   });
 });
