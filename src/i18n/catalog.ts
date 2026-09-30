@@ -41,7 +41,8 @@ type Catalog = {
   tags: Record<string, string>;
   /** 見本の行に添える「日本語です」の札 */
   japaneseTag: string;
-  guides: { heading: string; lede: string; marker: string; titles: Record<string, string> };
+  /** 英仏の /kits の末尾に添える guides の段。related は行の二行目（結びつくキットの名）の頭 */
+  guides: { heading: string; related: string; marker: string; titles: Record<string, string> };
 };
 
 export const CATALOG: Record<ForeignLang, Catalog> = {
@@ -204,7 +205,7 @@ export const CATALOG: Record<ForeignLang, Catalog> = {
     japaneseTag: "In Japanese",
     guides: {
       heading: "Guides (Japanese only)",
-      lede: "Step-by-step articles on problems that come up again and again, each with a matching kit. Available in Japanese.",
+      related: "Related kit: ",
       marker: "Japanese",
       titles: {
         "pdf-to-spreadsheet": "Stop retyping PDF invoices into a spreadsheet",
@@ -376,7 +377,7 @@ export const CATALOG: Record<ForeignLang, Catalog> = {
     japaneseTag: "En japonais",
     guides: {
       heading: "Guides (en japonais uniquement)",
-      lede: "Des articles pas à pas sur des problèmes qui reviennent souvent, chacun associé à un kit. Disponibles en japonais.",
+      related: "Kit associé : ",
       marker: "Japonais",
       titles: {
         "pdf-to-spreadsheet": "Ne plus recopier à la main les factures PDF dans un tableur",

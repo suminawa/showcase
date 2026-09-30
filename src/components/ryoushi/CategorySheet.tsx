@@ -20,13 +20,13 @@ export function categoryMetadata(lang: Lang, category: Category) {
   });
 }
 
-/** 英仏の guides の行。題は訳、一行は結びつくキットの名、札は「日本語」 */
+/** 英仏の guides の行。題は訳、二行目は結びつくキットの名、札は「日本語」 */
 function guideRows(lang: Exclude<Lang, "ja">): Project[] {
   const c = CATALOG[lang];
   return localGuides(lang).map((g) => ({
     slug: `guide-${g.slug}`,
     title: g.localTitle,
-    description: c.projects[g.kit]?.title ?? "",
+    description: c.guides.related + (c.projects[g.kit]?.title ?? g.kit),
     tags: [c.guides.marker],
     category: "works",
     href: guideHref(g),
