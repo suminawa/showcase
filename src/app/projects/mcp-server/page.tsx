@@ -29,7 +29,6 @@ const RECORDING_SRC = "/demos/mcp-server/exchanges.json";
 const project = projects.find((p) => p.slug === "mcp-server");
 if (!project?.sale) throw new Error("レジストリに mcp-server の sale がない");
 const sale = project.sale;
-const onSale = sale.status === "onsale";
 const shop = links["mcp-server"];
 
 export const metadata: Metadata = {
@@ -133,12 +132,10 @@ export default function McpServerPage() {
 
         <section className={m.section} aria-labelledby="buy-heading">
           <h2 id="buy-heading" className={m.heading}>
-            購入と導入代行
+            受け取りと導入代行
           </h2>
           <p className={m.text}>
-            {onSale
-              ? `MCP サーバー キット（${saleLabel(sale)}、買い切り）`
-              : "MCP サーバー キットは、無料の見本として配る準備をしています。"}
+            MCP サーバー キットは、無料の見本としてお配りしています。
             TypeScript のソース・ビルド済みのファイル・説明書・設定の見本を zip 1 本でお渡しします。業務アプリ・予約ページ・書類読み取りのキットと組むと、画面と会話の両方から同じ台帳を使えます。
             {shop.note && (
               <>

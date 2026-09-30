@@ -30,7 +30,8 @@ export type Category = "kits" | "sites" | "works";
  * 替えるだけで済むようにするため。値が決まっていないものは持たせない。
  */
 export type Sale = {
-  status: "onsale" | "upcoming";
+  /** free は無料で配っている見本（値段を持たない。一覧と作品ページの頭は「無料の見本」） */
+  status: "onsale" | "upcoming" | "free";
   /** 税込の定価（円）。発売中のものと、定価の決まった発売前のものが持つ */
   price?: number;
   /**
@@ -337,8 +338,8 @@ export const projects: Project[] = [
     description: "業務アプリ・予約・書類のシートを、Claude や ChatGPT との会話から探して登録する。",
     tags: ["MCP", "TypeScript", "Claude"],
     category: "kits",
-    // 2026-09-30: 単体では売らず、無料の見本として配る（準備中）。値段と予定日は持たない
-    sale: { status: "upcoming" },
+    // 2026-09-30: 単体では売らず、無料の見本として BOOTH で配る。値段と予定日は持たない
+    sale: { status: "free" },
   },
 
   /* ---- sites ── 架空の会社で作った見本 ---------------------------------- */
@@ -474,6 +475,7 @@ export function saleLabel(
   sale: Sale,
   opts: { detail?: boolean; slug?: string; now?: Date } = {},
 ): string {
+  if (sale.status === "free") return "無料の見本";
   if (sale.status === "onsale" && sale.price != null) {
     // slug があれば発売記念の表を引く。無ければ定価（表を引かない呼び方は定価だけを言う）
     const now = opts.slug ? priceNow(opts.slug, sale.price, opts.now) : { price: sale.price };

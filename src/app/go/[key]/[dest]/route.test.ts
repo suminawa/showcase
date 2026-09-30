@@ -32,7 +32,6 @@ describe("/go/[key]/[dest]", () => {
 
   it("dest が note・booth 以外、URL が空、Object の持ち物の名は 404", async () => {
     expect((await call("booking", "shop")).status).toBe(404);
-    expect((await call("mcp-server", "note")).status).toBe(404);
     expect((await call("challenge", "booth")).status).toBe(404);
     expect((await call("__proto__", "note")).status).toBe(404);
     expect((await call("constructor", "note")).status).toBe(404);

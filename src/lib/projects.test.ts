@@ -131,7 +131,7 @@ describe("projects registry", () => {
     }
   });
 
-  it("kits は発売中 14 本（発売の順）のあとに発売前 2 本", () => {
+  it("kits は発売中 14 本（発売の順）のあとに発売前 1 本と無料の見本 1 本", () => {
     const kits = projectsByCategory("kits");
     expect(kits.map((p) => p.slug)).toEqual([
       "quote-simulator",
@@ -154,7 +154,7 @@ describe("projects registry", () => {
     expect(kits.map((p) => p.sale?.status)).toEqual([
       ...Array(14).fill("onsale"),
       "upcoming",
-      "upcoming",
+      "free",
     ]);
   });
 
@@ -211,8 +211,9 @@ describe("projects registry", () => {
     // 発売したら detail でも定価だけ
     expect(saleLabel({ ...sale, status: "onsale" }, { detail: true })).toBe("発売中 ¥9,800");
     const mcp = projects.find((p) => p.slug === "mcp-server")!;
-    // 2026-09-30: 無料の見本として配る準備中。値段と予定日は出さない
-    expect(saleLabel(mcp.sale!, { detail: true })).toBe("発売前");
+    // 2026-09-30: 無料の見本として配る。値段と予定日は出さない
+    expect(saleLabel(mcp.sale!)).toBe("無料の見本");
+    expect(saleLabel(mcp.sale!, { detail: true })).toBe("無料の見本");
     expect(projectHref(mcp)).toBe("/projects/mcp-server");
   });
 
