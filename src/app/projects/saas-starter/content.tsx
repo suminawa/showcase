@@ -12,6 +12,7 @@
  * FORM: 料紙（作品ページ）— 文法は DESIGN.md
  * このページはサーバー部品のまま。道具（Tool）は "use client" のこの下だけに閉じる。
  */
+import { projectPriceNow } from "@/i18n/catalog";
 import type { Lang } from "@/i18n/routes";
 
 import { AFTER_TOOL, ProjectShell, PurchaseNote, ShopLinks, projectMetadata } from "../shell";
@@ -38,7 +39,7 @@ export function Content({ lang }: { lang: Lang }) {
       <p className={s.lede}>{t.offline}</p>
       <p className={s.lede}>{t.contents}</p>
       <p className={s.lede}>
-        {t.kit}
+        {t.kit(projectPriceNow("saas-starter"))}
         <ShopLinks lang={lang} slug="saas-starter" linkKey="saas-starter" />
       </p>
       <PurchaseNote lang={lang} />

@@ -11,6 +11,7 @@
  */
 import "@suminawa/product-configurator/styles.css";
 
+import { projectPriceNow } from "@/i18n/catalog";
 import type { Lang } from "@/i18n/routes";
 
 import { AFTER_TOOL, DemoNote, ProjectShell, PurchaseNote, ShopLinks, projectMetadata } from "../shell";
@@ -35,7 +36,7 @@ export function Content({ lang }: { lang: Lang }) {
         {t.how}
       </p>
       <p className={s.lede}>
-        {t.kit}
+        {t.kit(projectPriceNow("configurator"))}
         <ShopLinks lang={lang} slug="configurator" linkKey="configurator" />
       </p>
       <PurchaseNote lang={lang} />

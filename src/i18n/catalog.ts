@@ -4,7 +4,7 @@
  * 値札は src/lib/prices.ts の表を同じように引く（要求のたびに組む紙から呼ぶ）。
  */
 import { guides, type Guide } from "@/lib/guides";
-import { priceNow } from "@/lib/prices";
+import { priceNow, type PriceNow } from "@/lib/prices";
 import {
   CONTACT_PAGE,
   GATES,
@@ -14,6 +14,7 @@ import {
   SERVICES_NOTE,
   STEPS,
   categoryCount,
+  projects,
   type Category,
   type Gate,
   type IndexPage,
@@ -45,12 +46,20 @@ type Catalog = {
   guides: { heading: string; related: string; marker: string; titles: Record<string, string> };
 };
 
+/**
+ * 品書きの結びに足す「返信の言語」の一文。持ち主の承認待ち ── 外すときは両方を "" にする。
+ */
+export const REPLY_LANGUAGE: Record<ForeignLang, string> = {
+  en: "Replies in English or Japanese.",
+  fr: "Réponses en anglais ou en japonais.",
+};
+
 export const CATALOG: Record<ForeignLang, Catalog> = {
   en: {
     gates: {
       kits: "Kits & templates to buy",
       sites: "Sample sites by industry",
-      works: "Works, tools, 30 Days",
+      works: "Works, tools, Thirty Days",
     },
     index: {
       kits: {
@@ -71,7 +80,7 @@ export const CATALOG: Record<ForeignLang, Catalog> = {
       lede: "Websites and landing pages, business automation, embedded components, and WebGL visuals, built to order.",
     },
     services: [
-      { title: "Websites and landing pages", price: "A one-page landing page from ¥150,000" },
+      { title: "Websites and landing pages", price: "A landing page from ¥150,000" },
       {
         title: "Business automation (Google Apps Script)",
         price: "Setting up a ready-made kit: ¥30,000. Custom development from ¥40,000",
@@ -83,7 +92,7 @@ export const CATALOG: Record<ForeignLang, Catalog> = {
       { title: "WebGL / GLSL visuals", price: "From ¥50,000" },
     ],
     servicesBrief: [
-      { title: "Websites and landing pages", price: "A one-page landing page from ¥150,000" },
+      { title: "Websites and landing pages", price: "A landing page from ¥150,000" },
       { title: "Business automation (Google Apps Script)", price: "Ready-made kit setup from ¥30,000" },
       { title: "Embedded components", price: "From ¥60,000" },
     ],
@@ -96,7 +105,9 @@ export const CATALOG: Record<ForeignLang, Catalog> = {
       },
     ],
     servicesNote: {
-      before: "Prices are estimates, excluding tax. Replies in English or Japanese. For requests and questions, write to ",
+      before: ["Prices are estimates, excluding tax.", REPLY_LANGUAGE.en, "For requests and questions, write to "]
+        .filter(Boolean)
+        .join(" "),
       after: ".",
     },
     projects: {
@@ -221,8 +232,8 @@ export const CATALOG: Record<ForeignLang, Catalog> = {
   fr: {
     gates: {
       kits: "Kits et modèles à acheter",
-      sites: "Sites types par secteur",
-      works: "Œuvres, outils, 30 jours",
+      sites: "Sites d’exemple par secteur",
+      works: "Réalisations, outils, 30 jours",
     },
     index: {
       kits: {
@@ -243,7 +254,7 @@ export const CATALOG: Record<ForeignLang, Catalog> = {
       lede: "Sites et landing pages, automatisation des tâches, intégration de composants et effets WebGL, réalisés sur mesure.",
     },
     services: [
-      { title: "Sites et landing pages", price: "Landing page d’une page à partir de 150 000 ¥" },
+      { title: "Sites et landing pages", price: "Landing page à partir de 150 000 ¥" },
       {
         title: "Automatisation des tâches (Google Apps Script)",
         price: "Mise en place d’un kit existant : 30 000 ¥. Développement sur mesure à partir de 40 000 ¥",
@@ -255,8 +266,8 @@ export const CATALOG: Record<ForeignLang, Catalog> = {
       { title: "Effets WebGL / GLSL", price: "À partir de 50 000 ¥" },
     ],
     servicesBrief: [
-      { title: "Sites et landing pages", price: "Landing page d’une page à partir de 150 000 ¥" },
-      { title: "Automatisation des tâches (Google Apps Script)", price: "Kit existant à partir de 30 000 ¥" },
+      { title: "Sites et landing pages", price: "Landing page à partir de 150 000 ¥" },
+      { title: "Automatisation des tâches (Google Apps Script)", price: "Mise en place d’un kit existant à partir de 30 000 ¥" },
       { title: "Intégration de composants", price: "À partir de 60 000 ¥" },
     ],
     steps: [
@@ -268,7 +279,7 @@ export const CATALOG: Record<ForeignLang, Catalog> = {
       },
     ],
     servicesNote: {
-      before: "Tarifs indicatifs, hors taxes. Réponses en anglais ou en japonais : écrivez en anglais ou en français simple. Pour toute demande : ",
+      before: ["Tarifs indicatifs, hors taxes.", REPLY_LANGUAGE.fr, "Pour toute demande : "].filter(Boolean).join(" "),
       after: ".",
     },
     projects: {
@@ -477,4 +488,11 @@ export function localSaleLabel(
 export function localPriceLabel(lang: Lang, project: Project, now?: Date): string | null {
   if (!project.sale) return null;
   return localSaleLabel(lang, project.sale, { slug: project.slug, now });
+}
+
+/** 作品ページの本文に書く、いまの値段。定価は projects.ts、発売記念の値と最終日は prices.ts から引く */
+export function projectPriceNow(slug: string, now?: Date): PriceNow {
+  const list = projects.find((p) => p.slug === slug)?.sale?.price;
+  if (list == null) throw new Error(`projects.ts に ${slug} の値段が無い`);
+  return priceNow(slug, list, now);
 }

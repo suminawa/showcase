@@ -2,7 +2,7 @@
  * 紙をまたいで使う短い言葉。日本語は今の紙の字そのまま。
  * 値段の書き方（円の区切り・日付）もここ。値そのものは src/lib/prices.ts と projects.ts から引く。
  */
-import { yen } from "@/lib/prices";
+import { yen, type PriceNow } from "@/lib/prices";
 
 import type { Lang } from "./routes";
 
@@ -75,4 +75,26 @@ export function dateLabel(lang: Lang, iso: string): string {
   if (lang === "en") return `${EN_MONTHS[m - 1]} ${d}`;
   if (lang === "fr") return `${d} ${FR_MONTHS[m - 1]}`;
   return `${m}/${d}`;
+}
+
+const EN_MONTHS_LONG = [
+  "January", "February", "March", "April", "May", "June",
+  "July", "August", "September", "October", "November", "December",
+];
+const FR_MONTHS_LONG = [
+  "janvier", "février", "mars", "avril", "mai", "juin",
+  "juillet", "août", "septembre", "octobre", "novembre", "décembre",
+];
+
+/** 文の中の日付。「2026-09-30」→ 9 月 30 日・September 30・30 septembre（1 日は 1er） */
+export function longDate(lang: Lang, iso: string): string {
+  const [, m, d] = iso.split("-").map(Number);
+  if (lang === "en") return `${EN_MONTHS_LONG[m - 1]} ${d}`;
+  if (lang === "fr") return `${d === 1 ? "1er" : d} ${FR_MONTHS_LONG[m - 1]}`;
+  return `${m} 月 ${d} 日`;
+}
+
+/** 定価（記念価格の期間中も、そうでなくても） */
+export function listOf(p: PriceNow): number {
+  return p.intro?.list ?? p.price;
 }

@@ -11,6 +11,7 @@
  * FORM: 料紙（作品ページ）— 文法は DESIGN.md
  * このページはサーバー部品のまま。道具（Tool）は "use client" のこの下だけに閉じる。
  */
+import { projectPriceNow } from "@/i18n/catalog";
 import type { Lang } from "@/i18n/routes";
 
 import { AFTER_TOOL, DemoNote, ProjectShell, PurchaseNote, ShopLinks, projectMetadata } from "../shell";
@@ -35,7 +36,7 @@ export function Content({ lang }: { lang: Lang }) {
       </p>
       <p className={s.lede}>{t.access}</p>
       <p className={s.lede}>
-        {t.kit}
+        {t.kit(projectPriceNow("sheet-app"))}
         <ShopLinks lang={lang} slug="sheet-app" linkKey="sheet-app" />
       </p>
       <PurchaseNote lang={lang} />

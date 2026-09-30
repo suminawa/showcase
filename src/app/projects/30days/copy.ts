@@ -18,7 +18,7 @@ export const copy: Record<"ja" | "en" | "fr", typeof ja> = {
       title: "Thirty Days",
       description: "Let AI agents do all the work and earn as much as possible from zero in 30 days. A public log that adds sales, proposals sent, and human hours every day.",
     },
-    title: "30 Days",
+    title: "Thirty Days",
     lede: "Let AI agents do all the work, and earn as much as possible from zero in 30 days.",
     daily: "The numbers are added here every day",
     posts: "Daily posts (in Japanese)",

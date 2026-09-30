@@ -58,7 +58,8 @@ export function ProjectShell({
         </Link>
         <h1 className={s.title}>
           {title}
-          <span className={s.latin}>{latin}</span>
+          {/* 英語の題が英字の添えと同じ字になる紙（Thirty Days）では、二度書かない */}
+          {latin !== title && <span className={s.latin}>{latin}</span>}
         </h1>
         <p className={s.lede}>{lede}</p>
         {head}

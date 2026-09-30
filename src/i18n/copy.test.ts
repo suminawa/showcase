@@ -80,3 +80,78 @@ describe("GAS キットの結び", () => {
     }
   });
 });
+
+describe("作品ページの本文の発売記念の値段（prices.ts の最終日で消える）", async () => {
+  const { projectPriceNow } = await import("./catalog");
+  const { copy: saas } = await import("@/app/projects/saas-starter/copy");
+  const { copy: configurator } = await import("@/app/projects/configurator/copy");
+  const { copy: sheet } = await import("@/app/projects/sheet-app/copy");
+  const at = (iso: string) => new Date(iso);
+  // 仏語の額は money() の細い空き（U+202F・U+00A0）で組む。字の照合では普通の空きに寄せる
+  const plain = (text: string) => text.replace(/[\u202f\u00a0]/g, " ");
+
+  it("最終日の 23:59（日本時間）までは記念価格と最終日。日本語は今までの字のまま", () => {
+    const sep30 = at("2026-09-30T23:59:00+09:00");
+    const oct2 = at("2026-10-02T23:59:00+09:00");
+    expect(plain(saas.ja.kit(projectPriceNow("saas-starter", sep30)))).toBe(
+      "この見本は「SaaS スターター キット」（定価 ¥19,800 の買い切り。9 月 30 日までは発売記念 ¥16,800）の実物です",
+    );
+    expect(plain(saas.en.kit(projectPriceNow("saas-starter", sep30)))).toBe(
+      "This demo is the actual SaaS Starter Kit (regular price ¥19,800, one-time purchase; launch price ¥16,800 until September 30)",
+    );
+    expect(plain(saas.fr.kit(projectPriceNow("saas-starter", sep30)))).toBe(
+      "Cette démo est le véritable Kit de démarrage SaaS (prix normal 19 800 ¥, achat unique ; prix de lancement 16 800 ¥ jusqu’au 30 septembre)",
+    );
+    expect(plain(configurator.ja.kit(projectPriceNow("configurator", sep30)))).toBe(
+      "この 3D 商品コンフィギュレーターを自分のサイトに置ける版（定価 ¥12,800 の買い切り。9 月 30 日までは発売記念 ¥9,800。見本のモデルと設定つき）",
+    );
+    expect(plain(configurator.en.kit(projectPriceNow("configurator", sep30)))).toBe(
+      "A version of this 3D product configurator for your own site (regular price ¥12,800, one-time purchase; launch price ¥9,800 until September 30; includes sample models and configurations)",
+    );
+    expect(plain(configurator.fr.kit(projectPriceNow("configurator", sep30)))).toBe(
+      "Une version de ce configurateur 3D pour votre propre site (prix normal 12 800 ¥, achat unique ; prix de lancement 9 800 ¥ jusqu’au 30 septembre ; modèles et configurations d’exemple inclus)",
+    );
+    expect(plain(sheet.ja.kit(projectPriceNow("sheet-app", oct2)))).toMatch(
+      /^この見本は「スプレッドシート業務アプリ キット」（定価 ¥12,800 の買い切り。10 月 2 日までは 1\.1 の発売記念 ¥9,800）の実物です。定義シート/,
+    );
+    expect(plain(sheet.en.kit(projectPriceNow("sheet-app", oct2)))).toContain(
+      "(regular price ¥12,800, one-time purchase; 1.1 launch price ¥9,800 until October 2). Screens",
+    );
+    expect(plain(sheet.fr.kit(projectPriceNow("sheet-app", oct2)))).toContain(
+      "(prix normal 12 800 ¥, achat unique ; prix de lancement de la 1.1 : 9 800 ¥ jusqu’au 2 octobre). Écrans",
+    );
+  });
+
+  it("翌日の 00:00（日本時間）からは定価だけ", () => {
+    const oct1 = at("2026-10-01T00:00:00+09:00");
+    const oct3 = at("2026-10-03T00:00:00+09:00");
+    expect(plain(saas.ja.kit(projectPriceNow("saas-starter", oct1)))).toBe(
+      "この見本は「SaaS スターター キット」（定価 ¥19,800 の買い切り）の実物です",
+    );
+    expect(plain(saas.en.kit(projectPriceNow("saas-starter", oct1)))).toBe(
+      "This demo is the actual SaaS Starter Kit (regular price ¥19,800, one-time purchase)",
+    );
+    expect(plain(saas.fr.kit(projectPriceNow("saas-starter", oct1)))).toBe(
+      "Cette démo est le véritable Kit de démarrage SaaS (prix normal 19 800 ¥, achat unique)",
+    );
+    expect(plain(configurator.ja.kit(projectPriceNow("configurator", oct1)))).toBe(
+      "この 3D 商品コンフィギュレーターを自分のサイトに置ける版（定価 ¥12,800 の買い切り。見本のモデルと設定つき）",
+    );
+    expect(plain(configurator.en.kit(projectPriceNow("configurator", oct1)))).toBe(
+      "A version of this 3D product configurator for your own site (regular price ¥12,800, one-time purchase; includes sample models and configurations)",
+    );
+    expect(plain(configurator.fr.kit(projectPriceNow("configurator", oct1)))).toBe(
+      "Une version de ce configurateur 3D pour votre propre site (prix normal 12 800 ¥, achat unique ; modèles et configurations d’exemple inclus)",
+    );
+    expect(plain(sheet.ja.kit(projectPriceNow("sheet-app", oct3)))).toMatch(/（定価 ¥12,800 の買い切り）の実物です。定義シート/);
+    expect(plain(sheet.en.kit(projectPriceNow("sheet-app", oct3)))).toContain("(regular price ¥12,800, one-time purchase). Screens");
+    expect(plain(sheet.fr.kit(projectPriceNow("sheet-app", oct3)))).toContain("(prix normal 12 800 ¥, achat unique). Écrans");
+    for (const c of [saas, configurator, sheet]) {
+      for (const lang of ["ja", "en", "fr"] as const) {
+        expect(c[lang].kit(projectPriceNow(c === sheet ? "sheet-app" : c === saas ? "saas-starter" : "configurator", oct3))).not.toMatch(
+          /発売記念|launch price|prix de lancement/,
+        );
+      }
+    }
+  });
+});

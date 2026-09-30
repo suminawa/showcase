@@ -151,7 +151,7 @@ export function KitClose({ slug, made, lang = "ja" }: { slug: KitDemoSlug; made:
                         {alt.name}
                       </a>
                       {gap}
-                  {alt.note}
+                      {alt.note}
                     </span>
                   ))}
                 </li>
