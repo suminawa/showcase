@@ -18,11 +18,16 @@ export function languageAlternates(path: string): Record<string, string> {
 export function pageMetadata(
   lang: Lang,
   path: string,
-  { title, description, image }: { title: string; description: string; image?: string },
+  {
+    title,
+    description,
+    image,
+    absoluteTitle = false,
+  }: { title: string; description: string; image?: string; absoluteTitle?: boolean },
 ): Metadata {
   const url = localePath(lang, path);
   return {
-    title,
+    title: absoluteTitle ? { absolute: title } : title,
     description,
     alternates: { canonical: url, languages: languageAlternates(path) },
     openGraph: {

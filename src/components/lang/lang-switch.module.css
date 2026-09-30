@@ -1,0 +1,49 @@
+/*
+ * 言語の切り替え。紙の右上に、小の字で一行。
+ * 入りの一筆（墨）の上に載ることがあるので、字の下にだけ紙の色を敷いて読めるようにする。
+ */
+.switch {
+  position: absolute;
+  z-index: 5;
+  top: clamp(10px, 1.8vw, 22px);
+  right: clamp(16px, 3vw, 40px);
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0;
+  padding: 0.1em 0.5em;
+  background: var(--ryoushi-paper);
+  border-radius: 2px;
+  font-size: clamp(0.75rem, 0.72rem + 0.15vw, 0.875rem);
+  line-height: 2;
+  letter-spacing: 0.08em;
+  color: var(--ryoushi-sumi-4);
+}
+
+.item {
+  display: inline-flex;
+  align-items: baseline;
+}
+
+.sep {
+  padding: 0 0.55em;
+  color: var(--ryoushi-kasure);
+}
+
+.current {
+  color: var(--ryoushi-sumi);
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.35em;
+}
+
+.link {
+  color: inherit;
+  text-decoration: none;
+  transition: color 200ms ease;
+}
+
+.link:hover,
+.link:focus-visible {
+  color: var(--ryoushi-sumi);
+}

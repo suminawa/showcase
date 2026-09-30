@@ -8,12 +8,7 @@
  * 作品ページを持たない LINE 案内窓口だけ、同じ名義の note の記事へ直に飛ばす。
  * FORM: 料紙（分類のページ）— 文法は DESIGN.md
  */
-import type { Metadata } from "next";
-
-import { Rows, Sheet, SheetClose, SheetSection } from "@/components/ryoushi";
-import { INDEX_PAGES, projectsByCategory } from "@/lib/projects";
-
-const sheet = INDEX_PAGES.kits;
+import { CategorySheet, categoryMetadata } from "@/components/ryoushi/CategorySheet";
 
 /**
  * 札の値段は日付で変わる（発売記念の最終日の翌 00:00 JST に定価へ）。
@@ -21,25 +16,8 @@ const sheet = INDEX_PAGES.kits;
  */
 export const dynamic = "force-dynamic";
 
-export const metadata: Metadata = {
-  title: sheet.title,
-  description: sheet.lede,
-  openGraph: {
-    title: sheet.title,
-    description: sheet.lede,
-    url: "/kits",
-    images: ["/og/kits.png"],
-  },
-  twitter: { card: "summary_large_image", images: ["/og/kits.png"] },
-};
+export const metadata = categoryMetadata("ja", "kits");
 
-export default function KitsPage() {
-  return (
-    <Sheet title={sheet.title} latin={sheet.latin} lede={sheet.lede}>
-      <SheetSection>
-        <Rows items={projectsByCategory("kits")} from="/kits" showSale />
-      </SheetSection>
-      <SheetClose />
-    </Sheet>
-  );
+export default function Page() {
+  return <CategorySheet lang="ja" category="kits" />;
 }

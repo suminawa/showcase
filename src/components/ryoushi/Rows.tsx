@@ -8,14 +8,11 @@
  */
 import Link from "next/link";
 
+import { localPriceLabel, localProject } from "@/i18n/catalog";
+import { hrefFor, type Lang } from "@/i18n/routes";
+import { UI } from "@/i18n/ui";
 import { isGoHref, withFrom } from "@/lib/go";
-
-import {
-  projectFigure,
-  priceLabel,
-  projectHref,
-  type Project,
-} from "@/lib/projects";
+import { projectFigure, projectHref, type Project } from "@/lib/projects";
 
 import s from "@/app/ryoushi.module.css";
 
@@ -26,7 +23,17 @@ import s from "@/app/ryoushi.module.css";
  */
 export function SaleText({ label }: { label: string }) {
   const at = label.indexOf("（");
-  if (at < 0) return <>{label}</>;
+  if (at < 0) {
+    // 英仏の札は半角の括弧（「Launch price ¥9,800 (until Oct 2, then ¥12,800)」）。空白は塊の外に置く
+    const sp = label.indexOf(" (");
+    if (sp < 0) return <>{label}</>;
+    return (
+      <>
+        <span className={s.saleChunk}>{label.slice(0, sp)}</span>{" "}
+        <span className={s.saleChunk}>{label.slice(sp + 1)}</span>
+      </>
+    );
+  }
   return (
     <>
       <span className={s.saleChunk}>{label.slice(0, at)}</span>
@@ -36,7 +43,7 @@ export function SaleText({ label }: { label: string }) {
 }
 
 /** 行に添える図版。実画面の写しで、すでに出す寸法ちょうどに焼いてある */
-function Figure({ src, title }: { src: string; title: string }) {
+function Figure({ src, title, lang }: { src: string; title: string; lang: Lang }) {
   return (
     // next/image を通さないのは、幅 320 と 640 の 2 枚を出す寸法ちょうどに
     // 焼いてあるから。読み込みで行が跳ねないよう、寸法は CSS で固定してある。
@@ -50,21 +57,26 @@ function Figure({ src, title }: { src: string; title: string }) {
       height={480}
       loading="lazy"
       decoding="async"
-      alt={`${title}の画面`}
+      alt={UI[lang].figureAlt(title)}
     />
   );
 }
 
 function Row({
-  project,
+  project: source,
   showSale,
   from,
+  lang,
+  localized,
 }: {
   project: Project;
   showSale: boolean;
   from: string;
+  lang: Lang;
+  localized: boolean;
 }) {
-  const href = projectHref(project);
+  const project = localized ? source : localProject(lang, source);
+  const href = hrefFor(lang, projectHref(project));
   const fig = projectFigure(project);
   const inner = (
     <>
@@ -73,7 +85,7 @@ function Row({
           <span className={s.title}>{project.title}</span>
           {showSale && project.sale && (
             <span className={s.sale}>
-              <SaleText label={priceLabel(project) ?? ""} />
+              <SaleText label={localPriceLabel(lang, project) ?? ""} />
             </span>
           )}
         </span>
@@ -84,7 +96,7 @@ function Row({
           ))}
         </span>
       </span>
-      {fig && <Figure src={fig} title={project.title} />}
+      {fig && <Figure src={fig} title={project.title} lang={lang} />}
     </>
   );
 
@@ -103,7 +115,8 @@ function Row({
       <span className={s.flowDeep} aria-hidden="true" />
 
       {href.startsWith("/") && !isGoHref(href) ? (
-        <Link href={href} className={cls}>
+        // 英仏の紙から、訳の無い紙（見本・guides）へ出る行は hreflang="ja"
+        <Link href={href} className={cls} hrefLang={lang !== "ja" && href === projectHref(project) ? "ja" : undefined}>
           {inner}
         </Link>
       ) : (
@@ -132,15 +145,20 @@ export function Rows({
   items,
   from,
   showSale = false,
+  lang = "ja",
+  localized = false,
 }: {
   items: Project[];
   from: string;
   showSale?: boolean;
+  lang?: Lang;
+  /** items がすでにその言語の字で組んである（目録の外の行。英仏の guides の行） */
+  localized?: boolean;
 }) {
   return (
     <ol className={s.rows}>
       {items.map((project) => (
-        <Row key={project.slug} project={project} showSale={showSale} from={from} />
+        <Row key={project.slug} project={project} showSale={showSale} from={from} lang={lang} localized={localized} />
       ))}
     </ol>
   );

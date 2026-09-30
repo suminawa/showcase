@@ -11,6 +11,9 @@
 import Link from "next/link";
 
 import s from "@/app/ryoushi.module.css";
+import { LangSwitch } from "@/components/lang/LangSwitch";
+import { hrefFor, type Lang } from "@/i18n/routes";
+import { UI } from "@/i18n/ui";
 
 import { REVEAL_FLAG, fontVars } from "./fonts";
 
@@ -19,6 +22,8 @@ export function Sheet({
   latin,
   lede,
   children,
+  lang = "ja",
+  path,
 }: {
   /** 面の題（日本語） */
   title: string;
@@ -27,9 +32,13 @@ export function Sheet({
   /** 一行。その面に並ぶものが何なのかを、一件ずつの説明に書かずにここで一度だけ言う */
   lede: string;
   children: React.ReactNode;
+  lang?: Lang;
+  /** この紙の道（言語を外したもの）。訳のある紙でだけ渡し、右上に切り替えを出す */
+  path?: string;
 }) {
   return (
     <main className={`${s.paper} ${s.sheet} ${fontVars}`}>
+      {path && <LangSwitch lang={lang} path={path} />}
       {/* 現れる演出の印。本文より先に走るので、隠す規則は最初の描画から効く */}
       <script dangerouslySetInnerHTML={{ __html: REVEAL_FLAG }} />
 
@@ -40,11 +49,11 @@ export function Sheet({
       </div>
 
       <header className={s.head}>
-        <Link href="/" className={s.back}>
+        <Link href={hrefFor(lang, "/")} className={s.back}>
           <span className={s.seal} aria-hidden="true">
             墨
           </span>
-          Showcase へ戻る
+          {UI[lang].back}
         </Link>
         <h1 className={s.pageTitle}>
           {title}
@@ -90,19 +99,18 @@ export function SheetSection({
  * 頭まで巻き戻さずに入口へ戻れる一行が要る。戻りの落款は頭に一つだけで、
  * ここには捺さない（画面で朱を持つのは一箇所、という決まりを守る）。
  */
-export function SheetClose() {
+export function SheetClose({ lang = "ja" }: { lang?: Lang }) {
+  const t = UI[lang];
   return (
     <footer className={s.close}>
-      <p className={s.closeText}>
-        ご用途に合わせた制作もお引き受けします。
-      </p>
+      <p className={s.closeText}>{t.closeText}</p>
       <p className={s.closeLinks}>
         {/* 押せるのは主の一本だけ。戻りは墨の淡い一本で、主従が濃さで読める */}
-        <Link href="/contact" className={s.contactMain}>
-          料金の目安と進め方を見る
+        <Link href={hrefFor(lang, "/contact")} className={s.contactMain}>
+          {t.closeCta}
         </Link>
-        <Link href="/" className={s.contact}>
-          Showcase へ戻る
+        <Link href={hrefFor(lang, "/")} className={s.contact}>
+          {t.back}
         </Link>
       </p>
     </footer>
