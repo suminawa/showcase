@@ -96,7 +96,15 @@ export default function ConfiguratorPage() {
           </p>
           <ShopifyFrame src={SHOPIFY_DEMO_SRC} />
           <p className={s.lede}>
-            Shopify 版は発売前です ──{" "}
+            Shopify 版は ¥16,800 の買い切りです ──{" "}
+            <a href={goHref("shopify-configurator", "note", "/projects/configurator")} rel="nofollow" className={s.textLink}>
+              note
+            </a>
+            {" / "}
+            <a href={goHref("shopify-configurator", "booth", "/projects/configurator")} rel="nofollow" className={s.textLink}>
+              BOOTH
+            </a>
+            {" / "}
             <a href={SHOPIFY_DEMO_SRC} className={s.textLink} target="_blank" rel="noopener">
               見本を別の画面で開く
             </a>

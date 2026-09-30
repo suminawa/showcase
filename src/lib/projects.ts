@@ -327,8 +327,8 @@ export const projects: Project[] = [
     description: "Shopify の商品ページに 3D の選択を置く。選んだ内容は注文に残る。",
     tags: ["Three.js", "Shopify"],
     category: "kits",
-    // 定価は発売の日に決める（決まるまでは値を持たせない）
-    sale: { status: "upcoming" },
+    // 2026-09-30 発売。1 つの値段（記念価格なし）
+    sale: { status: "onsale", price: 16800 },
     // 作品ページは持たない。見本は 3D 商品コンフィギュレーターの紙の「Shopify 版」の節にある
     href: "/projects/configurator#shopify",
   },
