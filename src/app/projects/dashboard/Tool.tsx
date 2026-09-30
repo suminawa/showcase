@@ -19,13 +19,14 @@ const readUrlLang = (): Lang => (new URLSearchParams(window.location.search).get
 const readServerLang = (): Lang => "ja";
 
 /** 見本の画面。app.js（キットの demo と同じもの）を読み、この要素に組み立てる。言語は切り替えのたびに組み直す */
-export function Tool() {
+export function Tool({ initialLang }: { initialLang?: Lang } = {}) {
   const root = useRef<HTMLDivElement>(null);
   const [ready, setReady] = useState(false);
   // ?lang=en で開かれたときは英語から始める（提案に添える URL 用）。URL は外の状態なので購読の形で読む
   const urlLang = useSyncExternalStore(subscribeNothing, readUrlLang, readServerLang);
   const [chosen, setChosen] = useState<Lang | null>(null);
-  const lang = chosen ?? urlLang;
+  // 英仏の紙からは英語で始める（initialLang）
+  const lang = chosen ?? initialLang ?? urlLang;
   const setLang = setChosen;
 
   useEffect(() => {

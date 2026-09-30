@@ -4,57 +4,111 @@
  * 値段は要求の時刻で決まる（kitDemo は既定で今の時刻）。置くページは dynamic = "force-dynamic"。
  * 売り場への道は /go/ の渡し口（goHref）を通す。
  */
+import { localKitDemo } from "@/i18n/kit-demos";
+import { localePath, type Lang } from "@/i18n/routes";
+import { PURCHASE_NOTE, dateLabel } from "@/i18n/ui";
 import { goHref } from "@/lib/go";
-import { CHECKED_ON, kitDemo, type KitDemoSlug } from "@/lib/kit-demos";
+import { CHECKED_ON, type KitDemoSlug } from "@/lib/kit-demos";
 
 import s from "./kit-demo.module.css";
 
-function BuyLinks({ slug }: { slug: KitDemoSlug }) {
-  const demo = kitDemo(slug);
-  const from = `/projects/${slug}`;
+/** 結びの言葉。中身・比べ方の文は src/lib/kit-demos.ts（日本語）と src/i18n/kit-demos.ts（英仏） */
+const T = {
+  ja: {
+    note: "note で詳しく読む",
+    booth: "BOOTH で購入する",
+    title: (name: string) => `この見本は『${name}』の実物の仕組みです`,
+    priceIs: (price: string) => `${price}です。`,
+    box: "入っているもの",
+    setup: "置くのにかかる時間",
+    compare: "無料の道具で足りる方・このキットが合う方",
+    freeEnough: "無料の道具で足りる方",
+    fits: "このキットが合う方",
+    checked: (date: string) => `ほかの道具の内容と値段は、${date} に各社のページで確かめたものです。`,
+  },
+  en: {
+    note: "Read more on note",
+    booth: "Buy on BOOTH",
+    title: (name: string) => `This demo runs the actual ${name}`,
+    priceIs: (price: string) => `${price}.`,
+    box: "What’s included",
+    setup: "Setup time",
+    compare: "When free tools are enough, and when this kit fits",
+    freeEnough: "Free tools may be enough",
+    fits: "This kit is a good fit",
+    checked: (date: string) => `Features and prices of the other tools were checked on each vendor’s site on ${date}.`,
+  },
+  fr: {
+    note: "En savoir plus sur note",
+    booth: "Acheter sur BOOTH",
+    title: (name: string) => `Cette démo fait tourner le véritable ${name}`,
+    priceIs: (price: string) => `${price}.`,
+    box: "Contenu",
+    setup: "Temps d’installation",
+    compare: "Quand les outils gratuits suffisent, et quand ce kit convient",
+    freeEnough: "Les outils gratuits peuvent suffire",
+    fits: "Ce kit vous convient",
+    checked: (date: string) => `Le contenu et les prix des autres outils ont été vérifiés sur le site de chaque éditeur le ${date}.`,
+  },
+} satisfies Record<Lang, unknown>;
+
+function BuyLinks({ slug, lang }: { slug: KitDemoSlug; lang: Lang }) {
+  const demo = localKitDemo(lang, slug);
+  const from = localePath(lang, `/projects/${slug}`);
   return (
     <span className={s.buy}>
       <a href={goHref(demo.linkKey, "note", from)} rel="nofollow" className={s.link}>
-        note で詳しく読む
+        {T[lang].note}
       </a>
       <span aria-hidden="true">／</span>
       <a href={goHref(demo.linkKey, "booth", from)} rel="nofollow" className={s.link}>
-        BOOTH で購入する
+        {T[lang].booth}
       </a>
     </span>
   );
 }
 
 /** 頭の下に置く一行。値段と買う道だけ */
-export function KitPriceLine({ slug }: { slug: KitDemoSlug }) {
-  const demo = kitDemo(slug);
+export function KitPriceLine({ slug, lang = "ja" }: { slug: KitDemoSlug; lang?: Lang }) {
+  const demo = localKitDemo(lang, slug);
   return (
     <p className={s.priceLine}>
       <span>
         <span className={s.nowrap}>{demo.price}</span>
         {demo.priceNote && <span className={s.priceNote}>{demo.priceNote}</span>}
       </span>
-      <BuyLinks slug={slug} />
+      <BuyLinks slug={slug} lang={lang} />
     </p>
   );
 }
 
 /** 結び。これが実物の仕組みであること・値段・中身・導入の時間・比べ方・買う道 */
-export function KitClose({ slug, made }: { slug: KitDemoSlug; made: string }) {
-  const demo = kitDemo(slug);
+export function KitClose({ slug, made, lang = "ja" }: { slug: KitDemoSlug; made: string; lang?: Lang }) {
+  const demo = localKitDemo(lang, slug);
+  const t = T[lang];
+  // 比べる相手の名と一言のあいだ。日本語は全角の空き、英仏はダッシュ
+  const gap = lang === "ja" ? "　" : " — ";
+  const year = CHECKED_ON.slice(0, 4);
+  const checkedOn =
+    lang === "ja"
+      ? CHECKED_ON.replace(/-/g, "/")
+      : `${dateLabel(lang, CHECKED_ON)}${lang === "en" ? "," : ""} ${year}`;
   return (
     <section className={s.close} aria-labelledby="kit-close-title">
       <h2 id="kit-close-title" className={s.closeTitle}>
-        この見本は『{demo.name}』の実物の仕組みです
+        {t.title(demo.name)}
       </h2>
       <p className={s.body}>{made}</p>
       <p className={s.body}>
-        {demo.price}です。{demo.priceNote} <BuyLinks slug={slug} />
+        {t.priceIs(demo.price)}
+        {lang !== "ja" && demo.priceNote ? " " : ""}
+        {demo.priceNote} <BuyLinks slug={slug} lang={lang} />
       </p>
+      {lang !== "ja" && <p className={s.body}>{PURCHASE_NOTE[lang]}</p>}
 
       <div className={s.closeGrid}>
         <div>
-          <h3 className={s.head}>入っているもの</h3>
+          <h3 className={s.head}>{t.box}</h3>
           <ul className={s.list}>
             {demo.box.map((line) => (
               <li key={line}>{line}</li>
@@ -62,16 +116,16 @@ export function KitClose({ slug, made }: { slug: KitDemoSlug; made: string }) {
           </ul>
         </div>
         <div>
-          <h3 className={s.head}>置くのにかかる時間</h3>
+          <h3 className={s.head}>{t.setup}</h3>
           <p className={s.body}>{demo.setup}</p>
         </div>
       </div>
 
       <div className={s.compare}>
-        <h3 className={s.head}>無料の道具で足りる方・このキットが合う方</h3>
+        <h3 className={s.head}>{t.compare}</h3>
         <div className={s.closeGrid}>
           <div>
-            <p className={s.compareHead}>無料の道具で足りる方</p>
+            <p className={s.compareHead}>{t.freeEnough}</p>
             <ul className={s.list}>
               {demo.freeEnough.map(({ who, alt }) => (
                 <li key={who}>
@@ -79,13 +133,14 @@ export function KitClose({ slug, made }: { slug: KitDemoSlug; made: string }) {
                   <a href={alt.href} className={s.link} rel="noopener noreferrer">
                     {alt.name}
                   </a>
-                  　{alt.note}
+                  {gap}
+                  {alt.note}
                 </li>
               ))}
             </ul>
           </div>
           <div>
-            <p className={s.compareHead}>このキットが合う方</p>
+            <p className={s.compareHead}>{t.fits}</p>
             <ul className={s.list}>
               {demo.fits.map((fit) => (
                 <li key={fit.who}>
@@ -95,7 +150,8 @@ export function KitClose({ slug, made }: { slug: KitDemoSlug; made: string }) {
                       <a href={alt.href} className={s.link} rel="noopener noreferrer">
                         {alt.name}
                       </a>
-                      　{alt.note}
+                      {gap}
+                  {alt.note}
                     </span>
                   ))}
                 </li>
@@ -103,11 +159,11 @@ export function KitClose({ slug, made }: { slug: KitDemoSlug; made: string }) {
             </ul>
           </div>
         </div>
-        <p className={s.small}>ほかの道具の内容と値段は、{CHECKED_ON.replace(/-/g, "/")} に各社のページで確かめたものです。</p>
+        <p className={s.small}>{t.checked(checkedOn)}</p>
       </div>
 
       <p className={s.body}>
-        {demo.price}です。 <BuyLinks slug={slug} />
+        {t.priceIs(demo.price)} <BuyLinks slug={slug} lang={lang} />
       </p>
     </section>
   );

@@ -44,7 +44,7 @@ function readServerLang(): Lang {
   return "ja";
 }
 
-export function Tool(): ReactNode {
+export function Tool({ initialLang }: { initialLang?: Lang } = {}): ReactNode {
   const personId = useId();
   const langLabelId = useId();
 
@@ -55,7 +55,8 @@ export function Tool(): ReactNode {
 
   const urlLang = useSyncExternalStore(subscribeNothing, readUrlLang, readServerLang);
   const [chosenLang, setChosenLang] = useState<Lang | null>(null);
-  const lang = chosenLang ?? urlLang;
+  // 英仏の紙からは英語で始める（initialLang）
+  const lang = chosenLang ?? initialLang ?? urlLang;
   const messages = messagesFor(lang);
 
   useEffect(() => {

@@ -223,6 +223,9 @@ const BASES: Record<KitDemoSlug, KitDemoBase> = {
   },
 };
 
+/** 日本語の結び（値段を除く）。英仏の訳（src/i18n/kit-demos.ts）と形を照らすテストだけが読む */
+export const BASES_FOR_TEST: Readonly<Record<KitDemoSlug, KitDemoBase>> = BASES;
+
 /** 見本ページ 1 本の結び。値段はその時刻で決まる（ページは要求のたびに組む） */
 export function kitDemo(slug: KitDemoSlug, now: Date = new Date()): KitDemo {
   return { ...BASES[slug], ...kitPrice(slug, now) };
