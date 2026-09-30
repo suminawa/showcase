@@ -49,3 +49,21 @@
 .link:focus-visible {
   color: var(--ryoushi-sumi);
 }
+
+/*
+ * 狭い紙（〜479px）では右上に浮かせず、頭の上の一行として流れに置く。
+ * 浮かせたままだと「Showcase へ戻る」の行と重なり、戻る道を塞ぐ。
+ */
+@media (max-width: 479px) {
+  .switch {
+    position: relative;
+    top: auto;
+    right: auto;
+    /* 置き場は flex（作品ページ・分類の紙）と 12 列の grid（トップ）の両方。どちらでも右に寄せて一行で */
+    align-self: flex-end;
+    grid-column: 1 / -1;
+    justify-self: end;
+    width: fit-content;
+    margin: 0 0 0.5em auto;
+  }
+}

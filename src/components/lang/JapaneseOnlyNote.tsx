@@ -6,7 +6,8 @@
  */
 import { useSyncExternalStore } from "react";
 
-import { LANG_COOKIE, isLang, localePath, type ForeignLang } from "@/i18n/routes";
+import { noteLang } from "@/i18n/detect";
+import { LANG_COOKIE, localePath, type ForeignLang } from "@/i18n/routes";
 
 const COOKIE = new RegExp(`(?:^|;\\s*)${LANG_COOKIE}=([^;]*)`);
 
@@ -26,10 +27,7 @@ const TEXT = {
 
 function readLang(): ForeignLang | null {
   const m = COOKIE.exec(document.cookie);
-  const chosen = m ? decodeURIComponent(m[1]) : null;
-  const lang = isLang(chosen) ? chosen : (navigator.languages?.[0] ?? navigator.language ?? "ja").slice(0, 2).toLowerCase();
-  if (lang === "ja") return null;
-  return lang === "fr" ? "fr" : "en";
+  return noteLang(m ? decodeURIComponent(m[1]) : null, navigator.languages?.[0] ?? navigator.language);
 }
 
 const subscribeNothing = () => () => {};

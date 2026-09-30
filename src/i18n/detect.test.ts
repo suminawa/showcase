@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { decideLang, guessLang, isBot } from "./detect";
+import { decideLang, guessLang, isBot, noteLang } from "./detect";
 
 const CHROME = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 Chrome/130 Safari/537.36";
 const GOOGLEBOT = "Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)";
@@ -30,6 +30,10 @@ describe("isBot", () => {
     expect(isBot(GOOGLEBOT)).toBe(true);
     expect(isBot("Mozilla/5.0 (compatible; bingbot/2.0)")).toBe(true);
     expect(isBot("facebookexternalhit/1.1")).toBe(true);
+    expect(isBot("Mozilla/5.0 (compatible; Google-InspectionTool/1.0;)")).toBe(true);
+    expect(isBot("GoogleOther")).toBe(true);
+    expect(isBot("WhatsApp/2.23.20.0 A")).toBe(true);
+    expect(isBot("Iframely/1.3.1 (+https://iframely.com/docs/about)")).toBe(true);
     expect(isBot(CHROME)).toBe(false);
     expect(isBot(null)).toBe(false);
   });
@@ -88,5 +92,19 @@ describe("decideLang", () => {
     expect(decideLang({ ...base, pathname: "/projects/unknown", country: "US" })).toBeNull();
     expect(decideLang({ ...base, pathname: "/en/demos/shop-lp", country: "US" })).toBeNull();
     expect(decideLang({ ...base, pathname: "/demos/shop-lp", search: "?hl=en" })).toBeNull();
+  });
+});
+
+describe("noteLang（日本語だけの紙の断り書き）", () => {
+  it("選んだ言語が先。日本語なら出さない", () => {
+    expect(noteLang("fr", "en-US")).toBe("fr");
+    expect(noteLang("en", "fr-FR")).toBe("en");
+    expect(noteLang("ja", "en-US")).toBeNull();
+  });
+  it("Cookie が無ければブラウザの第一言語。仏語以外は英語", () => {
+    expect(noteLang(null, "fr-CA")).toBe("fr");
+    expect(noteLang(null, "de-DE")).toBe("en");
+    expect(noteLang(null, "ja-JP")).toBeNull();
+    expect(noteLang("xx", undefined)).toBeNull();
   });
 });

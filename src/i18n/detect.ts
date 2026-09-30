@@ -19,7 +19,7 @@ import {
 } from "./routes";
 
 const BOT =
-  /bot|crawl|spider|slurp|facebookexternalhit|embedly|preview|lighthouse|headless|mediapartners|bingpreview|vercel-screenshot/i;
+  /bot|crawl|spider|slurp|facebookexternalhit|embedly|preview|lighthouse|headless|mediapartners|bingpreview|vercel-screenshot|google|whatsapp|iframely/i;
 
 export function isBot(userAgent: string | null | undefined): boolean {
   return !!userAgent && BOT.test(userAgent);
@@ -84,4 +84,14 @@ export function decideLang(req: LangRequest): LangDecision {
   const want = isLang(req.cookie) ? req.cookie : guessLang(req.country, req.acceptLanguage);
   if (want === "ja") return null;
   return { redirect: localePath(want, path) + req.search };
+}
+
+/**
+ * 日本語だけの紙に添える断り書きの言語（JapaneseOnlyNote）。
+ * 選んだ言語（Cookie）が先、無ければブラウザの第一言語。日本語なら null（何も出さない）。
+ */
+export function noteLang(cookie: string | null | undefined, browserLang: string | null | undefined): "en" | "fr" | null {
+  const lang = isLang(cookie) ? cookie : (browserLang ?? "ja").slice(0, 2).toLowerCase();
+  if (lang === "ja") return null;
+  return lang === "fr" ? "fr" : "en";
 }
