@@ -82,8 +82,21 @@ export function KitPriceLine({ slug, lang = "ja" }: { slug: KitDemoSlug; lang?: 
   );
 }
 
+/** 値段の段落の下に添える、設定や修理を頼める出品への案内。リンクにするのは出品の名（日本語のまま）だけ */
+export type KitService = { before: string; name: string; href: string; after: string };
+
 /** 結び。これが実物の仕組みであること・値段・中身・導入の時間・比べ方・買う道 */
-export function KitClose({ slug, made, lang = "ja" }: { slug: KitDemoSlug; made: string; lang?: Lang }) {
+export function KitClose({
+  slug,
+  made,
+  service,
+  lang = "ja",
+}: {
+  slug: KitDemoSlug;
+  made: string;
+  service?: KitService;
+  lang?: Lang;
+}) {
   const demo = localKitDemo(lang, slug);
   const t = T[lang];
   // 比べる相手の名と一言のあいだ。日本語は全角の空き、英仏はダッシュ
@@ -105,6 +118,15 @@ export function KitClose({ slug, made, lang = "ja" }: { slug: KitDemoSlug; made:
         {demo.priceNote} <BuyLinks slug={slug} lang={lang} />
       </p>
       {lang !== "ja" && <p className={s.body}>{PURCHASE_NOTE[lang]}</p>}
+      {service && (
+        <p className={s.body}>
+          {service.before}
+          <a href={service.href} className={s.link} target="_blank" rel="noopener" lang="ja">
+            {service.name}
+          </a>
+          {service.after}
+        </p>
+      )}
 
       <div className={s.closeGrid}>
         <div>

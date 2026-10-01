@@ -13,6 +13,9 @@ import { DemoNote, ProjectShell, projectMetadata } from "../shell";
 import { copy } from "./copy";
 import { FormDemo } from "./FormDemo";
 
+/** ココナラの出品。名は日本語のまま出す（出品のページが日本語のため） */
+const SERVICE = { name: "フォームの不具合を直します", href: "https://coconala.com/services/4427445" };
+
 export const metadataFor = (lang: Lang) => projectMetadata(lang, "form", copy[lang].meta, false);
 
 export function Content({ lang }: { lang: Lang }) {
@@ -22,7 +25,7 @@ export function Content({ lang }: { lang: Lang }) {
       <KitPriceLine slug="form" lang={lang} />
       <DemoNote lang={lang} />
       <FormDemo />
-      <KitClose slug="form" lang={lang} made={t.made} />
+      <KitClose slug="form" lang={lang} made={t.made} service={{ ...t.service, ...SERVICE }} />
     </ProjectShell>
   );
 }

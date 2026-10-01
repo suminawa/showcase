@@ -13,6 +13,9 @@ import { DemoNote, ProjectShell, projectMetadata } from "../shell";
 import { copy } from "./copy";
 import { DeadlineDemo } from "./DeadlineDemo";
 
+/** ココナラの出品。名は日本語のまま出す（出品のページが日本語のため） */
+const SERVICE = { name: "スプレッドシートの期限通知を 1 本つなぎます", href: "https://coconala.com/services/4427437" };
+
 export const metadataFor = (lang: Lang) => projectMetadata(lang, "deadline", copy[lang].meta, false);
 
 export function Content({ lang }: { lang: Lang }) {
@@ -22,7 +25,7 @@ export function Content({ lang }: { lang: Lang }) {
       <KitPriceLine slug="deadline" lang={lang} />
       <DemoNote lang={lang} />
       <DeadlineDemo />
-      <KitClose slug="deadline" lang={lang} made={t.made} />
+      <KitClose slug="deadline" lang={lang} made={t.made} service={{ ...t.service, ...SERVICE }} />
     </ProjectShell>
   );
 }
