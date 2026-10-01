@@ -8,6 +8,7 @@
  */
 import { KitClose, KitPriceLine } from "@/components/kit-demo/KitClose";
 import type { Lang } from "@/i18n/routes";
+import { goHref } from "@/lib/go";
 
 import { DemoNote, ProjectShell, projectMetadata } from "../shell";
 import { copy } from "./copy";
@@ -15,6 +16,9 @@ import { DeadlineDemo } from "./DeadlineDemo";
 
 /** ココナラの出品。名は日本語のまま出す（出品のページが日本語のため） */
 const SERVICE = { name: "スプレッドシートの期限通知を 1 本つなぎます", href: "https://coconala.com/services/4427437" };
+
+/** 無料版（期限アラート ライト）。名は日本語のまま出す（BOOTH のページが日本語のため） */
+const FREE = { name: "期限アラート ライト", href: goHref("deadline-lite", "booth", "/projects/deadline") };
 
 export const metadataFor = (lang: Lang) => projectMetadata(lang, "deadline", copy[lang].meta, false);
 
@@ -25,7 +29,7 @@ export function Content({ lang }: { lang: Lang }) {
       <KitPriceLine slug="deadline" lang={lang} />
       <DemoNote lang={lang} />
       <DeadlineDemo />
-      <KitClose slug="deadline" lang={lang} made={t.made} service={{ ...t.service, ...SERVICE }} />
+      <KitClose slug="deadline" lang={lang} made={t.made} service={{ ...t.service, ...SERVICE }} free={{ ...t.free, ...FREE }} />
     </ProjectShell>
   );
 }

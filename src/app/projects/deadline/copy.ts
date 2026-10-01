@@ -12,6 +12,10 @@ const ja = {
     before: "設定まで任せたい方は、ココナラの「",
     after: "」（3,000 円から）もご利用いただけます。",
   },
+  free: {
+    before: "まずお試しになりたい方へ: 3 日前と当日の予定を毎朝 Slack にお知らせするだけの無料版「",
+    after: "」を BOOTH でお配りしています。",
+  },
 };
 
 export const copy: Record<"ja" | "en" | "fr", typeof ja> = {
@@ -28,6 +32,10 @@ export const copy: Record<"ja" | "en" | "fr", typeof ja> = {
       before: "If you’d rather have the setup done for you, we can connect one deadline notification for you through our Coconala service “",
       after: `” (from ${money("en", 3000)}; the service page is in Japanese).`,
     },
+    free: {
+      before: "Want to try it first? A free version, “",
+      after: "”, sends just the three-days-before and same-day reminders to Slack each morning. It’s on BOOTH (the page is in Japanese).",
+    },
   },
   fr: {
     meta: {
@@ -40,6 +48,10 @@ export const copy: Record<"ja" | "en" | "fr", typeof ja> = {
     service: {
       before: "Si vous préférez nous confier la configuration, notre service Coconala «\u00a0",
       after: `\u00a0» met en place une notification d’échéance pour vous (à partir de ${money("fr", 3000)}\u00a0; la page du service est en japonais).`,
+    },
+    free: {
+      before: "Envie d’essayer d’abord\u00a0? Une version gratuite, «\u00a0",
+      after: "\u00a0», envoie chaque matin sur Slack uniquement les rappels à J-3 et le jour même. Elle est disponible sur BOOTH (page en japonais).",
     },
   },
 };

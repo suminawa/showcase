@@ -90,11 +90,14 @@ export function KitClose({
   slug,
   made,
   service,
+  free,
   lang = "ja",
 }: {
   slug: KitDemoSlug;
   made: string;
   service?: KitService;
+  /** 無料版への案内（あるキットだけ）。行き先は /go/ の道 */
+  free?: KitService;
   lang?: Lang;
 }) {
   const demo = localKitDemo(lang, slug);
@@ -125,6 +128,15 @@ export function KitClose({
             {service.name}
           </a>
           {service.after}
+        </p>
+      )}
+      {free && (
+        <p className={s.body}>
+          {free.before}
+          <a href={free.href} className={s.link} rel="noopener" lang="ja">
+            {free.name}
+          </a>
+          {free.after}
         </p>
       )}
 
