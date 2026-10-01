@@ -32,11 +32,11 @@ describe("入口 3 行", () => {
   });
 
   it("件数はレジストリから数える（手で書かない）", () => {
-    expect(categoryCount("kits")).toEqual({ total: 16, onsale: 15 });
+    expect(categoryCount("kits")).toEqual({ total: 17, onsale: 16 });
     expect(categoryCount("sites")).toEqual({ total: 6, onsale: 0 });
     expect(categoryCount("works")).toEqual({ total: 4, onsale: 0 });
 
-    expect(countLabel("kits")).toBe("16 件　発売中 15 件");
+    expect(countLabel("kits")).toBe("17 件　発売中 16 件");
     expect(countLabel("sites")).toBe("6 件");
     expect(countLabel("works")).toBe("4 件");
   });
@@ -149,10 +149,11 @@ describe("projects registry", () => {
       "configurator",
       "saas-starter",
       "shopify-configurator",
+      "survey-analysis",
       "mcp-server",
     ]);
     expect(kits.map((p) => p.sale?.status)).toEqual([
-      ...Array(15).fill("onsale"),
+      ...Array(16).fill("onsale"),
       "free",
     ]);
   });
@@ -183,6 +184,8 @@ describe("projects registry", () => {
       "saas-starter": 19800,
       // 2026-09-30 に発売。1 つの値段
       "shopify-configurator": 16800,
+      // 2026-10-01 に発売。1 つの値段
+      "survey-analysis": 7980,
       // 発売前。定価は設計で決めてあるので持つ（一覧には出さない）
     });
   });

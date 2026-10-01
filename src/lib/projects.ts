@@ -333,6 +333,16 @@ export const projects: Project[] = [
     href: "/projects/configurator#shopify",
   },
   {
+    slug: "survey-analysis",
+    title: "お客さまアンケート キット",
+    description: "見本から Google フォームを作り、集まった声を AI が「今週の 3 つ」にまとめる。",
+    tags: ["GAS", "Google Forms", "Claude"],
+    category: "kits",
+    // 2026-10-01 発売。1 つの値段（記念価格なし）。作品ページ無し（スプレッドシートの中で動く）
+    sale: { status: "onsale", price: 7980 },
+    href: goHref("survey-analysis", "note"),
+  },
+  {
     slug: "mcp-server",
     title: "MCP サーバー キット",
     description: "業務アプリ・予約・書類のシートを、Claude や ChatGPT との会話から探して登録する。",

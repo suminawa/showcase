@@ -161,6 +161,10 @@ export const CATALOG: Record<ForeignLang, Catalog> = {
         title: "3D Configurator for Shopify",
         description: "Adds 3D options to Shopify product pages. The chosen options are saved with the order.",
       },
+      "survey-analysis": {
+        title: "Customer Survey Kit",
+        description: "Builds a Google Form from an industry preset, then has AI sort the answers into three things to act on this week.",
+      },
       "mcp-server": {
         title: "MCP Server Kit",
         description: "Search and add records in your business app, booking, and document sheets from a chat with Claude or ChatGPT.",
@@ -333,6 +337,10 @@ export const CATALOG: Record<ForeignLang, Catalog> = {
       "shopify-configurator": {
         title: "Configurateur 3D pour Shopify",
         description: "Ajoute des options en 3D aux pages produit Shopify. Les options choisies sont enregistrées avec la commande.",
+      },
+      "survey-analysis": {
+        title: "Kit d’enquête client",
+        description: "Crée un formulaire Google à partir d’un modèle par secteur, puis l’IA classe les réponses et en tire trois actions pour la semaine.",
       },
       "mcp-server": {
         title: "Kit de serveur MCP",
