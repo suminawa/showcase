@@ -107,7 +107,7 @@ export default function PdfToSpreadsheetGuide() {
         <section className={g.section}>
           <h2 className={g.heading}>キット</h2>
           <p className={g.text}>
-            見本と同じものを「AI 書類読み取りキット」として販売しています（定価 ¥16,800 の買い切り）。帳票の型 5 種、確認画面つきの Next.js テンプレ、スプレッドシートの受け口が入っていて、API の鍵はご自身のものを使います。 ──{" "}
+            見本と同じものを「AI 書類読み取りキット」として販売しています（定価 ¥16,800 の買い切り）。書類ごとの読み取り設定（帳票の型）5 種、確認画面つきの Next.js テンプレ、スプレッドシートの受け口が入っていて、API の鍵はご自身のものを使います。 ──{" "}
             <a href={goHref("doc-reader", "booth", "/guides/pdf-to-spreadsheet")} rel="nofollow" className={s.textLink}>
               BOOTH
             </a>
@@ -119,7 +119,7 @@ export default function PdfToSpreadsheetGuide() {
         </section>
 
         <section className={g.section}>
-          <h2 className={g.heading}>導入代行</h2>
+          <h2 className={g.heading}>設定・設置のご依頼</h2>
           <p className={g.text}>
             帳票の型の作り込み・スプレッドシート連携・配置まで、こちらで行うこともできます。 ──{" "}
             <a href={COCONALA} className={s.textLink}>

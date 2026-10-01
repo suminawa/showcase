@@ -119,7 +119,7 @@ export default function CustomerSheetGuide() {
         </section>
 
         <section className={g.section}>
-          <h2 className={g.heading}>導入代行</h2>
+          <h2 className={g.heading}>設定・設置のご依頼</h2>
           <p className={g.text}>
             お使いの表に合わせた定義づくり・画面の配置・通知の設定まで、こちらで行うこともできます。 ──{" "}
             <a href={COCONALA} className={s.textLink}>

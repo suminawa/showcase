@@ -115,7 +115,7 @@ export default function DeadlineAlertGuide() {
         </section>
 
         <section className={g.section}>
-          <h2 className={g.heading}>導入代行</h2>
+          <h2 className={g.heading}>設定・設置のご依頼</h2>
           <p className={g.text}>
             お使いのスプレッドシートに期限の通知を 1 本つなぐところから、複数のシートや独自の条件での設定まで、こちらで行うこともできます。 ──{" "}
             <a href={COCONALA} className={s.textLink}>

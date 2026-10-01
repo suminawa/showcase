@@ -119,7 +119,7 @@ export default function BookingPageGuide() {
         </section>
 
         <section className={g.section}>
-          <h2 className={g.heading}>導入代行</h2>
+          <h2 className={g.heading}>設定・設置のご依頼</h2>
           <p className={g.text}>
             枠とサービスの設計、メールの文面、カレンダーと通知の設定、ホームページへの設置、スマートフォンでの確認まで、こちらで行うこともできます。 ──{" "}
             <a href={COCONALA} className={s.textLink}>

@@ -120,7 +120,7 @@ export default function LineAutoReplyGuide() {
         </section>
 
         <section className={g.section}>
-          <h2 className={g.heading}>導入代行</h2>
+          <h2 className={g.heading}>設定・設置のご依頼</h2>
           <p className={g.text}>
             文書の整理と索引づくり、Vercel への設置、LINE 公式アカウントの設定、引き継ぎ先と質問の候補の作り込みまで、こちらで行うこともできます。 ──{" "}
             <a href={COCONALA} className={s.textLink}>

@@ -114,7 +114,7 @@ export default function MonthlySalesReportGuide() {
         </section>
 
         <section className={g.section}>
-          <h2 className={g.heading}>導入代行</h2>
+          <h2 className={g.heading}>設定・設置のご依頼</h2>
           <p className={g.text}>
             どの数字をどの部品で見せるかのご相談から、いまのスプレッドシートや CSV をつないで画面を置くところ、見方のご説明まで、こちらで行うこともできます。 ──{" "}
             <a href={COCONALA} className={s.textLink}>

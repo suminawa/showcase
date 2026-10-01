@@ -115,7 +115,7 @@ export default function InboxTriageGuide() {
         </section>
 
         <section className={g.section}>
-          <h2 className={g.heading}>導入代行</h2>
+          <h2 className={g.heading}>設定・設置のご依頼</h2>
           <p className={g.text}>
             分類の設計、返信の方針と署名の作り込み、通知先とラベルの設定、トリガーの導入まで、こちらで行うこともできます。実際の問い合わせ（内容を伏せたもので構いません）を 10 通ほどお預かりし、分類と返信案の言い回しを合わせます。 ──{" "}
             <a href={COCONALA} className={s.textLink}>
