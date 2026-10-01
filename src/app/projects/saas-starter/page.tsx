@@ -90,8 +90,7 @@ export default function SaasStarterPage() {
           つの口だけを見る作りなので、つなぎ先を入れ替えても、画面はそのままお使いいただけます。
         </p>
         <p className={s.lede}>
-          この見本は「SaaS スターター キット」（定価 ¥19,800 の買い切り。9 月 30
-          日までは発売記念 ¥16,800）の実物です
+          この見本は「SaaS スターター キット」（¥19,800 の買い切り）の実物です
           {links["saas-starter"].note && (
             <>
               {" ── "}
