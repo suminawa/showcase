@@ -225,12 +225,23 @@
       "day": 20,
       "date": "2026-09-30",
       "revenue": 0,
-      "proposals": 2,
+      "proposals": 5,
       "replies": 0,
       "meetings": 0,
       "humanMinutes": 0,
-      "release": "",
+      "release": "Shopify 用 3D コンフィギュレーター（¥16,800）",
       "ai": "Shopify 3D 発売・showcase 英仏化・LINE 構築"
+    },
+    {
+      "day": 21,
+      "date": "2026-10-01",
+      "revenue": 0,
+      "proposals": 23,
+      "replies": 0,
+      "meetings": 0,
+      "humanMinutes": 0,
+      "release": "お客さまアンケート キット v1.0（¥7,980。BOOTH https://suminawa.booth.pm/items/8924999 ／ note https://note.com/suminawa/n/n1d7c99ed2b5a ／ YouTube https://youtu.be/Ip5jDNDSpOY ／ 導入の代行 ¥40,000 をココナラ https://coconala.com/services/4429481 とランサーズ https://www.lancers.jp/menu/detail/1346436 に出品）",
+      "ai": "アンケート キット発売、無料版の公開、道具を実際に組んで提案 23 件"
     }
   ]
 }
