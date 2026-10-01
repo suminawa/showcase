@@ -215,6 +215,7 @@ export const CATALOG: Record<ForeignLang, Catalog> = {
         "booking-page": "Let customers pick an open slot instead of booking by phone and LINE",
         "monthly-sales-report": "Stop rebuilding monthly sales totals and charts by hand",
         "inbox-triage": "When inquiry emails get buried and replies are late or missed",
+        "deadline-alert": "When renewal and inspection deadlines sit in a spreadsheet and still get missed",
       },
     },
   },
@@ -387,6 +388,7 @@ export const CATALOG: Record<ForeignLang, Catalog> = {
         "booking-page": "Laisser les clients choisir un créneau libre plutôt que réserver par téléphone ou LINE",
         "monthly-sales-report": "Ne plus refaire chaque mois à la main les totaux et graphiques de ventes",
         "inbox-triage": "Quand les e-mails de demande se perdent et que les réponses tardent ou manquent",
+        "deadline-alert": "Quand les échéances de renouvellement ou de contrôle, notées dans un tableur, passent quand même inaperçues",
       },
     },
   },
@@ -436,9 +438,8 @@ export function localContact(lang: Lang) {
 /** 英仏の guides の行（題は訳、飛び先は日本語の紙） */
 export function localGuides(lang: ForeignLang): (Guide & { localTitle: string })[] {
   return guides.map((g) => {
-    const localTitle = CATALOG[lang].guides.titles[g.slug];
-    if (!localTitle) throw new Error(`訳の無い guide: ${lang} ${g.slug}`);
-    return { ...g, localTitle };
+    // 訳がまだ無い guide（毎朝 1 枚ずつ増える）は日本語の題のまま出す。訳の漏れは catalog.test.ts が拾う
+    return { ...g, localTitle: CATALOG[lang].guides.titles[g.slug] ?? g.title };
   });
 }
 

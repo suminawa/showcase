@@ -13,6 +13,7 @@ import "@suminawa/product-configurator/styles.css";
 
 import { projectPriceNow } from "@/i18n/catalog";
 import type { Lang } from "@/i18n/routes";
+import { money } from "@/i18n/ui";
 
 import { AFTER_TOOL, DemoNote, ProjectShell, PurchaseNote, ShopLinks, projectMetadata } from "../shell";
 import s from "../projects.module.css";
@@ -50,7 +51,9 @@ export function Content({ lang }: { lang: Lang }) {
         <p className={s.lede}>{t.shopifyDemo}</p>
         <ShopifyFrame src={SHOPIFY_DEMO_SRC} />
         <p className={s.lede}>
-          {t.shopifyStatus}{" "}
+          {t.shopifyStatus(money(lang, projectPriceNow("shopify-configurator").price))}
+          <ShopLinks lang={lang} slug="configurator" linkKey="shopify-configurator" />
+          {" / "}
           <a href={SHOPIFY_DEMO_SRC} className={s.textLink} target="_blank" rel="noopener">
             {t.shopifyOpen}
           </a>

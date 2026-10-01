@@ -57,6 +57,13 @@ export const guides: Guide[] = [
     kit: "inbox-triage",
     date: "2026-09-30",
   },
+  {
+    slug: "deadline-alert",
+    title: "契約の更新や点検の期限を、スプレッドシートに書いたまま見落とす",
+    lede: "車検・賃貸契約・ドメイン・資格の更新期限を表に並べたまま見落とすとき、スプレッドシートだけでできる手順と、毎朝 1 通で知らせに来させる組み方です。",
+    kit: "deadline",
+    date: "2026-10-01",
+  },
 ];
 
 export const guideHref = (guide: Guide) => `/guides/${guide.slug}`;

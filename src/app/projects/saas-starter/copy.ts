@@ -15,7 +15,7 @@ const ja = {
   offline: "本物では、ここに Supabase と Stripe がつながります。この見本はブラウザの中だけで動くので、通信は 1 本も行いません。お選びいただいた内容はどこにも送らず、読み込み直すと、はじめの見本に戻ります。ご登録の画面、ご招待をお受けになる流れ、運営の画面は、見本には入れておりません。",
   contents: "キットは Next.js（App Router）と TypeScript で、ログイン、組織とご招待、役割ごとの権限、プロジェクトの管理、Stripe の定期課金、法務の 3 種（日本語と英語で 6 枚）のひな形、日本語と英語の切り替えが入っています。画面とサーバーの処理は 4 つの口だけを見る作りなので、つなぎ先を入れ替えても、画面はそのままお使いいただけます。",
   kit: (p: PriceNow) =>
-    `この見本は「SaaS スターター キット」（定価 ${money("ja", listOf(p))} の買い切り${p.intro ? `。${longDate("ja", p.intro.until)}までは発売記念 ${money("ja", p.price)}` : ""}）の実物です`,
+    `この見本は「SaaS スターター キット」（${p.intro ? "定価 " : ""}${money("ja", listOf(p))} の買い切り${p.intro ? `。${longDate("ja", p.intro.until)}までは発売記念 ${money("ja", p.price)}` : ""}）の実物です`,
 };
 
 export const copy: Record<"ja" | "en" | "fr", typeof ja> = {
@@ -34,7 +34,7 @@ export const copy: Record<"ja" | "en" | "fr", typeof ja> = {
     offline: "In production, Supabase and Stripe connect here. This demo runs only in your browser and makes no network requests at all. Nothing you choose is sent anywhere, and reloading resets the demo. The sign-up screen, the invitation acceptance flow, and the admin screens are not part of the demo.",
     contents: "The kit is built with Next.js (App Router) and TypeScript and includes login, organizations and invitations, role-based permissions, project management, Stripe subscription billing, three legal templates (six documents in Japanese and English), and a Japanese/English switch. The screens and server logic go through just four interfaces, so you can swap the services behind them and keep the screens as they are.",
     kit: (p: PriceNow) =>
-      `This demo is the actual SaaS Starter Kit (regular price ${money("en", listOf(p))}, one-time purchase${p.intro ? `; launch price ${money("en", p.price)} until ${longDate("en", p.intro.until)}` : ""})`,
+      `This demo is the actual SaaS Starter Kit (${p.intro ? "regular price " : ""}${money("en", listOf(p))}, one-time purchase${p.intro ? `; launch price ${money("en", p.price)} until ${longDate("en", p.intro.until)}` : ""})`,
   },
   fr: {
     meta: {
@@ -50,6 +50,6 @@ export const copy: Record<"ja" | "en" | "fr", typeof ja> = {
     offline: "En production, Supabase et Stripe se branchent ici. Cette démo tourne uniquement dans votre navigateur et n’effectue aucune requête réseau. Rien de ce que vous choisissez n’est envoyé, et un rechargement remet la démo à zéro. L’écran d’inscription, l’acceptation d’une invitation et les écrans d’administration ne font pas partie de la démo.",
     contents: "Le kit est construit avec Next.js (App Router) et TypeScript et comprend : connexion, organisations et invitations, droits par rôle, gestion de projets, abonnements Stripe, trois modèles juridiques (six documents en japonais et en anglais) et un sélecteur japonais/anglais. Écrans et traitement serveur ne passent que par quatre interfaces : vous pouvez changer les services branchés derrière sans toucher aux écrans.",
     kit: (p: PriceNow) =>
-      `Cette démo est le véritable Kit de démarrage SaaS (prix normal ${money("fr", listOf(p))}, achat unique${p.intro ? ` ; prix de lancement ${money("fr", p.price)} jusqu’au ${longDate("fr", p.intro.until)}` : ""})`,
+      `Cette démo est le véritable Kit de démarrage SaaS (${p.intro ? "prix normal " : ""}${money("fr", listOf(p))}, achat unique${p.intro ? ` ; prix de lancement ${money("fr", p.price)} jusqu’au ${longDate("fr", p.intro.until)}` : ""})`,
   },
 };
