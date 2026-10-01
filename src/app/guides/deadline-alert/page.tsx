@@ -55,7 +55,7 @@ export default function DeadlineAlertGuide() {
           <h2 className={g.heading}>困ること</h2>
           <ul className={g.list}>
             <li>車検・保険・賃貸契約・ドメインの期限を表に並べてあっても、開かなかった日に期限が過ぎる</li>
-            <li>件数が 30 を超えると、どれが近いのか目で探せず、種類ごとに月もばらばらになる</li>
+            <li>件数が増えると、どれが近いのかを毎回探すことになり、種類ごとに月もばらばらになる</li>
             <li>担当が 2 人いると「相手が見ているはず」で誰も動かず、気づくのが期限の翌日になる</li>
           </ul>
         </section>

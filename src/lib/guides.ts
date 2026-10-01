@@ -64,6 +64,13 @@ export const guides: Guide[] = [
     kit: "deadline",
     date: "2026-10-01",
   },
+  {
+    slug: "survey-free-text",
+    title: "Googleフォームの自由記述を集計する｜お客様の声から改善を一つ決める",
+    lede: "アンケートの自由記述を上から読むだけで終わってしまうとき、スプレッドシートで分類して数え、原文と見比べて改善を一つ決める手順と、分類と集計を続ける組み方です。",
+    kit: "survey-analysis",
+    date: "2026-10-02",
+  },
 ];
 
 export const guideHref = (guide: Guide) => `/guides/${guide.slug}`;
