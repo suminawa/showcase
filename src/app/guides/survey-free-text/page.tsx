@@ -20,7 +20,7 @@ const guide = guideBySlug("survey-free-text");
 const NOTE_ARTICLE = "https://note.com/suminawa/n/ne4f938f8fcd4";
 const COCONALA = "https://coconala.com/services/4429481";
 const LANCERS = "https://www.lancers.jp/menu/detail/1346436";
-const SHOT = "/guides/survey-free-text-sheet.png";
+const SHOT = "/guides/survey-free-text-rows.png";
 
 export const metadata: Metadata = {
   title: guide.title,
@@ -86,12 +86,12 @@ export default function SurveyFreeTextGuide() {
           <figure className={g.figure}>
             <Image
               src={SHOT}
-              alt="Google スプレッドシートの「分析結果」シート。回答ごとに分類・感情・要望・要約が並んでいる"
-              width={1372}
-              height={882}
+              alt="Google スプレッドシートの「分析結果」シート。待ち時間についての 2 件の回答に、分類・感情・要望・要約が付いている"
+              width={976}
+              height={568}
             />
             <figcaption className={g.caption}>
-              Google スプレッドシートの「分析結果」シート（実際の画面）。キットに同梱の架空の回答を、実際に AI で分析した結果です。実際のお客さまの回答ではありません。
+              Google スプレッドシートの「分析結果」シート（実際の画面）。2 件の回答に、分類・感情・要望・要約が付いています。キットに同梱の架空の回答を、実際に AI で分析した結果です。実際のお客さまの回答ではありません。「回答（抜粋）」は質問文を含む先頭 60 字です。読みやすいよう列の幅と折り返しを調整し、ほかの行と列は隠しています。
             </figcaption>
           </figure>
         </section>
