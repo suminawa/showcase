@@ -91,7 +91,7 @@ describe("/go/[key]/[dest]", () => {
     expect(resolveGo("s1", "toString")).toBeNull();
   });
 
-  it("押された回数をカスタムイベント go で送る（添えるのは key・dest・from だけ）", async () => {
+  it("押された回数をカスタムイベント go で送る（添えるのは target と from の 2 つ）", async () => {
     vi.mocked(track).mockClear();
     const key = Object.keys(links).find((k) => (links as Record<string, { note?: string }>)[k].note) as string;
     const res = await GET(new Request(`https://suminawa.dev/go/${key}/note?from=/kits`), {
@@ -101,7 +101,7 @@ describe("/go/[key]/[dest]", () => {
     expect(track).toHaveBeenCalledTimes(1);
     const [name, props] = vi.mocked(track).mock.calls[0];
     expect(name).toBe("go");
-    expect(Object.keys(props as object).sort()).toEqual(["dest", "from", "key"]);
+    expect(props).toEqual({ target: `${key}/note`, from: "/kits" });
   });
 
   it("イベントの送信に失敗しても転送する", async () => {

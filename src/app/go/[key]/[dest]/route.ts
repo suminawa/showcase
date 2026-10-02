@@ -3,7 +3,8 @@
  *
  * - 渡し先は links.json にある URL だけ。知らない key・空の URL は 404（開いた転送にしない）
  * - 押された回数は Vercel Web Analytics のカスタムイベント「go」で数える（Cookie を使わない計測。
- *   こちらが添える値は key・dest・from の 3 つだけ）。実行ログにも同じ 3 つを 1 行の JSON で残す。
+ *   こちらが添える値は target（key/dest）と from の 2 つだけ。Pro の枠が 2 つまでのため）。
+ *   実行ログには key・dest・from を 1 行の JSON で残す。
  *   from は既知の紙の道と照らし、知らない値は "unknown"。こちらのコードは IP・Cookie・UA を読まず、保存もしない
  * - イベントの送信に失敗しても転送は止めない
  */
@@ -38,7 +39,7 @@ export async function GET(
   const from = recordFrom(new URL(request.url).searchParams.get("from"));
   console.log(JSON.stringify({ event: "go", key, dest, from }));
   try {
-    await track("go", { key, dest, from }, { request });
+    await track("go", { target: `${key}/${dest}`, from }, { request });
   } catch {
     // 計測の失敗で売り場への案内を止めない
   }
