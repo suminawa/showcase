@@ -14,6 +14,12 @@ import { sitemapPaths } from "@/lib/sitemap";
 
 export const dynamic = "force-dynamic";
 
+// track() の送り先の既定は VERCEL_URL（デプロイごとの *.vercel.app）。そこは保護がかかっていて届かないので、
+// 本番では公開ドメインの受け口へ送る。
+if (process.env.VERCEL_ENV === "production") {
+  process.env.VERCEL_WEB_ANALYTICS_ENDPOINT ??= "https://suminawa.dev/_vercel/insights/event";
+}
+
 /** from として受け付ける道。suminawa.dev の紙の道（sitemap と同じ一覧）に限る */
 const KNOWN_FROM = new Set(sitemapPaths());
 
