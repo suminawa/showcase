@@ -188,6 +188,20 @@ export const SERVICES_NOTE = {
   after: " へ",
 };
 
+/**
+ * suminawa のほかの置き場（各サービスのプロフィールからも、ここ suminawa.dev へ戻れるようにしてある。2026-10-02）。
+ * 載せるのは suminawa 名義の公開の場だけ。受発注の場（ココナラ・Lancers など）は各ページの「設定・設置のご依頼」から飛ぶ
+ */
+export const ELSEWHERE: { name: string; href: string }[] = [
+  { name: "note", href: "https://note.com/suminawa" },
+  { name: "BOOTH", href: "https://suminawa.booth.pm" },
+  { name: "YouTube", href: "https://www.youtube.com/@suminawa" },
+  { name: "X", href: "https://x.com/suminawa_dev" },
+  { name: "Instagram", href: "https://www.instagram.com/suminawa_dev/" },
+  { name: "Zenn", href: "https://zenn.dev/suminawa" },
+  { name: "LINE", href: "https://lin.ee/X789LxT" },
+];
+
 /** 見本はレジストリ（demos.ts）から写す。一覧では作品と同じ行として扱う */
 const siteProjects: Project[] = demos.map((demo) => ({
   slug: demo.slug,

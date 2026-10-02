@@ -13,6 +13,7 @@ import { Sheet, SheetSection } from "@/components/ryoushi";
 import { localContact } from "@/i18n/catalog";
 import { pageMetadata } from "@/i18n/meta";
 import { hrefFor, type Lang } from "@/i18n/routes";
+import { ELSEWHERE } from "@/lib/projects";
 import { UI } from "@/i18n/ui";
 
 import s from "../ryoushi.module.css";
@@ -23,6 +24,9 @@ const HEADS: Record<Lang, { services: string; steps: string }> = {
   en: { services: "Services", steps: "How it works" },
   fr: { services: "Prestations", steps: "Déroulement" },
 };
+
+/** ほかの置き場の行の頭（サービス名は訳さない） */
+const ELSEWHERE_HEAD: Record<Lang, string> = { ja: "ほかの場所: ", en: "Elsewhere: ", fr: "Ailleurs : " };
 
 export function contactMetadata(lang: Lang) {
   const { page } = localContact(lang);
@@ -69,6 +73,18 @@ export function ContactPage({ lang }: { lang: Lang }) {
             {note.mail}
           </a>
           {note.after}
+        </p>
+        {/* ほかの置き場。宛先と同じ小さな字で一行だけ ── 品書きより前に出さない */}
+        <p className={s.menuNote} style={{ marginTop: 0 }}>
+          {ELSEWHERE_HEAD[lang]}
+          {ELSEWHERE.map((e, i) => (
+            <span key={e.name}>
+              {i > 0 ? " ・ " : ""}
+              <a className={s.mailLink} href={e.href} rel="me noopener">
+                {e.name}
+              </a>
+            </span>
+          ))}
         </p>
         {/* 入口へ帰る一行。頭の戻りと同じ行き先だが、下まで読んだ人が
             巻き戻さずに済むように置く。落款は頭に一つだけで、ここには捺さない */}
