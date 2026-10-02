@@ -20,6 +20,7 @@ const guide = guideBySlug("survey-free-text");
 const NOTE_ARTICLE = "https://note.com/suminawa/n/ne4f938f8fcd4";
 const COCONALA = "https://coconala.com/services/4429481";
 const LANCERS = "https://www.lancers.jp/menu/detail/1346436";
+const ZENN_ARTICLE = "https://zenn.dev/suminawa/articles/cf361521854cb8";
 const SHOT = "/guides/survey-free-text-rows.png";
 
 export const metadata: Metadata = {
@@ -74,7 +75,11 @@ export default function SurveyFreeTextGuide() {
             <a href={NOTE_ARTICLE} className={s.textLink}>
               「{guide.title}」
             </a>
-            に書きました。記事の手順は、無料で最後まで行えます。
+            に書きました。記事の手順は、無料で最後まで行えます。Google Apps Script から AI で分類する実装は、Zenn の記事{" "}
+            <a href={ZENN_ARTICLE} className={s.textLink}>
+              「Google フォームの自由記述を Claude API で分類する GAS」
+            </a>
+            に書きました。
           </p>
         </section>
 
