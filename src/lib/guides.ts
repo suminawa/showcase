@@ -71,6 +71,13 @@ export const guides: Guide[] = [
     kit: "survey-analysis",
     date: "2026-10-02",
   },
+  {
+    slug: "lp-structure",
+    title: "LPの構成を自分で決める｜載せる内容と順番を1枚の表に書き出す",
+    lede: "広告や新しいサービスのために 1 枚のページを用意したいのに、何をどの順で載せるかが決まらないとき、最初の画面から問い合わせまでを 7 つの段で 1 枚の表に書き出す手順と、書いた内容をページにする組み方です。",
+    kit: "lp-pack",
+    date: "2026-10-03",
+  },
 ];
 
 export const guideHref = (guide: Guide) => `/guides/${guide.slug}`;
