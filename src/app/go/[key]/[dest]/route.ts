@@ -7,9 +7,10 @@
  *   実行ログには key・dest・from を 1 行の JSON で残す。
  *   from は既知の紙の道と照らし、知らない値は "unknown"。こちらのコードは IP・Cookie・UA を読まず、保存もしない
  * - イベントの送信に失敗しても転送は止めない
+ * - 英仏の紙から BOOTH へは、BOOTH の英語の画面へ渡す（localizeBooth）
  */
 import { track } from "@vercel/analytics/server";
-import { resolveGo } from "@/lib/go";
+import { localizeBooth, resolveGo } from "@/lib/go";
 import { sitemapPaths } from "@/lib/sitemap";
 
 export const dynamic = "force-dynamic";
@@ -54,7 +55,7 @@ export async function GET(
     status: 302,
     headers: {
       ...COMMON,
-      Location: url,
+      Location: dest === "booth" ? localizeBooth(url, from) : url,
       // 売り場には suminawa.dev という出どころ（origin）だけを渡し、道や from は渡さない
       "Referrer-Policy": "strict-origin-when-cross-origin",
     },

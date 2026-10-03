@@ -47,6 +47,20 @@ describe("/go/[key]/[dest]", () => {
     expect(booth.headers.get("location")).toBe(links.booking.booth);
   });
 
+  it("英仏の紙から BOOTH へは BOOTH の英語の画面へ、日本語の紙と note はそのまま", async () => {
+    const id = links["ai-concierge"].booth.split("/").pop();
+    const en = await call("ai-concierge", "booth", "?from=%2Fen%2Fprojects%2Fai-concierge");
+    expect(en.headers.get("location")).toBe(`https://booth.pm/en/items/${id}`);
+    const fr = await call("ai-concierge", "booth", "?from=%2Ffr%2Fkits");
+    expect(fr.headers.get("location")).toBe(`https://booth.pm/en/items/${id}`);
+    const ja = await call("ai-concierge", "booth", "?from=%2Fprojects%2Fai-concierge");
+    expect(ja.headers.get("location")).toBe(links["ai-concierge"].booth);
+    const unknown = await call("ai-concierge", "booth", "?from=%2Fen-evil");
+    expect(unknown.headers.get("location")).toBe(links["ai-concierge"].booth);
+    const note = await call("ai-concierge", "note", "?from=%2Fen%2Fprojects%2Fai-concierge");
+    expect(note.headers.get("location")).toBe(links["ai-concierge"].note);
+  });
+
   it("問い合わせの文字列に URL を入れても、渡し先は links.json のまま", async () => {
     const res = await call("booking", "note", "?from=/kits&url=https://evil.example/&to=https://evil.example/");
     expect(res.headers.get("location")).toBe(links.booking.note);

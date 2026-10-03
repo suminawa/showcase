@@ -40,3 +40,13 @@ export function resolveGo(key: string, dest: string): string | null {
   if (typeof url !== "string" || !url.startsWith("https://")) return null;
   return url;
 }
+
+/**
+ * 英仏の紙（/en・/fr）から BOOTH へ出るときは、BOOTH の英語の画面へ渡す（BOOTH に仏語の画面は無い）。
+ * ショップの道（https://suminawa.booth.pm/items/<番号>）だけを https://booth.pm/en/items/<番号> に替え、ほかは触らない。
+ */
+export function localizeBooth(url: string, from: string): string {
+  if (!/^\/(en|fr)(\/|$)/.test(from)) return url;
+  const m = /^https:\/\/suminawa\.booth\.pm\/items\/(\d+)$/.exec(url);
+  return m ? `https://booth.pm/en/items/${m[1]}` : url;
+}
