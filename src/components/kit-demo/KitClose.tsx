@@ -89,12 +89,15 @@ export type KitService = { before: string; name: string; href: string; after: st
 export function KitClose({
   slug,
   made,
+  setup,
   service,
   free,
   lang = "ja",
 }: {
   slug: KitDemoSlug;
   made: string;
+  /** 設定ごと頼める出品への案内（あるキットだけ）。値段の段落のすぐ下、修理の案内より前に置く */
+  setup?: KitService;
   service?: KitService;
   /** 無料版への案内（あるキットだけ）。行き先は /go/ の道 */
   free?: KitService;
@@ -121,6 +124,15 @@ export function KitClose({
         {demo.priceNote} <BuyLinks slug={slug} lang={lang} />
       </p>
       {lang !== "ja" && <p className={s.body}>{PURCHASE_NOTE[lang]}</p>}
+      {setup && (
+        <p className={s.body}>
+          {setup.before}
+          <a href={setup.href} className={s.link} target="_blank" rel="noopener" lang="ja">
+            {setup.name}
+          </a>
+          {setup.after}
+        </p>
+      )}
       {service && (
         <p className={s.body}>
           {service.before}
