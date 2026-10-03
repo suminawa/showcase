@@ -5,7 +5,7 @@
  * 読み終わるまでは枠だけ置いて、高さが動かないようにする。
  */
 import dynamic from "next/dynamic";
-import { useRef } from "react";
+import { useEffect, useRef } from "react";
 
 import { useCanvasKick } from "@/components/demos/useCanvasKick";
 
@@ -82,6 +82,19 @@ export function Tool() {
   // 開いただけで 3D が出るように。背面のタブでは枠を測る知らせが来ず、スクロールまで止まっていた
   const ref = useRef<HTMLDivElement>(null);
   useCanvasKick(ref);
+  // 同梱パッケージの <canvas> には名前が無いので、読み上げ向けにここで付ける（1.0.1 で中に入れたら外す）
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const name = (c: Element) => {
+      c.setAttribute("role", "img");
+      c.setAttribute("aria-label", "ステンレスタンブラーの 3D 表示。下のボタンで色と容量を変えられます");
+    };
+    el.querySelectorAll("canvas").forEach(name);
+    const mo = new MutationObserver(() => el.querySelectorAll("canvas:not([role])").forEach(name));
+    mo.observe(el, { childList: true, subtree: true });
+    return () => mo.disconnect();
+  }, []);
   return (
     <div ref={ref} className={s.tool}>
       <ProductConfigurator config={CONFIG} />

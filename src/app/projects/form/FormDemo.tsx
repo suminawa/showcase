@@ -175,11 +175,11 @@ export function FormDemo() {
         <form className={s.col} onSubmit={submit} noValidate>
           <label className={s.field} htmlFor={`${id}-name`}>
             お名前
-            <input id={`${id}-name`} className={s.input} value={name} onChange={(e) => setName(e.target.value)} autoComplete="off" placeholder="例: 見本 花子" />
+            <input id={`${id}-name`} className={s.input} value={name} onChange={(e) => setName(e.target.value)} autoComplete="name" placeholder="例: 見本 花子" />
           </label>
           <label className={s.field} htmlFor={`${id}-email`}>
             メール
-            <input id={`${id}-email`} className={s.input} type="email" value={email} onChange={(e) => setEmail(e.target.value)} autoComplete="off" placeholder="例: hanako@example.com" />
+            <input id={`${id}-email`} className={s.input} type="email" value={email} onChange={(e) => setEmail(e.target.value)} autoComplete="email" placeholder="例: hanako@example.com" />
           </label>
           <label className={s.field} htmlFor={`${id}-message`}>
             内容

@@ -210,6 +210,10 @@
   text-decoration-thickness: 1px;
   text-underline-offset: 0.35em;
   transition: color 200ms var(--rp-brush);
+  /* 指の当たりだけ広げる（見た目の行間は変えない） */
+  display: inline-block;
+  padding-block: 0.7em;
+  margin-block: -0.7em;
 }
 .textLink:hover,
 .textLink:focus-visible {

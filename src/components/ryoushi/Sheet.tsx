@@ -57,7 +57,7 @@ export function Sheet({
         </Link>
         <h1 className={s.pageTitle}>
           {title}
-          <span className={s.latin}>{latin}</span>
+          <span className={s.latin} aria-hidden="true">{latin}</span>
         </h1>
         <p className={s.lede}>{lede}</p>
       </header>

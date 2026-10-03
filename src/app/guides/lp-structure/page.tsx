@@ -66,7 +66,7 @@ export default function LpStructureGuide() {
             見本の LP は業種ごとに 5 本あります。BtoB・SaaS の見本は、最初の画面・課題・機能・料金・導入の流れ・よくある質問・問い合わせフォームの順に並んでいます。建設・工事の見本は料金の目安が平日と夜間・休日で切り替わり、店舗・サロンの見本は営業時間から「いまは開いています」を出します。どれも写真を使わずに作ってあります。社名や料金は、すべて架空のものです。
           </p>
           <figure className={g.figure}>
-            <Link href="/sites">
+            <Link href="/sites" tabIndex={-1} aria-hidden="true">
               <Image src={SHOT} alt="業種別の LP と会社案内サイトの見本の一覧" width={1200} height={630} />
             </Link>
             <figcaption className={g.caption}>

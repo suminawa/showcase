@@ -90,6 +90,10 @@
   text-decoration-thickness: 1px;
   text-underline-offset: 0.35em;
   transition: color 200ms var(--rp-brush);
+  /* 指の当たりだけ広げる（見た目の行間は変えない） */
+  display: inline-block;
+  padding-block: 0.7em;
+  margin-block: -0.7em;
 }
 
 .link:hover,
@@ -224,7 +228,7 @@
   min-width: 0;
   min-height: 44px;
   border: 0;
-  border-bottom: 1px solid color-mix(in srgb, var(--rp-sumi) 35%, transparent);
+  border-bottom: 1px solid color-mix(in srgb, var(--rp-sumi) 50%, transparent); /* 紙との比 3:1 以上（非テキストの境界） */
   border-radius: 0;
   background: transparent;
   padding: 0.2em 0;
