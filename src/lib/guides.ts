@@ -78,6 +78,13 @@ export const guides: Guide[] = [
     kit: "lp-pack",
     date: "2026-10-03",
   },
+  {
+    slug: "pdf-table-to-excel",
+    title: "PDF の表を Excel やスプレッドシートに移すと、列が崩れる",
+    lede: "PDF の注文明細や一覧をコピーして貼ると 1 列に詰まるとき、表を表のまま取り出す手順と、取り込んだあとに見出し・割れた行・文字の数字を直して合計で確かめる組み方です。",
+    kit: "doc-reader",
+    date: "2026-10-04",
+  },
 ];
 
 export const guideHref = (guide: Guide) => `/guides/${guide.slug}`;
