@@ -357,6 +357,16 @@ export const projects: Project[] = [
     href: goHref("survey-analysis", "note"),
   },
   {
+    slug: "rag-eval-harness",
+    title: "RAG 評価ハーネス",
+    description: "AI 窓口の更新で答えが悪くなっていないか、同じ質問表で確かめる。",
+    tags: ["Node.js", "Claude", "CSV"],
+    category: "kits",
+    // 2026-10-04 発売。1 つの値段（記念価格なし）。作品ページ無し（手元の端末で動く）
+    sale: { status: "onsale", price: 5980 },
+    href: goHref("rag-eval-harness", "note"),
+  },
+  {
     slug: "mcp-server",
     title: "MCP サーバー キット",
     description: "業務アプリ・予約・書類のシートを、Claude や ChatGPT との会話から探して登録する。",

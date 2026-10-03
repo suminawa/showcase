@@ -165,6 +165,10 @@ export const CATALOG: Record<ForeignLang, Catalog> = {
         title: "Customer Survey Kit",
         description: "Builds a Google Form from an industry preset, then has AI sort the answers into three things to act on this week.",
       },
+      "rag-eval-harness": {
+        title: "RAG Eval Harness",
+        description: "After you update an AI help desk, run the same question sheet and see which answers got worse, listed first.",
+      },
       "mcp-server": {
         title: "MCP Server Kit",
         description: "Search and add records in your business app, booking, and document sheets from a chat with Claude or ChatGPT.",
@@ -343,6 +347,10 @@ export const CATALOG: Record<ForeignLang, Catalog> = {
       "survey-analysis": {
         title: "Kit d’enquête client",
         description: "Crée un formulaire Google à partir d’un modèle par secteur, puis l’IA classe les réponses et en tire trois actions pour la semaine.",
+      },
+      "rag-eval-harness": {
+        title: "Harnais d’évaluation RAG",
+        description: "Après une mise à jour de votre assistant IA, rejouez le même jeu de questions et voyez d’abord les réponses qui se sont dégradées.",
       },
       "mcp-server": {
         title: "Kit de serveur MCP",

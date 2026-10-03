@@ -32,11 +32,11 @@ describe("入口 3 行", () => {
   });
 
   it("件数はレジストリから数える（手で書かない）", () => {
-    expect(categoryCount("kits")).toEqual({ total: 17, onsale: 16 });
+    expect(categoryCount("kits")).toEqual({ total: 18, onsale: 17 });
     expect(categoryCount("sites")).toEqual({ total: 6, onsale: 0 });
     expect(categoryCount("works")).toEqual({ total: 4, onsale: 0 });
 
-    expect(countLabel("kits")).toBe("17 件　発売中 16 件");
+    expect(countLabel("kits")).toBe("18 件　発売中 17 件");
     expect(countLabel("sites")).toBe("6 件");
     expect(countLabel("works")).toBe("4 件");
   });
@@ -131,7 +131,7 @@ describe("projects registry", () => {
     }
   });
 
-  it("kits は発売中 15 本（発売の順）のあとに無料の見本 1 本", () => {
+  it("kits は発売中 17 本（発売の順）のあとに無料の見本 1 本", () => {
     const kits = projectsByCategory("kits");
     expect(kits.map((p) => p.slug)).toEqual([
       "quote-simulator",
@@ -150,10 +150,11 @@ describe("projects registry", () => {
       "saas-starter",
       "shopify-configurator",
       "survey-analysis",
+      "rag-eval-harness",
       "mcp-server",
     ]);
     expect(kits.map((p) => p.sale?.status)).toEqual([
-      ...Array(16).fill("onsale"),
+      ...Array(17).fill("onsale"),
       "free",
     ]);
   });
@@ -186,6 +187,8 @@ describe("projects registry", () => {
       "shopify-configurator": 16800,
       // 2026-10-01 に発売。1 つの値段
       "survey-analysis": 7980,
+      // 2026-10-04 に発売。1 つの値段
+      "rag-eval-harness": 5980,
       // 発売前。定価は設計で決めてあるので持つ（一覧には出さない）
     });
   });
