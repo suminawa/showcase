@@ -188,7 +188,20 @@ export const guides: Guide[] = [
     demo: { href: "/projects/quote-simulator", label: "見積もりシミュレーターの見本" },
     shop: "quote-simulator",
   },
+  {
+    slug: "site-ai-faq",
+    title: "ホームページに、自社の資料だけで答える AI の窓口を置く",
+    lede: "よくあるご質問のページがあっても同じ質問が届くとき、会社の資料だけを根拠に AI が答え、分からないことは担当者へ渡す窓口を、サイトに置く手順と費用の目安です。",
+    kit: "ai-concierge",
+    date: "2026-10-04",
+    searchTitle: "自社の資料だけで答えるAIチャットをサイトに置く方法",
+    answer:
+      "自社の資料だけで答える AI の窓口は、答えに使ってよい文書を決め、質問に近い文書を探してそれだけを渡して答えさせ、根拠の題名を添え、資料に無いことは「載っていません」と言って担当者へ渡す形にすると、推測で答えない窓口になります。文書が数十本なら索引は JSON 1 つで足り、データベースは要りません。",
+    demo: { href: "/projects/ai-concierge", label: "AI 案内窓口の見本" },
+    shop: "ai-concierge",
+  },
 ];
+
 
 export const guideHref = (guide: Guide) => `/guides/${guide.slug}`;
 
