@@ -152,6 +152,18 @@ export const guides: Guide[] = [
     demo: { href: "/projects/doc-reader", label: "AI 書類読み取りの見本" },
     shop: "doc-reader",
   },
+  {
+    slug: "form-auto-reply",
+    title: "問い合わせフォームに自動返信をつける（GAS）",
+    lede: "問い合わせを送った方へ受付のメールを自動で返す方法を、Google フォームの場合とホームページの自前のフォームの場合に分けて、Google Apps Script（GAS）で組む手順にまとめました。",
+    kit: "form",
+    date: "2026-10-04",
+    searchTitle: "問い合わせフォームの自動返信をGASで｜Googleフォーム対応",
+    answer:
+      "問い合わせフォームの自動返信は、Google フォームなら回答先のスプレッドシートに Google Apps Script（GAS）を書き、「フォーム送信時」のトリガーで MailApp からメールを送ると付けられます。ホームページの自前のフォームなら、送信先を GAS のウェブアプリにして、受け取った同じ処理の中で返信を送ります。",
+    demo: { href: "/projects/form", label: "フォーム受付の見本" },
+    shop: "form",
+  },
 ];
 
 export const guideHref = (guide: Guide) => `/guides/${guide.slug}`;

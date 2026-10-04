@@ -41,6 +41,20 @@
   color: var(--rp-sumi-3);
 }
 
+/* 短いコードの実例。横に長い行は枠の中だけで送る */
+.code {
+  margin: 0;
+  max-width: 40em;
+  padding: calc(0.5 * var(--rp-pitch)) 1em;
+  overflow-x: auto;
+  font-family: ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+  font-size: var(--rp-tiny);
+  line-height: 1.8;
+  letter-spacing: 0;
+  color: var(--rp-sumi-2);
+  border: 1px solid color-mix(in srgb, var(--rp-sumi) 12%, transparent);
+}
+
 .figure {
   margin: 0;
   max-width: 40em;
