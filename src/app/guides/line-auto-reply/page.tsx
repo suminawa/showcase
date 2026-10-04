@@ -14,7 +14,9 @@ import { guideBySlug } from "@/lib/guides";
 import { fontVars } from "../../projects/fonts";
 import s from "../../projects/projects.module.css";
 import g from "../guides.module.css";
+import { GuideJsonLd, guideMetadata } from "../parts";
 
+const IMAGE = "/og/ai-concierge.png";
 const guide = guideBySlug("line-auto-reply");
 
 const NOTE_ARTICLE = "https://note.com/suminawa/n/n22cdeff34999";
@@ -22,16 +24,12 @@ const ZENN_ARTICLE = "https://zenn.dev/suminawa/articles/5d034a5f40dec6";
 const COCONALA = "https://coconala.com/services/4416823";
 const LANCERS = "https://www.lancers.jp/menu/detail/1345031";
 
-export const metadata: Metadata = {
-  title: guide.title,
-  description: guide.lede,
-  openGraph: { title: guide.title, description: guide.lede, images: ["/og/ai-concierge.png"] },
-  twitter: { card: "summary_large_image", images: ["/og/ai-concierge.png"] },
-};
+export const metadata: Metadata = guideMetadata(guide, IMAGE);
 
 export default function LineAutoReplyGuide() {
   return (
     <main className={`${s.paper} ${fontVars}`}>
+      <GuideJsonLd guide={guide} image={IMAGE} />
       <div className={s.stroke} aria-hidden="true">
         <span className={`${s.ink} ${s.inkKasure}`} />
         <span className={`${s.ink} ${s.inkCore}`} />

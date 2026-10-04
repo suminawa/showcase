@@ -9,13 +9,15 @@ import { Sheet, SheetClose, SheetSection } from "@/components/ryoushi";
 import { guideHref, guides } from "@/lib/guides";
 
 import g from "./guides.module.css";
+import { GUIDES_TITLE } from "./parts";
 
-const TITLE = "悩みから読む";
+const TITLE = GUIDES_TITLE;
 const LEDE = "受注サイトで繰り返し出ている悩みを 1 つずつ取り上げ、手で解く手順と見本をまとめています。";
 
 export const metadata: Metadata = {
   title: TITLE,
   description: LEDE,
+  alternates: { canonical: "/guides" },
   openGraph: { title: TITLE, description: LEDE, url: "/guides" },
 };
 

@@ -13,7 +13,9 @@ import { guideBySlug } from "@/lib/guides";
 import { fontVars } from "../../projects/fonts";
 import s from "../../projects/projects.module.css";
 import g from "../guides.module.css";
+import { GuideJsonLd, guideMetadata } from "../parts";
 
+const IMAGE = "/og/sheet-app.png";
 const guide = guideBySlug("customer-sheet");
 
 const NOTE_ARTICLE = "https://note.com/suminawa/n/n523660b792fe";
@@ -21,16 +23,12 @@ const ZENN_ARTICLE = "https://zenn.dev/suminawa/articles/e97396f937857f";
 const COCONALA = "https://coconala.com/services/4414516";
 const LANCERS = "https://www.lancers.jp/menu/detail/1344800";
 
-export const metadata: Metadata = {
-  title: guide.title,
-  description: guide.lede,
-  openGraph: { title: guide.title, description: guide.lede, images: ["/og/sheet-app.png"] },
-  twitter: { card: "summary_large_image", images: ["/og/sheet-app.png"] },
-};
+export const metadata: Metadata = guideMetadata(guide, IMAGE);
 
 export default function CustomerSheetGuide() {
   return (
     <main className={`${s.paper} ${fontVars}`}>
+      <GuideJsonLd guide={guide} image={IMAGE} />
       <div className={s.stroke} aria-hidden="true">
         <span className={`${s.ink} ${s.inkKasure}`} />
         <span className={`${s.ink} ${s.inkCore}`} />

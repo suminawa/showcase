@@ -14,6 +14,7 @@ import { guideBySlug } from "@/lib/guides";
 import { fontVars } from "../../projects/fonts";
 import s from "../../projects/projects.module.css";
 import g from "../guides.module.css";
+import { GuideJsonLd, guideMetadata } from "../parts";
 
 const guide = guideBySlug("survey-free-text");
 
@@ -23,16 +24,12 @@ const LANCERS = "https://www.lancers.jp/menu/detail/1346436";
 const ZENN_ARTICLE = "https://zenn.dev/suminawa/articles/cf361521854cb8";
 const SHOT = "/guides/survey-free-text-rows.png";
 
-export const metadata: Metadata = {
-  title: guide.title,
-  description: guide.lede,
-  openGraph: { title: guide.title, description: guide.lede, images: [SHOT] },
-  twitter: { card: "summary_large_image", images: [SHOT] },
-};
+export const metadata: Metadata = guideMetadata(guide, SHOT);
 
 export default function SurveyFreeTextGuide() {
   return (
     <main className={`${s.paper} ${fontVars}`}>
+      <GuideJsonLd guide={guide} image={SHOT} />
       <div className={s.stroke} aria-hidden="true">
         <span className={`${s.ink} ${s.inkKasure}`} />
         <span className={`${s.ink} ${s.inkCore}`} />

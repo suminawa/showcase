@@ -12,6 +12,8 @@ export interface Guide {
   kit: string;
   /** 公開日（YYYY-MM-DD） */
   date: string;
+  /** 本文を直した日（YYYY-MM-DD）。無ければ公開日のまま */
+  updated?: string;
 }
 
 export const guides: Guide[] = [

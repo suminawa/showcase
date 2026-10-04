@@ -13,7 +13,9 @@ import { guideBySlug } from "@/lib/guides";
 import { fontVars } from "../../projects/fonts";
 import s from "../../projects/projects.module.css";
 import g from "../guides.module.css";
+import { GuideJsonLd, guideMetadata } from "../parts";
 
+const IMAGE = "/og/doc-reader.png";
 const guide = guideBySlug("pdf-table-to-excel");
 
 const NOTE_ARTICLE = "https://note.com/suminawa/n/neeaf12edf05f";
@@ -21,16 +23,12 @@ const INVOICE_GUIDE = "/guides/pdf-to-spreadsheet";
 const COCONALA = "https://coconala.com/services/4414579";
 const LANCERS = "https://www.lancers.jp/menu/detail/1344798";
 
-export const metadata: Metadata = {
-  title: guide.title,
-  description: guide.lede,
-  openGraph: { title: guide.title, description: guide.lede, images: ["/og/doc-reader.png"] },
-  twitter: { card: "summary_large_image", images: ["/og/doc-reader.png"] },
-};
+export const metadata: Metadata = guideMetadata(guide, IMAGE);
 
 export default function PdfTableToExcelGuide() {
   return (
     <main className={`${s.paper} ${fontVars}`}>
+      <GuideJsonLd guide={guide} image={IMAGE} />
       <div className={s.stroke} aria-hidden="true">
         <span className={`${s.ink} ${s.inkKasure}`} />
         <span className={`${s.ink} ${s.inkCore}`} />
