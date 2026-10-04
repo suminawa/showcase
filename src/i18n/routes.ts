@@ -33,11 +33,16 @@ export const TRANSLATED_PROJECTS = [
   "floorplan",
   "form",
   "inbox-triage",
+  "line-concierge",
+  "lp-pack",
   "mcp-server",
   "quote-simulator",
+  "rag-eval-harness",
   "saas-starter",
   "sheet-app",
+  "shopify-configurator",
   "suminagashi",
+  "survey-analysis",
   "tax-back",
 ] as const;
 

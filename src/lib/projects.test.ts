@@ -222,30 +222,21 @@ describe("projects registry", () => {
     expect(projectHref(mcp)).toBe("/projects/mcp-server");
   });
 
-  it("作品ページを持たないものは、/go/ を通して同じ名義の note の記事へ飛ぶ", () => {
+  it("売り物はすべて作品ページへ飛ぶ（/go/ や紙の中の節へ直に飛ぶ行は無い）", () => {
     const by = Object.fromEntries(projects.map((p) => [p.slug, p]));
-    expect(projectHref(by["line-concierge"])).toBe("/go/line-concierge/note");
-    // GAS キット 3 本は 2026-09-29 から見本のページを持つ
+    // 2026-10-04: 見本を紙に置けない 5 本も作品ページを持つ。売り場への道は作品ページの結び
+    expect(projectHref(by["line-concierge"])).toBe("/projects/line-concierge");
+    expect(projectHref(by["survey-analysis"])).toBe("/projects/survey-analysis");
+    expect(projectHref(by["rag-eval-harness"])).toBe("/projects/rag-eval-harness");
+    expect(projectHref(by["lp-pack"])).toBe("/projects/lp-pack");
+    expect(projectHref(by["shopify-configurator"])).toBe("/projects/shopify-configurator");
     expect(projectHref(by["deadline"])).toBe("/projects/deadline");
     expect(projectHref(by["form"])).toBe("/projects/form");
     expect(projectHref(by["inbox-triage"])).toBe("/projects/inbox-triage");
-    // 紙の中の段へ跳ねる行はもう無い（段ではなくページへ渡す）
-    for (const project of projects) {
-      expect(projectHref(project).startsWith("#")).toBe(false);
+    for (const project of projectsByCategory("kits")) {
+      expect(projectHref(project), project.slug).toBe(`/projects/${project.slug}`);
     }
-  });
-
-  it("Shopify 版は、3D 商品コンフィギュレーターの紙の「Shopify 版」の節へ渡す", () => {
-    const by = Object.fromEntries(projects.map((p) => [p.slug, p]));
-    expect(projectHref(by["shopify-configurator"])).toBe(
-      "/projects/configurator#shopify",
-    );
     expect(saleLabel(by["shopify-configurator"].sale!)).toBe("発売中 ¥16,800");
-  });
-
-  it("LP テンプレ パックは、中身の 6 本が並ぶ紙へ渡す", () => {
-    const by = Object.fromEntries(projects.map((p) => [p.slug, p]));
-    expect(projectHref(by["lp-pack"])).toBe("/sites");
   });
 
   it("projectHref は /projects/<slug>、見本は /demos/<slug> を返す", () => {

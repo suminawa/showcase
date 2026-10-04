@@ -11,8 +11,10 @@
  */
 import "@suminawa/product-configurator/styles.css";
 
+import Link from "next/link";
+
 import { projectPriceNow } from "@/i18n/catalog";
-import type { Lang } from "@/i18n/routes";
+import { hrefFor, type Lang } from "@/i18n/routes";
 import { money } from "@/i18n/ui";
 
 import { AFTER_TOOL, DemoNote, ProjectShell, PurchaseNote, ShopLinks, projectMetadata } from "../shell";
@@ -23,7 +25,7 @@ import { ShopifyFrame } from "./ShopifyFrame";
 import { Tool } from "./Tool";
 
 /** Shopify 版の見本。売り物に同梱の page/mock-product.html を、並びごと public/demos/shopify-configurator/ に写してある */
-const SHOPIFY_DEMO_SRC = "/demos/shopify-configurator/page/mock-product.html";
+export const SHOPIFY_DEMO_SRC = "/demos/shopify-configurator/page/mock-product.html";
 
 export const metadataFor = (lang: Lang) => projectMetadata(lang, "configurator", copy[lang].meta);
 
@@ -57,6 +59,10 @@ export function Content({ lang }: { lang: Lang }) {
           <a href={SHOPIFY_DEMO_SRC} className={s.textLink} target="_blank" rel="noopener">
             {t.shopifyOpen}
           </a>
+          {" / "}
+          <Link href={hrefFor(lang, "/projects/shopify-configurator")} className={s.textLink}>
+            {t.shopifyPage}
+          </Link>
         </p>
       </section>
     </ProjectShell>

@@ -1,6 +1,9 @@
 import { describe, expect, it } from "vitest";
 
 import { articleJsonLd, breadcrumbJsonLd, productJsonLd, serializeJsonLd, siteJsonLd } from "./jsonld";
+import { projectJsonLd } from "./jsonld-project";
+import { priceNow } from "./prices";
+import { projects } from "./projects";
 import { SITE_NAME } from "./site";
 
 const roundTrip = (data: Parameters<typeof serializeJsonLd>[0]) => JSON.parse(serializeJsonLd(data));
@@ -81,5 +84,25 @@ describe("jsonld", () => {
     expect(Date.parse(a.dateModified)).toBeGreaterThan(Date.parse(a.datePublished));
     expect(a.author).toMatchObject({ "@type": "Organization", name: SITE_NAME });
     expect(a.inLanguage).toBe("ja");
+  });
+
+  it("見本を紙に置けない 5 本の作品ページも、パンくず（トップ → キット → この紙）と Product・Offer（いまの値段）を持つ", () => {
+    for (const slug of ["line-concierge", "survey-analysis", "rag-eval-harness", "lp-pack", "shopify-configurator"]) {
+      const list = projects.find((p) => p.slug === slug)!.sale!.price!;
+      for (const lang of ["ja", "en", "fr"] as const) {
+        const prefix = lang === "ja" ? "" : `/${lang}`;
+        const [crumbs, product] = roundTrip(projectJsonLd(lang, slug, "t")!);
+        expect(crumbs["@type"], slug).toBe("BreadcrumbList");
+        expect(crumbs.itemListElement.map((i: { item: string }) => new URL(i.item).pathname)).toEqual([
+          prefix || "/",
+          `${prefix}/kits`,
+          `${prefix}/projects/${slug}`,
+        ]);
+        expect(product["@type"], slug).toBe("Product");
+        expect(product.offers.price, slug).toBe(priceNow(slug, list).price);
+        expect(new URL(product.offers.url).pathname).toBe(`${prefix}/projects/${slug}`);
+        expect(product.image).toBeUndefined();
+      }
+    }
   });
 });

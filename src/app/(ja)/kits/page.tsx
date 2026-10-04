@@ -5,7 +5,7 @@
  * src/lib/prices.ts）、発売前は「発売前」とだけ小の字で添える（チップにも朱にもしない ──
  * 朱は「決めた」ことの印であって、売っていることの印ではない）。
  * 行の飛び先は作品ページで、購入の導線は作品ページの結びにある。
- * 作品ページを持たない LINE 案内窓口だけ、同じ名義の note の記事へ直に飛ばす。
+ * 2026-10-04 から、すべての行が作品ページを持つ（売り場への道は作品ページの結び）。
  * FORM: 料紙（分類のページ）— 文法は DESIGN.md
  */
 import { CategorySheet, categoryMetadata } from "@/components/ryoushi/CategorySheet";

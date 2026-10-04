@@ -16,6 +16,7 @@ const ja = {
   shopifyDemo: "下は架空の店「みなと工房」の商品ページの見本です。カートは本物ではなく、「カートに入れる」を押すと、カートに届く内容をページの下に表示します。ページの上の「English」を押すと、英語の表示に切り替わります。",
   shopifyStatus: (price: string) => `Shopify 版は ${price} の買い切りです`,
   shopifyOpen: "見本を別の画面で開く",
+  shopifyPage: "Shopify 版の中身と請求の仕組み",
 };
 
 export const copy: Record<"ja" | "en" | "fr", typeof ja> = {
@@ -35,6 +36,7 @@ export const copy: Record<"ja" | "en" | "fr", typeof ja> = {
     shopifyDemo: "Below is a sample product page for a fictional workshop. The cart isn’t real: the add-to-cart button shows, at the bottom of the page, what would reach the cart. Press “English” at the top of the page to switch it to English.",
     shopifyStatus: (price: string) => `The Shopify edition is ${price}, one-time purchase`,
     shopifyOpen: "Open the sample in a new window",
+    shopifyPage: "What’s in the Shopify edition and how billing works",
   },
   fr: {
     meta: {
@@ -51,5 +53,6 @@ export const copy: Record<"ja" | "en" | "fr", typeof ja> = {
     shopifyDemo: "Ci-dessous, une page produit d’exemple pour un atelier fictif. Le panier n’est pas réel : le bouton d’ajout au panier affiche en bas de page ce qui arriverait dans le panier. Le bouton « English » en haut de la page passe l’affichage en anglais.",
     shopifyStatus: (price: string) => `La version Shopify est à ${price}, en achat unique`,
     shopifyOpen: "Ouvrir l’exemple dans une nouvelle fenêtre",
+    shopifyPage: "Contenu de la version Shopify et facturation",
   },
 };

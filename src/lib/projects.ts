@@ -1,5 +1,3 @@
-import { goHref } from "./go";
-
 import { demoHref, demos } from "./demos";
 import { priceNow, shortDate, yen } from "./prices";
 
@@ -215,7 +213,7 @@ const siteProjects: Project[] = demos.map((demo) => ({
 export const projects: Project[] = [
   /* ---- kits ── 売っているもの ------------------------------------------
      発売中を先に、発売前を後に。飛び先は作品ページ（購入の導線は作品ページの
-     結びにある）。作品ページを持たない LINE 案内窓口だけ、同じ名義の note の記事へ飛ばす。 */
+     結びにある）。2026-10-04 から、すべての売り物が作品ページを持つ。 */
   {
     slug: "quote-simulator",
     title: "見積もり電卓テンプレ",
@@ -256,9 +254,8 @@ export const projects: Project[] = [
     description: "見本 6 本をひとまとめにしたもの。文言と色を替えて使う。",
     tags: ["Next.js", "TypeScript"],
     category: "kits",
+    // 中身は見本サイトそのもの。作品ページから 6 本と /sites へ渡す
     sale: { status: "onsale", price: 6980 },
-    // 中身は見本サイトそのものなので、まず 6 本を見てもらう
-    href: "/sites",
   },
   {
     slug: "ai-concierge",
@@ -307,9 +304,8 @@ export const projects: Project[] = [
     description: "LINE 公式アカウントに、自社の文書だけを根拠に敬体で答える窓口を置く。",
     tags: ["Next.js", "TypeScript", "Claude"],
     category: "kits",
+    // LINE の中で動くので動く見本は置けない。作品ページは中身と置き方を節で並べる（2026-10-04）
     sale: { status: "onsale", price: 12800 },
-    // 作品ページを持たない（LINE の中で動くので見本を置けない）。note の販売記事へ直に
-    href: goHref("line-concierge", "note"),
   },
   {
     slug: "dashboard",
@@ -342,9 +338,8 @@ export const projects: Project[] = [
     tags: ["Three.js", "Shopify"],
     category: "kits",
     // 2026-09-30 発売。1 つの値段（記念価格なし）
+    // 作品ページの見本は、3D 商品コンフィギュレーターの紙の「Shopify 版」の節と同じもの
     sale: { status: "onsale", price: 16800 },
-    // 作品ページは持たない。見本は 3D 商品コンフィギュレーターの紙の「Shopify 版」の節にある
-    href: "/projects/configurator#shopify",
   },
   {
     slug: "survey-analysis",
@@ -352,9 +347,8 @@ export const projects: Project[] = [
     description: "見本から Google フォームを作り、集まった声を AI が「今週の 3 つ」にまとめる。",
     tags: ["GAS", "Google Forms", "Claude"],
     category: "kits",
-    // 2026-10-01 発売。1 つの値段（記念価格なし）。作品ページ無し（スプレッドシートの中で動く）
+    // 2026-10-01 発売。1 つの値段（記念価格なし）。スプレッドシートの中で動くので、作品ページに動く見本は置かない
     sale: { status: "onsale", price: 7980 },
-    href: goHref("survey-analysis", "note"),
   },
   {
     slug: "rag-eval-harness",
@@ -362,9 +356,8 @@ export const projects: Project[] = [
     description: "AI 窓口の更新で答えが悪くなっていないか、同じ質問表で確かめる。",
     tags: ["Node.js", "Claude", "CSV"],
     category: "kits",
-    // 2026-10-04 発売。1 つの値段（記念価格なし）。作品ページ無し（手元の端末で動く）
+    // 2026-10-04 発売。1 つの値段（記念価格なし）。手元の端末で動くので、作品ページは記録の再生の写しを置く
     sale: { status: "onsale", price: 5980 },
-    href: goHref("rag-eval-harness", "note"),
   },
   {
     slug: "mcp-server",

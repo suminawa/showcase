@@ -7,25 +7,18 @@ import Link from "next/link";
 
 import { JsonLd } from "@/components/JsonLd";
 import { LangSwitch } from "@/components/lang/LangSwitch";
-import { localIndexPage, localProject } from "@/i18n/catalog";
 import { pageMetadata } from "@/i18n/meta";
 import { hrefFor, localePath, type Lang } from "@/i18n/routes";
 import { PURCHASE_NOTE, UI } from "@/i18n/ui";
 import links from "@/data/links.json";
 import { goHref, type LinkKey } from "@/lib/go";
 import { guideHref, guides } from "@/lib/guides";
-import { breadcrumbJsonLd, productJsonLd } from "@/lib/jsonld";
-import { priceNow } from "@/lib/prices";
-import { projects } from "@/lib/projects";
-import { SITE_NAME } from "@/lib/site";
+import { NO_OG, projectJsonLd } from "@/lib/jsonld-project";
 
 import { fontVars } from "./fonts";
 import s from "./projects.module.css";
 
 export type PageMeta = { title: string; description: string };
-
-/** OGP の画（/og/<slug>.png）を持たない作品ページ */
-const NO_OG = new Set(["deadline", "form", "inbox-triage", "mcp-server"]);
 
 /** 作品ページの metadata。OGP の画は /og/<slug>.png（持たないページは image なし） */
 export function projectMetadata(lang: Lang, slug: string, meta: PageMeta, image = !NO_OG.has(slug)) {
@@ -82,9 +75,9 @@ export function ProjectShell({
   );
 }
 
-/** 日本語の紙にだけ出す、この見本を結びに置いている案内記事への一行（guides の kit がこの slug） */
+/** 日本語の紙にだけ出す、この見本・この売り物を結びに置いている案内記事への一行（guides の kit か shop がこの slug） */
 function RelatedGuides({ slug }: { slug: string }) {
-  const related = guides.filter((g) => g.kit === slug);
+  const related = guides.filter((g) => g.kit === slug || g.shop === slug);
   if (related.length === 0) return null;
   return (
     // 頭の格子の間隔（半行）に半行を足し、一行の字を罫の上へ戻す
@@ -102,35 +95,9 @@ function RelatedGuides({ slug }: { slug: string }) {
   );
 }
 
-/**
- * 作品ページの構造化データ。パンくず（トップ → 分類 → この紙）と、売り物なら Product と Offer。
- * 値段はいま払う税込の円（発売記念の期間中は記念の値。無料の見本は 0）。
- */
 function ProjectJsonLd({ lang, slug, title }: { lang: Lang; slug: string; title: string }) {
-  const source = projects.find((p) => p.slug === slug);
-  if (!source) return null;
-  const project = localProject(lang, source);
-  const path = localePath(lang, `/projects/${slug}`);
-  const data = [
-    breadcrumbJsonLd([
-      { name: SITE_NAME, path: localePath(lang, "/") },
-      { name: localIndexPage(lang, project.category).title, path: localePath(lang, `/${project.category}`) },
-      { name: title, path },
-    ]),
-  ];
-  const sale = project.sale;
-  if (sale && (sale.status === "free" || (sale.status === "onsale" && sale.price != null))) {
-    data.push(
-      productJsonLd({
-        name: project.title,
-        description: project.description,
-        path,
-        price: sale.status === "free" ? 0 : priceNow(slug, sale.price!).price,
-        image: NO_OG.has(slug) ? undefined : `/og/${slug}.png`,
-      }),
-    );
-  }
-  return <JsonLd data={data} />;
+  const data = projectJsonLd(lang, slug, title);
+  return data ? <JsonLd data={data} /> : null;
 }
 
 /** 文の末尾に付ける売り場への道（「 ── note / BOOTH」）。links.json に URL の無い売り場は出さない */

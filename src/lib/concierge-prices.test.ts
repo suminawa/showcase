@@ -75,6 +75,12 @@ describe("案内窓口の知識の値段は、サイトの値段の表と同じ"
     });
   }
 
+  it("作品ページの値段を出す売り物のうち、文書を持つものはここで照らす（Shopify 用 3D は窓口の文書がまだ無い）", () => {
+    const covered = new Set(Object.values(DOC_SLUG));
+    for (const slug of ["line-concierge", "survey-analysis", "rag-eval-harness", "lp-pack"]) expect(covered.has(slug), slug).toBe(true);
+    expect(covered.has("shopify-configurator")).toBe(false);
+  });
+
   it("INTRO_PRICES に行があるキットは、文書にも記念の値を書いている", () => {
     for (const [doc, slug] of Object.entries(DOC_SLUG)) {
       if (!INTRO_PRICES[slug]) continue;
