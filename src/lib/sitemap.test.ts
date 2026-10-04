@@ -18,6 +18,8 @@ describe("sitemap", () => {
     expect(paths).toContain("/guides");
     expect(paths).toContain("/guides/pdf-to-spreadsheet");
     expect(paths).toContain("/guides/form-auto-reply");
+    expect(paths).toContain("/guides/spreadsheet-app");
+    expect(paths).toContain("/guides/quote-calculator");
     expect(paths.some((p) => p.startsWith("/dl/"))).toBe(false);
     expect(paths.every((p) => p.startsWith("/"))).toBe(true);
     expect(paths.some((p) => p.includes("#"))).toBe(false);

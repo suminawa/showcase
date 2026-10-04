@@ -164,6 +164,30 @@ export const guides: Guide[] = [
     demo: { href: "/projects/form", label: "フォーム受付の見本" },
     shop: "form",
   },
+  {
+    slug: "spreadsheet-app",
+    title: "スプレッドシートを、スマートフォンで使えるアプリにする（GAS）",
+    lede: "表をスマートフォンで見づらい、誰かがセルを壊してしまうとき、台帳はスプレッドシートのまま、Google Apps Script（GAS）の Web アプリで一覧と入力の画面を足す手順と、画面を設定だけで組む方法です。",
+    kit: "sheet-app",
+    date: "2026-10-04",
+    searchTitle: "スプレッドシートをアプリ化する｜GASでスマホの入力画面",
+    answer:
+      "スプレッドシートは、Google Apps Script（GAS）で Web アプリとして公開すると、台帳はそのままに、一覧・検索・登録の画面をスマートフォンで使えるアプリにできます。誰が見るだけで誰が直せるかは、スプレッドシートの共有設定をそのまま使えます。",
+    demo: { href: "/projects/sheet-app", label: "スプレッドシート業務アプリの見本" },
+    shop: "sheet-app",
+  },
+  {
+    slug: "quote-calculator",
+    title: "ホームページに見積もりシミュレーターを置く",
+    lede: "見積もりのやり取りが何度も往復するとき、料金の決まりを書き出してページに自動計算の電卓を置く手順と、消費税の端数・源泉徴収・見積書の PDF までを入れた電卓を置く方法です。",
+    kit: "quote-simulator",
+    date: "2026-10-04",
+    searchTitle: "見積もりシミュレーターの作り方｜サイトに料金の自動計算",
+    answer:
+      "見積もりシミュレーターは、単価・数量・オプションの率・消費税といった料金の決まりを先に書き出し、入力のたびに内訳と合計を計算し直す電卓としてページに置くと作れます。消費税の端数をどう丸めるかと、オプションの率をどの金額に掛けるかを先に決めておくと、あとで出す見積書と金額がずれません。",
+    demo: { href: "/projects/quote-simulator", label: "見積もりシミュレーターの見本" },
+    shop: "quote-simulator",
+  },
 ];
 
 export const guideHref = (guide: Guide) => `/guides/${guide.slug}`;
