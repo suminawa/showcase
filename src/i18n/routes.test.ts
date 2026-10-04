@@ -33,7 +33,7 @@ describe("訳のある紙のファイル", () => {
   it("日本語のページと [lang] のページが両方ある", () => {
     for (const p of TRANSLATED_PATHS) {
       const rel = p === "/" ? "" : p;
-      expect(existsSync(path.join(APP, rel, "page.tsx")), `ja: ${p}`).toBe(true);
+      expect(existsSync(path.join(APP, "(ja)", rel, "page.tsx")), `ja: ${p}`).toBe(true);
       expect(existsSync(path.join(APP, "[lang]", rel, "page.tsx")), `[lang]: ${p}`).toBe(true);
     }
   });

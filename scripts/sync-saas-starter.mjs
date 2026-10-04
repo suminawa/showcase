@@ -3,7 +3,7 @@
  *
  *   node scripts/sync-saas-starter.mjs <キットのパッケージのパス>
  *
- * 写し先は src/app/projects/saas-starter/kit/ で、キットの中の並び（src/・messages/・
+ * 写し先は src/app/(ja)/projects/saas-starter/kit/ で、キットの中の並び（src/・messages/・
  * plans.config.ts・legal.config.ts）をそのまま保つ。並びを保つのは、ファイルの中の
  * 相対 import を 1 行も書き換えずに済ませるため ── キットが育っても、この写しは
  * 走らせ直すだけで追いつく。
@@ -27,7 +27,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
-const DEST = path.join(ROOT, "src", "app", "projects", "saas-starter", "kit");
+const DEST = path.join(ROOT, "src", "app", "(ja)", "projects", "saas-starter", "kit");
 
 /** 写したファイルの頭に足す 1 行（.ts と .tsx にだけ足す。JSON には足せない） */
 const NOTICE = [
@@ -66,7 +66,7 @@ const KEEP = new Set(["src/core/crypto-shim.ts", "COPY-NOTICE.md"]);
 
 /*
  * app/ の下で、Next.js が「道すじ」として読んでしまう名前。
- * 写し先は app/projects/saas-starter/kit/ なので、この名前のファイルを 1 枚でも置くと、
+ * 写し先は app/(ja)/projects/saas-starter/kit/ なので、この名前のファイルを 1 枚でも置くと、
  * そこが公開の URL になってしまう（route.ts なら API の受け口として組み立てに入る）。
  * キットにその名前が増えたら、黙って通さずにここで止める。
  */

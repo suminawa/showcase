@@ -108,7 +108,7 @@ describe("AI 問い合わせ整理の見本", () => {
 });
 
 describe("写しはキットの src/ と同じ", () => {
-  const kitSrc = path.resolve(__dirname, "../../../../../../suminawa-products/packages/inbox-triage-gas/src");
+  const kitSrc = path.resolve(__dirname, "../../../../../../../suminawa-products/packages/inbox-triage-gas/src");
   let present = true;
   try {
     readFileSync(path.join(kitSrc, "dates.js"));

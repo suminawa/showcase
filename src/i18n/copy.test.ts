@@ -40,7 +40,7 @@ const JAPANESE = /[぀-ヿ一-鿿]/;
 
 describe("訳のある紙の copy.ts", () => {
   it("訳のある紙（トップと作品ページ）はすべて copy.ts を持つ", () => {
-    const dirs = Object.keys(COPIES).map((f) => f.replace(/^\.\.\/app/, "").replace(/\/copy\.ts$/, "") || "/");
+    const dirs = Object.keys(COPIES).map((f) => f.replace(/^\.\.\/app(\/\(ja\))?/, "").replace(/\/copy\.ts$/, "") || "/");
     for (const p of TRANSLATED_PATHS) {
       // 分類のページと /contact は目録（src/i18n/catalog.ts）から組む
       if (["/works", "/kits", "/sites", "/contact"].includes(p)) continue;
@@ -83,9 +83,9 @@ describe("GAS キットの結び", () => {
 
 describe("作品ページの本文の発売記念の値段（prices.ts の最終日で消える）", async () => {
   const { projectPriceNow } = await import("./catalog");
-  const { copy: saas } = await import("@/app/projects/saas-starter/copy");
-  const { copy: configurator } = await import("@/app/projects/configurator/copy");
-  const { copy: sheet } = await import("@/app/projects/sheet-app/copy");
+  const { copy: saas } = await import("@/app/(ja)/projects/saas-starter/copy");
+  const { copy: configurator } = await import("@/app/(ja)/projects/configurator/copy");
+  const { copy: sheet } = await import("@/app/(ja)/projects/sheet-app/copy");
   const at = (iso: string) => new Date(iso);
   // 仏語の額は money() の細い空き（U+202F・U+00A0）で組む。字の照合では普通の空きに寄せる
   const plain = (text: string) => text.replace(/[\u202f\u00a0]/g, " ");

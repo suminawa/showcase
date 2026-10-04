@@ -8,7 +8,7 @@
  * 2 行足すだけにする ── 見本の通知・行・返信は、キットの実物の関数が作る。
  * キットが育っても、この台本を走らせ直すだけで追いつく。
  *
- * 写し先は src/app/projects/<見本の slug>/kit/。写しが元とずれていないかは
+ * 写し先は src/app/(ja)/projects/<見本の slug>/kit/。写しが元とずれていないかは
  * src/lib/gas-kits.test.ts が確かめる（元のパッケージが手元にあるときだけ）。
  */
 import { existsSync, mkdirSync, readFileSync, readdirSync, rmSync, writeFileSync } from "node:fs";
@@ -39,7 +39,7 @@ for (const kit of KITS) {
     console.error(`見つかりません: ${from}`);
     process.exit(1);
   }
-  const dest = path.join(ROOT, "src", "app", "projects", kit.slug, "kit");
+  const dest = path.join(ROOT, "src", "app", "(ja)", "projects", kit.slug, "kit");
   rmSync(dest, { recursive: true, force: true });
   mkdirSync(dest, { recursive: true });
   const files = readdirSync(from).filter((file) => file.endsWith(".js") && !file.startsWith("gas_"));

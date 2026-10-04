@@ -1,4 +1,4 @@
-import { Content, metadataFor } from "@/app/projects/suminagashi/content";
+import { Content, metadataFor } from "@/app/(ja)/projects/suminagashi/content";
 import { foreignLang, type LangParams } from "@/i18n/params";
 
 export async function generateMetadata({ params }: LangParams) {

@@ -1,4 +1,4 @@
-import { Content, metadataFor } from "@/app/projects/quote-simulator/content";
+import { Content, metadataFor } from "@/app/(ja)/projects/quote-simulator/content";
 import { foreignLang, type LangParams } from "@/i18n/params";
 
 export async function generateMetadata({ params }: LangParams) {

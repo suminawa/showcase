@@ -139,7 +139,7 @@ describe("期限アラートの見本", () => {
 });
 
 describe("写しはキットの src/ と同じ", () => {
-  const kitSrc = path.resolve(__dirname, "../../../../../../suminawa-products/packages/deadline-alert-gas/src");
+  const kitSrc = path.resolve(__dirname, "../../../../../../../suminawa-products/packages/deadline-alert-gas/src");
   it.skipIf(!safeExists(kitSrc))("中身が 1 字も違わない（キットが手元にあるときだけ確かめる）", () => {
     for (const file of ["buckets.js", "check.js", "config.js", "dates.js", "dedupe.js", "items.js", "message.js", "setup.js"]) {
       const copy = readFileSync(path.join(__dirname, "kit", file), "utf8").split("\n").slice(2).join("\n");

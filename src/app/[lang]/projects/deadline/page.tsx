@@ -1,4 +1,4 @@
-import { Content, metadataFor } from "@/app/projects/deadline/content";
+import { Content, metadataFor } from "@/app/(ja)/projects/deadline/content";
 import { foreignLang, type LangParams } from "@/i18n/params";
 
 /** 値段の一行は発売記念の最終日の翌 00:00（日本時間）に定価へ変わる。要求のたびに組む */

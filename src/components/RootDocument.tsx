@@ -1,3 +1,8 @@
+/*
+ * 根の文書（<html>・<body>）。根のレイアウトは言語ごとに 2 つあり（日本語 = app/(ja)、
+ * 英仏 = app/[lang]）、どちらもここを通して同じ字・同じ構造化データ・同じ計測を持つ。
+ * <html lang> をサーバーの出力の時点で言語ごとに正しくするための分け方。
+ */
 import type { Metadata } from "next";
 import { Analytics } from "@vercel/analytics/next";
 import { Noto_Sans_JP } from "next/font/google";
@@ -6,7 +11,7 @@ import { JsonLd } from "@/components/JsonLd";
 import { siteJsonLd } from "@/lib/jsonld";
 import { SITE_DESCRIPTION, SITE_NAME, siteUrl } from "@/lib/site";
 
-import "./globals.css";
+import "@/app/globals.css";
 
 const notoSansJp = Noto_Sans_JP({
   subsets: ["latin"],
@@ -19,7 +24,7 @@ const notoSansJp = Noto_Sans_JP({
  * 実際のトップ画面を 2 倍で焼いて縮めたもので、意匠の写しではなく現物である。
  * ＊ トップの意匠を変えたら焼き直すこと。自動では追随しない。
  */
-export const metadata: Metadata = {
+export const rootMetadata: Metadata = {
   metadataBase: new URL(siteUrl),
   title: { default: SITE_NAME, template: `%s | ${SITE_NAME}` },
   description: SITE_DESCRIPTION,
@@ -38,13 +43,11 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RootLayout({
-  children,
-}: Readonly<{ children: React.ReactNode }>) {
+export function RootDocument({ lang, children }: { lang: string; children: React.ReactNode }) {
   return (
     /* 現れる演出の印（data-hi）は、本文より先に走る一行の script が付ける。
        サーバーが書いた html にはまだ無いので、その一点だけ照合を見送る */
-    <html lang="ja" suppressHydrationWarning>
+    <html lang={lang} suppressHydrationWarning>
       <body className={`${notoSansJp.variable} font-sans antialiased`}>
         <JsonLd data={siteJsonLd()} />
         {children}

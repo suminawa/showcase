@@ -14,7 +14,7 @@ import { UI } from "@/i18n/ui";
 import { isGoHref, withFrom } from "@/lib/go";
 import { projectFigure, projectHref, type Project } from "@/lib/projects";
 
-import s from "@/app/ryoushi.module.css";
+import s from "@/app/(ja)/ryoushi.module.css";
 
 /**
  * 値札の字。発売記念の札（「発売記念 ¥9,800（10/2 まで・定価 ¥12,800）」）は

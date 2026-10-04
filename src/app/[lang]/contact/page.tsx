@@ -1,4 +1,4 @@
-import { ContactPage, contactMetadata } from "@/app/contact/content";
+import { ContactPage, contactMetadata } from "@/app/(ja)/contact/content";
 import { foreignLang, type LangParams } from "@/i18n/params";
 
 export async function generateMetadata({ params }: LangParams) {

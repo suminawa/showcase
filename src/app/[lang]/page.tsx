@@ -1,5 +1,5 @@
-import { Home } from "@/app/content";
-import { copy } from "@/app/copy";
+import { Home } from "@/app/(ja)/content";
+import { copy } from "@/app/(ja)/copy";
 import { pageMetadata } from "@/i18n/meta";
 import { SITE_NAME } from "@/lib/site";
 import { foreignLang, type LangParams } from "@/i18n/params";

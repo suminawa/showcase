@@ -1,4 +1,4 @@
-import { Content, metadataFor } from "@/app/projects/doc-reader/content";
+import { Content, metadataFor } from "@/app/(ja)/projects/doc-reader/content";
 import { foreignLang, type LangParams } from "@/i18n/params";
 
 export async function generateMetadata({ params }: LangParams) {

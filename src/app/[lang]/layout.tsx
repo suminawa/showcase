@@ -1,16 +1,17 @@
 /*
- * 英仏の紙（/en・/fr）。根のレイアウトは <html lang="ja"> のままなので、描画の前に
- * 一行の script で en・fr に替える（根を言語ごとに分けると全ページの移動になるため）。
- * 検索エンジンへの言語の合図は、各ページの hreflang が担う。
+ * 英仏の紙（/en・/fr）の根。<html lang> はサーバーの出力の時点で en・fr になる。
+ * 日本語の紙の根（app/(ja)/layout.tsx）とは別の根なので、言語をまたぐ移動はページの読み直しになる。
  */
 import { notFound } from "next/navigation";
 
-import { HtmlLang } from "@/components/lang/HtmlLang";
+import { RootDocument, rootMetadata } from "@/components/RootDocument";
 
 import type { LangParams } from "@/i18n/params";
 import { FOREIGN_LANGS, isForeignLang } from "@/i18n/routes";
 
 export const dynamicParams = false;
+
+export const metadata = rootMetadata;
 
 export function generateStaticParams() {
   return FOREIGN_LANGS.map((lang) => ({ lang }));
@@ -19,11 +20,5 @@ export function generateStaticParams() {
 export default async function LangLayout({ children, params }: LangParams & { children: React.ReactNode }) {
   const { lang } = await params;
   if (!isForeignLang(lang)) notFound();
-  return (
-    <>
-      <script dangerouslySetInnerHTML={{ __html: `document.documentElement.lang=${JSON.stringify(lang)}` }} />
-      <HtmlLang lang={lang} />
-      {children}
-    </>
-  );
+  return <RootDocument lang={lang}>{children}</RootDocument>;
 }

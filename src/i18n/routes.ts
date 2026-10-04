@@ -21,7 +21,7 @@ export function isForeignLang(value: unknown): value is ForeignLang {
   return value === "en" || value === "fr";
 }
 
-/** 訳のある作品ページ（src/app/projects/<slug> と src/app/[lang]/projects/<slug> の両方にある） */
+/** 訳のある作品ページ（src/app/(ja)/projects/<slug> と src/app/[lang]/projects/<slug> の両方にある） */
 export const TRANSLATED_PROJECTS = [
   "30days",
   "ai-concierge",

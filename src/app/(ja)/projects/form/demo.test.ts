@@ -167,7 +167,7 @@ describe("フォーム受付の見本（receive は doPost と同じ順）", () 
 });
 
 describe("写しはキットの src/ と同じ", () => {
-  const kitSrc = path.resolve(__dirname, "../../../../../../suminawa-products/packages/form-intake-gas/src");
+  const kitSrc = path.resolve(__dirname, "../../../../../../../suminawa-products/packages/form-intake-gas/src");
   let present = true;
   try {
     readFileSync(path.join(kitSrc, "dates.js"));

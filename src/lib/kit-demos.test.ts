@@ -59,7 +59,7 @@ describe("GAS キット 3 本の見本の結び", () => {
     expect(source).not.toMatch(/4980|5980|2980|3480/);
     expect(source).not.toContain("price-restore");
     for (const page of ["deadline", "form", "inbox-triage"]) {
-      const tsx = await readFile(new URL(`../app/projects/${page}/page.tsx`, import.meta.url), "utf8");
+      const tsx = await readFile(new URL(`../app/(ja)/projects/${page}/page.tsx`, import.meta.url), "utf8");
       expect(tsx).toContain('export const dynamic = "force-dynamic"');
     }
   });

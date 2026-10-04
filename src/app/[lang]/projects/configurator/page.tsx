@@ -1,4 +1,4 @@
-import { Content, metadataFor } from "@/app/projects/configurator/content";
+import { Content, metadataFor } from "@/app/(ja)/projects/configurator/content";
 import { foreignLang, type LangParams } from "@/i18n/params";
 
 // 本文の発売記念の値段は要求の時刻で決まる（src/lib/prices.ts）

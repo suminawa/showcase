@@ -10,7 +10,7 @@
  */
 import Link from "next/link";
 
-import s from "@/app/ryoushi.module.css";
+import s from "@/app/(ja)/ryoushi.module.css";
 import { LangSwitch } from "@/components/lang/LangSwitch";
 import { hrefFor, type Lang } from "@/i18n/routes";
 import { UI } from "@/i18n/ui";
