@@ -325,6 +325,7 @@
 .closeText,
 .closeLinks,
 .closeLine,
+.rowGuides,
 .menuNote,
 .step {
   background-image: var(--hi-kei-line);
@@ -1377,6 +1378,20 @@
      言えないまま、罫を隠し、行の高さを決めてしまっていた。
      字だけの一行に戻すと、湿りが帰り、段の文法が紙の他の場所と一致する。
    ========================================================================== */
+
+/* トップの段の中で、4 点の次に置く組（悩みから読む）。空の罫 3 本を挟んでから頭を置く */
+.shelfNext {
+  margin-top: calc(3 * var(--hi-kei-pitch));
+}
+
+/* /kits の行の下に添える、案内記事への道。行そのもの（.entry）とは別の飛び先 */
+.rowGuides {
+  margin: 0;
+  font-size: var(--hi-tiny);
+  line-height: 2.3;
+  letter-spacing: 0.05em;
+  color: var(--hi-sumi-3);
+}
 
 .picks {
   list-style: none;

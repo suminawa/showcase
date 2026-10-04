@@ -1,6 +1,7 @@
 /*
  * 分類のページ（/kits・/sites・/works）の紙。日本語のページと英仏のページ（[lang]）が同じものを描く。
  * 英仏の /kits だけ、末尾に悩みから読む紙（guides、日本語のみ）の行を添える。
+ * 日本語の /kits は、各行の下に結びつく案内記事への道を添える。
  */
 import { CATALOG, localGuides, localIndexPage } from "@/i18n/catalog";
 import { pageMetadata } from "@/i18n/meta";
@@ -40,7 +41,7 @@ export function CategorySheet({ lang, category }: { lang: Lang; category: Catego
   return (
     <Sheet title={sheet.title} latin={sheet.latin} lede={sheet.lede} lang={lang} path={path}>
       <SheetSection>
-        <Rows items={projectsByCategory(category)} from={from} showSale={category === "kits"} lang={lang} />
+        <Rows items={projectsByCategory(category)} from={from} showSale={category === "kits"} lang={lang} withGuides={category === "kits" && lang === "ja"} />
       </SheetSection>
       {category === "kits" && lang !== "ja" && (
         <SheetSection name={CATALOG[lang].guides.heading}>

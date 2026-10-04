@@ -42,6 +42,7 @@ import {
   localProject,
 } from "@/i18n/catalog";
 import { hrefFor, type Lang } from "@/i18n/routes";
+import { guideHref, guides } from "@/lib/guides";
 import { featuredProjects, projectHref } from "@/lib/projects";
 import { STRANDS, STRANDS_NARROW, type VeinSegment } from "@/lib/vein";
 
@@ -222,6 +223,44 @@ export function Home({ lang }: { lang: Lang }) {
             </li>
           ))}
         </ol>
+
+        {/*
+          日本語の紙にだけ: キットの一覧への道と、悩みから読む紙の全件。
+          行の文法は 4 点とまったく同じ（題だけの一行で、触れるとその一行が濡れる）。
+          英仏の紙は /kits の末尾に同じ行を持っている（components/ryoushi/CategorySheet.tsx）
+        */}
+        {lang === "ja" && (
+          <>
+            <p className={s.closeLinks}>
+              <Link href="/kits" className={s.contact}>
+                キットとテンプレートをすべて見る
+              </Link>
+            </p>
+            <div className={`${s.shelfHead} ${s.shelfNext}`}>
+              <h2 className={s.shelfName} id="guides-name">
+                悩みから読む
+              </h2>
+            </div>
+            <ol className={s.picks} aria-labelledby="guides-name">
+              {guides.map((guide) => (
+                <li key={guide.slug} className={s.row}>
+                  <span className={s.flow} aria-hidden="true" />
+                  <span className={s.flowDeep} aria-hidden="true" />
+                  <Link href={guideHref(guide)} className={s.entry}>
+                    <span className={s.text}>
+                      <span className={s.title}>{guide.title}</span>
+                    </span>
+                  </Link>
+                </li>
+              ))}
+            </ol>
+            <p className={s.closeLinks}>
+              <Link href="/guides" className={s.contact}>
+                悩みから読む の一覧へ
+              </Link>
+            </p>
+          </>
+        )}
       </section>
 
       <footer className={s.close}>

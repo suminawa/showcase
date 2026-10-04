@@ -13,6 +13,7 @@ import { hrefFor, localePath, type Lang } from "@/i18n/routes";
 import { PURCHASE_NOTE, UI } from "@/i18n/ui";
 import links from "@/data/links.json";
 import { goHref, type LinkKey } from "@/lib/go";
+import { guideHref, guides } from "@/lib/guides";
 import { breadcrumbJsonLd, productJsonLd } from "@/lib/jsonld";
 import { priceNow } from "@/lib/prices";
 import { projects } from "@/lib/projects";
@@ -73,10 +74,31 @@ export function ProjectShell({
         </h1>
         <p className={s.lede}>{lede}</p>
         {head}
+        {lang === "ja" && <RelatedGuides slug={slug} />}
       </header>
 
       <div className={s.work}>{children}</div>
     </main>
+  );
+}
+
+/** 日本語の紙にだけ出す、この見本を結びに置いている案内記事への一行（guides の kit がこの slug） */
+function RelatedGuides({ slug }: { slug: string }) {
+  const related = guides.filter((g) => g.kit === slug);
+  if (related.length === 0) return null;
+  return (
+    // 頭の格子の間隔（半行）に半行を足し、一行の字を罫の上へ戻す
+    <p className={s.lede} style={{ marginTop: "calc(0.5 * var(--rp-pitch))" }}>
+      関連する案内記事:{" "}
+      {related.map((g, i) => (
+        <span key={g.slug}>
+          {i > 0 && "／"}
+          <Link href={guideHref(g)} className={s.textLink}>
+            {g.title}
+          </Link>
+        </span>
+      ))}
+    </p>
   );
 }
 

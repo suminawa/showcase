@@ -7,11 +7,13 @@
  * 動くのは紙の湿りひとつだけ、という法を図版で破らない。
  */
 import Link from "next/link";
+import { Fragment } from "react";
 
 import { localPriceLabel, localProject } from "@/i18n/catalog";
 import { hrefFor, type Lang } from "@/i18n/routes";
 import { UI } from "@/i18n/ui";
 import { isGoHref, withFrom } from "@/lib/go";
+import { guideHref, guides } from "@/lib/guides";
 import { projectFigure, projectHref, type Project } from "@/lib/projects";
 
 import s from "@/app/(ja)/ryoushi.module.css";
@@ -68,12 +70,14 @@ function Row({
   from,
   lang,
   localized,
+  withGuides,
 }: {
   project: Project;
   showSale: boolean;
   from: string;
   lang: Lang;
   localized: boolean;
+  withGuides: boolean;
 }) {
   const project = localized ? source : localProject(lang, source);
   const href = hrefFor(lang, projectHref(project));
@@ -133,7 +137,27 @@ function Row({
           {inner}
         </a>
       )}
+      <RowGuides slug={source.slug} show={withGuides} />
     </li>
+  );
+}
+
+/** 行の下の一行。その売り物へ結びの道を向けている案内記事（guides の shop が行の slug） */
+function RowGuides({ slug, show }: { slug: string; show: boolean }) {
+  const related = show ? guides.filter((g) => g.shop === slug) : [];
+  if (related.length === 0) return null;
+  return (
+    <p className={s.rowGuides}>
+      案内記事:{" "}
+      {related.map((g, i) => (
+        <Fragment key={g.slug}>
+          {i > 0 && "／"}
+          <Link href={guideHref(g)} className={s.contact}>
+            {g.title}
+          </Link>
+        </Fragment>
+      ))}
+    </p>
   );
 }
 
@@ -148,6 +172,7 @@ export function Rows({
   showSale = false,
   lang = "ja",
   localized = false,
+  withGuides = false,
 }: {
   items: Project[];
   from: string;
@@ -155,11 +180,13 @@ export function Rows({
   lang?: Lang;
   /** items がすでにその言語の字で組んである（目録の外の行。英仏の guides の行） */
   localized?: boolean;
+  /** 行の下に案内記事への道を添える（日本語の /kits だけ） */
+  withGuides?: boolean;
 }) {
   return (
     <ol className={s.rows}>
       {items.map((project) => (
-        <Row key={project.slug} project={project} showSale={showSale} from={from} lang={lang} localized={localized} />
+        <Row key={project.slug} project={project} showSale={showSale} from={from} lang={lang} localized={localized} withGuides={withGuides} />
       ))}
     </ol>
   );
