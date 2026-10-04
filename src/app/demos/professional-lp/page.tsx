@@ -13,6 +13,7 @@ import { AdvisoryPlans } from "@/components/demos/professional/AdvisoryPlans";
 import { HeroRules } from "@/components/demos/professional/HeroRules";
 
 import s from "./professional.module.css";
+import { SITE_NAME } from "@/lib/site";
 
 /** 見出しの明朝。本文は layout.tsx が読んでいる Noto Sans JP（var(--font-sans)）のまま。
     CJK は片が多いので preload: false（先読みすると 3.7 MB になる） */
@@ -31,16 +32,17 @@ const DESCRIPTION =
   "架空の会計事務所「霜月会計事務所」の 1 ページ LP。料金の切替と相談フォームまで動く見本。";
 
 export const metadata: Metadata = {
-  // レイアウトの title.template（"%s | Showcase"）がタブに付け足されるのを防ぐ
+  // レイアウトの title.template（"%s | 墨縄 suminawa"）がタブに付け足されるのを防ぐ
   title: { absolute: TITLE },
   description: DESCRIPTION,
+  alternates: { canonical: "/demos/professional-lp" },
   openGraph: {
     title: TITLE,
     description: DESCRIPTION,
     url: "/demos/professional-lp",
     type: "website",
     images: ["/opengraph-image.png"],
-    siteName: "Showcase",
+    siteName: SITE_NAME,
     locale: "ja_JP",
   },
   twitter: {

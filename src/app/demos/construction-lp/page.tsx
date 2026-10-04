@@ -16,6 +16,7 @@ import { formatFrom, SERVICES } from "@/components/demos/construction/services";
 import { HeroField } from "@/components/demos/saas/HeroField";
 
 import s from "./construction.module.css";
+import { SITE_NAME } from "@/lib/site";
 
 const BRAND = "灯月設備";
 
@@ -32,16 +33,17 @@ const ACCENT_RGB = "240, 122, 18";
 const ACCENT_COUNT = 70;
 
 export const metadata: Metadata = {
-  // レイアウトの title.template（"%s | Showcase"）がタブに付け足されるのを防ぐ
+  // レイアウトの title.template（"%s | 墨縄 suminawa"）がタブに付け足されるのを防ぐ
   title: { absolute: TITLE },
   description: DESCRIPTION,
+  alternates: { canonical: "/demos/construction-lp" },
   openGraph: {
     title: TITLE,
     description: DESCRIPTION,
     url: "/demos/construction-lp",
     type: "website",
     images: ["/opengraph-image.png"],
-    siteName: "Showcase",
+    siteName: SITE_NAME,
     locale: "ja_JP",
   },
   twitter: {

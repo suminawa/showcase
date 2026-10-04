@@ -9,6 +9,7 @@ import { NAV_BASE } from "@/components/demos/corporate/nav";
 
 import c from "../corporate.module.css";
 import s from "../sub.module.css";
+import { SITE_NAME } from "@/lib/site";
 
 const TITLE = "見本 ｜ 会社案内サイト（お問い合わせ）";
 const DESCRIPTION =
@@ -17,13 +18,14 @@ const DESCRIPTION =
 export const metadata: Metadata = {
   title: { absolute: TITLE },
   description: DESCRIPTION,
+  alternates: { canonical: `${NAV_BASE}/contact` },
   openGraph: {
     title: TITLE,
     description: DESCRIPTION,
     url: `${NAV_BASE}/contact`,
     type: "website",
     images: ["/opengraph-image.png"],
-    siteName: "Showcase",
+    siteName: SITE_NAME,
     locale: "ja_JP",
   },
   twitter: {

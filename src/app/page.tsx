@@ -1,4 +1,5 @@
 import { pageMetadata } from "@/i18n/meta";
+import { SITE_NAME } from "@/lib/site";
 
 import { Home } from "./content";
 import { copy } from "./copy";
@@ -7,7 +8,7 @@ import { copy } from "./copy";
 export const dynamic = "force-dynamic";
 
 export const metadata = pageMetadata("ja", "/", {
-  title: "Showcase",
+  title: SITE_NAME,
   description: copy.ja.description,
   absoluteTitle: true,
 });

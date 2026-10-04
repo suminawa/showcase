@@ -11,6 +11,7 @@ import { HeroField } from "@/components/demos/saas/HeroField";
 import { PricingTable } from "@/components/demos/saas/PricingTable";
 
 import s from "./saas.module.css";
+import { SITE_NAME } from "@/lib/site";
 
 const BRAND = "Tabane Works";
 
@@ -19,16 +20,17 @@ const DESCRIPTION =
   "架空の勤怠・工数 SaaS「Tabane Works」の 1 ページ LP。料金切替と FAQ、フォームまで動く見本。";
 
 export const metadata: Metadata = {
-  // レイアウトの title.template（"%s | Showcase"）がタブに付け足されるのを防ぐ
+  // レイアウトの title.template（"%s | 墨縄 suminawa"）がタブに付け足されるのを防ぐ
   title: { absolute: TITLE },
   description: DESCRIPTION,
+  alternates: { canonical: "/demos/saas-lp" },
   openGraph: {
     title: TITLE,
     description: DESCRIPTION,
     url: "/demos/saas-lp",
     type: "website",
     images: ["/opengraph-image.png"],
-    siteName: "Showcase",
+    siteName: SITE_NAME,
     locale: "ja_JP",
   },
   twitter: {

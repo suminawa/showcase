@@ -1,6 +1,8 @@
+import { SITE_DESCRIPTION } from "@/lib/site";
+
 /** トップの紙の言葉（src/app/content.tsx）。品物の題・入口・品書きは src/i18n/catalog.ts */
 const ja = {
-  description: "Things I've built — 動くもので見せるポートフォリオ",
+  description: SITE_DESCRIPTION,
   tagline: "Things I've built.",
   categories: "分類",
   picks: "いま見てほしいもの",
@@ -13,7 +15,8 @@ const ja = {
 export const copy: Record<"ja" | "en" | "fr", typeof ja> = {
   ja,
   en: {
-    description: "Things I’ve built — a portfolio of work that runs live in the browser.",
+    description:
+      "suminawa builds small tools for business automation and the web: kits and live demos made with Google Apps Script (GAS) and AI, ready to try in your browser.",
     tagline: "Things I've built.",
     categories: "Categories",
     picks: "Start here",
@@ -23,7 +26,8 @@ export const copy: Record<"ja" | "en" | "fr", typeof ja> = {
     closeLine: "Everything here runs live, right on the page.",
   },
   fr: {
-    description: "Ce que j’ai réalisé — un portfolio de projets qui fonctionnent en direct dans le navigateur.",
+    description:
+      "suminawa conçoit de petits outils pour automatiser le travail et pour le web : des kits et des démos en Google Apps Script (GAS) et IA, à essayer directement dans le navigateur.",
     tagline: "Ce que j’ai réalisé.",
     categories: "Catégories",
     picks: "Pour commencer",

@@ -4,6 +4,8 @@
  */
 import type { Metadata } from "next";
 
+import { SITE_NAME } from "@/lib/site";
+
 import { LANGS, localePath, type Lang } from "./routes";
 
 const OG_LOCALE: Record<Lang, string> = { ja: "ja_JP", en: "en_US", fr: "fr_FR" };
@@ -39,7 +41,7 @@ export function pageMetadata(
     alternates: { canonical: url, languages: languageAlternates(path) },
     openGraph: {
       type: "website",
-      siteName: "Showcase",
+      siteName: SITE_NAME,
       title,
       description,
       url,

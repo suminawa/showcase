@@ -27,6 +27,7 @@ import type { Span } from "@/components/demos/openHours";
 
 import { ClinicOpenNow } from "./ClinicOpenNow";
 import s from "./clinic.module.css";
+import { SITE_NAME } from "@/lib/site";
 
 const BRAND = "月白歯科クリニック";
 
@@ -35,16 +36,17 @@ const DESCRIPTION =
   "架空の歯科医院「月白歯科クリニック」の 1 ページ LP。診療時間の表と Web 予約まで動く見本。";
 
 export const metadata: Metadata = {
-  // レイアウトの title.template（"%s | Showcase"）がタブに付け足されるのを防ぐ
+  // レイアウトの title.template（"%s | 墨縄 suminawa"）がタブに付け足されるのを防ぐ
   title: { absolute: TITLE },
   description: DESCRIPTION,
+  alternates: { canonical: "/demos/clinic-lp" },
   openGraph: {
     title: TITLE,
     description: DESCRIPTION,
     url: "/demos/clinic-lp",
     type: "website",
     images: ["/opengraph-image.png"],
-    siteName: "Showcase",
+    siteName: SITE_NAME,
     locale: "ja_JP",
   },
   twitter: {

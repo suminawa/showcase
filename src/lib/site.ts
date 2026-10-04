@@ -10,3 +10,10 @@ export const siteUrl =
   (process.env.VERCEL_PROJECT_PRODUCTION_URL
     ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
     : "http://localhost:3010");
+
+/** サイトの名乗り。title の接尾辞・og:site_name・構造化データが同じ字を読む */
+export const SITE_NAME = "墨縄 suminawa";
+
+/** トップと根の description（日本語） */
+export const SITE_DESCRIPTION =
+  "業務の自動化と Web の小さな道具をつくる墨縄（suminawa）のサイトです。Google Apps Script（GAS）や AI を使ったキットと見本を、ブラウザでそのまま試せる形で置いています。";

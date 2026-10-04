@@ -23,6 +23,7 @@ import {
 import { OpenNow } from "@/components/demos/OpenNow";
 
 import s from "./shop.module.css";
+import { SITE_NAME } from "@/lib/site";
 
 /** 見出しの明朝。本文は layout.tsx が読んでいる Noto Sans JP（var(--font-sans)）のまま */
 const mincho = Shippori_Mincho({
@@ -43,6 +44,7 @@ export const metadata: Metadata = {
   title: { absolute: "見本 ｜ 店舗・サロンの LP" },
   description:
     "架空の焼き菓子とコーヒーの店「粉とゆげ」の 1 ページ LP。品書きと席の予約まで動く見本。",
+  alternates: { canonical: "/demos/shop-lp" },
   openGraph: {
     title: "見本 ｜ 店舗・サロンの LP",
     description:
@@ -50,7 +52,7 @@ export const metadata: Metadata = {
     url: "/demos/shop-lp",
     type: "website",
     images: ["/opengraph-image.png"],
-    siteName: "Showcase",
+    siteName: SITE_NAME,
     locale: "ja_JP",
   },
   twitter: {

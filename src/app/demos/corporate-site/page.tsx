@@ -16,22 +16,24 @@ import { WaveField } from "@/components/demos/corporate/WaveField";
 
 import c from "./corporate.module.css";
 import s from "./top.module.css";
+import { SITE_NAME } from "@/lib/site";
 
 const TITLE = "見本 ｜ 会社案内サイト";
 const DESCRIPTION =
   "架空の海洋・環境調査の計測会社「潮見計測」の会社案内サイト。TOP と下層 3 枚の見本。";
 
 export const metadata: Metadata = {
-  // レイアウトの title.template（"%s | Showcase"）がタブに付け足されるのを防ぐ
+  // レイアウトの title.template（"%s | 墨縄 suminawa"）がタブに付け足されるのを防ぐ
   title: { absolute: TITLE },
   description: DESCRIPTION,
+  alternates: { canonical: NAV_BASE },
   openGraph: {
     title: TITLE,
     description: DESCRIPTION,
     url: NAV_BASE,
     type: "website",
     images: ["/opengraph-image.png"],
-    siteName: "Showcase",
+    siteName: SITE_NAME,
     locale: "ja_JP",
   },
   twitter: {
