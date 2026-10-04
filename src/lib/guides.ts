@@ -200,6 +200,18 @@ export const guides: Guide[] = [
     demo: { href: "/projects/ai-concierge", label: "AI 案内窓口の見本" },
     shop: "ai-concierge",
   },
+  {
+    slug: "line-official-setup",
+    title: "LINE 公式アカウントのあいさつ・自動応答・リッチメニューを、初期のまま止めない",
+    lede: "LINE 公式アカウントを作ったまま、初期のあいさつと「個別のお問い合わせを受け付けておりません」が残っているとき、Manager だけで応答設定・あいさつ・リッチメニュー・キーワード応答を組む手順です。",
+    kit: "ai-concierge",
+    date: "2026-10-05",
+    searchTitle: "LINE公式アカウントの初期設定｜自動応答とリッチメニュー",
+    answer:
+      "LINE 公式アカウントは、Manager の「応答設定」でチャットと応答メッセージを両方オンにし、あいさつメッセージを書き換え、リッチメニューのテキスト動作で送る言葉をキーワード応答に登録すると、初期のままの状態から抜けられます。キーワードは完全一致なので、1 つの返答に言い換えを並べます。",
+    demo: { href: "/projects/ai-concierge", label: "AI 案内窓口の見本" },
+    shop: "line-concierge",
+  },
 ];
 
 
