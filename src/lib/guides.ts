@@ -14,6 +14,13 @@ export interface Guide {
   date: string;
   /** 本文を直した日（YYYY-MM-DD）。無ければ公開日のまま */
   updated?: string;
+  /** metadata の title。検索で打たれる言葉で 32 字まで。無ければ title */
+  searchTitle?: string;
+  /** 題のすぐ下に置く答えの 1〜2 文。前後を読まなくても通じる形で書く */
+  answer: string;
+  /** 結びの道: 触れる見本（無ければ出さない）と、/kits の行（id = slug） */
+  demo?: { href: string; label: string };
+  shop: string;
 }
 
 export const guides: Guide[] = [
@@ -23,6 +30,12 @@ export const guides: Guide[] = [
     lede: "請求書の PDF から請求元・日付・金額を表に移す手間を、手持ちの道具で減らす手順と、仕組みにするときの組み方です。",
     kit: "doc-reader",
     date: "2026-09-25",
+    updated: "2026-10-04",
+    searchTitle: "請求書PDFをスプレッドシートへ自動で転記する手順",
+    answer:
+      "請求書の PDF から請求元・日付・金額を写す作業は、写す項目を先に決めて表の 1 行目に並べ、検算の列で合わない行だけに色を付けると減らせます。AI に読ませる場合も、変換と検算はプログラムで行い、人は黄色になった項目だけを確かめて確定します。",
+    demo: { href: "/projects/doc-reader", label: "AI 書類読み取りの見本" },
+    shop: "doc-reader",
   },
   {
     slug: "customer-sheet",
@@ -30,6 +43,12 @@ export const guides: Guide[] = [
     lede: "お客さまの一覧を表で持ったまま、入力の揺れ・重複・上書きを防ぐ手順と、画面を足すときの組み方です。",
     kit: "sheet-app",
     date: "2026-09-26",
+    updated: "2026-10-04",
+    searchTitle: "顧客管理スプレッドシートの作り方｜入力の揺れと重複を防ぐ",
+    answer:
+      "顧客管理のスプレッドシートは、左端に ID の列を作り、状態や担当者をプルダウンに、電話番号を書式なしテキストにすると崩れにくくなります。行は消さずに状態を「削除」にし、重複は COUNTIF で色を付けて見つけます。",
+    demo: { href: "/projects/sheet-app", label: "スプレッドシート業務アプリの見本" },
+    shop: "sheet-app",
   },
   {
     slug: "line-auto-reply",
@@ -37,6 +56,12 @@ export const guides: Guide[] = [
     lede: "LINE に同じ質問が何度も届くとき、標準の機能でできることと、資料を根拠に AI が答えて担当者へ引き継ぐ組み方です。",
     kit: "ai-concierge",
     date: "2026-09-27",
+    updated: "2026-10-04",
+    searchTitle: "LINE公式アカウントの自動応答を、自社の資料だけで答えさせる",
+    answer:
+      "LINE 公式アカウントに何度も届く同じ質問には、表記ゆれの言葉も並べたキーワード応答と、リッチメニューで答えられます。AI に答えさせるなら根拠の文書を添えさせ、資料に無いことは担当者へ引き継ぐ道を作ります。",
+    demo: { href: "/projects/ai-concierge", label: "AI 案内窓口の見本" },
+    shop: "line-concierge",
   },
   {
     slug: "booking-page",
@@ -44,6 +69,12 @@ export const guides: Guide[] = [
     lede: "電話と LINE に分かれた予約の受付を 1 つの台帳にまとめる手順と、空いている時間から選んでもらう予約ページの組み方です。",
     kit: "booking",
     date: "2026-09-28",
+    updated: "2026-10-04",
+    searchTitle: "スプレッドシートで予約ページを作る｜電話とLINEを1つの台帳に",
+    answer:
+      "スプレッドシートに曜日と時間の枠を書き、Google Apps Script（GAS）で公開すると、空いている時間から選んでもらう予約ページになります。手で始めるなら、電話でも LINE でも返事をする前に 1 つの台帳へ書くと、二重予約を防げます。",
+    demo: { href: "/projects/booking", label: "予約ページの見本" },
+    shop: "booking",
   },
   {
     slug: "monthly-sales-report",
@@ -51,6 +82,12 @@ export const guides: Guide[] = [
     lede: "月例の集計表とグラフを毎月作り直す手間を減らす手順と、集計の決まりを 1 か所に書いて 1 枚の画面にする組み方です。",
     kit: "dashboard",
     date: "2026-09-29",
+    updated: "2026-10-04",
+    searchTitle: "月次の売上集計とグラフをスプレッドシートで自動化する",
+    answer:
+      "毎月の売上の集計は、生データを 1 シートに 1 行 1 取引で置き、集計のシートで範囲を列ごと（A:A）に指定すると、月が変わっても式を直さずに済みます。先月比は同じ日数どうしで比べると、月の途中でも下がって見えません。",
+    demo: { href: "/projects/dashboard", label: "ダッシュボードの見本" },
+    shop: "dashboard",
   },
   {
     slug: "inbox-triage",
@@ -58,6 +95,12 @@ export const guides: Guide[] = [
     lede: "見積もり依頼・クレーム・営業が同じ受信箱に混ざるとき、Gmail の標準の機能で仕分ける手順と、分類と返信の下書きまでを仕組みにする組み方です。",
     kit: "inbox-triage",
     date: "2026-09-30",
+    updated: "2026-10-04",
+    searchTitle: "問い合わせメールをGmailとAIで振り分け、返信漏れを防ぐ",
+    answer:
+      "問い合わせのメールは、Gmail のフィルタで 6 つほどのラベルに振り分け、返したものにだけ「済」を付けてアーカイブすると、受信箱には返していないものだけが残ります。AI を使う場合も、分類と返信の下書きまでにして、送るのは人にします。",
+    demo: { href: "/projects/inbox-triage", label: "問い合わせ整理の見本" },
+    shop: "inbox-triage",
   },
   {
     slug: "deadline-alert",
@@ -65,6 +108,12 @@ export const guides: Guide[] = [
     lede: "車検・賃貸契約・ドメイン・資格の更新期限を表に並べたまま見落とすとき、スプレッドシートだけでできる手順と、毎朝 1 通で知らせに来させる組み方です。",
     kit: "deadline",
     date: "2026-10-01",
+    updated: "2026-10-04",
+    searchTitle: "スプレッドシートの期限を毎朝通知する｜契約更新・点検の管理",
+    answer:
+      "スプレッドシートの期限は、日付型で入れて条件付き書式で 30 日以内・7 日以内・超過を色分けすると、表を開いたときに見落としにくくなります。開かない日にも気づけるようにするには、Google Apps Script（GAS）で毎朝 1 通、Slack や Discord へ知らせます。",
+    demo: { href: "/projects/deadline", label: "期限アラートの見本" },
+    shop: "deadline",
   },
   {
     slug: "survey-free-text",
@@ -72,6 +121,11 @@ export const guides: Guide[] = [
     lede: "アンケートの自由記述を上から読むだけで終わってしまうとき、スプレッドシートで分類して数え、原文と見比べて改善を一つ決める手順と、分類と集計を続ける組み方です。",
     kit: "survey-analysis",
     date: "2026-10-02",
+    updated: "2026-10-04",
+    searchTitle: "Googleフォームの自由記述を分類して集計する手順",
+    answer:
+      "アンケートの自由記述は、回答ごとに主な分類を 1 つ付け、分類の件数と、不満なのか良かった点なのかを分けて数えると集計できます。いちばん多い声から自動的に決めず、原文と見比べて、次に試す改善を 1 つ決めます。",
+    shop: "survey-analysis",
   },
   {
     slug: "lp-structure",
@@ -79,6 +133,11 @@ export const guides: Guide[] = [
     lede: "広告や新しいサービスのために 1 枚のページを用意したいのに、何をどの順で載せるかが決まらないとき、最初の画面から問い合わせまでを 7 つの段で 1 枚の表に書き出す手順と、書いた内容をページにする組み方です。",
     kit: "lp-pack",
     date: "2026-10-03",
+    updated: "2026-10-04",
+    answer:
+      "LP の構成は、誰に・何をしてほしいか・どこから来るかの 3 つを先に決め、最初の画面から問い合わせまでの 7 つの段を 1 枚の表に書き出すと決められます。表には「段・載せること・例」の 3 列を作り、上から埋めていきます。",
+    demo: { href: "/sites", label: "業種別の見本サイト" },
+    shop: "lp-pack",
   },
   {
     slug: "pdf-table-to-excel",
@@ -86,6 +145,12 @@ export const guides: Guide[] = [
     lede: "PDF の注文明細や一覧をコピーして貼ると 1 列に詰まるとき、表を表のまま取り出す手順と、取り込んだあとに見出し・割れた行・文字の数字を直して合計で確かめる組み方です。",
     kit: "doc-reader",
     date: "2026-10-04",
+    updated: "2026-10-04",
+    searchTitle: "PDFの表をExcelに変換する｜列が崩れるときの直し方",
+    answer:
+      "PDF の表は、Windows の Microsoft 365 の Excel なら「データ」→「データの取得」→「PDF から」で、表のまま取り込めます。Mac やスプレッドシートでは PDF を Word で開いて表にしてから貼り、混ざった見出しの行と文字のままの数字を直して、合計を PDF と突き合わせます。",
+    demo: { href: "/projects/doc-reader", label: "AI 書類読み取りの見本" },
+    shop: "doc-reader",
   },
 ];
 

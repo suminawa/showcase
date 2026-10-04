@@ -14,7 +14,7 @@ import { guideBySlug } from "@/lib/guides";
 import { fontVars } from "../../projects/fonts";
 import s from "../../projects/projects.module.css";
 import g from "../guides.module.css";
-import { GuideJsonLd, guideMetadata } from "../parts";
+import { GuideAnswer, GuideByline, GuideJsonLd, GuideLinks, guideMetadata } from "../parts";
 
 const guide = guideBySlug("survey-free-text");
 
@@ -46,12 +46,14 @@ export default function SurveyFreeTextGuide() {
           {guide.title}
           <span className={s.latin}>Survey Free Text</span>
         </h1>
+        <GuideAnswer guide={guide} />
         <p className={s.lede}>{guide.lede}</p>
+        <GuideByline guide={guide} />
       </header>
 
       <div className={s.work}>
         <section className={g.section}>
-          <h2 className={g.heading}>困ること</h2>
+          <h2 className={g.heading}>自由記述を読むだけで終わるのは、なぜですか</h2>
           <ul className={g.list}>
             <li>自由記述を上から読んでも、「待ち時間の話が多かった気がする」で終わってしまう</li>
             <li>似た声が別々の言い方で書かれていて、何件あるのかを数えられない</li>
@@ -60,7 +62,7 @@ export default function SurveyFreeTextGuide() {
         </section>
 
         <section className={g.section}>
-          <h2 className={g.heading}>自分で組む手順の要点</h2>
+          <h2 className={g.heading}>スプレッドシートで分類して数えるには、どうしますか</h2>
           <ul className={g.list}>
             <li>集計する期間を決め、元の回答はそのままにして、別のタブに「回答 ID・日付・回答本文」を写す</li>
             <li>1 つの回答に主な分類を 1 つ付け、同じ意味の声は同じ名前の分類にそろえる</li>
@@ -81,7 +83,7 @@ export default function SurveyFreeTextGuide() {
         </section>
 
         <section className={g.section}>
-          <h2 className={g.heading}>キットにすると何が変わるか</h2>
+          <h2 className={g.heading}>AI で分類を続けると、何が変わりますか</h2>
           <p className={g.text}>
             回答が続けて届き、分類と集計を毎回やり直す負担が出てきたら、同じ作業をスプレッドシートの中で続けられます。回答ごとに「分類・感情・要望・短い要約」が付き、その結果から、分類ごとの件数や多い要望、改善案がまとまります。分類は手で直せて、直した内容で件数を数えます。担当者の割り当てや、改善を実行したかどうかの管理は含みません。
           </p>
@@ -99,7 +101,7 @@ export default function SurveyFreeTextGuide() {
         </section>
 
         <section className={g.section}>
-          <h2 className={g.heading}>キット</h2>
+          <h2 className={g.heading}>そのまま使えるキットはありますか</h2>
           <p className={g.text}>
             この組み方を「お客さまアンケート キット」として販売しています（定価 ¥7,980 の買い切り）。Google フォームと Google スプレッドシートで動き、キット自体の月額の費用はかかりません。初期設定はご自身で行っていただきます。実際の回答を AI で分析するには、Anthropic のアカウントと API キーの登録が必要で、API の利用料は別にかかります。 ──{" "}
             <a href={goHref("survey-analysis", "note", "/guides/survey-free-text")} rel="nofollow" className={s.textLink}>
@@ -113,7 +115,7 @@ export default function SurveyFreeTextGuide() {
         </section>
 
         <section className={g.section}>
-          <h2 className={g.heading}>設定・設置のご依頼</h2>
+          <h2 className={g.heading}>設計や初回の分析まで頼めますか</h2>
           <p className={g.text}>
             質問と分類の設計から、初回の分析とまとめの読み方の説明までを、こちらで行うこともできます（料金にキット一式を含みます）。やり取りはメッセージで行います。 ──{" "}
             <a href={COCONALA} className={s.textLink}>
@@ -132,6 +134,7 @@ export default function SurveyFreeTextGuide() {
             へ。3 営業日以内に返信します。
           </p>
         </section>
+        <GuideLinks guide={guide} />
       </div>
     </main>
   );

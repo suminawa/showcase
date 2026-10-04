@@ -13,7 +13,7 @@ import { guideBySlug } from "@/lib/guides";
 import { fontVars } from "../../projects/fonts";
 import s from "../../projects/projects.module.css";
 import g from "../guides.module.css";
-import { GuideJsonLd, guideMetadata } from "../parts";
+import { GuideAnswer, GuideByline, GuideJsonLd, GuideLinks, guideMetadata } from "../parts";
 
 const IMAGE = "/og/doc-reader.png";
 const guide = guideBySlug("pdf-to-spreadsheet");
@@ -45,12 +45,14 @@ export default function PdfToSpreadsheetGuide() {
           {guide.title}
           <span className={s.latin}>PDF to Spreadsheet</span>
         </h1>
+        <GuideAnswer guide={guide} />
         <p className={s.lede}>{guide.lede}</p>
+        <GuideByline guide={guide} />
       </header>
 
       <div className={s.work}>
         <section className={g.section}>
-          <h2 className={g.heading}>困ること</h2>
+          <h2 className={g.heading}>請求書を手で書き写すと、何が困りますか</h2>
           <ul className={g.list}>
             <li>30 枚の請求書を写すのに 1 時間ほどかかり、桁の打ち間違いは後から見つけにくい</li>
             <li>「¥12,800-」「令和8年9月13日」など、書き方が取引先ごとに違う</li>
@@ -59,7 +61,7 @@ export default function PdfToSpreadsheetGuide() {
         </section>
 
         <section className={g.section}>
-          <h2 className={g.heading}>見本で何が変わるか</h2>
+          <h2 className={g.heading}>AI に読ませると、転記はどう変わりますか</h2>
           <p className={g.text}>
             PDF や写真を置くと、決めた項目を AI が書き写し、確認画面に並べます。自信の無い項目と、合計が合わない書類だけが黄色になり、人はそこだけを見て確定します。確定した行だけが CSV かスプレッドシートに 1 行で入ります。
           </p>
@@ -82,7 +84,7 @@ export default function PdfToSpreadsheetGuide() {
         </section>
 
         <section className={g.section}>
-          <h2 className={g.heading}>自分で組む手順の要点</h2>
+          <h2 className={g.heading}>自分で組むときは、何から決めますか</h2>
           <ul className={g.list}>
             <li>写す項目を先に決め、スプレッドシートの 1 行目に並べる（請求元・発行日・税抜・消費税・合計など 9 列）</li>
             <li>日付と金額は書き方をそろえる列で変換し、「税抜 + 消費税 = 合計」の検算列で合わない行だけに色を付ける</li>
@@ -103,7 +105,7 @@ export default function PdfToSpreadsheetGuide() {
         </section>
 
         <section className={g.section}>
-          <h2 className={g.heading}>キット</h2>
+          <h2 className={g.heading}>そのまま使えるキットはありますか</h2>
           <p className={g.text}>
             見本と同じものを「AI 書類読み取りキット」として販売しています（定価 ¥16,800 の買い切り）。書類ごとの読み取り設定（帳票の型）5 種、確認画面つきの Next.js テンプレ、スプレッドシートの受け口が入っていて、API の鍵はご自身のものを使います。 ──{" "}
             <a href={goHref("doc-reader", "booth", "/guides/pdf-to-spreadsheet")} rel="nofollow" className={s.textLink}>
@@ -117,7 +119,7 @@ export default function PdfToSpreadsheetGuide() {
         </section>
 
         <section className={g.section}>
-          <h2 className={g.heading}>設定・設置のご依頼</h2>
+          <h2 className={g.heading}>設定や設置まで頼めますか</h2>
           <p className={g.text}>
             帳票の型の作り込み・スプレッドシート連携・配置まで、こちらで行うこともできます。 ──{" "}
             <a href={COCONALA} className={s.textLink}>
@@ -136,6 +138,7 @@ export default function PdfToSpreadsheetGuide() {
             へ。3 営業日以内に返信します。
           </p>
         </section>
+        <GuideLinks guide={guide} />
       </div>
     </main>
   );

@@ -13,7 +13,7 @@ import { guideBySlug } from "@/lib/guides";
 import { fontVars } from "../../projects/fonts";
 import s from "../../projects/projects.module.css";
 import g from "../guides.module.css";
-import { GuideJsonLd, guideMetadata } from "../parts";
+import { GuideAnswer, GuideByline, GuideJsonLd, GuideLinks, guideMetadata } from "../parts";
 
 const IMAGE = "/og/sheet-app.png";
 const guide = guideBySlug("customer-sheet");
@@ -45,12 +45,14 @@ export default function CustomerSheetGuide() {
           {guide.title}
           <span className={s.latin}>Customer Sheet</span>
         </h1>
+        <GuideAnswer guide={guide} />
         <p className={s.lede}>{guide.lede}</p>
+        <GuideByline guide={guide} />
       </header>
 
       <div className={s.work}>
         <section className={g.section}>
-          <h2 className={g.heading}>困ること</h2>
+          <h2 className={g.heading}>顧客管理のスプレッドシートは、どう崩れていくのですか</h2>
           <ul className={g.list}>
             <li>「株式会社」と「(株)」、ハイフンの有無が混ざり、検索しても見つからない</li>
             <li>担当者が変わるたびに同じお客さまが新しい行で登録され、どちらが正しいか分からない</li>
@@ -59,7 +61,7 @@ export default function CustomerSheetGuide() {
         </section>
 
         <section className={g.section}>
-          <h2 className={g.heading}>見本で何が変わるか</h2>
+          <h2 className={g.heading}>表のまま入力の画面を足すと、何が変わりますか</h2>
           <p className={g.text}>
             台帳はスプレッドシートのまま、入力と閲覧の画面を 1 枚足します。「定義」シートに書いた列の型と選択肢から画面が組み上がるので、入力の形がそろいます。保存のときに更新日時を照合して上書きを止め、削除は別シートに残します。スマートフォンでは表がカード表示に変わります。
           </p>
@@ -82,7 +84,7 @@ export default function CustomerSheetGuide() {
         </section>
 
         <section className={g.section}>
-          <h2 className={g.heading}>自分で組む手順の要点</h2>
+          <h2 className={g.heading}>崩れない台帳は、どう作りますか</h2>
           <ul className={g.list}>
             <li>見出しを固定し、左端に「20260926-001」のような ID の列を作る</li>
             <li>状態や担当者は「データの入力規則」でプルダウンに、電話番号と郵便番号は「書式なしテキスト」にする</li>
@@ -103,7 +105,7 @@ export default function CustomerSheetGuide() {
         </section>
 
         <section className={g.section}>
-          <h2 className={g.heading}>キット</h2>
+          <h2 className={g.heading}>そのまま使えるキットはありますか</h2>
           <p className={g.text}>
             見本と同じものを「スプレッドシート業務アプリ キット」として販売しています（定価 ¥12,800 の買い切り）。一覧・検索・絞り込み・登録・編集・削除・CSV 出力の画面と、顧客管理・案件管理・在庫管理の見本、LINE・Slack・Discord への通知が入っています。 ──{" "}
             <a href={goHref("sheet-app", "booth", "/guides/customer-sheet")} rel="nofollow" className={s.textLink}>
@@ -117,7 +119,7 @@ export default function CustomerSheetGuide() {
         </section>
 
         <section className={g.section}>
-          <h2 className={g.heading}>設定・設置のご依頼</h2>
+          <h2 className={g.heading}>設定や設置まで頼めますか</h2>
           <p className={g.text}>
             お使いの表に合わせた定義づくり・画面の配置・通知の設定まで、こちらで行うこともできます。 ──{" "}
             <a href={COCONALA} className={s.textLink}>
@@ -136,6 +138,7 @@ export default function CustomerSheetGuide() {
             へ。3 営業日以内に返信します。
           </p>
         </section>
+        <GuideLinks guide={guide} />
       </div>
     </main>
   );

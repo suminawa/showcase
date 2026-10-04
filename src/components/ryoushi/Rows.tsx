@@ -103,7 +103,8 @@ function Row({
   const cls = `${s.entry} ${fig ? s.withFig : ""}`;
 
   return (
-    <li className={s.row}>
+    // id は /kits#<slug> で行へ直に来るため（悩みから読む紙の結びから）
+    <li className={s.row} id={source.slug}>
       {/*
         水の二枚。静止時は opacity 0 で、紙の上には何も無い。
         flow     = 差してくる水（表層。粒と雲が別の速さで走る）

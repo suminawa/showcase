@@ -13,7 +13,7 @@ import { guideBySlug } from "@/lib/guides";
 import { fontVars } from "../../projects/fonts";
 import s from "../../projects/projects.module.css";
 import g from "../guides.module.css";
-import { GuideJsonLd, guideMetadata } from "../parts";
+import { GuideAnswer, GuideByline, GuideJsonLd, GuideLinks, guideMetadata } from "../parts";
 
 const IMAGE = "/og/dashboard.png";
 const guide = guideBySlug("monthly-sales-report");
@@ -44,12 +44,14 @@ export default function MonthlySalesReportGuide() {
           {guide.title}
           <span className={s.latin}>Monthly Report</span>
         </h1>
+        <GuideAnswer guide={guide} />
         <p className={s.lede}>{guide.lede}</p>
+        <GuideByline guide={guide} />
       </header>
 
       <div className={s.work}>
         <section className={g.section}>
-          <h2 className={g.heading}>困ること</h2>
+          <h2 className={g.heading}>毎月の集計を手で作り直すと、何が起きますか</h2>
           <ul className={g.list}>
             <li>月が変わるたびにピボットとグラフの範囲を手で広げ、広げ忘れると最新の月が出ない</li>
             <li>月の途中の先月比を、先月まるごとと比べてしまい、いつも下がって見える</li>
@@ -58,7 +60,7 @@ export default function MonthlySalesReportGuide() {
         </section>
 
         <section className={g.section}>
-          <h2 className={g.heading}>見本で何が変わるか</h2>
+          <h2 className={g.heading}>集計の決まりを 1 か所に書くと、何が変わりますか</h2>
           <p className={g.text}>
             集計の決まりを設定に 1 つずつ書くと、数字・折れ線・棒・目標・表の部品が並んだ 1 枚の画面になります。期間やチャネルを上の 1 行で選ぶと、下の部品がすべて同時に変わります。前の期間との増減は同じ日数どうしで比べ、解約や経費のように下がると良い数は色の向きを逆にします。数として読めない行は 0 として足さず、のぞいた件数を札の下に出します。見本は架空のお店の 6 か月ぶんの売上で動きます。
           </p>
@@ -81,7 +83,7 @@ export default function MonthlySalesReportGuide() {
         </section>
 
         <section className={g.section}>
-          <h2 className={g.heading}>自分で組む手順の要点</h2>
+          <h2 className={g.heading}>作り直さずに済む集計表は、どう組みますか</h2>
           <ul className={g.list}>
             <li>生データは 1 シートに 1 行 1 取引で置き、日付は 2026-09-19 の形にそろえる</li>
             <li>集計は別のシートで、範囲を列ごと（A:A）に指定して、行が増えても式を直さずに済ませる</li>
@@ -98,7 +100,7 @@ export default function MonthlySalesReportGuide() {
         </section>
 
         <section className={g.section}>
-          <h2 className={g.heading}>キット</h2>
+          <h2 className={g.heading}>そのまま使えるキットはありますか</h2>
           <p className={g.text}>
             この組み方を「ダッシュボード キット」として販売しています（定価 ¥9,800 の買い切り）。置き方は、いまのサイトへの埋め込み・Next.js のひな型・Google スプレッドシートの 3 通りで、外部の API を使わないので月額の費用はかかりません。前の期間との比較、月ごとの目標、絞り込んだ画面を URL で渡すしくみ、表での表示と CSV の書き出しが入っています。ソースと検査も同梱しています。 ──{" "}
             <a href={goHref("dashboard", "booth", "/guides/monthly-sales-report")} rel="nofollow" className={s.textLink}>
@@ -112,7 +114,7 @@ export default function MonthlySalesReportGuide() {
         </section>
 
         <section className={g.section}>
-          <h2 className={g.heading}>設定・設置のご依頼</h2>
+          <h2 className={g.heading}>設定や設置まで頼めますか</h2>
           <p className={g.text}>
             どの数字をどの部品で見せるかのご相談から、いまのスプレッドシートや CSV をつないで画面を置くところ、見方のご説明まで、こちらで行うこともできます。 ──{" "}
             <a href={COCONALA} className={s.textLink}>
@@ -131,6 +133,7 @@ export default function MonthlySalesReportGuide() {
             へ。3 営業日以内に返信します。
           </p>
         </section>
+        <GuideLinks guide={guide} />
       </div>
     </main>
   );

@@ -13,7 +13,7 @@ import { guideBySlug } from "@/lib/guides";
 import { fontVars } from "../../projects/fonts";
 import s from "../../projects/projects.module.css";
 import g from "../guides.module.css";
-import { GuideJsonLd, guideMetadata } from "../parts";
+import { GuideAnswer, GuideByline, GuideJsonLd, GuideLinks, guideMetadata } from "../parts";
 
 const IMAGE = "/og/doc-reader.png";
 const guide = guideBySlug("pdf-table-to-excel");
@@ -45,12 +45,14 @@ export default function PdfTableToExcelGuide() {
           {guide.title}
           <span className={s.latin}>PDF Table to Excel</span>
         </h1>
+        <GuideAnswer guide={guide} />
         <p className={s.lede}>{guide.lede}</p>
+        <GuideByline guide={guide} />
       </header>
 
       <div className={s.work}>
         <section className={g.section}>
-          <h2 className={g.heading}>困ること</h2>
+          <h2 className={g.heading}>PDF の表をコピーして貼ると、どう崩れますか</h2>
           <ul className={g.list}>
             <li>PDF の表をコピーして貼ると、品番も品名も金額も 1 つのセルに詰まる</li>
             <li>2 ページ目の見出しの行が混ざり、ページをまたいだ行が 2 行に割れる</li>
@@ -59,7 +61,7 @@ export default function PdfTableToExcelGuide() {
         </section>
 
         <section className={g.section}>
-          <h2 className={g.heading}>見本で何が変わるか</h2>
+          <h2 className={g.heading}>AI に読み取らせると、どう変わりますか</h2>
           <p className={g.text}>
             請求書や注文書の PDF を 1 枚ずつ置くと、決めた項目と明細を AI が書き写し、確認画面に並べます。明細の合計と税抜が合わない書類と、自信の無い項目だけが黄色になり、人はそこだけを見て確定します。明細のある型は、明細の CSV も別に出せます。
           </p>
@@ -82,7 +84,7 @@ export default function PdfTableToExcelGuide() {
         </section>
 
         <section className={g.section}>
-          <h2 className={g.heading}>自分で組む手順の要点</h2>
+          <h2 className={g.heading}>表を表のまま取り出すには、どうしますか</h2>
           <ul className={g.list}>
             <li>表の文字をドラッグで選べるかを先に見る。選べないスキャンの PDF は、先に OCR が要る</li>
             <li>Windows の Microsoft 365 の Excel は「データ」→「データの取得」→「ファイルから」→「PDF から」で表を選んで取り込む</li>
@@ -103,7 +105,7 @@ export default function PdfTableToExcelGuide() {
         </section>
 
         <section className={g.section}>
-          <h2 className={g.heading}>キット</h2>
+          <h2 className={g.heading}>そのまま使えるキットはありますか</h2>
           <p className={g.text}>
             見本と同じものを「AI 書類読み取りキット」として販売しています（定価 ¥16,800 の買い切り）。書類ごとの読み取り設定（帳票の型）5 種、確認画面つきの Next.js テンプレ、スプレッドシートの受け口が入っていて、API の鍵はご自身のものを使い、読んだ枚数ぶんの API の費用が別にかかります。何十ページもある報告書の表を丸ごと移す用途には作っていません。 ──{" "}
             <a href={goHref("doc-reader", "booth", "/guides/pdf-table-to-excel")} rel="nofollow" className={s.textLink}>
@@ -117,7 +119,7 @@ export default function PdfTableToExcelGuide() {
         </section>
 
         <section className={g.section}>
-          <h2 className={g.heading}>設定・設置のご依頼</h2>
+          <h2 className={g.heading}>設定や設置まで頼めますか</h2>
           <p className={g.text}>
             帳票の型の作り込み・スプレッドシート連携・配置まで、こちらで行うこともできます。 ──{" "}
             <a href={COCONALA} className={s.textLink}>
@@ -136,6 +138,7 @@ export default function PdfTableToExcelGuide() {
             へ。3 営業日以内に返信します。
           </p>
         </section>
+        <GuideLinks guide={guide} />
       </div>
     </main>
   );

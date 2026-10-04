@@ -13,7 +13,7 @@ import { guideBySlug } from "@/lib/guides";
 import { fontVars } from "../../projects/fonts";
 import s from "../../projects/projects.module.css";
 import g from "../guides.module.css";
-import { GuideJsonLd, guideMetadata } from "../parts";
+import { GuideAnswer, GuideByline, GuideJsonLd, GuideLinks, guideMetadata } from "../parts";
 
 const IMAGE = "/og/booking.png";
 const guide = guideBySlug("booking-page");
@@ -45,12 +45,14 @@ export default function BookingPageGuide() {
           {guide.title}
           <span className={s.latin}>Booking Page</span>
         </h1>
+        <GuideAnswer guide={guide} />
         <p className={s.lede}>{guide.lede}</p>
+        <GuideByline guide={guide} />
       </header>
 
       <div className={s.work}>
         <section className={g.section}>
-          <h2 className={g.heading}>困ること</h2>
+          <h2 className={g.heading}>電話と LINE で予約を受けていると、何が困りますか</h2>
           <ul className={g.list}>
             <li>施術中や接客中は電話に出られず、折り返すころには他のお店で決まっている</li>
             <li>電話と LINE の両方で受けていて、最後の 1 枠ほど二重予約になる</li>
@@ -59,7 +61,7 @@ export default function BookingPageGuide() {
         </section>
 
         <section className={g.section}>
-          <h2 className={g.heading}>見本で何が変わるか</h2>
+          <h2 className={g.heading}>スプレッドシートで予約ページは作れますか</h2>
           <p className={g.text}>
             スプレッドシートの「枠」シートに曜日と時間を書くと、公開した URL がそのまま予約ページになります。お客さまは空きカレンダーから日と時間を選び、お名前と連絡先を入れて予約を終えます。確認メールと前日のリマインドは自動で届き、最後の 1 枠は書き込む直前に数え直すので、同じ枠に 2 人が入ることはありません。見本はブラウザの中だけで動くので、予約を終えるところまでそのまま試せます。
           </p>
@@ -82,7 +84,7 @@ export default function BookingPageGuide() {
         </section>
 
         <section className={g.section}>
-          <h2 className={g.heading}>自分で組む手順の要点</h2>
+          <h2 className={g.heading}>予約の台帳を自分で作るには、どう進めますか</h2>
           <ul className={g.list}>
             <li>受け付ける枠を曜日・開始・終了・間隔・定員の決まりにし、休みと祝日は先に台帳へ書く</li>
             <li>台帳を 1 つにして、電話でも LINE でも返事をする前に書く</li>
@@ -103,7 +105,7 @@ export default function BookingPageGuide() {
         </section>
 
         <section className={g.section}>
-          <h2 className={g.heading}>キット</h2>
+          <h2 className={g.heading}>そのまま使えるキットはありますか</h2>
           <p className={g.text}>
             この組み方を「予約ページ キット」として販売しています（定価 ¥7,980 の買い切り）。サーバーも月額の費用も要らず、確認メール・前日のリマインド・お客さまご自身でのキャンセル、Google カレンダーへの登録（任意）、Slack・Discord・LINE への通知、いたずらの送信を止める仕組みが入っています。スプレッドシートに貼る 3 ファイルと、ソース・テストも同梱しています。 ──{" "}
             <a href={goHref("booking", "booth", "/guides/booking-page")} rel="nofollow" className={s.textLink}>
@@ -117,7 +119,7 @@ export default function BookingPageGuide() {
         </section>
 
         <section className={g.section}>
-          <h2 className={g.heading}>設定・設置のご依頼</h2>
+          <h2 className={g.heading}>設定や設置まで頼めますか</h2>
           <p className={g.text}>
             枠とサービスの設計、メールの文面、カレンダーと通知の設定、ホームページへの設置、スマートフォンでの確認まで、こちらで行うこともできます。 ──{" "}
             <a href={COCONALA} className={s.textLink}>
@@ -136,6 +138,7 @@ export default function BookingPageGuide() {
             へ。3 営業日以内に返信します。
           </p>
         </section>
+        <GuideLinks guide={guide} />
       </div>
     </main>
   );

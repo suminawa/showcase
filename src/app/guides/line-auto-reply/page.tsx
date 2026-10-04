@@ -14,7 +14,7 @@ import { guideBySlug } from "@/lib/guides";
 import { fontVars } from "../../projects/fonts";
 import s from "../../projects/projects.module.css";
 import g from "../guides.module.css";
-import { GuideJsonLd, guideMetadata } from "../parts";
+import { GuideAnswer, GuideByline, GuideJsonLd, GuideLinks, guideMetadata } from "../parts";
 
 const IMAGE = "/og/ai-concierge.png";
 const guide = guideBySlug("line-auto-reply");
@@ -46,12 +46,14 @@ export default function LineAutoReplyGuide() {
           {guide.title}
           <span className={s.latin}>LINE Auto Reply</span>
         </h1>
+        <GuideAnswer guide={guide} />
         <p className={s.lede}>{guide.lede}</p>
+        <GuideByline guide={guide} />
       </header>
 
       <div className={s.work}>
         <section className={g.section}>
-          <h2 className={g.heading}>困ること</h2>
+          <h2 className={g.heading}>LINE の問い合わせ対応で、何が困りますか</h2>
           <ul className={g.list}>
             <li>営業時間や料金、対応エリアといった同じ質問が、夜や手の離せない時間に何度も届く</li>
             <li>キーワード応答は言葉が完全に一致しないと外れ、「料金」と「費用」で答えが分かれる</li>
@@ -60,7 +62,7 @@ export default function LineAutoReplyGuide() {
         </section>
 
         <section className={g.section}>
-          <h2 className={g.heading}>見本で何が変わるか</h2>
+          <h2 className={g.heading}>資料を根拠に AI が答えると、どう変わりますか</h2>
           <p className={g.text}>
             会社案内・料金・よくあるご質問などの文書だけを根拠に、AI が敬体で答えます。答えの下に根拠にした文書のタイトルと URL が並び、資料に無いことは「載っていません」と伝えて担当者へ引き継ぎます。LINE の中で動く部品と同じ答え方を、サイトに置いた案内窓口の見本で試せます。
           </p>
@@ -83,7 +85,7 @@ export default function LineAutoReplyGuide() {
         </section>
 
         <section className={g.section}>
-          <h2 className={g.heading}>自分で組む手順の要点</h2>
+          <h2 className={g.heading}>自動応答を自分で整えるには、何から始めますか</h2>
           <ul className={g.list}>
             <li>よくある質問と答えを 1 枚の文書にまとめ、キーワード応答には表記ゆれの言葉も並べて登録する</li>
             <li>あいさつメッセージとリッチメニューで、質問の入口を先に見せる</li>
@@ -104,7 +106,7 @@ export default function LineAutoReplyGuide() {
         </section>
 
         <section className={g.section}>
-          <h2 className={g.heading}>キット</h2>
+          <h2 className={g.heading}>そのまま使えるキットはありますか</h2>
           <p className={g.text}>
             この組み方を「LINE 案内窓口キット」として販売しています（定価 ¥12,800 の買い切り）。根拠の URL つきの答え、質問の候補ボタン、担当者への引き継ぎと Slack への通知、署名の確認、1 日の上限が入っていて、Vercel にそのまま置ける Next.js のテンプレートとソース・テストも同梱しています。 ──{" "}
             <a href={goHref("line-concierge", "booth", "/guides/line-auto-reply")} rel="nofollow" className={s.textLink}>
@@ -118,7 +120,7 @@ export default function LineAutoReplyGuide() {
         </section>
 
         <section className={g.section}>
-          <h2 className={g.heading}>設定・設置のご依頼</h2>
+          <h2 className={g.heading}>設定や設置まで頼めますか</h2>
           <p className={g.text}>
             文書の整理と索引づくり、Vercel への設置、LINE 公式アカウントの設定、引き継ぎ先と質問の候補の作り込みまで、こちらで行うこともできます。 ──{" "}
             <a href={COCONALA} className={s.textLink}>
@@ -137,6 +139,7 @@ export default function LineAutoReplyGuide() {
             へ。3 営業日以内に返信します。
           </p>
         </section>
+        <GuideLinks guide={guide} />
       </div>
     </main>
   );
