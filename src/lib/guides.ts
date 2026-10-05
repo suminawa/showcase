@@ -224,7 +224,20 @@ export const guides: Guide[] = [
     demo: { href: "/projects/sheet-app", label: "スプレッドシート業務アプリの見本" },
     shop: "sheet-app",
   },
+  {
+    slug: "local-transcription",
+    title: "会議や取材の録音を、外部に出さずに文字起こしする",
+    lede: "人の名前や取引先の話が入った録音を、手元のパソコンだけで書き起こす方法と、固有名詞と話者を直して指定の書式で納めるまでの段取りです。",
+    kit: "doc-reader",
+    date: "2026-10-05",
+    searchTitle: "録音を外部に出さずに文字起こしする方法｜手元のPCで",
+    answer:
+      "録音を外部に出さずに文字起こしするには、公開されている音声認識のモデル（Whisper）を手元のパソコンで動かします。Apple シリコンの Mac なら音声の長さの 4 分の 1 ほどの時間で起こせます。固有名詞と話者は機械では崩れるので、聞きながら直す時間を 60 分あたり 2〜3 時間見ておきます。",
+    demo: { href: "/projects/doc-reader", label: "AI 書類読み取りの見本" },
+    shop: "doc-reader",
+  },
 ];
+
 
 
 
