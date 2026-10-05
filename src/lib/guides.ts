@@ -236,6 +236,18 @@ export const guides: Guide[] = [
     demo: { href: "/projects/doc-reader", label: "AI 書類読み取りの見本" },
     shop: "doc-reader",
   },
+  {
+    slug: "deadline-one-person",
+    title: "期限を覚えているのが総務の 1 人だけ、という会社で起きること",
+    lede: "契約・車検・点検・資格の期限を 1 人の総務が覚えているとき、頭の中の期限を書き出し、通知を 2 人に届く形にする手順と、毎朝 1 通で知らせに来させる組み方です。",
+    kit: "deadline",
+    date: "2026-10-06",
+    searchTitle: "期限管理の属人化をなくす｜総務が1人の会社の手順",
+    answer:
+      "期限を 1 人が覚えている状態は、頭の中にだけある期限を書き出してシートに足し、「担当」と「次に見る人」の 2 列を作り、Google カレンダーの共有カレンダーで上司にも通知が届くようにすると抜けられます。月に 1 回、2 人で 10 分だけシートとカレンダーを突き合わせます。",
+    demo: { href: "/projects/deadline", label: "期限アラートの見本" },
+    shop: "deadline",
+  },
 ];
 
 
