@@ -212,7 +212,20 @@ export const guides: Guide[] = [
     demo: { href: "/projects/ai-concierge", label: "AI 案内窓口の見本" },
     shop: "line-concierge",
   },
+  {
+    slug: "excel-list-cleanup",
+    title: "Excel の名簿の重複と表記ゆれを整理する",
+    lede: "同じ人が別の行に増えていく名簿や顧客表を、そろえる規則を先に決めてから整理する手順と、変更ログつきで納める仕組みの作り方です。",
+    kit: "sheet-app",
+    date: "2026-10-05",
+    searchTitle: "Excelの名簿の重複と表記ゆれを整理する手順｜変更ログつき",
+    answer:
+      "Excel の名簿の重複は、全角半角・空白・会社名の法人格・電話番号の形・メールの大文字小文字をそろえてから、メール → 電話 → 会社名と氏名の順で「同じ 1 件」を決めると見つかります。消す前に残す行を決め、どのセルを何から何に直したかの変更ログを添えると、あとから確かめられます。",
+    demo: { href: "/projects/sheet-app", label: "スプレッドシート業務アプリの見本" },
+    shop: "sheet-app",
+  },
 ];
+
 
 
 export const guideHref = (guide: Guide) => `/guides/${guide.slug}`;
