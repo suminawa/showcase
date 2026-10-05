@@ -275,6 +275,17 @@
       "humanMinutes": 0,
       "release": "RAG 評価ハーネス",
       "ai": "案内記事 4 本と SEO・a11y 監査、応募と入札"
+    },
+    {
+      "day": 25,
+      "date": "2026-10-05",
+      "revenue": 0,
+      "proposals": 12,
+      "replies": 1,
+      "meetings": 0,
+      "humanMinutes": 0,
+      "release": "",
+      "ai": "初契約の段取り・LINE 見本の受け口・手順ガイド 3 本"
     }
   ]
 }
