@@ -18,7 +18,7 @@ import { GuideAnswer, GuideByline, GuideJsonLd, GuideLinks, guideMetadata } from
 const IMAGE = "/og/sheet-app.png";
 const guide = guideBySlug("excel-list-cleanup");
 
-const COCONALA = "https://coconala.com/services/4433425";
+const COCONALA = "https://coconala.com/services/4435887";
 
 export const metadata: Metadata = guideMetadata(guide, IMAGE);
 
@@ -136,7 +136,7 @@ export default function ExcelListCleanupGuide() {
         <section className={g.section}>
           <h2 className={g.heading}>整理を頼めますか</h2>
           <p className={g.text}>
-            名簿や顧客表の整理は、上の規則を先に文章でお見せしてから、変更ログつきの 3 シートでお納めします。100 件ほどの小さな表は ──{" "}
+            名簿や顧客表の整理は、上の規則を先に文章でお見せしてから、変更ログつきの 3 シートでお納めします。100 件 3,000 円から ──{" "}
             <a href={COCONALA} className={s.textLink}>
               ココナラ
             </a>

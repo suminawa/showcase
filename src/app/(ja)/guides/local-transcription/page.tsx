@@ -17,7 +17,7 @@ import { GuideAnswer, GuideByline, GuideJsonLd, GuideLinks, guideMetadata } from
 const IMAGE = "/og/doc-reader.png";
 const guide = guideBySlug("local-transcription");
 
-const COCONALA = "https://coconala.com/services/4433425";
+const COCONALA = "https://coconala.com/services/4435867";
 
 export const metadata: Metadata = guideMetadata(guide, IMAGE);
 
@@ -108,7 +108,7 @@ export default function LocalTranscriptionGuide() {
         <section className={g.section}>
           <h2 className={g.heading}>文字起こしを頼めますか</h2>
           <p className={g.text}>
-            録音を外部に送らず、手元で起こして、時刻つきの Excel と Word、字幕用の SRT でお納めします。固有名詞と話者は聞きながら直します。 ──{" "}
+            録音を外部に送らず、手元で起こして、時刻つきの Excel と Word、字幕用の SRT でお納めします。固有名詞と話者は聞きながら直します。60 分 6,000 円から ──{" "}
             <a href={COCONALA} className={s.textLink}>
               ココナラ
             </a>
