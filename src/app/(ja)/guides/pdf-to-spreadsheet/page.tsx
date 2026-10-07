@@ -7,13 +7,20 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 
+import { NoteEmbed } from "@/components/note/NoteEmbed";
 import { goHref } from "@/lib/go";
 import { guideBySlug } from "@/lib/guides";
 
 import { fontVars } from "../../projects/fonts";
 import s from "../../projects/projects.module.css";
 import g from "../guides.module.css";
-import { GuideAnswer, GuideByline, GuideJsonLd, GuideLinks, guideMetadata } from "../parts";
+import {
+  GuideAnswer,
+  GuideByline,
+  GuideJsonLd,
+  GuideLinks,
+  guideMetadata,
+} from "../parts";
 
 const IMAGE = "/og/doc-reader.png";
 const guide = guideBySlug("pdf-to-spreadsheet");
@@ -54,16 +61,25 @@ export default function PdfToSpreadsheetGuide() {
         <section className={g.section}>
           <h2 className={g.heading}>請求書を手で書き写すと、何が困りますか</h2>
           <ul className={g.list}>
-            <li>30 枚の請求書を写すのに 1 時間ほどかかり、桁の打ち間違いは後から見つけにくい</li>
-            <li>「¥12,800-」「令和8年9月13日」など、書き方が取引先ごとに違う</li>
-            <li>明細の合計・税抜・税込が合っているかを、毎回電卓で確かめている</li>
+            <li>
+              30 枚の請求書を写すのに 1
+              時間ほどかかり、桁の打ち間違いは後から見つけにくい
+            </li>
+            <li>
+              「¥12,800-」「令和8年9月13日」など、書き方が取引先ごとに違う
+            </li>
+            <li>
+              明細の合計・税抜・税込が合っているかを、毎回電卓で確かめている
+            </li>
           </ul>
         </section>
 
         <section className={g.section}>
           <h2 className={g.heading}>AI に読ませると、転記はどう変わりますか</h2>
           <p className={g.text}>
-            PDF や写真を置くと、決めた項目を AI が書き写し、確認画面に並べます。自信の無い項目と、合計が合わない書類だけが黄色になり、人はそこだけを見て確定します。確定した行だけが CSV かスプレッドシートに 1 行で入ります。
+            PDF や写真を置くと、決めた項目を AI
+            が書き写し、確認画面に並べます。自信の無い項目と、合計が合わない書類だけが黄色になり、人はそこだけを見て確定します。確定した行だけが
+            CSV かスプレッドシートに 1 行で入ります。
           </p>
           <figure className={g.figure}>
             <Link href="/projects/doc-reader">
@@ -86,10 +102,21 @@ export default function PdfToSpreadsheetGuide() {
         <section className={g.section}>
           <h2 className={g.heading}>自分で組むときは、何から決めますか</h2>
           <ul className={g.list}>
-            <li>写す項目を先に決め、スプレッドシートの 1 行目に並べる（請求元・発行日・税抜・消費税・合計など 9 列）</li>
-            <li>日付と金額は書き方をそろえる列で変換し、「税抜 + 消費税 = 合計」の検算列で合わない行だけに色を付ける</li>
-            <li>AI に読ませるなら、見たままの文字と根拠と確かさだけを返させ、変換と検算はプログラムで行う</li>
-            <li>負の金額（△1,000）、番号を日付と読む誤り、再送による二重登録、式として動くセルに先に手を打つ</li>
+            <li>
+              写す項目を先に決め、スプレッドシートの 1
+              行目に並べる（請求元・発行日・税抜・消費税・合計など 9 列）
+            </li>
+            <li>
+              日付と金額は書き方をそろえる列で変換し、「税抜 + 消費税 =
+              合計」の検算列で合わない行だけに色を付ける
+            </li>
+            <li>
+              AI
+              に読ませるなら、見たままの文字と根拠と確かさだけを返させ、変換と検算はプログラムで行う
+            </li>
+            <li>
+              負の金額（△1,000）、番号を日付と読む誤り、再送による二重登録、式として動くセルに先に手を打つ
+            </li>
           </ul>
           <p className={g.text}>
             詳しい手順は note の記事{" "}
@@ -98,21 +125,35 @@ export default function PdfToSpreadsheetGuide() {
             </a>
             に、Claude API と TypeScript での実装は Zenn の記事{" "}
             <a href={ZENN_ARTICLE} className={s.textLink}>
-              「請求書 PDF をスプレッドシートに転記する処理を Claude API で作る」
+              「請求書 PDF をスプレッドシートに転記する処理を Claude API
+              で作る」
             </a>
             に書きました。
           </p>
+          <NoteEmbed url={NOTE_ARTICLE} />
         </section>
 
         <section className={g.section}>
           <h2 className={g.heading}>そのまま使えるキットはありますか</h2>
           <p className={g.text}>
-            見本と同じものを「AI 書類読み取りキット」として販売しています（定価 ¥16,800 の買い切り）。書類ごとの読み取り設定（帳票の型）5 種、確認画面つきの Next.js テンプレ、スプレッドシートの受け口が入っていて、API の鍵はご自身のものを使います。 ──{" "}
-            <a href={goHref("doc-reader", "booth", "/guides/pdf-to-spreadsheet")} rel="nofollow" className={s.textLink}>
+            見本と同じものを「AI 書類読み取りキット」として販売しています（定価
+            ¥16,800 の買い切り）。書類ごとの読み取り設定（帳票の型）5
+            種、確認画面つきの Next.js
+            テンプレ、スプレッドシートの受け口が入っていて、API
+            の鍵はご自身のものを使います。 ──{" "}
+            <a
+              href={goHref("doc-reader", "booth", "/guides/pdf-to-spreadsheet")}
+              rel="nofollow"
+              className={s.textLink}
+            >
               BOOTH
             </a>
             {" / "}
-            <a href={goHref("doc-reader", "note", "/guides/pdf-to-spreadsheet")} rel="nofollow" className={s.textLink}>
+            <a
+              href={goHref("doc-reader", "note", "/guides/pdf-to-spreadsheet")}
+              rel="nofollow"
+              className={s.textLink}
+            >
               note
             </a>
           </p>
@@ -121,7 +162,8 @@ export default function PdfToSpreadsheetGuide() {
         <section className={g.section}>
           <h2 className={g.heading}>設定や設置まで頼めますか</h2>
           <p className={g.text}>
-            帳票の型の作り込み・スプレッドシート連携・配置まで、こちらで行うこともできます。 ──{" "}
+            帳票の型の作り込み・スプレッドシート連携・配置まで、こちらで行うこともできます。
+            ──{" "}
             <a href={COCONALA} className={s.textLink}>
               ココナラ
             </a>

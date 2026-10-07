@@ -16,22 +16,38 @@
 import { QuoteSimulator } from "@/components/quote-simulator/QuoteSimulator";
 import type { Lang } from "@/i18n/routes";
 
-import { AFTER_TOOL, DemoNote, ProjectShell, PurchaseNote, ShopLinks, projectMetadata } from "../shell";
+import {
+  AFTER_TOOL,
+  DemoNote,
+  ProjectShell,
+  PurchaseNote,
+  ShopEmbed,
+  ShopLinks,
+  projectMetadata,
+} from "../shell";
 import s from "../projects.module.css";
 import { copy } from "./copy";
 
-export const metadataFor = (lang: Lang) => projectMetadata(lang, "quote-simulator", copy[lang].meta);
+export const metadataFor = (lang: Lang) =>
+  projectMetadata(lang, "quote-simulator", copy[lang].meta);
 
 export function Content({ lang }: { lang: Lang }) {
   const t = copy[lang];
   return (
-    <ProjectShell lang={lang} slug="quote-simulator" title={t.title} latin="Quote" lede={t.lede}>
+    <ProjectShell
+      lang={lang}
+      slug="quote-simulator"
+      title={t.title}
+      latin="Quote"
+      lede={t.lede}
+    >
       <DemoNote lang={lang} />
       <QuoteSimulator />
       <p className={s.lede} style={AFTER_TOOL}>
         {t.kit}
         <ShopLinks lang={lang} slug="quote-simulator" linkKey="s1" />
       </p>
+      <ShopEmbed linkKey="s1" />
       <PurchaseNote lang={lang} />
     </ProjectShell>
   );

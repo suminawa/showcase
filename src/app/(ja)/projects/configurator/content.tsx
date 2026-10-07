@@ -17,7 +17,15 @@ import { projectPriceNow } from "@/i18n/catalog";
 import { hrefFor, type Lang } from "@/i18n/routes";
 import { money } from "@/i18n/ui";
 
-import { AFTER_TOOL, DemoNote, ProjectShell, PurchaseNote, ShopLinks, projectMetadata } from "../shell";
+import {
+  AFTER_TOOL,
+  DemoNote,
+  ProjectShell,
+  PurchaseNote,
+  ShopEmbed,
+  ShopLinks,
+  projectMetadata,
+} from "../shell";
 import s from "../projects.module.css";
 import c from "./configurator.module.css";
 import { copy } from "./copy";
@@ -25,14 +33,22 @@ import { ShopifyFrame } from "./ShopifyFrame";
 import { Tool } from "./Tool";
 
 /** Shopify 版の見本。売り物に同梱の page/mock-product.html を、並びごと public/demos/shopify-configurator/ に写してある */
-export const SHOPIFY_DEMO_SRC = "/demos/shopify-configurator/page/mock-product.html";
+export const SHOPIFY_DEMO_SRC =
+  "/demos/shopify-configurator/page/mock-product.html";
 
-export const metadataFor = (lang: Lang) => projectMetadata(lang, "configurator", copy[lang].meta);
+export const metadataFor = (lang: Lang) =>
+  projectMetadata(lang, "configurator", copy[lang].meta);
 
 export function Content({ lang }: { lang: Lang }) {
   const t = copy[lang];
   return (
-    <ProjectShell lang={lang} slug="configurator" title={t.title} latin="Configurator" lede={t.lede}>
+    <ProjectShell
+      lang={lang}
+      slug="configurator"
+      title={t.title}
+      latin="Configurator"
+      lede={t.lede}
+    >
       <DemoNote lang={lang} />
       <Tool />
       <p className={s.lede} style={AFTER_TOOL}>
@@ -42,10 +58,15 @@ export function Content({ lang }: { lang: Lang }) {
         {t.kit(projectPriceNow("configurator"))}
         <ShopLinks lang={lang} slug="configurator" linkKey="configurator" />
       </p>
+      <ShopEmbed linkKey="configurator" />
       <PurchaseNote lang={lang} />
 
       {/* Shopify 版。売り物に同梱の架空の商品ページを、そのまま枠で見せる */}
-      <section id="shopify" className={c.shopify} aria-labelledby="shopify-heading">
+      <section
+        id="shopify"
+        className={c.shopify}
+        aria-labelledby="shopify-heading"
+      >
         <h2 id="shopify-heading" className={c.heading}>
           {t.shopifyHeading}
         </h2>
@@ -53,14 +74,28 @@ export function Content({ lang }: { lang: Lang }) {
         <p className={s.lede}>{t.shopifyDemo}</p>
         <ShopifyFrame src={SHOPIFY_DEMO_SRC} />
         <p className={s.lede}>
-          {t.shopifyStatus(money(lang, projectPriceNow("shopify-configurator").price))}
-          <ShopLinks lang={lang} slug="configurator" linkKey="shopify-configurator" />
+          {t.shopifyStatus(
+            money(lang, projectPriceNow("shopify-configurator").price),
+          )}
+          <ShopLinks
+            lang={lang}
+            slug="configurator"
+            linkKey="shopify-configurator"
+          />
           {" / "}
-          <a href={SHOPIFY_DEMO_SRC} className={s.textLink} target="_blank" rel="noopener">
+          <a
+            href={SHOPIFY_DEMO_SRC}
+            className={s.textLink}
+            target="_blank"
+            rel="noopener"
+          >
             {t.shopifyOpen}
           </a>
           {" / "}
-          <Link href={hrefFor(lang, "/projects/shopify-configurator")} className={s.textLink}>
+          <Link
+            href={hrefFor(lang, "/projects/shopify-configurator")}
+            className={s.textLink}
+          >
             {t.shopifyPage}
           </Link>
         </p>

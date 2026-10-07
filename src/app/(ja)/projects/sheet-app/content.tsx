@@ -14,18 +14,33 @@
 import { projectPriceNow } from "@/i18n/catalog";
 import type { Lang } from "@/i18n/routes";
 
-import { AFTER_TOOL, DemoNote, ProjectShell, PurchaseNote, ShopLinks, projectMetadata } from "../shell";
+import {
+  AFTER_TOOL,
+  DemoNote,
+  ProjectShell,
+  PurchaseNote,
+  ShopEmbed,
+  ShopLinks,
+  projectMetadata,
+} from "../shell";
 import s from "../projects.module.css";
 import { copy } from "./copy";
 import f from "./sheet-app.module.css";
 import { Tool } from "./Tool";
 
-export const metadataFor = (lang: Lang) => projectMetadata(lang, "sheet-app", copy[lang].meta);
+export const metadataFor = (lang: Lang) =>
+  projectMetadata(lang, "sheet-app", copy[lang].meta);
 
 export function Content({ lang }: { lang: Lang }) {
   const t = copy[lang];
   return (
-    <ProjectShell lang={lang} slug="sheet-app" title={t.title} latin="Sheet App" lede={t.lede}>
+    <ProjectShell
+      lang={lang}
+      slug="sheet-app"
+      title={t.title}
+      latin="Sheet App"
+      lede={t.lede}
+    >
       <DemoNote lang={lang} />
       {/* 道具の中だけは自前の色と字を持つ。その根がこの一枚 */}
       <div className={f.tool}>
@@ -39,6 +54,7 @@ export function Content({ lang }: { lang: Lang }) {
         {t.kit(projectPriceNow("sheet-app"))}
         <ShopLinks lang={lang} slug="sheet-app" linkKey="sheet-app" />
       </p>
+      <ShopEmbed linkKey="sheet-app" />
       <PurchaseNote lang={lang} />
     </ProjectShell>
   );

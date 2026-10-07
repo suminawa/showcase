@@ -15,17 +15,31 @@
 import { projectPriceNow } from "@/i18n/catalog";
 import type { Lang } from "@/i18n/routes";
 
-import { AFTER_TOOL, ProjectShell, PurchaseNote, ShopLinks, projectMetadata } from "../shell";
+import {
+  AFTER_TOOL,
+  ProjectShell,
+  PurchaseNote,
+  ShopEmbed,
+  ShopLinks,
+  projectMetadata,
+} from "../shell";
 import s from "../projects.module.css";
 import { copy } from "./copy";
 import { Tool } from "./Tool";
 
-export const metadataFor = (lang: Lang) => projectMetadata(lang, "saas-starter", copy[lang].meta);
+export const metadataFor = (lang: Lang) =>
+  projectMetadata(lang, "saas-starter", copy[lang].meta);
 
 export function Content({ lang }: { lang: Lang }) {
   const t = copy[lang];
   return (
-    <ProjectShell lang={lang} slug="saas-starter" title={t.title} latin="SaaS Starter" lede={t.lede}>
+    <ProjectShell
+      lang={lang}
+      slug="saas-starter"
+      title={t.title}
+      latin="SaaS Starter"
+      lede={t.lede}
+    >
       <p className={s.lede}>{t.intro}</p>
 
       {/* 道具の中だけは自前の色と字を持つ。その根が Tool の中の 1 枚 */}
@@ -42,6 +56,7 @@ export function Content({ lang }: { lang: Lang }) {
         {t.kit(projectPriceNow("saas-starter"))}
         <ShopLinks lang={lang} slug="saas-starter" linkKey="saas-starter" />
       </p>
+      <ShopEmbed linkKey="saas-starter" />
       <PurchaseNote lang={lang} />
     </ProjectShell>
   );

@@ -1,0 +1,11 @@
+/*
+ * note の記事の埋め込み（2026-10-07、棟梁「note の URL 系は全部埋め込みに」）。
+ * 幅は note の既定（494px）のまま、紙の幅が狭ければ紙に収める。高さは note の embed.js が記事に合わせて直す
+ */
+.embed {
+  display: block;
+  border: 0;
+  width: 494px;
+  max-width: 100%;
+  margin: 0;
+}

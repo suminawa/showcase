@@ -13,26 +13,86 @@ import { CATALOG } from "@/i18n/catalog";
 import { localePath, type Lang } from "@/i18n/routes";
 import { goHref, type LinkKey } from "@/lib/go";
 
-import { DemoNote, ProjectShell, projectMetadata } from "../shell";
+import { DemoNote, ProjectShell, ShopEmbed, projectMetadata } from "../shell";
 import s from "../projects.module.css";
 import { copy } from "./copy";
 
 /** チャレンジの中で出した売り物（発売順）。URL は links.json（空なら値札を出さない）。英仏の名は目録（slug）から引く */
 const PRODUCTS: { name: string; slug: string; date: string; key: LinkKey }[] = [
-  { name: "見積もり電卓テンプレ", slug: "quote-simulator", date: "9/11", key: "s1" },
-  { name: "期限アラート GAS キット", slug: "deadline", date: "9/12", key: "s2" },
+  {
+    name: "見積もり電卓テンプレ",
+    slug: "quote-simulator",
+    date: "9/11",
+    key: "s1",
+  },
+  {
+    name: "期限アラート GAS キット",
+    slug: "deadline",
+    date: "9/12",
+    key: "s2",
+  },
   { name: "フォーム受付 GAS キット", slug: "form", date: "9/12", key: "s3" },
-  { name: "業種別 LP テンプレ パック", slug: "lp-pack", date: "9/13", key: "lp" },
-  { name: "間取りシミュレーター", slug: "floorplan", date: "9/13", key: "floorplan" },
-  { name: "AI 案内窓口キット", slug: "ai-concierge", date: "9/21", key: "ai-concierge" },
-  { name: "AI 書類読み取りキット", slug: "doc-reader", date: "9/21", key: "doc-reader" },
-  { name: "スプレッドシート業務アプリ キット", slug: "sheet-app", date: "9/22", key: "sheet-app" },
+  {
+    name: "業種別 LP テンプレ パック",
+    slug: "lp-pack",
+    date: "9/13",
+    key: "lp",
+  },
+  {
+    name: "間取りシミュレーター",
+    slug: "floorplan",
+    date: "9/13",
+    key: "floorplan",
+  },
+  {
+    name: "AI 案内窓口キット",
+    slug: "ai-concierge",
+    date: "9/21",
+    key: "ai-concierge",
+  },
+  {
+    name: "AI 書類読み取りキット",
+    slug: "doc-reader",
+    date: "9/21",
+    key: "doc-reader",
+  },
+  {
+    name: "スプレッドシート業務アプリ キット",
+    slug: "sheet-app",
+    date: "9/22",
+    key: "sheet-app",
+  },
   { name: "予約ページ キット", slug: "booking", date: "9/22", key: "booking" },
-  { name: "AI 問い合わせ整理キット", slug: "inbox-triage", date: "9/23", key: "inbox-triage" },
-  { name: "ダッシュボード キット", slug: "dashboard", date: "9/23", key: "dashboard" },
-  { name: "LINE 案内窓口キット", slug: "line-concierge", date: "9/24", key: "line-concierge" },
-  { name: "3D 商品コンフィギュレーター", slug: "configurator", date: "9/24", key: "configurator" },
-  { name: "SaaS スターター キット", slug: "saas-starter", date: "9/24", key: "saas-starter" },
+  {
+    name: "AI 問い合わせ整理キット",
+    slug: "inbox-triage",
+    date: "9/23",
+    key: "inbox-triage",
+  },
+  {
+    name: "ダッシュボード キット",
+    slug: "dashboard",
+    date: "9/23",
+    key: "dashboard",
+  },
+  {
+    name: "LINE 案内窓口キット",
+    slug: "line-concierge",
+    date: "9/24",
+    key: "line-concierge",
+  },
+  {
+    name: "3D 商品コンフィギュレーター",
+    slug: "configurator",
+    date: "9/24",
+    key: "configurator",
+  },
+  {
+    name: "SaaS スターター キット",
+    slug: "saas-starter",
+    date: "9/24",
+    key: "saas-starter",
+  },
 ];
 
 function products(lang: Lang): Product[] {
@@ -44,7 +104,8 @@ function products(lang: Lang): Product[] {
   }));
 }
 
-export const metadataFor = (lang: Lang) => projectMetadata(lang, "30days", copy[lang].meta);
+export const metadataFor = (lang: Lang) =>
+  projectMetadata(lang, "30days", copy[lang].meta);
 
 export function Content({ lang }: { lang: Lang }) {
   const t = copy[lang];
@@ -63,7 +124,11 @@ export function Content({ lang }: { lang: Lang }) {
             <>
               {" ── "}
               <a
-                href={goHref("challenge", "note", localePath(lang, "/projects/30days"))}
+                href={goHref(
+                  "challenge",
+                  "note",
+                  localePath(lang, "/projects/30days"),
+                )}
                 rel="nofollow"
                 className={s.textLink}
               >
@@ -76,6 +141,7 @@ export function Content({ lang }: { lang: Lang }) {
     >
       <DemoNote lang={lang} text={t.demoNote} />
       <Board board={board} products={products(lang)} />
+      <ShopEmbed linkKey="challenge" />
     </ProjectShell>
   );
 }

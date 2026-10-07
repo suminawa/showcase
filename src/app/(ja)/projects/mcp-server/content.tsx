@@ -16,7 +16,13 @@ import { localSaleLabel } from "@/i18n/catalog";
 import { hrefFor, type Lang } from "@/i18n/routes";
 import { projects } from "@/lib/projects";
 
-import { ProjectShell, Rich, ShopLinks, projectMetadata } from "../shell";
+import {
+  ProjectShell,
+  Rich,
+  ShopEmbed,
+  ShopLinks,
+  projectMetadata,
+} from "../shell";
 import s from "../projects.module.css";
 import { copy } from "./copy";
 import { Diagram } from "./Diagram";
@@ -30,7 +36,8 @@ const project = projects.find((p) => p.slug === "mcp-server");
 if (!project?.sale) throw new Error("レジストリに mcp-server の sale がない");
 const sale = project.sale;
 
-export const metadataFor = (lang: Lang) => projectMetadata(lang, "mcp-server", copy[lang].meta, false);
+export const metadataFor = (lang: Lang) =>
+  projectMetadata(lang, "mcp-server", copy[lang].meta, false);
 
 export function Content({ lang }: { lang: Lang }) {
   const t = copy[lang];
@@ -42,7 +49,11 @@ export function Content({ lang }: { lang: Lang }) {
       title={t.title}
       latin="MCP Server"
       lede={t.lede}
-      head={<p className={`${s.lede} ${m.sale}`}>{localSaleLabel(lang, sale, { detail: true })}</p>}
+      head={
+        <p className={`${s.lede} ${m.sale}`}>
+          {localSaleLabel(lang, sale, { detail: true })}
+        </p>
+      }
     >
       <section className={m.section} aria-labelledby="replay-heading">
         <h2 id="replay-heading" className={m.heading}>
@@ -99,6 +110,7 @@ export function Content({ lang }: { lang: Lang }) {
           {t.buy}
           <ShopLinks lang={lang} slug="mcp-server" linkKey="mcp-server" />
         </p>
+        <ShopEmbed linkKey="mcp-server" />
         <p className={m.text}>
           {t.service}{" "}
           <Link href={hrefFor(lang, "/contact")} className={s.textLink}>

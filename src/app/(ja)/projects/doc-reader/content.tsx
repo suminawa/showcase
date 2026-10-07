@@ -13,6 +13,7 @@ import {
   DemoNote,
   ProjectShell,
   PurchaseNote,
+  ShopEmbed,
   ShopLinks,
   projectMetadata,
 } from "../shell";
@@ -20,12 +21,19 @@ import s from "../projects.module.css";
 import { copy } from "./copy";
 import { DocReaderDemo } from "./DocReaderDemo";
 
-export const metadataFor = (lang: Lang) => projectMetadata(lang, "doc-reader", copy[lang].meta);
+export const metadataFor = (lang: Lang) =>
+  projectMetadata(lang, "doc-reader", copy[lang].meta);
 
 export function Content({ lang }: { lang: Lang }) {
   const t = copy[lang];
   return (
-    <ProjectShell lang={lang} slug="doc-reader" title={t.title} latin="Document Reader" lede={t.lede}>
+    <ProjectShell
+      lang={lang}
+      slug="doc-reader"
+      title={t.title}
+      latin="Document Reader"
+      lede={t.lede}
+    >
       <DemoNote lang={lang} />
       <DocReaderDemo />
 
@@ -36,6 +44,7 @@ export function Content({ lang }: { lang: Lang }) {
         {t.kit}
         <ShopLinks lang={lang} slug="doc-reader" linkKey="doc-reader" />
       </p>
+      <ShopEmbed linkKey="doc-reader" />
       <PurchaseNote lang={lang} />
       <ContactLine lang={lang} />
     </ProjectShell>

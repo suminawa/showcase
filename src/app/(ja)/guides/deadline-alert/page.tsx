@@ -7,13 +7,20 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 
+import { NoteEmbed } from "@/components/note/NoteEmbed";
 import { goHref } from "@/lib/go";
 import { guideBySlug } from "@/lib/guides";
 
 import { fontVars } from "../../projects/fonts";
 import s from "../../projects/projects.module.css";
 import g from "../guides.module.css";
-import { GuideAnswer, GuideByline, GuideJsonLd, GuideLinks, guideMetadata } from "../parts";
+import {
+  GuideAnswer,
+  GuideByline,
+  GuideJsonLd,
+  GuideLinks,
+  guideMetadata,
+} from "../parts";
 
 const guide = guideBySlug("deadline-alert");
 
@@ -51,18 +58,33 @@ export default function DeadlineAlertGuide() {
 
       <div className={s.work}>
         <section className={g.section}>
-          <h2 className={g.heading}>期限を表に書いているのに、なぜ見落とすのですか</h2>
+          <h2 className={g.heading}>
+            期限を表に書いているのに、なぜ見落とすのですか
+          </h2>
           <ul className={g.list}>
-            <li>車検・保険・賃貸契約・ドメインの期限を表に並べてあっても、開かなかった日に期限が過ぎる</li>
-            <li>件数が増えると、どれが近いのかを毎回探すことになり、種類ごとに月もばらばらになる</li>
-            <li>担当が 2 人いると「相手が見ているはず」で誰も動かず、気づくのが期限の翌日になる</li>
+            <li>
+              車検・保険・賃貸契約・ドメインの期限を表に並べてあっても、開かなかった日に期限が過ぎる
+            </li>
+            <li>
+              件数が増えると、どれが近いのかを毎回探すことになり、種類ごとに月もばらばらになる
+            </li>
+            <li>
+              担当が 2
+              人いると「相手が見ているはず」で誰も動かず、気づくのが期限の翌日になる
+            </li>
           </ul>
         </section>
 
         <section className={g.section}>
           <h2 className={g.heading}>毎朝 1 通で知らせると、何が変わりますか</h2>
           <p className={g.text}>
-            スプレッドシートに書いた期限を、毎朝 8 時に Slack か Discord へ 1 通でお知らせします。1 通の中は、期限を過ぎたもの・今日が期限のもの・3 日後が期限のものの順に並び、いちばん危ないものが先頭に来ます。「状態」が「完了」の行は知らせません。同じ日に 2 回動いても同じ行は 2 度送らず、読み取りに失敗したときは同じ通知先にエラーを送ります。見本では、架空の会社の期限シートを書き換えると、届く 1 通がその場で変わります。
+            スプレッドシートに書いた期限を、毎朝 8 時に Slack か Discord へ 1
+            通でお知らせします。1
+            通の中は、期限を過ぎたもの・今日が期限のもの・3
+            日後が期限のものの順に並び、いちばん危ないものが先頭に来ます。「状態」が「完了」の行は知らせません。同じ日に
+            2 回動いても同じ行は 2
+            度送らず、読み取りに失敗したときは同じ通知先にエラーを送ります。見本では、架空の会社の期限シートを書き換えると、届く
+            1 通がその場で変わります。
           </p>
           <figure className={g.figure}>
             <Link href="/projects/deadline">
@@ -83,12 +105,24 @@ export default function DeadlineAlertGuide() {
         </section>
 
         <section className={g.section}>
-          <h2 className={g.heading}>スプレッドシートだけで期限を管理するには、どうしますか</h2>
+          <h2 className={g.heading}>
+            スプレッドシートだけで期限を管理するには、どうしますか
+          </h2>
           <ul className={g.list}>
-            <li>期限シートの列を「件名・期限・担当・状態」の 4 つにし、期限は文字列ではなく日付型で入れる</li>
-            <li>条件付き書式で、30 日以内は黄色・7 日以内はオレンジ・超過は赤にする</li>
-            <li>更新が済んだ行は消さずに「完了」と書き、フィルタで外して見る</li>
-            <li>車検のように準備が要るものは、何日前に知らせるかを件ごとに決める。タイムゾーンは東京にする</li>
+            <li>
+              期限シートの列を「件名・期限・担当・状態」の 4
+              つにし、期限は文字列ではなく日付型で入れる
+            </li>
+            <li>
+              条件付き書式で、30 日以内は黄色・7
+              日以内はオレンジ・超過は赤にする
+            </li>
+            <li>
+              更新が済んだ行は消さずに「完了」と書き、フィルタで外して見る
+            </li>
+            <li>
+              車検のように準備が要るものは、何日前に知らせるかを件ごとに決める。タイムゾーンは東京にする
+            </li>
           </ul>
           <p className={g.text}>
             詳しい手順は note の記事{" "}
@@ -97,17 +131,29 @@ export default function DeadlineAlertGuide() {
             </a>
             に書きました。
           </p>
+          <NoteEmbed url={NOTE_ARTICLE} />
         </section>
 
         <section className={g.section}>
           <h2 className={g.heading}>そのまま使えるキットはありますか</h2>
           <p className={g.text}>
-            この組み方を「期限アラート GAS キット」として販売しています（定価 ¥2,980 の買い切り）。Google スプレッドシートと Apps Script 1 ファイルで動き、月額の費用はかかりません。何日前に知らせるか・通知先・文面・列名は設定シートで変えられます。 ──{" "}
-            <a href={goHref("s2", "booth", "/guides/deadline-alert")} rel="nofollow" className={s.textLink}>
+            この組み方を「期限アラート GAS キット」として販売しています（定価
+            ¥2,980 の買い切り）。Google スプレッドシートと Apps Script 1
+            ファイルで動き、月額の費用はかかりません。何日前に知らせるか・通知先・文面・列名は設定シートで変えられます。
+            ──{" "}
+            <a
+              href={goHref("s2", "booth", "/guides/deadline-alert")}
+              rel="nofollow"
+              className={s.textLink}
+            >
               BOOTH
             </a>
             {" / "}
-            <a href={goHref("s2", "note", "/guides/deadline-alert")} rel="nofollow" className={s.textLink}>
+            <a
+              href={goHref("s2", "note", "/guides/deadline-alert")}
+              rel="nofollow"
+              className={s.textLink}
+            >
               note
             </a>
           </p>
@@ -116,7 +162,9 @@ export default function DeadlineAlertGuide() {
         <section className={g.section}>
           <h2 className={g.heading}>設定や設置まで頼めますか</h2>
           <p className={g.text}>
-            お使いのスプレッドシートに期限の通知を 1 本つなぐところから、複数のシートや独自の条件での設定まで、こちらで行うこともできます。 ──{" "}
+            お使いのスプレッドシートに期限の通知を 1
+            本つなぐところから、複数のシートや独自の条件での設定まで、こちらで行うこともできます。
+            ──{" "}
             <a href={COCONALA} className={s.textLink}>
               ココナラ
             </a>

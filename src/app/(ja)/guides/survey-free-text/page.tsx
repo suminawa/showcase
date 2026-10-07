@@ -8,13 +8,20 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 
+import { NoteEmbed } from "@/components/note/NoteEmbed";
 import { goHref } from "@/lib/go";
 import { guideBySlug } from "@/lib/guides";
 
 import { fontVars } from "../../projects/fonts";
 import s from "../../projects/projects.module.css";
 import g from "../guides.module.css";
-import { GuideAnswer, GuideByline, GuideJsonLd, GuideLinks, guideMetadata } from "../parts";
+import {
+  GuideAnswer,
+  GuideByline,
+  GuideJsonLd,
+  GuideLinks,
+  guideMetadata,
+} from "../parts";
 
 const guide = guideBySlug("survey-free-text");
 
@@ -53,33 +60,56 @@ export default function SurveyFreeTextGuide() {
 
       <div className={s.work}>
         <section className={g.section}>
-          <h2 className={g.heading}>自由記述を読むだけで終わるのは、なぜですか</h2>
+          <h2 className={g.heading}>
+            自由記述を読むだけで終わるのは、なぜですか
+          </h2>
           <ul className={g.list}>
-            <li>自由記述を上から読んでも、「待ち時間の話が多かった気がする」で終わってしまう</li>
-            <li>似た声が別々の言い方で書かれていて、何件あるのかを数えられない</li>
-            <li>件数だけを見て決めると、良かった点の声まで改善の対象に見えてしまう</li>
+            <li>
+              自由記述を上から読んでも、「待ち時間の話が多かった気がする」で終わってしまう
+            </li>
+            <li>
+              似た声が別々の言い方で書かれていて、何件あるのかを数えられない
+            </li>
+            <li>
+              件数だけを見て決めると、良かった点の声まで改善の対象に見えてしまう
+            </li>
           </ul>
         </section>
 
         <section className={g.section}>
-          <h2 className={g.heading}>スプレッドシートで分類して数えるには、どうしますか</h2>
+          <h2 className={g.heading}>
+            スプレッドシートで分類して数えるには、どうしますか
+          </h2>
           <ul className={g.list}>
-            <li>集計する期間を決め、元の回答はそのままにして、別のタブに「回答 ID・日付・回答本文」を写す</li>
-            <li>1 つの回答に主な分類を 1 つ付け、同じ意味の声は同じ名前の分類にそろえる</li>
-            <li>分類の件数と、意見の内容（不満なのか、良かった点なのか）を分けて見る</li>
-            <li>いちばん多い声から自動的に決めず、原文とお店の状況を見て、次に試すことを 1 つ書く</li>
+            <li>
+              集計する期間を決め、元の回答はそのままにして、別のタブに「回答
+              ID・日付・回答本文」を写す
+            </li>
+            <li>
+              1 つの回答に主な分類を 1
+              つ付け、同じ意味の声は同じ名前の分類にそろえる
+            </li>
+            <li>
+              分類の件数と、意見の内容（不満なのか、良かった点なのか）を分けて見る
+            </li>
+            <li>
+              いちばん多い声から自動的に決めず、原文とお店の状況を見て、次に試すことを
+              1 つ書く
+            </li>
           </ul>
           <p className={g.text}>
             詳しい手順は note の記事{" "}
             <a href={NOTE_ARTICLE} className={s.textLink}>
               「{guide.title}」
             </a>
-            に書きました。記事の手順は、無料で最後まで行えます。Google Apps Script から AI で分類する実装は、Zenn の記事{" "}
+            に書きました。記事の手順は、無料で最後まで行えます。Google Apps
+            Script から AI で分類する実装は、Zenn の記事{" "}
             <a href={ZENN_ARTICLE} className={s.textLink}>
               「Google フォームの自由記述を Claude API で分類する GAS」
             </a>
             に書きました。
           </p>
+          <NoteEmbed url={NOTE_ARTICLE} />
         </section>
 
         <section className={g.section}>
@@ -95,7 +125,12 @@ export default function SurveyFreeTextGuide() {
               height={568}
             />
             <figcaption className={g.caption}>
-              Google スプレッドシートの「分析結果」シート（実際の画面）。2 件の回答に、分類・感情・要望・要約が付いています。キットに同梱の架空の回答を、実際に AI で分析した結果です。実際のお客さまの回答ではありません。「回答（抜粋）」は質問文を含む先頭 60 字です。読みやすいよう列の幅と折り返しを調整し、ほかの行と列は隠しています。
+              Google スプレッドシートの「分析結果」シート（実際の画面）。2
+              件の回答に、分類・感情・要望・要約が付いています。キットに同梱の架空の回答を、実際に
+              AI
+              で分析した結果です。実際のお客さまの回答ではありません。「回答（抜粋）」は質問文を含む先頭
+              60
+              字です。読みやすいよう列の幅と折り返しを調整し、ほかの行と列は隠しています。
             </figcaption>
           </figure>
         </section>
@@ -103,12 +138,32 @@ export default function SurveyFreeTextGuide() {
         <section className={g.section}>
           <h2 className={g.heading}>そのまま使えるキットはありますか</h2>
           <p className={g.text}>
-            この組み方を「お客さまアンケート キット」として販売しています（定価 ¥7,980 の買い切り）。Google フォームと Google スプレッドシートで動き、キット自体の月額の費用はかかりません。初期設定はご自身で行っていただきます。実際の回答を AI で分析するには、Anthropic のアカウントと API キーの登録が必要で、API の利用料は別にかかります。 ──{" "}
-            <a href={goHref("survey-analysis", "note", "/guides/survey-free-text")} rel="nofollow" className={s.textLink}>
+            この組み方を「お客さまアンケート キット」として販売しています（定価
+            ¥7,980 の買い切り）。Google フォームと Google
+            スプレッドシートで動き、キット自体の月額の費用はかかりません。初期設定はご自身で行っていただきます。実際の回答を
+            AI で分析するには、Anthropic のアカウントと API
+            キーの登録が必要で、API の利用料は別にかかります。 ──{" "}
+            <a
+              href={goHref(
+                "survey-analysis",
+                "note",
+                "/guides/survey-free-text",
+              )}
+              rel="nofollow"
+              className={s.textLink}
+            >
               note
             </a>
             {" / "}
-            <a href={goHref("survey-analysis", "booth", "/guides/survey-free-text")} rel="nofollow" className={s.textLink}>
+            <a
+              href={goHref(
+                "survey-analysis",
+                "booth",
+                "/guides/survey-free-text",
+              )}
+              rel="nofollow"
+              className={s.textLink}
+            >
               BOOTH
             </a>
           </p>
@@ -117,7 +172,8 @@ export default function SurveyFreeTextGuide() {
         <section className={g.section}>
           <h2 className={g.heading}>設計や初回の分析まで頼めますか</h2>
           <p className={g.text}>
-            質問と分類の設計から、初回の分析とまとめの読み方の説明までを、こちらで行うこともできます（料金にキット一式を含みます）。やり取りはメッセージで行います。 ──{" "}
+            質問と分類の設計から、初回の分析とまとめの読み方の説明までを、こちらで行うこともできます（料金にキット一式を含みます）。やり取りはメッセージで行います。
+            ──{" "}
             <a href={COCONALA} className={s.textLink}>
               ココナラ
             </a>

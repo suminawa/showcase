@@ -7,13 +7,20 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 
+import { NoteEmbed } from "@/components/note/NoteEmbed";
 import { goHref } from "@/lib/go";
 import { guideBySlug } from "@/lib/guides";
 
 import { fontVars } from "../../projects/fonts";
 import s from "../../projects/projects.module.css";
 import g from "../guides.module.css";
-import { GuideAnswer, GuideByline, GuideJsonLd, GuideLinks, guideMetadata } from "../parts";
+import {
+  GuideAnswer,
+  GuideByline,
+  GuideJsonLd,
+  GuideLinks,
+  guideMetadata,
+} from "../parts";
 
 const guide = guideBySlug("deadline-one-person");
 
@@ -52,18 +59,26 @@ export default function DeadlineOnePersonGuide() {
 
       <div className={s.work}>
         <section className={g.section}>
-          <h2 className={g.heading}>期限を 1 人が覚えていると、何が困りますか</h2>
+          <h2 className={g.heading}>
+            期限を 1 人が覚えていると、何が困りますか
+          </h2>
           <ul className={g.list}>
             <li>その人が休んだ日は、誰も期限を見ない</li>
             <li>1 件でも過ぎると、責任がその 1 人にかかる</li>
-            <li>毎朝シートを上から見直しても、「どこかで見落としているかも」が消えない</li>
+            <li>
+              毎朝シートを上から見直しても、「どこかで見落としているかも」が消えない
+            </li>
           </ul>
         </section>
 
         <section className={g.section}>
           <h2 className={g.heading}>毎朝 1 通で知らせると、どう変わりますか</h2>
           <p className={g.text}>
-            スプレッドシートに書いた期限を、毎朝 1 回、Slack か Discord へ 1 通でお知らせします。期限を過ぎたもの・今日が期限のもの・3 日後が期限のものの順に並びます。上司も同じチャンネルにいれば同じ通知が届くので、見落としの責任が 1 人に寄りません。知らせる期限が無い朝は何も届かず、読み取りに失敗した日はエラーが届きます。
+            スプレッドシートに書いた期限を、毎朝 1 回、Slack か Discord へ 1
+            通でお知らせします。期限を過ぎたもの・今日が期限のもの・3
+            日後が期限のものの順に並びます。上司も同じチャンネルにいれば同じ通知が届くので、見落としの責任が
+            1
+            人に寄りません。知らせる期限が無い朝は何も届かず、読み取りに失敗した日はエラーが届きます。
           </p>
           <figure className={g.figure}>
             <Link href="/projects/deadline">
@@ -84,12 +99,25 @@ export default function DeadlineOnePersonGuide() {
         </section>
 
         <section className={g.section}>
-          <h2 className={g.heading}>スプレッドシートとカレンダーだけで、1 人から抜けるには</h2>
+          <h2 className={g.heading}>
+            スプレッドシートとカレンダーだけで、1 人から抜けるには
+          </h2>
           <ul className={g.list}>
-            <li>頭の中にだけある期限（契約・車検・点検・資格）を書き出して、1 行ずつシートに足す</li>
-            <li>シートに「担当」と「次に見る人」の 2 列を足す。担当が休んだ日に代わりに気づく人を決める</li>
-            <li>Google カレンダーに「期限」の共有カレンダーを作り、30 日前と 7 日前の予定を入れる。上司にも通知を設定してもらう</li>
-            <li>月に 1 回、2 人で 10 分だけ、シートとカレンダーを突き合わせる</li>
+            <li>
+              頭の中にだけある期限（契約・車検・点検・資格）を書き出して、1
+              行ずつシートに足す
+            </li>
+            <li>
+              シートに「担当」と「次に見る人」の 2
+              列を足す。担当が休んだ日に代わりに気づく人を決める
+            </li>
+            <li>
+              Google カレンダーに「期限」の共有カレンダーを作り、30 日前と 7
+              日前の予定を入れる。上司にも通知を設定してもらう
+            </li>
+            <li>
+              月に 1 回、2 人で 10 分だけ、シートとカレンダーを突き合わせる
+            </li>
           </ul>
           <p className={g.text}>
             手順と落とし穴は、note の記事{" "}
@@ -102,17 +130,31 @@ export default function DeadlineOnePersonGuide() {
             </Link>
             をご覧ください。
           </p>
+          <NoteEmbed url={NOTE_ARTICLE} />
         </section>
 
         <section className={g.section}>
           <h2 className={g.heading}>そのまま使えるキットはありますか</h2>
           <p className={g.text}>
-            毎朝 1 通の通知を組んだものを「期限アラート GAS キット」として販売しています（定価 ¥2,980 の買い切り。月額の費用なし）。今のスプレッドシートに Apps Script 1 ファイルを貼って使います。Slack か Discord の Webhook の作成と設定シートの記入はご自身で行います。メールや LINE への通知は含みません。 ──{" "}
-            <a href={goHref("s2", "booth", "/guides/deadline-one-person")} rel="nofollow" className={s.textLink}>
+            毎朝 1 通の通知を組んだものを「期限アラート GAS
+            キット」として販売しています（定価 ¥2,980
+            の買い切り。月額の費用なし）。今のスプレッドシートに Apps Script 1
+            ファイルを貼って使います。Slack か Discord の Webhook
+            の作成と設定シートの記入はご自身で行います。メールや LINE
+            への通知は含みません。 ──{" "}
+            <a
+              href={goHref("s2", "booth", "/guides/deadline-one-person")}
+              rel="nofollow"
+              className={s.textLink}
+            >
               BOOTH
             </a>
             {" / "}
-            <a href={goHref("s2", "note", "/guides/deadline-one-person")} rel="nofollow" className={s.textLink}>
+            <a
+              href={goHref("s2", "note", "/guides/deadline-one-person")}
+              rel="nofollow"
+              className={s.textLink}
+            >
               note
             </a>
           </p>
@@ -121,7 +163,9 @@ export default function DeadlineOnePersonGuide() {
         <section className={g.section}>
           <h2 className={g.heading}>設定・設置のご依頼</h2>
           <p className={g.text}>
-            お使いのスプレッドシートに期限の通知を 1 本つなぐところから、複数のシートや独自の条件での設定まで、こちらで行うこともできます。 ──{" "}
+            お使いのスプレッドシートに期限の通知を 1
+            本つなぐところから、複数のシートや独自の条件での設定まで、こちらで行うこともできます。
+            ──{" "}
             <a href={COCONALA} className={s.textLink}>
               ココナラ
             </a>

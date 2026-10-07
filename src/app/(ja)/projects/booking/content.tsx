@@ -13,18 +13,32 @@
  */
 import type { Lang } from "@/i18n/routes";
 
-import { AFTER_TOOL, ProjectShell, PurchaseNote, ShopLinks, projectMetadata } from "../shell";
+import {
+  AFTER_TOOL,
+  ProjectShell,
+  PurchaseNote,
+  ShopEmbed,
+  ShopLinks,
+  projectMetadata,
+} from "../shell";
 import s from "../projects.module.css";
 import f from "./booking.module.css";
 import { copy } from "./copy";
 import { Tool } from "./Tool";
 
-export const metadataFor = (lang: Lang) => projectMetadata(lang, "booking", copy[lang].meta);
+export const metadataFor = (lang: Lang) =>
+  projectMetadata(lang, "booking", copy[lang].meta);
 
 export function Content({ lang }: { lang: Lang }) {
   const t = copy[lang];
   return (
-    <ProjectShell lang={lang} slug="booking" title={t.title} latin="Booking" lede={t.lede}>
+    <ProjectShell
+      lang={lang}
+      slug="booking"
+      title={t.title}
+      latin="Booking"
+      lede={t.lede}
+    >
       <p className={s.lede}>{t.intro}</p>
       {/* 道具の中だけは自前の色と字を持つ。その根がこの一枚 */}
       <div className={f.tool}>
@@ -39,6 +53,7 @@ export function Content({ lang }: { lang: Lang }) {
         {t.kit}
         <ShopLinks lang={lang} slug="booking" linkKey="booking" />
       </p>
+      <ShopEmbed linkKey="booking" />
       <PurchaseNote lang={lang} />
     </ProjectShell>
   );

@@ -11,7 +11,14 @@ import { listOf, longDate, money } from "@/i18n/ui";
 import type { LinkKey } from "@/lib/go";
 
 import g from "../guides/guides.module.css";
-import { ProjectShell, PurchaseNote, ShopLinks, projectMetadata, type PageMeta } from "./shell";
+import {
+  ProjectShell,
+  PurchaseNote,
+  ShopEmbed,
+  ShopLinks,
+  projectMetadata,
+  type PageMeta,
+} from "./shell";
 import s from "./projects.module.css";
 
 export type KitSection = { heading: string; text?: string[]; list?: string[] };
@@ -29,7 +36,8 @@ export type KitCopy = {
   service?: string;
 };
 
-export const kitMetadata = (lang: Lang, slug: string, copy: KitCopy) => projectMetadata(lang, slug, copy.meta);
+export const kitMetadata = (lang: Lang, slug: string, copy: KitCopy) =>
+  projectMetadata(lang, slug, copy.meta);
 
 function priceSentence(lang: Lang, slug: string): string {
   const p = projectPriceNow(slug);
@@ -60,7 +68,13 @@ export function KitSheet({
   children?: React.ReactNode;
 }) {
   return (
-    <ProjectShell lang={lang} slug={slug} title={t.title} latin={latin} lede={t.lede}>
+    <ProjectShell
+      lang={lang}
+      slug={slug}
+      title={t.title}
+      latin={latin}
+      lede={t.lede}
+    >
       <p className={s.lede}>{t.intro}</p>
       {children}
       {t.sections.map((sec) => (
@@ -87,6 +101,7 @@ export function KitSheet({
           {t.buy}
           <ShopLinks lang={lang} slug={slug} linkKey={linkKey} />
         </p>
+        <ShopEmbed linkKey={linkKey} />
         <PurchaseNote lang={lang} className={g.text} />
         {t.service && <p className={g.text}>{t.service}</p>}
       </section>

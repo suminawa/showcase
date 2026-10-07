@@ -16,17 +16,32 @@
 import { Viewer } from "@/components/demos/viewer/Viewer";
 import type { Lang } from "@/i18n/routes";
 
-import { AFTER_TOOL, DemoNote, ProjectShell, PurchaseNote, ShopLinks, projectMetadata } from "../shell";
+import {
+  AFTER_TOOL,
+  DemoNote,
+  ProjectShell,
+  PurchaseNote,
+  ShopEmbed,
+  ShopLinks,
+  projectMetadata,
+} from "../shell";
 import s from "../projects.module.css";
 import { copy } from "./copy";
 import f from "./floorplan.module.css";
 
-export const metadataFor = (lang: Lang) => projectMetadata(lang, "floorplan", copy[lang].meta);
+export const metadataFor = (lang: Lang) =>
+  projectMetadata(lang, "floorplan", copy[lang].meta);
 
 export function Content({ lang }: { lang: Lang }) {
   const t = copy[lang];
   return (
-    <ProjectShell lang={lang} slug="floorplan" title={t.title} latin="Floor Plan" lede={t.lede}>
+    <ProjectShell
+      lang={lang}
+      slug="floorplan"
+      title={t.title}
+      latin="Floor Plan"
+      lede={t.lede}
+    >
       <DemoNote lang={lang} />
       {/* 道具の中だけは自前の色と字を持つ。その根がこの一枚 */}
       <div className={f.tool}>
@@ -39,6 +54,7 @@ export function Content({ lang }: { lang: Lang }) {
         {t.kit}
         <ShopLinks lang={lang} slug="floorplan" linkKey="floorplan" />
       </p>
+      <ShopEmbed linkKey="floorplan" />
       <PurchaseNote lang={lang} />
     </ProjectShell>
   );

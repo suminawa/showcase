@@ -4,6 +4,8 @@
  * 値段は要求の時刻で決まる（kitDemo は既定で今の時刻）。置くページは dynamic = "force-dynamic"。
  * 売り場への道は /go/ の渡し口（goHref）を通す。
  */
+import { NoteEmbed } from "@/components/note/NoteEmbed";
+import links from "@/data/links.json";
 import { localKitDemo } from "@/i18n/kit-demos";
 import { localePath, type Lang } from "@/i18n/routes";
 import { PURCHASE_NOTE, dateLabel } from "@/i18n/ui";
@@ -24,7 +26,8 @@ const T = {
     compare: "無料の道具で足りる方・このキットが合う方",
     freeEnough: "無料の道具で足りる方",
     fits: "このキットが合う方",
-    checked: (date: string) => `ほかの道具の内容と値段は、${date} に各社のページで確かめたものです。`,
+    checked: (date: string) =>
+      `ほかの道具の内容と値段は、${date} に各社のページで確かめたものです。`,
   },
   en: {
     note: "Read more on note",
@@ -36,7 +39,8 @@ const T = {
     compare: "When free tools are enough, and when this kit fits",
     freeEnough: "Free tools may be enough",
     fits: "This kit is a good fit",
-    checked: (date: string) => `Features and prices of the other tools were checked on each vendor’s site on ${date}.`,
+    checked: (date: string) =>
+      `Features and prices of the other tools were checked on each vendor’s site on ${date}.`,
   },
   fr: {
     note: "En savoir plus sur note",
@@ -48,7 +52,8 @@ const T = {
     compare: "Quand les outils gratuits suffisent, et quand ce kit convient",
     freeEnough: "Les outils gratuits peuvent suffire",
     fits: "Ce kit vous convient",
-    checked: (date: string) => `Le contenu et les prix des autres outils ont été vérifiés sur le site de chaque éditeur le ${date}.`,
+    checked: (date: string) =>
+      `Le contenu et les prix des autres outils ont été vérifiés sur le site de chaque éditeur le ${date}.`,
   },
 } satisfies Record<Lang, unknown>;
 
@@ -57,11 +62,19 @@ function BuyLinks({ slug, lang }: { slug: KitDemoSlug; lang: Lang }) {
   const from = localePath(lang, `/projects/${slug}`);
   return (
     <span className={s.buy}>
-      <a href={goHref(demo.linkKey, "note", from)} rel="nofollow" className={s.link}>
+      <a
+        href={goHref(demo.linkKey, "note", from)}
+        rel="nofollow"
+        className={s.link}
+      >
         {T[lang].note}
       </a>
       <span aria-hidden="true">／</span>
-      <a href={goHref(demo.linkKey, "booth", from)} rel="nofollow" className={s.link}>
+      <a
+        href={goHref(demo.linkKey, "booth", from)}
+        rel="nofollow"
+        className={s.link}
+      >
         {T[lang].booth}
       </a>
     </span>
@@ -69,13 +82,21 @@ function BuyLinks({ slug, lang }: { slug: KitDemoSlug; lang: Lang }) {
 }
 
 /** 頭の下に置く一行。値段と買う道だけ */
-export function KitPriceLine({ slug, lang = "ja" }: { slug: KitDemoSlug; lang?: Lang }) {
+export function KitPriceLine({
+  slug,
+  lang = "ja",
+}: {
+  slug: KitDemoSlug;
+  lang?: Lang;
+}) {
   const demo = localKitDemo(lang, slug);
   return (
     <p className={s.priceLine}>
       <span>
         <span className={s.nowrap}>{demo.price}</span>
-        {demo.priceNote && <span className={s.priceNote}>{demo.priceNote}</span>}
+        {demo.priceNote && (
+          <span className={s.priceNote}>{demo.priceNote}</span>
+        )}
       </span>
       <BuyLinks slug={slug} lang={lang} />
     </p>
@@ -83,7 +104,12 @@ export function KitPriceLine({ slug, lang = "ja" }: { slug: KitDemoSlug; lang?: 
 }
 
 /** 値段の段落の下に添える、設定や修理を頼める出品への案内。リンクにするのは出品の名（日本語のまま）だけ */
-export type KitService = { before: string; name: string; href: string; after: string };
+export type KitService = {
+  before: string;
+  name: string;
+  href: string;
+  after: string;
+};
 
 /** 結び。これが実物の仕組みであること・値段・中身・導入の時間・比べ方・買う道 */
 export function KitClose({
@@ -104,6 +130,7 @@ export function KitClose({
   lang?: Lang;
 }) {
   const demo = localKitDemo(lang, slug);
+  const { note } = links[demo.linkKey] as { note?: string };
   const t = T[lang];
   // 比べる相手の名と一言のあいだ。日本語は全角の空き、英仏はダッシュ
   const gap = lang === "ja" ? "　" : " — ";
@@ -123,11 +150,18 @@ export function KitClose({
         {lang !== "ja" && demo.priceNote ? " " : ""}
         {demo.priceNote} <BuyLinks slug={slug} lang={lang} />
       </p>
+      {note && <NoteEmbed url={note} />}
       {lang !== "ja" && <p className={s.body}>{PURCHASE_NOTE[lang]}</p>}
       {setup && (
         <p className={s.body}>
           {setup.before}
-          <a href={setup.href} className={s.link} target="_blank" rel="noopener" lang="ja">
+          <a
+            href={setup.href}
+            className={s.link}
+            target="_blank"
+            rel="noopener"
+            lang="ja"
+          >
             {setup.name}
           </a>
           {setup.after}
@@ -136,7 +170,13 @@ export function KitClose({
       {service && (
         <p className={s.body}>
           {service.before}
-          <a href={service.href} className={s.link} target="_blank" rel="noopener" lang="ja">
+          <a
+            href={service.href}
+            className={s.link}
+            target="_blank"
+            rel="noopener"
+            lang="ja"
+          >
             {service.name}
           </a>
           {service.after}
@@ -176,7 +216,11 @@ export function KitClose({
               {demo.freeEnough.map(({ who, alt }) => (
                 <li key={who}>
                   <span className={s.who}>{who}</span>
-                  <a href={alt.href} className={s.link} rel="noopener noreferrer">
+                  <a
+                    href={alt.href}
+                    className={s.link}
+                    rel="noopener noreferrer"
+                  >
                     {alt.name}
                   </a>
                   {gap}
@@ -193,7 +237,11 @@ export function KitClose({
                   <span className={s.who}>{fit.who}</span>
                   {fit.alts?.map((alt) => (
                     <span key={alt.href} className={s.source}>
-                      <a href={alt.href} className={s.link} rel="noopener noreferrer">
+                      <a
+                        href={alt.href}
+                        className={s.link}
+                        rel="noopener noreferrer"
+                      >
                         {alt.name}
                       </a>
                       {gap}

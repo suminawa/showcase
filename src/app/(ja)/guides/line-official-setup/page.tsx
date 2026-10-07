@@ -7,13 +7,20 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 
+import { NoteEmbed } from "@/components/note/NoteEmbed";
 import { goHref } from "@/lib/go";
 import { guideBySlug } from "@/lib/guides";
 
 import { fontVars } from "../../projects/fonts";
 import s from "../../projects/projects.module.css";
 import g from "../guides.module.css";
-import { GuideAnswer, GuideByline, GuideJsonLd, GuideLinks, guideMetadata } from "../parts";
+import {
+  GuideAnswer,
+  GuideByline,
+  GuideJsonLd,
+  GuideLinks,
+  guideMetadata,
+} from "../parts";
 
 const IMAGE = "/og/ai-concierge.png";
 const guide = guideBySlug("line-official-setup");
@@ -54,8 +61,12 @@ export default function LineOfficialSetupGuide() {
         <section className={g.section}>
           <h2 className={g.heading}>初期のままだと、何が困りますか</h2>
           <ul className={g.list}>
-            <li>友だち追加で届くのが、初期のあいさつ「最新情報を定期的に配信」のまま</li>
-            <li>何を送っても「個別のお問い合わせを受け付けておりません」と返ってしまう</li>
+            <li>
+              友だち追加で届くのが、初期のあいさつ「最新情報を定期的に配信」のまま
+            </li>
+            <li>
+              何を送っても「個別のお問い合わせを受け付けておりません」と返ってしまう
+            </li>
             <li>リッチメニューが空で、料金や予約の案内にたどり着けない</li>
           </ul>
         </section>
@@ -63,7 +74,8 @@ export default function LineOfficialSetupGuide() {
         <section className={g.section}>
           <h2 className={g.heading}>AI の窓口をつなぐと、どう変わりますか</h2>
           <p className={g.text}>
-            キーワード応答は、届いた文が登録した言葉と完全に一致したときだけ返ります。「料金を教えて」「いくらですか」は外れます。AI の窓口をつなぐと、こうした言い換えを含む質問にも、自社の文書の範囲で答え、根拠にした文書の題名を添えます。資料に無いことは担当者へ引き継ぎます。
+            キーワード応答は、届いた文が登録した言葉と完全に一致したときだけ返ります。「料金を教えて」「いくらですか」は外れます。AI
+            の窓口をつなぐと、こうした言い換えを含む質問にも、自社の文書の範囲で答え、根拠にした文書の題名を添えます。資料に無いことは担当者へ引き継ぎます。
           </p>
           <figure className={g.figure}>
             <Link href="/projects/ai-concierge">
@@ -86,10 +98,21 @@ export default function LineOfficialSetupGuide() {
         <section className={g.section}>
           <h2 className={g.heading}>Manager だけで組むには、どうしますか</h2>
           <ul className={g.list}>
-            <li>「応答設定」で、チャット（手で返す）と応答メッセージ（自動で返す）の両方をオンにする</li>
-            <li>「あいさつメッセージ」を、何を送るアカウントか・次にしてほしいこと・返事の目安の順に書き換える</li>
-            <li>「リッチメニュー」は大（2500×1686）の 6 分割。ページを開かせるものはリンク、LINE の中で答えるものはテキスト動作にする</li>
-            <li>「応答メッセージ」のキーワードは完全一致なので、1 つの返答に言い換えを並べ、一律応答も受け付けの文に書き換える</li>
+            <li>
+              「応答設定」で、チャット（手で返す）と応答メッセージ（自動で返す）の両方をオンにする
+            </li>
+            <li>
+              「あいさつメッセージ」を、何を送るアカウントか・次にしてほしいこと・返事の目安の順に書き換える
+            </li>
+            <li>
+              「リッチメニュー」は大（2500×1686）の 6
+              分割。ページを開かせるものはリンク、LINE
+              の中で答えるものはテキスト動作にする
+            </li>
+            <li>
+              「応答メッセージ」のキーワードは完全一致なので、1
+              つの返答に言い換えを並べ、一律応答も受け付けの文に書き換える
+            </li>
           </ul>
           <p className={g.text}>
             実際の設定の値と落とし穴は、note の記事{" "}
@@ -102,17 +125,39 @@ export default function LineOfficialSetupGuide() {
             </Link>
             をご覧ください。
           </p>
+          <NoteEmbed url={NOTE_ARTICLE} />
         </section>
 
         <section className={g.section}>
           <h2 className={g.heading}>そのまま使えるキットはありますか</h2>
           <p className={g.text}>
-            LINE 公式アカウントに AI の窓口をつなぐ部品を「LINE 案内窓口キット」として販売しています（定価 ¥12,800 の買い切り）。Messaging API と Webhook の設定、置き場所（Vercel など）、Anthropic の API の鍵はご自身で用意し、API の利用料が別にかかります。キットを使うときは、Manager の応答メッセージとあいさつメッセージはオフにします。 ──{" "}
-            <a href={goHref("line-concierge", "booth", "/guides/line-official-setup")} rel="nofollow" className={s.textLink}>
+            LINE 公式アカウントに AI の窓口をつなぐ部品を「LINE
+            案内窓口キット」として販売しています（定価 ¥12,800
+            の買い切り）。Messaging API と Webhook の設定、置き場所（Vercel
+            など）、Anthropic の API の鍵はご自身で用意し、API
+            の利用料が別にかかります。キットを使うときは、Manager
+            の応答メッセージとあいさつメッセージはオフにします。 ──{" "}
+            <a
+              href={goHref(
+                "line-concierge",
+                "booth",
+                "/guides/line-official-setup",
+              )}
+              rel="nofollow"
+              className={s.textLink}
+            >
               BOOTH
             </a>
             {" / "}
-            <a href={goHref("line-concierge", "note", "/guides/line-official-setup")} rel="nofollow" className={s.textLink}>
+            <a
+              href={goHref(
+                "line-concierge",
+                "note",
+                "/guides/line-official-setup",
+              )}
+              rel="nofollow"
+              className={s.textLink}
+            >
               note
             </a>
           </p>
@@ -121,7 +166,9 @@ export default function LineOfficialSetupGuide() {
         <section className={g.section}>
           <h2 className={g.heading}>設定・設置のご依頼</h2>
           <p className={g.text}>
-            文書の整理・置き場所への設置・LINE 公式アカウントの設定（チャネル、Webhook、応答設定）まで、こちらで行うこともできます。 ──{" "}
+            文書の整理・置き場所への設置・LINE
+            公式アカウントの設定（チャネル、Webhook、応答設定）まで、こちらで行うこともできます。
+            ──{" "}
             <a href={COCONALA} className={s.textLink}>
               ココナラ
             </a>
