@@ -291,12 +291,23 @@
       "day": 26,
       "date": "2026-10-06",
       "revenue": 0,
-      "proposals": 13,
+      "proposals": 14,
       "replies": 0,
       "meetings": 0,
       "humanMinutes": 0,
       "release": "",
       "ai": "提案の送信・RWS 受け口整理・Day 26 公開"
+    },
+    {
+      "day": 27,
+      "date": "2026-10-07",
+      "revenue": 0,
+      "proposals": 16,
+      "replies": 0,
+      "meetings": 0,
+      "humanMinutes": 0,
+      "release": "",
+      "ai": "BOOTH の商品名 17 本を note とそろえた（01:2x）"
     }
   ]
 }
