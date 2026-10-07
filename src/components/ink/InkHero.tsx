@@ -3,19 +3,20 @@
 /*
  * 入りの一筆を、生きた墨にする（2026-10-07）。
  *
- * トップの右上にある墨は、これまで写真（/ink/sumi-sparse.webp）に飛白の mask を
- * 掛けた静止画だった。縞のある雲のように見え、紙の最初の 3 秒を「染み」で
- * 始めていた。ここでは作品「墨流し」の流体（WebGL2）を同じ箱に置き、
- * 読み込みの直後に筆が一画を引く ── 墨が水に乗って伸び、指やカーソルが
- * 触れると渦を巻く。紙の上の出来事は依然ひとつ（湿り）で、墨は【構造】の
- * 側に置く: 自分からは動かず、来た人の手にだけ応える。
+ * トップの右上の墨は、作品「墨流し」の流体（WebGL2）そのものである。読み込みの
+ * 直後に筆が一画を引き、カーソルや指が触れると墨が渦を巻く。手が離れて 9 秒たつと
+ * 墨は乾いて一画へ戻る（captureRest / setHoming）── 名乗りの字に被ったまま凍らない。
+ * 紙の上の出来事は依然ひとつ（湿り）。墨は構造の側: 自分からは動かず、手にだけ応える。
  *
  * 落とし方:
  *   ・prefers-reduced-motion … 起動しない。静止画のまま
  *   ・WebGL2 が無い／float テクスチャが無い … 起動しない。静止画のまま
- *   ・画面の外へ出た・タブが隠れた … 止める（電池）
+ *   ・画面の外へ出た・タブが隠れた・乾ききった … rAF を止める（電池）。手で起きる
  *   ・遅いフレームが続く … 流体の解像度を落とす（simulation.downscale）
  * 起動できた紙だけ、箱に data-live="on" が付き、CSS が静止画を墨に差し替える。
+ *
+ * 手が効く範囲は、入口の 1 行目の上端より上だけ ── 行の上で動かすと湿りと渦の二つが
+ * 同時に動き、「一度の接触で動くものは一つ」が破れる。
  */
 import { useEffect, useRef } from "react";
 
@@ -25,8 +26,13 @@ import s from "./ink.module.css";
 
 const SLOW_FRAME_MS = 42;
 const SLOW_FRAME_LIMIT = 45;
-/** 手が離れてから止まるまで。渦の余韻が収まる長さ */
+/** 手が離れてから乾き始めるまで */
 const IDLE_MS = 9000;
+/** 乾く（一画へ戻る）のにかける長さ */
+const DRY_MS = 2600;
+/** 一画の歩数と長さ。歩幅（約 0.003）は滴の半径（≥ 0.0035）より小さいので一本に繋がる */
+const STEPS = 120;
+const STROKE_SEC = 1.1;
 
 export function InkHero() {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
@@ -52,30 +58,25 @@ export function InkHero() {
     engine.step(1 / 60);
     engine.render();
     if (box) box.dataset.live = "on";
-    if (process.env.NODE_ENV !== "production") {
-      (window as unknown as { __inkHero?: unknown }).__inkHero = { engine, loop: () => loop, drawn: () => drawn };
-    }
 
     const loop = {
       raf: 0,
       last: 0,
       slow: 0,
       visible: true,
-      // 隠れているかは visibilitychange で知る。読み込み時の document.hidden は
-      // 見ない ── 隠れたタブでは rAF が止まるので、見始めた時に動き出せば足りる
       hidden: false,
+      /** 手の余韻が切れる時刻。これを過ぎると乾き始める */
       activeUntil: performance.now() + 6000,
+      /** 乾き終わる時刻（0 なら乾いていない） */
+      dryUntil: 0,
+      rested: false,
     };
 
-    /**
-     * 筆の一画。箱の右上から左下へ、墨を乗せながら 1.1 秒で引く。
-     * 芯の一本と、その両脇の細い二本（筆の毛が割れた筋）。終わりは掠れる（点を間引く）。
-     * 速度はごく弱く ── 強いと墨が塊になって飛び、名乗りの字へ降りてくる。
-     * 箱の左 4 割は字の上（SUMINAWA）なので、一画は x ≥ 0.5 の帯に収める。
-     */
-    let t0 = performance.now() + 220;
-    let drawn = 0;
+    // ---- 一画 ----
+    const isNarrow = () => canvas.clientWidth < 700;
+    let t0 = 0;
     let stepped = 0;
+    let drawn = 0;
     let lastX = 0;
     let lastY = 0;
     let seed = 7;
@@ -83,70 +84,143 @@ export function InkHero() {
       seed = (seed * 16807) % 2147483647;
       return seed / 2147483647;
     };
-    const isNarrow = () => canvas.clientWidth < 700;
-    /** 一画の書き出しへ戻す。引き直すとき（形が変わった）も同じ所から */
+    /** 一画の点。k ∈ [0,1]。広い紙は紙の右上の内側（言語の切り替えの下）から名乗りの「AW」の上へ、
+        狭い紙は「AWA」の上を掠める */
+    const point = (k: number) => {
+      const n = isNarrow();
+      const x = n ? 0.76 - 0.48 * k : 0.68 - 0.33 * k;
+      const y = n
+        ? 0.82 - 0.2 * k + 0.03 * Math.sin(k * Math.PI)
+        : 0.75 - 0.12 * k + 0.03 * Math.sin(k * Math.PI);
+      return { x, y };
+    };
     const beginStroke = (delayMs: number) => {
       t0 = performance.now() + delayMs;
+      stepped = 0;
       drawn = 0;
       seed = 7;
-      lastX = isNarrow() ? 0.74 : 0.72;
-      lastY = isNarrow() ? 0.95 : 0.81;
-      stepped = 0;
+      const p = point(0);
+      lastX = p.x;
+      lastY = p.y;
     };
     beginStroke(220);
+
     /**
-     * 一画を一歩ぶん進める。歩みは【フレーム】で数える（時間ではなく）──
-     * 時間で引くと、rAF が間引かれた紙（隠れたタブ・省電力）で一画が一点に潰れる。
-     * 大きく時間が飛んだときは、その分だけ歩数をまとめて進める（最大 70 歩＝一画の全部）。
+     * 一画を進める。歩みはフレームではなく経過時間で数え、まとめて進めるときは
+     * 一歩ごとに水を一拍（1/120 秒）進めて滴どうしを馴染ませる（間引かれた rAF でも点線にならない）。
      */
-    /* 一画は 120 歩・1.1 秒。歩幅（0.3 / 120 ≒ 0.0025）は滴の半径（≥ 0.004）より
-       小さいので、まとめて進めても点線にならず一本に繋がる */
-    const STEPS = 120;
-    const STROKE_SEC = 1.1;
-    const draw = (now: number, dt: number) => {
-      if (now < t0) return false;
-      const steps = Math.max(1, Math.min(STEPS, Math.round(dt / (STROKE_SEC / STEPS))));
+    const draw = (now: number, elapsed: number) => {
+      if (now < t0) return;
+      const steps = Math.max(1, Math.min(40, Math.round(elapsed / (STROKE_SEC / STEPS))));
+      const narrow = isNarrow();
       for (let i = 0; i < steps && stepped < STEPS; i++) {
         stepped += 1;
         const k = stepped / STEPS;
-        const narrow = isNarrow();
-        // 名乗りの字の上を掠め、「WA」の上端で掠れて終わる（字には掛からない）。
-        // 狭い紙では箱の右 4 割が画面の外なので、一画を左へ寄せ、字の上の帯に収める
-        // 箱は紙の右端より 30% ほど外へ張り出している（広い紙で x ≈ 0.66 が紙の右端）。
-        // 一画は紙の右上の角から入り、名乗りの「AW」の上で掠れて終わる
-        const x = narrow ? 0.74 - 0.4 * k : 0.72 - 0.3 * k;
-        const y = narrow
-          ? 0.95 - 0.24 * k + 0.03 * Math.sin(k * Math.PI)
-          : 0.81 - 0.16 * k + 0.03 * Math.sin(k * Math.PI);
-        // 筆圧: 書き出しで太く、終わりへ向けて細く、最後は掠れる
-        const press =
-          (narrow ? 0.0028 : 0.004) +
-          (narrow ? 0.0085 : 0.012) * Math.pow(Math.sin(Math.PI * Math.min(1, 0.2 + k * 0.9)), 0.8);
-        const dry = k > 0.74 && rand() < (k - 0.74) * 1.8;
-        if (!dry) engine.splatInk(x, y, "carbon", press);
-        // 脇の二筋。進む向きに直交して、少し離れた所に細く
+        const { x, y } = point(k);
+        // 筆圧: 入り（k≈0.12）で最も太く、終わりへ向けて 0.25 倍まで細る
+        const attack = Math.min(1, k / 0.12);
+        const taper = 1 - 0.75 * Math.max(0, (k - 0.12) / 0.88);
+        const press = (narrow ? 0.0035 + 0.012 : 0.005 + 0.017) * attack * taper;
         const dx = x - lastX;
         const dy = y - lastY;
         const len = Math.hypot(dx, dy) || 1;
         const nx = -dy / len;
         const ny = dx / len;
-        if (rand() < 0.75) engine.splatInk(x + nx * 0.016, y + ny * 0.016, "carbon", press * 0.38);
-        if (rand() < 0.6) engine.splatInk(x - nx * 0.013, y - ny * 0.013, "carbon", press * 0.3);
-        engine.splatVelocity(x, y, dx * 0.1, dy * 0.1);
+        if (k < 0.62) {
+          engine.splatInk(x, y, "carbon", press);
+        } else {
+          // 筆の毛が割れる（飛白）。五本の毛がそれぞれ決まった所で紙を離れ、
+          // 離れる手前で細り、わずかに揺れる ── 真っ直ぐ等長に終わると鳥の羽に見えた
+          const hairs = [
+            { off: 0, end: 1.0, w: 0.5, ph: 0.3 },
+            { off: 0.005, end: 0.9, w: 0.34, ph: 2.1 },
+            { off: -0.0045, end: 0.85, w: 0.3, ph: 4.0 },
+            { off: 0.0105, end: 0.79, w: 0.24, ph: 1.2 },
+            { off: -0.0095, end: 0.74, w: 0.22, ph: 5.3 },
+          ];
+          // 半径の下限は歩幅の 1.1 倍（下回ると毛が点線になる）
+          const floor = (narrow ? 0.52 : 0.35) / STEPS * 1.1;
+          for (const hair of hairs) {
+            if (k > hair.end) continue;
+            const life = 1 - (k - 0.62) / (hair.end - 0.62);
+            const wob = 0.0025 * Math.sin((k - 0.62) * 40 + hair.ph) * (1 - life);
+            const r = Math.max(floor, press * hair.w * (0.35 + 0.65 * life));
+            engine.splatInk(x + nx * (hair.off + wob), y + ny * (hair.off + wob), "carbon", r);
+          }
+        }
+        // 速度は終点へ向けて消す ── 終わりに塊を作らない
+        const v = (1 - k) * (1 - k) * 0.1;
+        engine.splatVelocity(x, y, dx * v, dy * v);
         lastX = x;
         lastY = y;
-        // まとめて進めるとき（間引かれた rAF の追いつき）は、数歩ごとに水を一拍進めて
-        // 滴どうしを馴染ませる ── でないと点線になる
-        if (steps > 4 && i % 5 === 4) engine.step(1 / 60);
+        if (steps > 1) engine.step(1 / 120);
       }
       drawn = stepped / STEPS;
-      return drawn >= 1;
+      if (drawn >= 1) {
+        // 引き終わった姿を憶える。乾くときはここへ戻る
+        engine.step(1 / 60);
+        engine.captureRest();
+        loop.rested = true;
+      }
     };
 
+    // ---- 手 ----
+    /** 入口の 1 行目の上端。これより下では手を受けない */
+    const gates = box?.parentElement?.querySelector("ol");
+    const limitY = () => (gates ? gates.getBoundingClientRect().top : Infinity);
+    let px = -1;
+    let py = -1;
+    const wake = () => {
+      loop.activeUntil = performance.now() + IDLE_MS;
+      loop.dryUntil = 0;
+      engine.setHoming(0);
+      if (loop.raf === 0) {
+        loop.last = 0;
+        loop.raf = requestAnimationFrame(onFrame);
+      }
+    };
+    const toUV = (event: PointerEvent) => {
+      const rect = canvas.getBoundingClientRect();
+      const m = rect.width * 0.08;
+      if (
+        event.clientY >= limitY() ||
+        event.clientX < rect.left - m ||
+        event.clientX > rect.right + m ||
+        event.clientY < rect.top - m ||
+        event.clientY > rect.bottom + m
+      ) {
+        return null;
+      }
+      return { x: (event.clientX - rect.left) / rect.width, y: 1 - (event.clientY - rect.top) / rect.height };
+    };
+    const onMove = (event: PointerEvent) => {
+      const uv = toUV(event);
+      if (!uv) {
+        px = -1;
+        return;
+      }
+      if (px >= 0) engine.splatVelocity(uv.x, uv.y, (uv.x - px) * 0.3, (uv.y - py) * 0.3);
+      px = uv.x;
+      py = uv.y;
+      wake();
+    };
+    /** 指で一度触れる（タップ）。スクロールと競わないので、ここに小さな渦を置く */
+    const onDown = (event: PointerEvent) => {
+      if (event.pointerType === "mouse") return;
+      const uv = toUV(event);
+      if (!uv) return;
+      const a = rand() * Math.PI * 2;
+      engine.splatVelocity(uv.x + Math.cos(a) * 0.01, uv.y + Math.sin(a) * 0.01, -Math.sin(a) * 0.004, Math.cos(a) * 0.004);
+      engine.splatVelocity(uv.x - Math.cos(a) * 0.01, uv.y - Math.sin(a) * 0.01, Math.sin(a) * 0.004, -Math.cos(a) * 0.004);
+      wake();
+    };
+    window.addEventListener("pointermove", onMove, { passive: true });
+    window.addEventListener("pointerdown", onDown, { passive: true });
+
+    // ---- 拍 ----
     const onFrame = (now: number) => {
       loop.raf = requestAnimationFrame(onFrame);
       if (loop.hidden || !loop.visible) return;
-      if (now > loop.activeUntil && drawn >= 1) return;
       const elapsed = loop.last === 0 ? 1 / 60 : (now - loop.last) / 1000;
       const dt = Math.min(elapsed, 1 / 30);
       if (loop.last !== 0 && now - loop.last > SLOW_FRAME_MS) {
@@ -159,66 +233,49 @@ export function InkHero() {
         loop.slow = 0;
       }
       loop.last = now;
-      dbg.frames += 1;
-      if (drawn < 1) {
-        dbg.draws += 1;
-        draw(now, elapsed);
+      if (drawn < 1) draw(now, elapsed);
+      // 乾く: 手の余韻が切れたら、憶えた一画へ戻していき、戻りきったら拍を止める
+      if (drawn >= 1 && now > loop.activeUntil) {
+        if (loop.dryUntil === 0) {
+          loop.dryUntil = now + DRY_MS;
+          if (loop.rested) engine.setHoming(2.2);
+        } else if (now > loop.dryUntil) {
+          engine.setHoming(0);
+          engine.still();
+          engine.step(dt);
+          engine.render();
+          cancelAnimationFrame(loop.raf);
+          loop.raf = 0;
+          return;
+        }
       }
       engine.step(dt);
       engine.render();
     };
     loop.raf = requestAnimationFrame(onFrame);
 
-    /** 手。箱の少し外まで効く（墨の縁を撫でる所作が多いので） */
-    let px = -1;
-    let py = -1;
-    const onMove = (event: PointerEvent) => {
-      const rect = canvas.getBoundingClientRect();
-      const m = rect.width * 0.08;
-      if (
-        event.clientX < rect.left - m ||
-        event.clientX > rect.right + m ||
-        event.clientY < rect.top - m ||
-        event.clientY > rect.bottom + m
-      ) {
-        px = -1;
-        return;
-      }
-      const x = (event.clientX - rect.left) / rect.width;
-      const y = 1 - (event.clientY - rect.top) / rect.height;
-      if (px >= 0) engine.splatVelocity(x, y, (x - px) * 0.3, (y - py) * 0.3);
-      px = x;
-      py = y;
-      loop.activeUntil = performance.now() + IDLE_MS;
-      loop.last = loop.last || performance.now();
-    };
-    window.addEventListener("pointermove", onMove, { passive: true });
-
     const onVisibility = () => {
       loop.hidden = document.hidden;
       loop.last = 0;
+      if (!loop.hidden) wake();
     };
     document.addEventListener("visibilitychange", onVisibility);
 
     const io = new IntersectionObserver(([entry]) => {
       loop.visible = entry.isIntersecting;
       loop.last = 0;
+      if (loop.visible && loop.raf === 0 && drawn < 1) wake();
     });
     io.observe(canvas);
 
-    const dbg = { ro: 0, resized: 0, frames: 0, draws: 0 };
-    if (process.env.NODE_ENV !== "production") {
-      (window as unknown as { __inkDbg?: unknown }).__inkDbg = dbg;
-    }
     const ro = new ResizeObserver(() => {
-      dbg.ro += 1;
-      const changed = engine.resize();
-      if (changed) dbg.resized += 1;
-      if (changed && drawn > 0) {
-        // 形が大きく変わった。一画を書き出しから引き直す（t0 を戻さないと一点に潰れる）
+      if (engine.resize() && drawn > 0) {
+        // 形が大きく変わった。一画を書き出しから引き直す
         engine.clearAll();
+        engine.setHoming(0);
+        loop.rested = false;
         beginStroke(120);
-        loop.activeUntil = performance.now() + 6000;
+        wake();
       }
     });
     ro.observe(canvas);
@@ -226,6 +283,7 @@ export function InkHero() {
     const onLost = (event: Event) => {
       event.preventDefault();
       cancelAnimationFrame(loop.raf);
+      loop.raf = 0;
       if (box) delete box.dataset.live;
     };
     canvas.addEventListener("webglcontextlost", onLost);
@@ -233,6 +291,7 @@ export function InkHero() {
     return () => {
       cancelAnimationFrame(loop.raf);
       window.removeEventListener("pointermove", onMove);
+      window.removeEventListener("pointerdown", onDown);
       document.removeEventListener("visibilitychange", onVisibility);
       canvas.removeEventListener("webglcontextlost", onLost);
       io.disconnect();

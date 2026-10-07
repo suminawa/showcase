@@ -74,10 +74,11 @@
  */
 .stroke {
   position: absolute;
-  top: -34svh;
-  right: -30vw;
+  /* 写しの一画は箱の x 0.35〜0.64・y 0.24〜0.37 にある。題の右、言語の切り替えの下に来る置き方（2026-10-07） */
+  top: -4svh;
+  right: -22vw;
   width: min(92vw, 1180px, 150svh);
-  aspect-ratio: 2000 / 1400;
+  aspect-ratio: 1879 / 1223;
   pointer-events: none;
   /* ＊ ここに z-index も transform も置かないこと。置いた瞬間このラッパが
      スタッキングコンテキストになり、子の mix-blend-mode: darken が
@@ -88,30 +89,25 @@
 .ink {
   position: absolute;
   inset: 0;
-  background: url("/ink/sumi-sparse.webp") no-repeat center / 100% 100%;
-  transform: rotate(-5.5deg);
-  transform-origin: 62% 46%;
+  /* 生きた一画を引き終えた姿の写し（scripts/bake-ink.mjs）。トップ・分類のページと同じ一枚 */
+  background: url("/ink/stroke-still-wide.webp") no-repeat center / 100% 100%;
   mix-blend-mode: darken;
-  mask-repeat: no-repeat;
-  mask-size: 100% 100%;
-}
-
-/* 掠れ ── 飛んだ灰。中間調を残し、sepia で紙の温度に寄せる */
-.inkKasure {
-  filter: grayscale(1) brightness(0.95) contrast(1.52) sepia(0.34)
-    saturate(0.55);
-  opacity: 0.68;
-  mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1200 800' preserveAspectRatio='none'%3E%3Cfilter id='h' color-interpolation-filters='sRGB'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.0038 0.1' numOctaves='4' seed='5'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 1 0 0 0 0'/%3E%3CfeComponentTransfer%3E%3CfeFuncA type='linear' slope='8' intercept='-2.96'/%3E%3C/feComponentTransfer%3E%3C/filter%3E%3ClinearGradient id='g' x1='0' y1='1' x2='0.9' y2='0.05'%3E%3Cstop offset='0.16' stop-color='%23fff' stop-opacity='1'/%3E%3Cstop offset='0.68' stop-color='%23fff' stop-opacity='0'/%3E%3C/linearGradient%3E%3Cg transform='rotate(-7 600 400)'%3E%3Crect x='-500' y='-500' width='2200' height='1800' filter='url(%23h)'/%3E%3C/g%3E%3Crect width='1200' height='800' fill='url(%23g)'/%3E%3C/svg%3E");
-  animation: rp-sweep 1750ms var(--rp-brush) 60ms both;
-}
-
-/* 芯 ── 一番沈んだところだけを墨まで落とす */
-.inkCore {
-  filter: grayscale(1) brightness(0.74) contrast(2.85) sepia(0.28)
-    saturate(0.62);
-  opacity: 0.8;
-  mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1200 800' preserveAspectRatio='none'%3E%3Cfilter id='h' color-interpolation-filters='sRGB'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.0038 0.1' numOctaves='4' seed='5'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 1 0 0 0 0'/%3E%3CfeComponentTransfer%3E%3CfeFuncA type='linear' slope='8' intercept='-3.68'/%3E%3C/feComponentTransfer%3E%3C/filter%3E%3ClinearGradient id='g' x1='0' y1='1' x2='0.9' y2='0.05'%3E%3Cstop offset='0.14' stop-color='%23fff' stop-opacity='1'/%3E%3Cstop offset='0.6' stop-color='%23fff' stop-opacity='0'/%3E%3C/linearGradient%3E%3Cg transform='rotate(-7 600 400)'%3E%3Crect x='-500' y='-500' width='2200' height='1800' filter='url(%23h)'/%3E%3C/g%3E%3Crect width='1200' height='800' fill='url(%23g)'/%3E%3C/svg%3E");
   animation: rp-sweep 1450ms var(--rp-brush) 160ms both;
+}
+
+.inkKasure {
+  display: none;
+}
+
+@media (max-width: 767px) {
+  /* 狭い紙では写しの墨を置かない（頭と言語の切り替えで右上が埋まる） */
+  .stroke {
+    display: none;
+  }
+
+  .ink {
+    background-image: url("/ink/stroke-still-narrow.webp");
+  }
 }
 
 @keyframes rp-sweep {

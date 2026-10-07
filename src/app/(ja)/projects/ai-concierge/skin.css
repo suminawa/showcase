@@ -5,8 +5,8 @@
  * 窓の中は Operate の面なので、入力欄と送信の形はそのまま残す。
  */
 #suminawa-concierge .ac-panel {
-  border-width: 0;
-  border-block: 1px solid var(--ac-border);
+  /* 枠は持たない（印刷の罫を引かない）。窓の上下は紙の余白が区切る */
+  border: 0;
   height: auto;
   min-height: 0;
 }

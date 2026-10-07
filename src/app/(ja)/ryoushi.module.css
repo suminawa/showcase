@@ -395,31 +395,25 @@
 .ink {
   position: absolute;
   inset: 0;
-  background: url("/ink/sumi-sparse.webp") no-repeat center / 100% 100%;
-  transform: rotate(-5.5deg);
-  transform-origin: 62% 46%;
+  /* 写真の墨は、生きた一画を引き終えた姿を焼いた一枚（scripts/bake-ink.mjs → /ink/stroke-still-{wide,narrow}.webp）。
+     reduced-motion と WebGL2 の無い紙、分類のページ、作品ページがこれを使う。
+     ＊ 2026-10-07 まで /ink/sumi-sparse.webp に飛白の mask を掛けていたが、縞のある雲にしか見えなかった */
+  background: url("/ink/stroke-still-wide.webp") no-repeat center / 100% 100%;
   mix-blend-mode: darken;
-  mask-repeat: no-repeat;
-  /* mask-composite の初期値は add。二枚は和で重なる */
 }
 
-/* 掠れ ── 飛んだ灰。中間調をそのまま残し、sepia で紙の温度に寄せる */
 .inkKasure {
-  filter: grayscale(1) brightness(0.95) contrast(1.52) sepia(0.34)
-    saturate(0.55);
-  opacity: 0.9;
-  /* 芯より筋を細く抜く（閾値 intercept -2.96）。黒の外に灰の縁が残る */
-  mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1200 800' preserveAspectRatio='none'%3E%3Cfilter id='h' color-interpolation-filters='sRGB'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.011 0.05' numOctaves='4' seed='5'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 1 0 0 0 0'/%3E%3CfeComponentTransfer%3E%3CfeFuncA type='linear' slope='6' intercept='-2.2'/%3E%3C/feComponentTransfer%3E%3C/filter%3E%3ClinearGradient id='g' x1='0' y1='1' x2='0.9' y2='0.05'%3E%3Cstop offset='0.16' stop-color='%23fff' stop-opacity='1'/%3E%3Cstop offset='0.68' stop-color='%23fff' stop-opacity='0'/%3E%3C/linearGradient%3E%3Cg transform='rotate(-7 600 400)'%3E%3Crect x='-500' y='-500' width='2200' height='1800' filter='url(%23h)'/%3E%3C/g%3E%3Crect width='1200' height='800' fill='url(%23g)'/%3E%3C/svg%3E");
-  mask-size: 100% 100%;
+  display: none;
 }
 
-/* 芯 ── 一番沈んだところだけを墨まで落とす。126〜232 を黒〜白へ引き伸ばす */
 .inkCore {
-  filter: grayscale(1) brightness(0.8) contrast(2.1) sepia(0.28)
-    saturate(0.62);
-  /* 同じ乱流・同じ seed。閾値だけ上げて（-3.68）筋を太く抜く */
-  mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1200 800' preserveAspectRatio='none'%3E%3Cfilter id='h' color-interpolation-filters='sRGB'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.011 0.05' numOctaves='4' seed='5'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 1 0 0 0 0'/%3E%3CfeComponentTransfer%3E%3CfeFuncA type='linear' slope='6' intercept='-2.8'/%3E%3C/feComponentTransfer%3E%3C/filter%3E%3ClinearGradient id='g' x1='0' y1='1' x2='0.9' y2='0.05'%3E%3Cstop offset='0.14' stop-color='%23fff' stop-opacity='1'/%3E%3Cstop offset='0.6' stop-color='%23fff' stop-opacity='0'/%3E%3C/linearGradient%3E%3Cg transform='rotate(-7 600 400)'%3E%3Crect x='-500' y='-500' width='2200' height='1800' filter='url(%23h)'/%3E%3C/g%3E%3Crect width='1200' height='800' fill='url(%23g)'/%3E%3C/svg%3E");
-  mask-size: 100% 100%;
+  opacity: 1;
+}
+
+@media (max-width: 767px) {
+  .ink {
+    background-image: url("/ink/stroke-still-narrow.webp");
+  }
 }
 
 /*
@@ -430,31 +424,16 @@
  */
 .trace {
   position: absolute;
-  /* 結びの字に掛けない。結びは 7 列幅（1280px の紙で 645px）なので、
-     掠れの左端がその右外に来るところまで逃がす。
-     ＊ 品書き 3 行を結びに入れて段が高くなったとき、-6vw のままでは
-     「1 ページの LP は 150,000 円から」の上に墨が乗り、字が読めなかった。
-     縦も、紙の下からの固定値では段の高さが変わるたびに掛かり方が変わるので、
-     紙の高さに対する割合で置く。 */
-  /* 紙の終わりの余韻。結びの塊の【下と右】に置く ──
-     字にも罫にも掛からない場所は、紙のいちばん下の右しかない。
-     ＊ 元のハブは紙が 7,400px あり、結びの下に余白が 180px 残っていたので
-     bottom: clamp(190px, 38svh, 420px) で結びの下に収まっていた。
-     紙が 2,000px を切ったいまは同じ値だと「制作のご相談」の見出しに
-     横から掛かるので、結びの字の欄（7 列）の右外へ逃がし、紙の下端に寄せる。 */
   right: -30vw;
   bottom: clamp(0px, 2svh, 24px);
   width: min(74vw, 900px);
-  aspect-ratio: 3200 / 900;
+  aspect-ratio: 1879 / 1223;
   pointer-events: none;
-  background: url("/ink/sumi-wide.webp") no-repeat center / 100% 100%;
-  filter: grayscale(1) brightness(1.08) contrast(1.5) sepia(0.3) saturate(0.5);
-  mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1200 400' preserveAspectRatio='none'%3E%3Cfilter id='h' color-interpolation-filters='sRGB'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.006 0.22' numOctaves='4' seed='3'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 1 0 0 0 0'/%3E%3CfeComponentTransfer%3E%3CfeFuncA type='linear' slope='8' intercept='-3.5'/%3E%3C/feComponentTransfer%3E%3C/filter%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='0'%3E%3Cstop offset='0' stop-color='%23fff' stop-opacity='1'/%3E%3Cstop offset='0.66' stop-color='%23fff' stop-opacity='0.3'/%3E%3Cstop offset='1' stop-color='%23fff' stop-opacity='0'/%3E%3C/linearGradient%3E%3Cmask id='m'%3E%3Crect width='1200' height='400' fill='url(%23g)'/%3E%3C/mask%3E%3Cg mask='url(%23m)' transform='rotate(-2.5 600 200)'%3E%3Crect x='-400' y='-400' width='2000' height='1200' filter='url(%23h)'/%3E%3C/g%3E%3C/svg%3E");
-  mask-size: 100% 100%;
-  mask-repeat: no-repeat;
+  /* 結びの掠れも、生きた一画の写しの尾（2026-10-07。縞の mask はやめた） */
+  background: url("/ink/stroke-still-wide.webp") no-repeat center / 100% 100%;
   mix-blend-mode: darken;
-  opacity: 0.7;
-  transform: rotate(2.5deg);
+  opacity: 0.45;
+  transform: rotate(6deg) scaleX(-1);
 }
 
 @keyframes hi-sweep {
@@ -1313,10 +1292,11 @@
 
 .desc {
   display: block;
-  font-size: var(--hi-tiny);
-  line-height: 2.3;
+  /* 題より一段小さく（15px / 狭い紙 14px。2026-10-07）。行送りは pitch のまま ── 罫の位相を動かさない */
+  font-size: clamp(0.875rem, 0.8rem + 0.2vw, 0.9375rem);
+  line-height: var(--hi-kei-pitch);
   letter-spacing: 0.05em;
-  color: var(--hi-sumi-2);
+  color: var(--hi-sumi-3);
   transition: color var(--hi-soak);
 }
 
@@ -1664,9 +1644,18 @@
  * 品書きの目安に掛かる ── 墨の二筆は紙の縁にだけ置き、中身には掛けない。
  */
 .sheet .stroke {
-  top: -34svh;
-  right: -30vw;
+  /* 写しの一画は箱の x 0.35〜0.64・y 0.24〜0.37 にある。題の右、言語の切り替えの下に来る置き方（2026-10-07） */
+  top: -4svh;
+  right: -22vw;
   width: min(92vw, 1180px, 150svh);
+  aspect-ratio: 1879 / 1223;
+}
+
+/* 狭い紙の分類のページでは写しの墨を置かない ── 頭（戻り・題・一行）と言語の切り替えで右上が埋まっている */
+@media (max-width: 767px) {
+  .sheet .stroke {
+    display: none;
+  }
 }
 
 /* 字の欄の幅。広い紙で伸ばしきると、題と値段が一行の両端に離れすぎて
@@ -1905,6 +1894,13 @@
      あるので、名乗りと入口のあいだは罫 3 本で足りる（2026-10-07。190px の空白が最初の行を 2 画面目へ押していた） */
   .paper {
     --hi-gates-gap: calc(3 * var(--hi-kei-pitch));
+  }
+
+  /* 指の下限 44px（字 14px × 2.3 ＝ 32px に上下 0.45em） */
+  .contact,
+  .textLink {
+    padding-block: 0.45em;
+    margin-block: -0.45em;
   }
 }
 

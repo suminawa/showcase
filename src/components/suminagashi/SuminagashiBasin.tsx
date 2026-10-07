@@ -88,11 +88,11 @@ export function SuminagashiBasin() {
     loop.interactionUntil = performance.now() + 3200;
     const opening = window.setTimeout(() => {
       if (!engineRef.current) return;
-      engine.splatInk(0.46, 0.55, "carbon", 0.06);
-      engine.splatInk(0.56, 0.47, "indigo", 0.05);
+      engine.splatInk(0.46, 0.55, "carbon", 0.05);
+      engine.splatInk(0.54, 0.49, "indigo", 0.042);
       // 指でひと撫で ── 滴の脇を S 字になぞる速度を 0.9 秒かけて与え、渦を一つ起こす
       if (!loop.reducedMotion) {
-        const t0 = performance.now();
+        const t0 = performance.now() + 120;
         let px = 0.3;
         let py = 0.4;
         const stir = (now: number) => {

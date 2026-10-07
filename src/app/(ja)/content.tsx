@@ -156,9 +156,8 @@ export function Home({ lang }: { lang: Lang }) {
       {/* 界線は要素を足さずに引く。各段の ::before が、その段の版面ぶんだけ罫を敷く
           （装飾は擬似要素なので支援技術には現れず、pointer-events も持たない） */}
       <header className={s.mark}>
-        {/* 入りの一筆。名乗りの上に残った空白の行を、そのまま器にしている。
-            元のハブと同じ部品で、下の本脈とは繋がない */}
-        <Myaku zone={s.zHead} at="head" dx={0} dxNarrow={0} delayMs={900} />
+        {/* 頭の脈は外した（2026-10-07）。器が罫 2 本しか無く、曲線が 52×74px に潰れて
+            左上のひびに見えていた。入りの一筆はいま生きた墨が引く */}
         <p className={s.showcase}>Showcase</p>
         <h1 className={s.wordmark}>SUMINAWA</h1>
         <p className={s.en}>
@@ -256,6 +255,7 @@ export function Home({ lang }: { lang: Lang }) {
                   <Link href={guideHref(guide)} className={s.entry}>
                     <span className={s.text}>
                       <span className={s.title}>{guide.title}</span>
+                      <span className={s.desc}>{guide.lede}</span>
                     </span>
                   </Link>
                 </li>
