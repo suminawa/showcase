@@ -84,17 +84,40 @@ export function InkHero() {
       seed = (seed * 16807) % 2147483647;
       return seed / 2147483647;
     };
-    /** 一画の点。k ∈ [0,1]。広い紙は紙の右上の内側（言語の切り替えの下）から名乗りの「AW」の上へ、
-        狭い紙は「AWA」の上を掠める */
-    const point = (k: number) => {
+    /**
+     * 一画の点。k ∈ [0,1]。箱は紙の幅から決まる大きな矩形（紙の右と上の外へ張り出す）なので、
+     * 箱の比率で置くと窓の幅ごとに違う所へ来る（1116px の窓で画面の上端に掛かり、棒に見えた）。
+     * だから【画面の上の名乗りと言語の切り替え】から決める:
+     *   入り … 紙の右端の少し内側、言語の切り替えの下
+     *   終わり … 名乗りの字の上端のすぐ上、広い紙は「AW」の上・狭い紙は「AWA」の上
+     * 画面の座標を箱の UV に写して splat する。
+     */
+    let geo = { x0: 0.68, y0: 0.75, x1: 0.35, y1: 0.63 };
+    const measure = () => {
+      const rect = canvas.getBoundingClientRect();
+      if (rect.width === 0 || rect.height === 0) return;
+      const vw = document.documentElement.clientWidth;
+      const h1 = box?.parentElement?.querySelector("h1");
+      const nav = box?.parentElement?.querySelector("nav");
+      const wordTop = h1 ? h1.getBoundingClientRect().top + window.scrollY : 190;
+      const navBottom = nav ? nav.getBoundingClientRect().bottom + window.scrollY : 48;
       const n = isNarrow();
-      const x = n ? 0.76 - 0.48 * k : 0.68 - 0.33 * k;
-      const y = n
-        ? 0.82 - 0.2 * k + 0.03 * Math.sin(k * Math.PI)
-        : 0.75 - 0.12 * k + 0.03 * Math.sin(k * Math.PI);
-      return { x, y };
+      const top = rect.top + window.scrollY;
+      const pxX0 = n ? vw - 18 : vw - 36;
+      const pxX1 = n ? vw * 0.42 : vw * 0.62;
+      // 入りの太さ（半径 ≒ 0.02 × 箱の高さ）のぶん、切り替えから離す
+      const pxY0 = Math.max(navBottom + (n ? 18 : 0.025 * rect.height + 8), top + 4);
+      const pxY1 = Math.max(pxY0 + (n ? 40 : 60), wordTop - (n ? 4 : 8));
+      const toU = (px: number) => (px - rect.left) / rect.width;
+      const toV = (py: number) => 1 - (py - top) / rect.height;
+      geo = { x0: toU(pxX0), y0: toV(pxY0), x1: toU(pxX1), y1: toV(pxY1) };
+    };
+    const point = (k: number) => {
+      const bow = 0.028 * Math.sin(k * Math.PI);
+      return { x: geo.x0 + (geo.x1 - geo.x0) * k, y: geo.y0 + (geo.y1 - geo.y0) * k + bow };
     };
     const beginStroke = (delayMs: number) => {
+      measure();
       t0 = performance.now() + delayMs;
       stepped = 0;
       drawn = 0;
@@ -120,7 +143,7 @@ export function InkHero() {
         // 筆圧: 入り（k≈0.12）で最も太く、終わりへ向けて 0.25 倍まで細る
         const attack = Math.min(1, k / 0.12);
         const taper = 1 - 0.75 * Math.max(0, (k - 0.12) / 0.88);
-        const press = (narrow ? 0.0035 + 0.012 : 0.005 + 0.017) * attack * taper;
+        const press = (narrow ? 0.0035 + 0.011 : 0.005 + 0.015) * attack * taper;
         const dx = x - lastX;
         const dy = y - lastY;
         const len = Math.hypot(dx, dy) || 1;
@@ -139,7 +162,7 @@ export function InkHero() {
             { off: -0.0095, end: 0.74, w: 0.22, ph: 5.3 },
           ];
           // 半径の下限は歩幅の 1.1 倍（下回ると毛が点線になる）
-          const floor = (narrow ? 0.52 : 0.35) / STEPS * 1.1;
+          const floor = (Math.hypot(geo.x1 - geo.x0, geo.y1 - geo.y0) / STEPS) * 1.1;
           for (const hair of hairs) {
             if (k > hair.end) continue;
             const life = 1 - (k - 0.62) / (hair.end - 0.62);
