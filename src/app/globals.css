@@ -49,9 +49,8 @@
 }
 
 @theme inline {
-  --font-sans:
-    var(--font-noto-sans-jp), ui-sans-serif, system-ui, "Hiragino Sans",
-    sans-serif;
+  /* 紙の字は明朝（各面の CSS Modules が持つ）。sans は見本の中だけで使う */
+  --font-sans: ui-sans-serif, system-ui, "Hiragino Sans", sans-serif;
 }
 
 body {

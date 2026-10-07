@@ -26,7 +26,7 @@
   --rp-shu: var(--ryoushi-shu);
 
   /* 字は「大」と「小」の二段だけ。中間帯（20〜30px）を使わない */
-  --rp-tiny: clamp(0.8125rem, 0.75rem + 0.22vw, 0.9375rem); /* 13 → 15px */
+  --rp-tiny: clamp(0.875rem, 0.8rem + 0.25vw, 1rem); /* 14 → 16px。トップ・分類のページ（--hi-tiny）と同じ（2026-10-07。前は 13 → 15px で、紙ごとに字の大きさが違っていた） */
   --rp-large: clamp(1.75rem, 4.2vw, 3rem); /* 28 → 48px */
 
   /* 界線の間隔＝本文一行。行送り・余白はすべてこの整数倍にする */
@@ -36,10 +36,10 @@
   --rp-soak: 560ms cubic-bezier(0.25, 0.8, 0.3, 1);
 
   --rp-serif:
-    var(--rp-mincho), "Hiragino Mincho ProN", "Yu Mincho", YuMincho,
+    var(--hi-mincho), "Hiragino Mincho ProN", "Yu Mincho", YuMincho,
     "Noto Serif JP", serif;
   --rp-serif-display:
-    var(--rp-display), "Hiragino Mincho ProN", "Yu Mincho", YuMincho,
+    var(--hi-display), "Hiragino Mincho ProN", "Yu Mincho", YuMincho,
     "Noto Serif JP", serif;
 
   position: relative;
@@ -290,7 +290,7 @@
 .paper button:focus-visible,
 .paper input:focus-visible,
 .paper [role="radio"]:focus-visible {
-  outline: 1px solid var(--rp-sumi);
+  outline: 2px solid var(--rp-sumi);
   outline-offset: clamp(6px, 1vw, 12px);
 }
 

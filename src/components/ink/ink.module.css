@@ -1,0 +1,27 @@
+/*
+ * 生きた墨の器。入りの一筆の箱（.stroke）の中に、静止画の二枚と同じ寸法で置く。
+ * 水盤の地は料紙と青が 2 違うだけ（#F6F3ED / #F6F3EB）なので、darken で重ねると
+ * 紙は紙のまま、墨だけが紙に乗る。箱の縁は流体の側で薄めてある（setEdgeFade）。
+ */
+.live {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+  mix-blend-mode: darken;
+  opacity: 0;
+  transition: opacity 900ms cubic-bezier(0.22, 0.68, 0.28, 1);
+  pointer-events: none;
+}
+
+:global([data-live="on"]) > .live {
+  opacity: 1;
+}
+
+/* 起動できた紙では、写真の墨（箱の中の二枚の span）は退く（一画は流体が引く）。
+   .ink は CSS Modules の名なので、箱の直下の span で指す */
+:global([data-live="on"]) > span {
+  opacity: 0 !important;
+  transition: opacity 700ms ease;
+}

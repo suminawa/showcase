@@ -67,10 +67,11 @@ export function ProjectShell({
         </h1>
         <p className={s.lede}>{lede}</p>
         {head}
-        {lang === "ja" && <RelatedGuides slug={slug} />}
       </header>
 
       <div className={s.work}>{children}</div>
+      {/* 関連する案内記事は作品の【あと】に（2026-10-07）。頭に置くと、動く実物が初画面の下へ押し出されていた */}
+      {lang === "ja" && <RelatedGuides slug={slug} />}
     </main>
   );
 }
@@ -81,7 +82,7 @@ function RelatedGuides({ slug }: { slug: string }) {
   if (related.length === 0) return null;
   return (
     // 頭の格子の間隔（半行）に半行を足し、一行の字を罫の上へ戻す
-    <p className={s.lede} style={{ marginTop: "calc(0.5 * var(--rp-pitch))" }}>
+    <p className={s.lede} style={{ marginTop: "var(--rp-pitch)" }}>
       関連する案内記事:{" "}
       {related.map((g, i) => (
         <span key={g.slug}>

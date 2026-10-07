@@ -5,19 +5,12 @@
  */
 import type { Metadata } from "next";
 import { Analytics } from "@vercel/analytics/next";
-import { Noto_Sans_JP } from "next/font/google";
 
 import { JsonLd } from "@/components/JsonLd";
 import { siteJsonLd } from "@/lib/jsonld";
 import { SITE_DESCRIPTION, SITE_NAME, siteUrl } from "@/lib/site";
 
 import "@/app/globals.css";
-
-const notoSansJp = Noto_Sans_JP({
-  subsets: ["latin"],
-  display: "swap",
-  variable: "--font-noto-sans-jp",
-});
 
 /*
  * OGP の画像は src/app/opengraph-image.png（1200×630）。
@@ -48,7 +41,7 @@ export function RootDocument({ lang, children }: { lang: string; children: React
     /* 現れる演出の印（data-hi）は、本文より先に走る一行の script が付ける。
        サーバーが書いた html にはまだ無いので、その一点だけ照合を見送る */
     <html lang={lang} suppressHydrationWarning>
-      <body className={`${notoSansJp.variable} font-sans antialiased`}>
+      <body className="antialiased">
         <JsonLd data={siteJsonLd()} />
         {children}
         {/* Vercel Web Analytics。Cookie を使わず、個人を特定する情報も持たないページビューの数だけ */}

@@ -31,6 +31,7 @@
  */
 import Link from "next/link";
 
+import { InkHero } from "@/components/ink/InkHero";
 import { LangSwitch } from "@/components/lang/LangSwitch";
 import { SaleText } from "@/components/ryoushi";
 import { REVEAL_FLAG, fontVars } from "@/components/ryoushi/fonts";
@@ -133,15 +134,20 @@ export function Home({ lang }: { lang: Lang }) {
   const { servicesBrief } = localContact(lang);
 
   return (
-    <main className={`${s.paper} ${fontVars}`}>
+    <div className={`${s.paper} ${fontVars}`}>
+      <a href="#main" className={s.skip}>
+        {t.skip}
+      </a>
       <LangSwitch lang={lang} path="/" />
       {/* 現れる演出の印。本文より先に走るので、隠す規則は最初の描画から効く */}
       <script dangerouslySetInnerHTML={{ __html: REVEAL_FLAG }} />
 
-      {/* 入りの一筆。紙の右上を斜めに掠めて画面外へ抜ける */}
+      {/* 入りの一筆。紙の右上を斜めに掠めて画面外へ抜ける。
+          WebGL2 が使える紙では流体の墨が同じ箱で一画を引き、写真の二枚は退く（InkHero） */}
       <div className={s.stroke} aria-hidden="true">
         <span className={`${s.ink} ${s.inkKasure}`} />
         <span className={`${s.ink} ${s.inkCore}`} />
+        <InkHero />
       </div>
 
       {/* 筆が紙を離れる最後の掠れ。点だけになって右下で消える */}
@@ -180,7 +186,7 @@ export function Home({ lang }: { lang: Lang }) {
         </ol>
       </header>
 
-      <section className={s.shelf} aria-labelledby="picks-name">
+      <main className={s.shelf} id="main">
         {/* 本脈。名乗りの塊のすぐ下（英文の行の直下）から、結びの界線が
             始まる手前まで、一つの箱で降りる（@/lib/vein の註）*/}
         <Myaku zone={s.zShelf} at="span" dx={0} dxNarrow={0} delayMs={1120} />
@@ -242,7 +248,8 @@ export function Home({ lang }: { lang: Lang }) {
               </h2>
             </div>
             <ol className={s.picks} aria-labelledby="guides-name">
-              {guides.map((guide) => (
+              {/* 新しい 3 本だけ。全件は /guides（19 本を並べると紙が 4,000px に戻る） */}
+              {guides.slice(-3).reverse().map((guide) => (
                 <li key={guide.slug} className={s.row}>
                   <span className={s.flow} aria-hidden="true" />
                   <span className={s.flowDeep} aria-hidden="true" />
@@ -261,7 +268,7 @@ export function Home({ lang }: { lang: Lang }) {
             </p>
           </>
         )}
-      </section>
+      </main>
 
       <footer className={s.close}>
         <h2 className={s.closeHead}>{t.closeHead}</h2>
@@ -289,6 +296,6 @@ export function Home({ lang }: { lang: Lang }) {
         </p>
         <p className={s.closeLine}>{t.closeLine}</p>
       </footer>
-    </main>
+    </div>
   );
 }

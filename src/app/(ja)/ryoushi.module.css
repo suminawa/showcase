@@ -409,16 +409,16 @@
     saturate(0.55);
   opacity: 0.9;
   /* 芯より筋を細く抜く（閾値 intercept -2.96）。黒の外に灰の縁が残る */
-  mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1200 800' preserveAspectRatio='none'%3E%3Cfilter id='h' color-interpolation-filters='sRGB'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.0038 0.1' numOctaves='4' seed='5'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 1 0 0 0 0'/%3E%3CfeComponentTransfer%3E%3CfeFuncA type='linear' slope='8' intercept='-2.96'/%3E%3C/feComponentTransfer%3E%3C/filter%3E%3ClinearGradient id='g' x1='0' y1='1' x2='0.9' y2='0.05'%3E%3Cstop offset='0.16' stop-color='%23fff' stop-opacity='1'/%3E%3Cstop offset='0.68' stop-color='%23fff' stop-opacity='0'/%3E%3C/linearGradient%3E%3Cg transform='rotate(-7 600 400)'%3E%3Crect x='-500' y='-500' width='2200' height='1800' filter='url(%23h)'/%3E%3C/g%3E%3Crect width='1200' height='800' fill='url(%23g)'/%3E%3C/svg%3E");
+  mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1200 800' preserveAspectRatio='none'%3E%3Cfilter id='h' color-interpolation-filters='sRGB'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.011 0.05' numOctaves='4' seed='5'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 1 0 0 0 0'/%3E%3CfeComponentTransfer%3E%3CfeFuncA type='linear' slope='6' intercept='-2.2'/%3E%3C/feComponentTransfer%3E%3C/filter%3E%3ClinearGradient id='g' x1='0' y1='1' x2='0.9' y2='0.05'%3E%3Cstop offset='0.16' stop-color='%23fff' stop-opacity='1'/%3E%3Cstop offset='0.68' stop-color='%23fff' stop-opacity='0'/%3E%3C/linearGradient%3E%3Cg transform='rotate(-7 600 400)'%3E%3Crect x='-500' y='-500' width='2200' height='1800' filter='url(%23h)'/%3E%3C/g%3E%3Crect width='1200' height='800' fill='url(%23g)'/%3E%3C/svg%3E");
   mask-size: 100% 100%;
 }
 
 /* 芯 ── 一番沈んだところだけを墨まで落とす。126〜232 を黒〜白へ引き伸ばす */
 .inkCore {
-  filter: grayscale(1) brightness(0.74) contrast(2.85) sepia(0.28)
+  filter: grayscale(1) brightness(0.8) contrast(2.1) sepia(0.28)
     saturate(0.62);
   /* 同じ乱流・同じ seed。閾値だけ上げて（-3.68）筋を太く抜く */
-  mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1200 800' preserveAspectRatio='none'%3E%3Cfilter id='h' color-interpolation-filters='sRGB'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.0038 0.1' numOctaves='4' seed='5'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 1 0 0 0 0'/%3E%3CfeComponentTransfer%3E%3CfeFuncA type='linear' slope='8' intercept='-3.68'/%3E%3C/feComponentTransfer%3E%3C/filter%3E%3ClinearGradient id='g' x1='0' y1='1' x2='0.9' y2='0.05'%3E%3Cstop offset='0.14' stop-color='%23fff' stop-opacity='1'/%3E%3Cstop offset='0.6' stop-color='%23fff' stop-opacity='0'/%3E%3C/linearGradient%3E%3Cg transform='rotate(-7 600 400)'%3E%3Crect x='-500' y='-500' width='2200' height='1800' filter='url(%23h)'/%3E%3C/g%3E%3Crect width='1200' height='800' fill='url(%23g)'/%3E%3C/svg%3E");
+  mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1200 800' preserveAspectRatio='none'%3E%3Cfilter id='h' color-interpolation-filters='sRGB'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.011 0.05' numOctaves='4' seed='5'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 1 0 0 0 0'/%3E%3CfeComponentTransfer%3E%3CfeFuncA type='linear' slope='6' intercept='-2.8'/%3E%3C/feComponentTransfer%3E%3C/filter%3E%3ClinearGradient id='g' x1='0' y1='1' x2='0.9' y2='0.05'%3E%3Cstop offset='0.14' stop-color='%23fff' stop-opacity='1'/%3E%3Cstop offset='0.6' stop-color='%23fff' stop-opacity='0'/%3E%3C/linearGradient%3E%3Cg transform='rotate(-7 600 400)'%3E%3Crect x='-500' y='-500' width='2200' height='1800' filter='url(%23h)'/%3E%3C/g%3E%3Crect width='1200' height='800' fill='url(%23g)'/%3E%3C/svg%3E");
   mask-size: 100% 100%;
 }
 
@@ -1209,7 +1209,8 @@
 .row:has(a[href]:focus-visible) .flow {
   /* 濃さを上げたぶん、範囲（--hi-wet-l / -r）を締めて紙の予算を釣り合わせている。
      広く薄く撒くより、狭く濃いほうが「濡れた」と読める */
-  opacity: 0.245;
+  /* 0.245 → 0.32（2026-10-07）。狭く濃く ── 張り出しはそのままで芯だけ濃くする */
+  opacity: 0.32;
   /* 粒は 30vw、窓は 14vw。距離が違うので視差が出る＝「通り抜けた」に見える */
   background-position: 0 50%;
   mask-position: var(--hi-wet-x1) 0;
@@ -1221,7 +1222,8 @@
 
 .row:has(a[href]):hover .flowDeep,
 .row:has(a[href]:focus-visible) .flowDeep {
-  opacity: 0.14;
+  /* 0.14 → 0.2（2026-10-07）。遠目には罫が濃くなるだけで、水が見えなかった */
+  opacity: 0.2;
   transition: opacity 1750ms cubic-bezier(0.25, 0.6, 0.3, 1);
   animation-play-state: running;
 }
@@ -1557,6 +1559,9 @@
  */
 .contact {
   display: inline-block;
+  /* 指の下限 44px。字の行（2.3 行＝36.8px）に上下 0.25em ずつ足し、margin で相殺して罫の位相は動かさない */
+  padding-block: 0.25em;
+  margin-block: -0.25em;
   font-size: var(--hi-tiny);
   line-height: 2.3;
   letter-spacing: 0.1em;
@@ -1605,8 +1610,35 @@
 
 /* 罫は敷いたが、それは字の下地。フォーカスの輪は紙から充分に離して細く引く */
 .paper a:focus-visible {
-  outline: 1px solid var(--hi-sumi);
+  /* 2px（2026-10-07）── 1px の輪は乱流の罫の上で見分けがつかなかった */
+  outline: 2px solid var(--hi-sumi);
   outline-offset: clamp(10px, 1.6vw, 18px);
+}
+
+/* 本文へ飛ぶ一行。キーボードで来た人にだけ現れる（最初の Tab で紙の左上に） */
+.skip {
+  position: absolute;
+  top: clamp(10px, 1.8vw, 22px);
+  left: clamp(16px, 3vw, 40px);
+  z-index: 6;
+  padding: 0.4em 0.9em;
+  background: var(--hi-paper);
+  color: var(--hi-sumi);
+  font-size: var(--hi-tiny);
+  letter-spacing: 0.1em;
+  text-decoration: underline;
+  text-underline-offset: 0.35em;
+  clip-path: inset(50%);
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.skip:focus-visible {
+  clip-path: none;
+  width: auto;
+  height: auto;
 }
 
 /* ==========================================================================
@@ -1853,14 +1885,27 @@
     /* 広い紙と同じ濃さへ揃える。0.215 では合成後に青が出る閾値 a>0.17 に
        届かず、この帯だけ青が乗っていなかった（実測 B>R が水の 1.2%、
        b* 最青 −1.7 で、広い紙の −4.0 に対して半分以下） */
-    opacity: 0.245;
+    opacity: 0.32;
   }
 
   .row:has(a[href]):hover .flowDeep,
   .row:has(a[href]:focus-visible) .flowDeep {
-    opacity: 0.14;
+    opacity: 0.2;
   }
 
+}
+
+@media (max-width: 767px) {
+  /* 名乗りの一行は狭い紙で 2 行に折れていた（字送り 0.24em）。1 行に収めて罫の位相を守る */
+  .paper .en {
+    letter-spacing: 0.06em;
+  }
+
+  /* 入口は墨の下から始める決まり（罫 6 本）は広い紙のもの。狭い紙では墨が字の上に
+     あるので、名乗りと入口のあいだは罫 3 本で足りる（2026-10-07。190px の空白が最初の行を 2 画面目へ押していた） */
+  .paper {
+    --hi-gates-gap: calc(3 * var(--hi-kei-pitch));
+  }
 }
 
 @media (max-width: 767px) {

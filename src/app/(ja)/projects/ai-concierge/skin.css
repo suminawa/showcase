@@ -1,0 +1,74 @@
+/*
+ * 案内窓口の窓を、料紙の文法に寄せる皮（2026-10-07）。
+ * 部品の色・角・字は --ac-* で渡してある（content.tsx）。ここは --ac-* では
+ * 届かない形だけ ── 枠を罫一本に、札（提案）を紙に書かれた動詞に、空の高さを畳む。
+ * 窓の中は Operate の面なので、入力欄と送信の形はそのまま残す。
+ */
+#suminawa-concierge .ac-panel {
+  border-width: 0;
+  border-block: 1px solid var(--ac-border);
+  height: auto;
+  min-height: 0;
+}
+
+#suminawa-concierge .ac-log {
+  flex: 0 1 auto;
+  max-height: 24rem;
+  min-height: 7rem;
+}
+
+#suminawa-concierge .ac-header {
+  padding-inline: 0;
+}
+
+#suminawa-concierge .ac-title {
+  font-weight: 500;
+  letter-spacing: 0.1em;
+}
+
+#suminawa-concierge .ac-reset,
+#suminawa-concierge .ac-suggestion {
+  border: 0;
+  padding: 0.5em 0;
+  margin-inline-end: 1.25em;
+  font-size: 0.9375rem;
+  letter-spacing: 0.06em;
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-decoration-color: color-mix(in srgb, var(--ryoushi-sumi) 34%, transparent);
+  text-underline-offset: 0.35em;
+  color: var(--ryoushi-sumi-3);
+  min-height: 44px;
+}
+
+#suminawa-concierge .ac-reset:hover,
+#suminawa-concierge .ac-suggestion:hover,
+#suminawa-concierge .ac-reset:focus-visible,
+#suminawa-concierge .ac-suggestion:focus-visible {
+  color: var(--ryoushi-sumi);
+  text-decoration-color: var(--ryoushi-sumi);
+}
+
+#suminawa-concierge .ac-suggestions,
+#suminawa-concierge .ac-log,
+#suminawa-concierge .ac-form {
+  padding-inline: 0;
+}
+
+#suminawa-concierge .ac-form {
+  border-top: 0;
+}
+
+#suminawa-concierge .ac-input {
+  border-width: 0 0 1px 0;
+  background: transparent;
+}
+
+#suminawa-concierge .ac-send {
+  min-height: 44px;
+}
+
+#suminawa-concierge .ac-message-user {
+  background: color-mix(in srgb, var(--ryoushi-sumi) 8%, transparent);
+  color: var(--ryoushi-sumi);
+}

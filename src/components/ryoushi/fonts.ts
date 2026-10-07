@@ -23,6 +23,13 @@ export const mincho = Shippori_Mincho({
   weight: ["400", "500"],
   display: "swap",
   variable: "--hi-mincho",
+  /*
+   * 日本語の書体は 120 余りの小さな切れ（unicode-range）に分かれていて、
+   * preload を付けると next/font が全部を <link rel=preload> に並べる
+   * （2026-10-07 の実測: 124 本・3.8MB が毎ページ）。字が要る切れだけを
+   * ブラウザに取りに行かせるので、先読みは付けない。
+   */
+  preload: false,
 });
 
 /** <main> に載せるクラス名。`${s.paper} ${fontVars}` の形で使う */

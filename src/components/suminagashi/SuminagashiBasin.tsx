@@ -82,9 +82,33 @@ export function SuminagashiBasin() {
     loop.reducedMotion = window.matchMedia(
       "(prefers-reduced-motion: reduce)",
     ).matches;
-    // 水面は無地で待つ。最初の一滴は見る人の手から。
-    // 開幕の数フレームだけ描いて、素の水面(と地の色)を見せる
-    loop.interactionUntil = performance.now() + 400;
+    // 開幕に墨を二滴と、かすかな風（2026-10-07）。無地の水盤は「何も無い四角」に
+    // しか見えず、指で触るまで作品だと分からなかった。最初の手は見る人のものだが、
+    // 水面がすでに動いていれば、触りたくなる。reduced-motion では滴だけ落として止まる。
+    loop.interactionUntil = performance.now() + 3200;
+    const opening = window.setTimeout(() => {
+      if (!engineRef.current) return;
+      engine.splatInk(0.46, 0.55, "carbon", 0.06);
+      engine.splatInk(0.56, 0.47, "indigo", 0.05);
+      // 指でひと撫で ── 滴の脇を S 字になぞる速度を 0.9 秒かけて与え、渦を一つ起こす
+      if (!loop.reducedMotion) {
+        const t0 = performance.now();
+        let px = 0.3;
+        let py = 0.4;
+        const stir = (now: number) => {
+          const e = engineRef.current;
+          if (!e) return;
+          const k = Math.min(1, (now - t0) / 900);
+          const x = 0.3 + 0.42 * k;
+          const y = 0.4 + 0.18 * Math.sin(k * Math.PI * 1.6);
+          e.splatVelocity(x, y, (x - px) * 0.9, (y - py) * 0.9);
+          px = x;
+          py = y;
+          if (k < 1) requestAnimationFrame(stir);
+        };
+        requestAnimationFrame(stir);
+      }
+    }, 350);
 
     // 比較用の隠しダイヤル(URL クエリ)。通常は押し退けゼロ = 滴は重なる。
     // ?push=1 で従来の全域押し(同心円)、?push=0.5&reach=2 で至近だけの縁押し
@@ -150,6 +174,7 @@ export function SuminagashiBasin() {
     canvas.addEventListener("webglcontextlost", onContextLost);
 
     return () => {
+      window.clearTimeout(opening);
       cancelAnimationFrame(loop.raf);
       document.removeEventListener("visibilitychange", onVisibility);
       canvas.removeEventListener("webglcontextlost", onContextLost);

@@ -7,6 +7,7 @@
 import Script from "next/script";
 
 import "@suminawa/ai-concierge/ai-concierge.css";
+import "./skin.css";
 
 import type { Lang } from "@/i18n/routes";
 
@@ -33,14 +34,16 @@ export function Content({ lang }: { lang: Lang }) {
         id="suminawa-concierge"
         style={
           {
-            "--ac-bg": "#fbf8f1",
-            "--ac-fg": "#1c1a15",
-            "--ac-muted": "#6a665d",
-            "--ac-brand": "#1c1a15",
-            "--ac-brand-fg": "#f4efe6",
-            "--ac-border": "#d8d0c1",
-            "--ac-radius": "4px",
-            "--ac-font": "inherit",
+            /* 紙の色と墨の四段は globals.css の --ryoushi-*。窓の中だけ、罫と同じ淡さの一本を持つ */
+            "--ac-bg": "var(--ryoushi-paper)",
+            "--ac-fg": "var(--ryoushi-sumi)",
+            "--ac-muted": "var(--ryoushi-sumi-4)",
+            "--ac-brand": "var(--ryoushi-sumi)",
+            "--ac-brand-fg": "var(--ryoushi-paper)",
+            "--ac-border": "color-mix(in srgb, var(--ryoushi-sumi) 26%, transparent)",
+            "--ac-radius": "0px",
+            /* inherit は var() の中では字の名として読めず、既定のゴシックに落ちていた（2026-10-07） */
+            "--ac-font": "var(--hi-mincho), 'Hiragino Mincho ProN', 'Yu Mincho', YuMincho, serif",
             "--ac-shadow": "none",
           } as React.CSSProperties
         }

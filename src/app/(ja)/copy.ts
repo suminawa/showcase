@@ -3,13 +3,15 @@ import { SITE_DESCRIPTION } from "@/lib/site";
 /** トップの紙の言葉（src/app/content.tsx）。品物の題・入口・品書きは src/i18n/catalog.ts */
 const ja = {
   description: SITE_DESCRIPTION,
-  tagline: "Things I've built.",
+  /* 名乗りの一行。概念の説明ではなく事実だけ（2026-10-07。英文だけでは初めて来た人に何の紙か分からなかった） */
+  tagline: "業務の道具とサイトをつくっています。",
   categories: "分類",
   picks: "いま見てほしいもの",
   closeHead: "制作のご相談",
   closeText: "料金は税別の目安です。ほかの内容もご相談いただけます。",
   closeCta: "料金の目安と進め方を見る",
   closeLine: "すべての作品は、その場で実際に動きます。",
+  skip: "本文へ",
 };
 
 export const copy: Record<"ja" | "en" | "fr", typeof ja> = {
@@ -24,6 +26,7 @@ export const copy: Record<"ja" | "en" | "fr", typeof ja> = {
     closeText: "Prices are estimates, excluding tax. Other kinds of work are welcome too.",
     closeCta: "See pricing and how it works",
     closeLine: "Everything here runs live, right on the page.",
+    skip: "Skip to content",
   },
   fr: {
     description:
@@ -35,5 +38,6 @@ export const copy: Record<"ja" | "en" | "fr", typeof ja> = {
     closeText: "Tarifs indicatifs, hors taxes. D’autres demandes sont les bienvenues.",
     closeCta: "Voir les tarifs et le déroulement",
     closeLine: "Tout ici fonctionne en direct, sur la page.",
+    skip: "Aller au contenu",
   },
 };
