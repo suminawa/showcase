@@ -23,6 +23,9 @@
 /* 題のすぐ下の答え。一行の説明（lede）より一段濃く */
 .answer {
   color: var(--rp-sumi-3);
+  /* 頭の格子の間（0.5 pitch）を一つ増やす分を、ここで 0.5 pitch 足して整数に戻す ──
+     答えの段が入ることで lede が罫から半行ずれ、取り消し線に見えていた（2026-10-07） */
+  margin-bottom: calc(0.5 * var(--rp-pitch));
 }
 
 .text {
@@ -68,7 +71,8 @@
 }
 
 .caption {
-  margin-top: calc(0.25 * var(--rp-pitch));
+  /* 0.25 → 0.5 pitch（2026-10-07）。半端だと署名の行が罫から 0.25 行ずれる */
+  margin-top: calc(0.5 * var(--rp-pitch));
   font-size: var(--rp-tiny);
   line-height: var(--rp-pitch);
   color: var(--rp-sumi-4);

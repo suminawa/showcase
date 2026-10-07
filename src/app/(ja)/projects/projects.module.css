@@ -169,19 +169,11 @@
   background-repeat: repeat-y;
   background-size: 100% calc(3 * var(--rp-pitch));
   background-position: 0 0;
-  /* 上端は紙のまま始め、下端は作品へ渡す手前で消す。
-     題（大字）の帯には罫を引かない ── 48px の字はどう置いても罫をまたぎ、取り消し線に見えた（2026-10-07。分類のページの頭と同じ処置）。
-     帯の上端は戻りの一行（2 行）＋ 間（0.5 pitch）、高さは大字の 1.2em */
-  --rp-title-top: calc(2 * var(--rp-tiny) + 0.5 * var(--rp-pitch) - 4px);
-  --rp-title-h: calc(1.2 * var(--rp-large) + 8px);
+  /* 上端は紙のまま始め、下端は作品へ渡す手前で消す。題の帯は .title が紙の色で隠す */
   mask-image: linear-gradient(
     to bottom,
     transparent 0,
     #000 calc(0.7 * var(--rp-pitch)),
-    #000 var(--rp-title-top),
-    transparent var(--rp-title-top),
-    transparent calc(var(--rp-title-top) + var(--rp-title-h)),
-    #000 calc(var(--rp-title-top) + var(--rp-title-h)),
     #000 calc(100% - 0.4 * var(--rp-pitch)),
     transparent 100%
   );
@@ -197,7 +189,8 @@
   gap: 0.75em;
   justify-self: start;
   font-size: var(--rp-tiny);
-  line-height: 2;
+  /* 1 pitch（2026-10-07）。2em だと 0.87 pitch で、頭の下の全行が罫から 5px ずれていた */
+  line-height: var(--rp-pitch);
   letter-spacing: 0.2em;
   color: var(--rp-sumi-4);
   text-decoration: none;
@@ -255,9 +248,15 @@
   line-height: 1.15;
   letter-spacing: 0.06em;
   color: var(--rp-sumi);
-  /* 大字の行だけが pitch に量子化されていないと、端数が下の全行を罫からずらす。
-     端数はタイトル直下で吸収し、以降の行(lede)を罫の格子に返す */
-  padding-bottom: calc(round(up, 1.15em, var(--rp-pitch)) - 1.15em);
+  /* 大字の行は【行そのもの】を罫の整数倍にする（2026-10-07）。
+     前は padding-bottom で一行ぶんの端数を吸収していたが、題が 2 行に折れると
+     2 行目の 1.15em（罫の 0.5 本ぶん）が下の全行を罫からずらし、lede が取り消し線に見えた
+     （案内記事の長い題で起きた）。行の高さを round(up, 1.15em, pitch) にすれば何行でも格子に乗る。
+     一行の題では前と同じ高さ（55.2px + 18.4px ＝ 2 pitch）になる。
+     題の帯には罫を引かない ── 紙の色を敷いて、後ろの罫を隠す（何行でも）。 */
+  line-height: round(up, 1.15em, var(--rp-pitch));
+  padding-bottom: 0;
+  background: var(--rp-paper);
   animation: rp-rise 1000ms var(--rp-brush) 560ms both;
 }
 
