@@ -90,7 +90,7 @@ export function InkHero() {
       drawn = 0;
       seed = 7;
       lastX = isNarrow() ? 0.74 : 0.72;
-      lastY = isNarrow() ? 0.95 : 0.82;
+      lastY = isNarrow() ? 0.95 : 0.81;
       stepped = 0;
     };
     beginStroke(220);
@@ -99,10 +99,13 @@ export function InkHero() {
      * 時間で引くと、rAF が間引かれた紙（隠れたタブ・省電力）で一画が一点に潰れる。
      * 大きく時間が飛んだときは、その分だけ歩数をまとめて進める（最大 70 歩＝一画の全部）。
      */
-    const STEPS = 66;
+    /* 一画は 120 歩・1.1 秒。歩幅（0.3 / 120 ≒ 0.0025）は滴の半径（≥ 0.004）より
+       小さいので、まとめて進めても点線にならず一本に繋がる */
+    const STEPS = 120;
+    const STROKE_SEC = 1.1;
     const draw = (now: number, dt: number) => {
       if (now < t0) return false;
-      const steps = Math.max(1, Math.min(STEPS, Math.round(dt / (1 / 60))));
+      const steps = Math.max(1, Math.min(STEPS, Math.round(dt / (STROKE_SEC / STEPS))));
       for (let i = 0; i < steps && stepped < STEPS; i++) {
         stepped += 1;
         const k = stepped / STEPS;
@@ -114,7 +117,7 @@ export function InkHero() {
         const x = narrow ? 0.74 - 0.4 * k : 0.72 - 0.3 * k;
         const y = narrow
           ? 0.95 - 0.24 * k + 0.03 * Math.sin(k * Math.PI)
-          : 0.82 - 0.15 * k + 0.03 * Math.sin(k * Math.PI);
+          : 0.81 - 0.16 * k + 0.03 * Math.sin(k * Math.PI);
         // 筆圧: 書き出しで太く、終わりへ向けて細く、最後は掠れる
         const press =
           (narrow ? 0.0028 : 0.004) +
@@ -132,6 +135,9 @@ export function InkHero() {
         engine.splatVelocity(x, y, dx * 0.1, dy * 0.1);
         lastX = x;
         lastY = y;
+        // まとめて進めるとき（間引かれた rAF の追いつき）は、数歩ごとに水を一拍進めて
+        // 滴どうしを馴染ませる ── でないと点線になる
+        if (steps > 4 && i % 5 === 4) engine.step(1 / 60);
       }
       drawn = stepped / STEPS;
       return drawn >= 1;
