@@ -7,7 +7,7 @@
  * 動くのは紙の湿りひとつだけ、という法を図版で破らない。
  */
 import Link from "next/link";
-import { Fragment } from "react";
+import { Fragment, ViewTransition } from "react";
 
 import { localPriceLabel, localProject } from "@/i18n/catalog";
 import { hrefFor, type Lang } from "@/i18n/routes";
@@ -86,7 +86,10 @@ function Row({
     <>
       <span className={s.text}>
         <span className={s.line}>
-          <span className={s.title}>{project.title}</span>
+          {/* 題が、次の紙の題へ伸びる（ProjectShell の h1 と同じ名） */}
+          <ViewTransition name={`t-${project.slug}`} share="morph" default="none">
+            <span className={s.title}>{project.title}</span>
+          </ViewTransition>
           {showSale && project.sale && (
             <span className={s.sale}>
               <SaleText label={localPriceLabel(lang, project) ?? ""} />

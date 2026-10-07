@@ -4,6 +4,7 @@
  * 文そのものは各ページの copy.ts（{ ja, en, fr } の同じ形）にある。
  */
 import Link from "next/link";
+import { ViewTransition } from "react";
 
 import { JsonLd } from "@/components/JsonLd";
 import { LangSwitch } from "@/components/lang/LangSwitch";
@@ -44,6 +45,7 @@ export function ProjectShell({
   children: React.ReactNode;
 }) {
   return (
+    <ViewTransition default="paper">
     <main className={`${s.paper} ${fontVars}`}>
       <ProjectJsonLd lang={lang} slug={slug} title={title} />
       <LangSwitch lang={lang} path={`/projects/${slug}`} />
@@ -60,11 +62,14 @@ export function ProjectShell({
           </span>
           {UI[lang].back}
         </Link>
-        <h1 className={s.title}>
-          {title}
-          {/* 英語の題が英字の添えと同じ字になる紙（Thirty Days）では、二度書かない */}
-          {latin !== title && <span className={s.latin} aria-hidden="true">{latin}</span>}
-        </h1>
+        {/* 一覧の行の題（Rows / トップの 4 点）と同じ名。触れた行の題がこの題へ伸びる */}
+        <ViewTransition name={`t-${slug}`} share="morph" default="none">
+          <h1 className={s.title}>
+            {title}
+            {/* 英語の題が英字の添えと同じ字になる紙（Thirty Days）では、二度書かない */}
+            {latin !== title && <span className={s.latin} aria-hidden="true">{latin}</span>}
+          </h1>
+        </ViewTransition>
         <p className={s.lede}>{lede}</p>
         {head}
       </header>
@@ -73,6 +78,7 @@ export function ProjectShell({
       {/* 関連する案内記事は作品の【あと】に（2026-10-07）。頭に置くと、動く実物が初画面の下へ押し出されていた */}
       {lang === "ja" && <RelatedGuides slug={slug} />}
     </main>
+    </ViewTransition>
   );
 }
 

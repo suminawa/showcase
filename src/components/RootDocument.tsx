@@ -7,6 +7,7 @@ import type { Metadata } from "next";
 import { Analytics } from "@vercel/analytics/next";
 
 import { JsonLd } from "@/components/JsonLd";
+import { REVEAL_FLAG } from "@/components/ryoushi/fonts";
 import { siteJsonLd } from "@/lib/jsonld";
 import { SITE_DESCRIPTION, SITE_NAME, siteUrl } from "@/lib/site";
 
@@ -42,6 +43,10 @@ export function RootDocument({ lang, children }: { lang: string; children: React
        サーバーが書いた html にはまだ無いので、その一点だけ照合を見送る */
     <html lang={lang} suppressHydrationWarning>
       <body className="antialiased">
+        {/* 現れる演出の印（html[data-hi="on"]）。本文より先に走るので、隠す規則は最初の描画から効く。
+            根のレイアウトに置く ── 面の部品に置くと、紙から紙へ移るたびに React が
+            「script は描画されない」と叱る（2026-10-07）。根は移動で描き直されない */}
+        <script dangerouslySetInnerHTML={{ __html: REVEAL_FLAG }} />
         <JsonLd data={siteJsonLd()} />
         {children}
         {/* Vercel Web Analytics。Cookie を使わず、個人を特定する情報も持たないページビューの数だけ */}

@@ -217,6 +217,15 @@ Hina Mincho（大字だけ）と Shippori Mincho（400 / 500）の二書体を `
 - 解像度は半分（resStep 1・DPR 1）。画面の外・隠れたタブ・乾ききったあとは rAF を止め、手で起きる。遅いフレームが 45 回続いたら一段落とす
 - 頭の脈（zHead）は外した。器が罫 2 本しか無く、左上のひびに見えていた。入りの一筆はこの墨が引く
 
+### 紙をめくる（View Transitions、2026-10-07）
+
+面から面へ移るとき、紙は一枚ずつめくられる。古い紙は 160ms で乾いて薄れ、新しい紙は 120ms 置いて 320ms で現れ、2 行ぶん（8px）下から座る。**触れた行の題は、次の紙の題へ伸びる**（React の `<ViewTransition name="t-<slug>" share="morph">`。入口 3 行の日本語は分類のページの題へ、一覧の行の題は作品ページの題へ）。途中で一度滲む（blur 2.5px）のは、拡大の継ぎ目を墨のにじみとして読ませるため。
+
+- 面の根（Home・Sheet・ProjectShell）を `<ViewTransition default="paper">` で包む。CSS は `globals.css` の `::view-transition-*(.paper)` / `(.morph)`。名の無い面（案内記事の中など）は根の交差だけ
+- 向き（進む・戻る）は付けない ── 料紙に左右の向きは無い。紙はめくられ、題だけが残る
+- reduced-motion ではすべて止める（`::view-transition-*(*) { animation: none }`）
+- 現れる演出の印（`html[data-hi="on"]`）は根のレイアウト（RootDocument）が付ける。面の部品に script を置くと、紙から紙へ移るたびに React が叱る
+
 ### 筆脈（vein）
 
 **部品は二つ。入りの一筆と本脈で、繋がない**（2026-09-22）。元のハブと同じ形である。

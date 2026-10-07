@@ -9,13 +9,14 @@
  * 戻りの導線が朱の落款を連れているので、画面で色を持つのはやはり一箇所だけ。
  */
 import Link from "next/link";
+import { ViewTransition } from "react";
 
 import s from "@/app/(ja)/ryoushi.module.css";
 import { LangSwitch } from "@/components/lang/LangSwitch";
 import { hrefFor, type Lang } from "@/i18n/routes";
 import { UI } from "@/i18n/ui";
 
-import { REVEAL_FLAG, fontVars } from "./fonts";
+import { fontVars } from "./fonts";
 
 export function Sheet({
   title,
@@ -37,10 +38,9 @@ export function Sheet({
   path?: string;
 }) {
   return (
+    <ViewTransition default="paper">
     <main className={`${s.paper} ${s.sheet} ${fontVars}`}>
       {path && <LangSwitch lang={lang} path={path} />}
-      {/* 現れる演出の印。本文より先に走るので、隠す規則は最初の描画から効く */}
-      <script dangerouslySetInnerHTML={{ __html: REVEAL_FLAG }} />
 
       {/* 入りの一筆。紙の右上を斜めに掠めて画面外へ抜ける */}
       <div className={s.stroke} aria-hidden="true">
@@ -55,15 +55,19 @@ export function Sheet({
           </span>
           {UI[lang].back}
         </Link>
-        <h1 className={s.pageTitle}>
-          {title}
-          <span className={s.latin} aria-hidden="true">{latin}</span>
-        </h1>
+        {/* 入口の日本語（content.tsx の gateLead）と同じ名。Kits / Sites / Works は入口から伸びてくる */}
+        <ViewTransition name={`t-${latin.toLowerCase()}`} share="morph" default="none">
+          <h1 className={s.pageTitle}>
+            {title}
+            <span className={s.latin} aria-hidden="true">{latin}</span>
+          </h1>
+        </ViewTransition>
         <p className={s.lede}>{lede}</p>
       </header>
 
       {children}
     </main>
+    </ViewTransition>
   );
 }
 

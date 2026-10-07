@@ -30,11 +30,12 @@
  * FORM: 三つ — 料紙に脈、触れて流れ。文法は DESIGN.md
  */
 import Link from "next/link";
+import { ViewTransition } from "react";
 
 import { InkHero } from "@/components/ink/InkHero";
 import { LangSwitch } from "@/components/lang/LangSwitch";
 import { SaleText } from "@/components/ryoushi";
-import { REVEAL_FLAG, fontVars } from "@/components/ryoushi/fonts";
+import { fontVars } from "@/components/ryoushi/fonts";
 import {
   localContact,
   localCountLabel,
@@ -134,13 +135,13 @@ export function Home({ lang }: { lang: Lang }) {
   const { servicesBrief } = localContact(lang);
 
   return (
+    // 紙をめくる（globals.css の ::view-transition-*）。面の根はこの一枚
+    <ViewTransition default="paper">
     <div className={`${s.paper} ${fontVars}`}>
       <a href="#main" className={s.skip}>
         {t.skip}
       </a>
       <LangSwitch lang={lang} path="/" />
-      {/* 現れる演出の印。本文より先に走るので、隠す規則は最初の描画から効く */}
-      <script dangerouslySetInnerHTML={{ __html: REVEAL_FLAG }} />
 
       {/* 入りの一筆。紙の右上を斜めに掠めて画面外へ抜ける。
           WebGL2 が使える紙では流体の墨が同じ箱で一画を引き、写真の二枚は退く（InkHero） */}
@@ -177,7 +178,10 @@ export function Home({ lang }: { lang: Lang }) {
               <span className={s.flowDeep} aria-hidden="true" />
               <Link href={hrefFor(lang, gate.href)} className={s.gate}>
                 <span className={s.gateLabel}>{gate.label}</span>
-                <span className={s.gateLead}>{gate.lead}</span>
+                {/* 入口の日本語が、次の紙の題へ伸びる（Sheet の h1 と同じ名） */}
+                <ViewTransition name={`t-${gate.id}`} share="morph" default="none">
+                  <span className={s.gateLead}>{gate.lead}</span>
+                </ViewTransition>
                 <span className={s.gateCount}>{localCountLabel(lang, gate.id)}</span>
               </Link>
             </li>
@@ -215,7 +219,9 @@ export function Home({ lang }: { lang: Lang }) {
               <Link href={hrefFor(lang, projectHref(project))} className={s.entry}>
                 <span className={s.text}>
                   <span className={s.line}>
-                    <span className={s.title}>{project.title}</span>
+                    <ViewTransition name={`t-${project.slug}`} share="morph" default="none">
+                      <span className={s.title}>{project.title}</span>
+                    </ViewTransition>
                     {project.sale && (
                       <span className={s.sale}>
                         <SaleText label={localPriceLabel(lang, project) ?? ""} />
@@ -297,5 +303,6 @@ export function Home({ lang }: { lang: Lang }) {
         <p className={s.closeLine}>{t.closeLine}</p>
       </footer>
     </div>
+    </ViewTransition>
   );
 }
