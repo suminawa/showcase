@@ -109,14 +109,14 @@ export function InkHero() {
       const pxX0 = n ? vw - 18 : vw - 36;
       const pxX1 = n ? vw * 0.42 : vw * 0.62;
       // 入りの太さ（半径 ≒ 0.02 × 箱の高さ）のぶん、切り替えから離す
-      const pxY0 = Math.max(navBottom + (n ? 18 : 0.025 * rect.height + 8), top + 4);
+      const pxY0 = Math.max(navBottom + (n ? 20 : 0.03 * rect.height + 14), top + 4);
       const pxY1 = Math.max(pxY0 + (n ? 40 : 60), wordTop - (n ? 4 : 8));
       const toU = (px: number) => (px - rect.left) / rect.width;
       const toV = (py: number) => 1 - (py - top) / rect.height;
       geo = { x0: toU(pxX0), y0: toV(pxY0), x1: toU(pxX1), y1: toV(pxY1) };
       // 墨が見える帯: 言語の切り替えの下から名乗りの字の上端まで。帯の外の墨は CSS の mask で
       // 消す（流れても字には被らない。棟梁 10/7「墨が動いた先に文字が被ると視認性 0」）
-      band = { top: navBottom - 8, bottom: wordTop - 4 };
+      band = { top: navBottom - 4, bottom: wordTop - 4 };
       if (box) {
         box.style.setProperty("--ink-top", `${band.top - top}px`);
         box.style.setProperty("--ink-bottom", `${band.bottom - top}px`);
