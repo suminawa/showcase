@@ -27,9 +27,9 @@ import s from "./ink.module.css";
 const SLOW_FRAME_MS = 42;
 const SLOW_FRAME_LIMIT = 45;
 /** 手が離れてから乾き始めるまで */
-const IDLE_MS = 9000;
+const IDLE_MS = 5000;
 /** 乾く（一画へ戻る）のにかける流体の時間（秒） */
-const DRY_SEC = 2.6;
+const DRY_SEC = 2.2;
 /** 一画の歩数と長さ。歩幅（約 0.003）は滴の半径（≥ 0.0035）より小さいので一本に繋がる */
 const STEPS = 120;
 const STROKE_SEC = 1.1;
@@ -94,6 +94,8 @@ export function InkHero() {
      * 画面の座標を箱の UV に写して splat する。
      */
     let geo = { x0: 0.68, y0: 0.75, x1: 0.35, y1: 0.63 };
+    /** 墨が見える帯（紙の座標、px）。手もこの帯の中でだけ効く */
+    let band = { top: 0, bottom: Infinity };
     const measure = () => {
       const rect = canvas.getBoundingClientRect();
       if (rect.width === 0 || rect.height === 0) return;
@@ -112,6 +114,13 @@ export function InkHero() {
       const toU = (px: number) => (px - rect.left) / rect.width;
       const toV = (py: number) => 1 - (py - top) / rect.height;
       geo = { x0: toU(pxX0), y0: toV(pxY0), x1: toU(pxX1), y1: toV(pxY1) };
+      // 墨が見える帯: 言語の切り替えの下から名乗りの字の上端まで。帯の外の墨は CSS の mask で
+      // 消す（流れても字には被らない。棟梁 10/7「墨が動いた先に文字が被ると視認性 0」）
+      band = { top: navBottom - 8, bottom: wordTop - 4 };
+      if (box) {
+        box.style.setProperty("--ink-top", `${band.top - top}px`);
+        box.style.setProperty("--ink-bottom", `${band.bottom - top}px`);
+      }
     };
     const point = (k: number) => {
       const bow = 0.028 * Math.sin(k * Math.PI);
@@ -208,13 +217,16 @@ export function InkHero() {
     };
     const toUV = (event: PointerEvent) => {
       const rect = canvas.getBoundingClientRect();
-      const m = rect.width * 0.08;
+      const pageY = event.clientY + window.scrollY;
+      // 帯の中だけ。名乗り・切り替え・行の上を通る手には応えない
       if (
         event.clientY >= limitY() ||
-        event.clientX < rect.left - m ||
-        event.clientX > rect.right + m ||
-        event.clientY < rect.top - m ||
-        event.clientY > rect.bottom + m
+        pageY < band.top ||
+        pageY > band.bottom ||
+        event.clientX < rect.left ||
+        event.clientX > rect.right ||
+        event.clientY < rect.top ||
+        event.clientY > rect.bottom
       ) {
         return null;
       }
@@ -226,7 +238,7 @@ export function InkHero() {
         px = -1;
         return;
       }
-      if (px >= 0) engine.splatVelocity(uv.x, uv.y, (uv.x - px) * 0.3, (uv.y - py) * 0.3);
+      if (px >= 0) engine.splatVelocity(uv.x, uv.y, (uv.x - px) * 0.18, (uv.y - py) * 0.18);
       px = uv.x;
       py = uv.y;
       wake();
@@ -295,6 +307,8 @@ export function InkHero() {
     });
     io.observe(canvas);
 
+    const onWindowResize = () => measure();
+    window.addEventListener("resize", onWindowResize, { passive: true });
     const ro = new ResizeObserver(() => {
       if (engine.resize() && drawn > 0) {
         // 形が大きく変わった。一画を書き出しから引き直す
@@ -317,6 +331,7 @@ export function InkHero() {
 
     return () => {
       cancelAnimationFrame(loop.raf);
+      window.removeEventListener("resize", onWindowResize);
       window.removeEventListener("pointermove", onMove);
       window.removeEventListener("pointerdown", onDown);
       document.removeEventListener("visibilitychange", onVisibility);

@@ -112,6 +112,12 @@
   }
 }
 
+/* 案内記事の紙（guides/layout.tsx が data-sheet="guide" を付ける）には写しの墨を置かない ──
+   題が長く紙幅いっぱいなので、どこに置いても字に被る（2026-10-07） */
+:global([data-sheet="guide"]) .stroke {
+  display: none;
+}
+
 @keyframes rp-sweep {
   from {
     clip-path: inset(0 100% 0 0);
