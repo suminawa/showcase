@@ -41,8 +41,8 @@
   color: inherit;
   text-decoration: none;
   /* 指の下限 44px（字 12〜13px × 行 2 ＝ 26px に上下 0.75em を足す） */
-  padding-block: 0.75em;
-  margin-block: -0.75em;
+  padding-block: 0.8em;
+  margin-block: -0.8em;
   transition: color 200ms ease;
 }
 

@@ -28,8 +28,8 @@ const SLOW_FRAME_MS = 42;
 const SLOW_FRAME_LIMIT = 45;
 /** 手が離れてから乾き始めるまで */
 const IDLE_MS = 9000;
-/** 乾く（一画へ戻る）のにかける長さ */
-const DRY_MS = 2600;
+/** 乾く（一画へ戻る）のにかける流体の時間（秒） */
+const DRY_SEC = 2.6;
 /** 一画の歩数と長さ。歩幅（約 0.003）は滴の半径（≥ 0.0035）より小さいので一本に繋がる */
 const STEPS = 120;
 const STROKE_SEC = 1.1;
@@ -67,8 +67,9 @@ export function InkHero() {
       hidden: false,
       /** 手の余韻が切れる時刻。これを過ぎると乾き始める */
       activeUntil: performance.now() + 6000,
-      /** 乾き終わる時刻（0 なら乾いていない） */
-      dryUntil: 0,
+      /** 乾き始めてからの流体の時間（秒）。-1 なら乾いていない。壁時計ではなく dt で積む ──
+          フレームの遅い端末では壁時計で打ち切ると戻りきらないまま凍る */
+      dryT: -1,
       rested: false,
     };
 
@@ -141,7 +142,8 @@ export function InkHero() {
         const k = stepped / STEPS;
         const { x, y } = point(k);
         // 筆圧: 入り（k≈0.12）で最も太く、終わりへ向けて 0.25 倍まで細る
-        const attack = Math.min(1, k / 0.12);
+        // 起筆は鈍く押さえる（尖らせると鳥のくちばしに見えた）
+        const attack = 0.6 + 0.4 * Math.min(1, k / 0.12);
         const taper = 1 - 0.75 * Math.max(0, (k - 0.12) / 0.88);
         const press = (narrow ? 0.0035 + 0.011 : 0.005 + 0.015) * attack * taper;
         const dx = x - lastX;
@@ -149,24 +151,26 @@ export function InkHero() {
         const len = Math.hypot(dx, dy) || 1;
         const nx = -dy / len;
         const ny = dx / len;
-        if (k < 0.62) {
+        const SPLIT = 0.72;
+        if (k < SPLIT) {
           engine.splatInk(x, y, "carbon", press);
         } else {
-          // 筆の毛が割れる（飛白）。五本の毛がそれぞれ決まった所で紙を離れ、
-          // 離れる手前で細り、わずかに揺れる ── 真っ直ぐ等長に終わると鳥の羽に見えた
+          // 筆の毛が割れる（飛白）。五本の毛は胴の幅の中に収め（外へ出すと足に見えた）、
+          // それぞれ決まった所で紙を離れ、離れる手前で細る。揺れはごく僅か
+          const spread = press * 0.5;
           const hairs = [
             { off: 0, end: 1.0, w: 0.5, ph: 0.3 },
-            { off: 0.005, end: 0.9, w: 0.34, ph: 2.1 },
-            { off: -0.0045, end: 0.85, w: 0.3, ph: 4.0 },
-            { off: 0.0105, end: 0.79, w: 0.24, ph: 1.2 },
-            { off: -0.0095, end: 0.74, w: 0.22, ph: 5.3 },
+            { off: spread * 0.55, end: 0.92, w: 0.34, ph: 2.1 },
+            { off: -spread * 0.5, end: 0.88, w: 0.3, ph: 4.0 },
+            { off: spread, end: 0.84, w: 0.24, ph: 1.2 },
+            { off: -spread * 0.95, end: 0.8, w: 0.22, ph: 5.3 },
           ];
           // 半径の下限は歩幅の 1.1 倍（下回ると毛が点線になる）
           const floor = (Math.hypot(geo.x1 - geo.x0, geo.y1 - geo.y0) / STEPS) * 1.1;
           for (const hair of hairs) {
             if (k > hair.end) continue;
-            const life = 1 - (k - 0.62) / (hair.end - 0.62);
-            const wob = 0.0025 * Math.sin((k - 0.62) * 40 + hair.ph) * (1 - life);
+            const life = 1 - (k - SPLIT) / (hair.end - SPLIT);
+            const wob = 0.0006 * Math.sin((k - SPLIT) * 40 + hair.ph) * (1 - life);
             const r = Math.max(floor, press * hair.w * (0.35 + 0.65 * life));
             engine.splatInk(x + nx * (hair.off + wob), y + ny * (hair.off + wob), "carbon", r);
           }
@@ -195,7 +199,7 @@ export function InkHero() {
     let py = -1;
     const wake = () => {
       loop.activeUntil = performance.now() + IDLE_MS;
-      loop.dryUntil = 0;
+      loop.dryT = -1;
       engine.setHoming(0);
       if (loop.raf === 0) {
         loop.last = 0;
@@ -259,10 +263,10 @@ export function InkHero() {
       if (drawn < 1) draw(now, elapsed);
       // 乾く: 手の余韻が切れたら、憶えた一画へ戻していき、戻りきったら拍を止める
       if (drawn >= 1 && now > loop.activeUntil) {
-        if (loop.dryUntil === 0) {
-          loop.dryUntil = now + DRY_MS;
+        if (loop.dryT < 0) {
+          loop.dryT = 0;
           if (loop.rested) engine.setHoming(2.2);
-        } else if (now > loop.dryUntil) {
+        } else if ((loop.dryT += dt) >= DRY_SEC) {
           engine.setHoming(0);
           engine.still();
           engine.step(dt);

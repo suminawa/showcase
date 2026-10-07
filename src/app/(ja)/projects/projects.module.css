@@ -74,10 +74,12 @@
  */
 .stroke {
   position: absolute;
-  /* 写しの一画は箱の x 0.35〜0.64・y 0.24〜0.37 にある。題の右、言語の切り替えの下に来る置き方（2026-10-07） */
-  top: -4svh;
+  /* 写しの一画は箱の x 0.365〜0.599・y 0.271〜0.357（高さは幅の 0.651）にある（bake-ink.mjs の bbox）。
+     墨の上端を言語の切り替えの下（58px）に、胴を題の右に置く。分類のページと同じ式（2026-10-07） */
+  --stroke-w: min(92vw, 1180px, 150svh);
+  top: calc(58px - 0.176 * var(--stroke-w));
   right: -22vw;
-  width: min(92vw, 1180px, 150svh);
+  width: var(--stroke-w);
   aspect-ratio: 1879 / 1223;
   pointer-events: none;
   /* ＊ ここに z-index も transform も置かないこと。置いた瞬間このラッパが
@@ -161,11 +163,19 @@
   background-repeat: repeat-y;
   background-size: 100% calc(3 * var(--rp-pitch));
   background-position: 0 0;
-  /* 上端は紙のまま始め、下端は作品へ渡す手前で消す */
+  /* 上端は紙のまま始め、下端は作品へ渡す手前で消す。
+     題（大字）の帯には罫を引かない ── 48px の字はどう置いても罫をまたぎ、取り消し線に見えた（2026-10-07。分類のページの頭と同じ処置）。
+     帯の上端は戻りの一行（2 行）＋ 間（0.5 pitch）、高さは大字の 1.2em */
+  --rp-title-top: calc(2 * var(--rp-tiny) + 0.5 * var(--rp-pitch) - 4px);
+  --rp-title-h: calc(1.2 * var(--rp-large) + 8px);
   mask-image: linear-gradient(
     to bottom,
     transparent 0,
     #000 calc(0.7 * var(--rp-pitch)),
+    #000 var(--rp-title-top),
+    transparent var(--rp-title-top),
+    transparent calc(var(--rp-title-top) + var(--rp-title-h)),
+    #000 calc(var(--rp-title-top) + var(--rp-title-h)),
     #000 calc(100% - 0.4 * var(--rp-pitch)),
     transparent 100%
   );
