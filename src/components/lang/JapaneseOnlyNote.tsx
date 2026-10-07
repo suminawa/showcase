@@ -37,7 +37,7 @@ export function JapaneseOnlyNote({ kind }: { kind: "demos" | "guides" }) {
   if (!lang) return null;
   const back = kind === "demos" ? "/sites" : "/kits";
   return (
-    <aside className={s.note} lang={lang}>
+    <aside className={kind === "guides" ? `${s.note} ${s.paperNote}` : s.note} lang={lang}>
       <span>{TEXT[kind][lang]}</span>{" "}
       <a className={s.link} href={localePath(lang, back)}>
         {TEXT.back[lang]}

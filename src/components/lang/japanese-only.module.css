@@ -11,6 +11,21 @@
   text-align: center;
 }
 
+/*
+ * 悩みから読む紙（料紙）では、墨の帯ではなく紙の上の一行にする（2026-10-07）。
+ * 帯（背景色の切り替え・ゴシック）は料紙の文法を破っていた。見本サイトの頭は帯のまま
+ * （見本はそれぞれ別の意匠なので、外からの断り書きだと分かる帯でよい）。
+ */
+.paperNote {
+  background: var(--ryoushi-paper, #f6f3eb);
+  color: var(--ryoushi-sumi-3, #55514a);
+  font-family: "Hiragino Mincho ProN", "Yu Mincho", YuMincho, serif;
+  font-size: 14px;
+  letter-spacing: 0.06em;
+  padding: 12px 16px 10px;
+  border-bottom: 1px solid color-mix(in srgb, var(--ryoushi-sumi, #1c1a15) 18%, transparent);
+}
+
 .link {
   color: inherit;
   text-decoration: underline;
