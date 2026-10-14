@@ -8,6 +8,9 @@ import { GET } from "./route";
 
 vi.mock("@vercel/analytics/server", () => ({ track: vi.fn(async () => undefined) }));
 
+/** ブラウザで人がリンクを押して開いたときに付く見出し */
+const PERSON = { "sec-fetch-user": "?1" };
+
 function call(key: string, dest: string, query = "", headers: Record<string, string> = {}) {
   const request = new Request(`https://suminawa.dev/go/${key}/${dest}${query}`, { headers });
   return GET(request, { params: Promise.resolve({ key, dest }) });
@@ -75,7 +78,7 @@ describe("/go/[key]/[dest]", () => {
     expect(lines.map((l) => l.from)).toEqual(["/projects/booking", "unknown", "unknown", "unknown"]);
   });
 
-  it("記録は event・key・dest・from の 4 つだけで、IP・UA・Cookie・Referer は残さない", async () => {
+  it("記録は event・key・dest・from・person の 5 つだけで、IP・UA・Cookie・Referer は残さない", async () => {
     await call("dashboard", "booth", "?from=%2Fkits&utm_source=x", {
       "x-forwarded-for": "203.0.113.7",
       "user-agent": "TestAgent/1.0",
@@ -84,7 +87,7 @@ describe("/go/[key]/[dest]", () => {
     });
     expect(log).toHaveBeenCalledTimes(1);
     const raw = String(log.mock.calls[0][0]);
-    expect(JSON.parse(raw)).toEqual({ event: "go", key: "dashboard", dest: "booth", from: "/kits" });
+    expect(JSON.parse(raw)).toEqual({ event: "go", key: "dashboard", dest: "booth", from: "/kits", person: false });
     for (const secret of ["203.0.113.7", "TestAgent", "abc", "utm_source"]) {
       expect(raw).not.toContain(secret);
     }
@@ -108,7 +111,7 @@ describe("/go/[key]/[dest]", () => {
   it("押された回数をカスタムイベント go で送る（添えるのは target と from の 2 つ）", async () => {
     vi.mocked(track).mockClear();
     const key = Object.keys(links).find((k) => (links as Record<string, { note?: string }>)[k].note) as string;
-    const res = await GET(new Request(`https://suminawa.dev/go/${key}/note?from=/kits`), {
+    const res = await GET(new Request(`https://suminawa.dev/go/${key}/note?from=/kits`, { headers: PERSON }), {
       params: Promise.resolve({ key, dest: "note" }),
     });
     expect(res.status).toBe(302);
@@ -118,10 +121,23 @@ describe("/go/[key]/[dest]", () => {
     expect(props).toEqual({ target: `${key}/note`, from: "/kits" });
   });
 
+  it("人が押した印（Sec-Fetch-User: ?1）が無ければ、転送はするがイベントは送らない。印があれば外から開いても数える", async () => {
+    vi.mocked(track).mockClear();
+    const key = Object.keys(links).find((k) => (links as Record<string, { note?: string }>)[k].note) as string;
+    const go = (headers: Record<string, string>) => GET(new Request(`https://suminawa.dev/go/${key}/note?from=/kits`, { headers }), { params: Promise.resolve({ key, dest: "note" }) });
+    expect((await go({})).status).toBe(302);   // 巡回の機械（見出しなし）
+    expect((await go({ "sec-fetch-site": "same-origin" })).status).toBe(302);   // 押していない（先読みなど）
+    expect(track).not.toHaveBeenCalled();
+    expect((await go({ "sec-fetch-user": "?1", "sec-fetch-site": "none" })).status).toBe(302);   // zip の README から開いた
+    expect(track).toHaveBeenCalledTimes(1);
+    const lines = log.mock.calls.map((c) => JSON.parse(String(c[0])));
+    expect(lines.map((l) => l.person)).toEqual([false, false, true]);
+  });
+
   it("イベントの送信に失敗しても転送する", async () => {
     vi.mocked(track).mockRejectedValueOnce(new Error("down"));
     const key = Object.keys(links).find((k) => (links as Record<string, { note?: string }>)[k].note) as string;
-    const res = await GET(new Request(`https://suminawa.dev/go/${key}/note`), {
+    const res = await GET(new Request(`https://suminawa.dev/go/${key}/note`, { headers: PERSON }), {
       params: Promise.resolve({ key, dest: "note" }),
     });
     expect(res.status).toBe(302);

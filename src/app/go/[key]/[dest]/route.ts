@@ -6,6 +6,9 @@
  *   こちらが添える値は target（key/dest）と from の 2 つだけ。Pro の枠が 2 つまでのため）。
  *   実行ログには key・dest・from を 1 行の JSON で残す。
  *   from は既知の紙の道と照らし、知らない値は "unknown"。こちらのコードは IP・Cookie・UA を読まず、保存もしない
+ * - イベントを送るのは、人が押して開いたときだけ（ブラウザが付ける Sec-Fetch-User: ?1 があるとき。紙の上のリンクも、
+ *   zip の README の短い道も同じ）。巡回の機械がリンクをたどった分と、先読みは数えない
+ *   （10/14、30 日で go 600 件・サイト全体の閲覧 130 件と、機械の分がほとんどだった）。実行ログには person で残す
  * - イベントの送信に失敗しても転送は止めない
  * - 英仏の紙から BOOTH へは、BOOTH の英語の画面へ渡す（localizeBooth）
  */
@@ -28,6 +31,11 @@ function recordFrom(raw: string | null): string {
   return raw !== null && KNOWN_FROM.has(raw) ? raw : "unknown";
 }
 
+/** 人が押して開いた移動か（ブラウザだけが付ける見出し。巡回の機械は付けず、先読みでは ?1 にならない） */
+function byPerson(request: Request): boolean {
+  return request.headers.get("sec-fetch-user") === "?1";
+}
+
 const COMMON = {
   "X-Robots-Tag": "noindex, nofollow",
   "Cache-Control": "no-store",
@@ -44,11 +52,14 @@ export async function GET(
   }
 
   const from = recordFrom(new URL(request.url).searchParams.get("from"));
-  console.log(JSON.stringify({ event: "go", key, dest, from }));
-  try {
-    await track("go", { target: `${key}/${dest}`, from }, { request });
-  } catch {
-    // 計測の失敗で売り場への案内を止めない
+  const person = byPerson(request);
+  console.log(JSON.stringify({ event: "go", key, dest, from, person }));
+  if (person) {
+    try {
+      await track("go", { target: `${key}/${dest}`, from }, { request });
+    } catch {
+      // 計測の失敗で売り場への案内を止めない
+    }
   }
 
   return new Response(null, {

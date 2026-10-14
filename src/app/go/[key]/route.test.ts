@@ -23,7 +23,7 @@ describe("/go/[key]", () => {
     const res = await call("s2-lite");
     expect(res.status).toBe(302);
     expect(res.headers.get("location")).toBe(links["s2-lite"].booth);
-    expect(log).toHaveBeenCalledWith(JSON.stringify({ event: "go", key: "s2-lite", dest: "booth", from: "unknown" }));
+    expect(log).toHaveBeenCalledWith(JSON.stringify({ event: "go", key: "s2-lite", dest: "booth", from: "unknown", person: false }));
   });
 
   it("知らない key は 404", async () => {
