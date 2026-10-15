@@ -11,7 +11,7 @@ const ja = {
   ctaSecondary: "設置を相談する（3 営業日以内に返信）",
   /* 困りごとの入口 3 枚。並びは content.tsx の TROUBLE_KITS と同じ */
   troubles: ["期限や更新を見落とす", "問い合わせ・予約の受付が回らない", "表の管理が崩れる"],
-  trust: ["このサイトの見本は全部その場で動きます", "月額の費用はかかりません"],
+  trust: ["このサイトの見本は全部その場で動きます", "月額のサービス料はかかりません"],
   about: "運営者について →",
   categories: "分類",
   picks: "いま見てほしいもの",
@@ -34,7 +34,7 @@ export const copy: Record<"ja" | "en" | "fr", typeof ja> = {
     ctaPrimary: "Start from your problem",
     ctaSecondary: "Start a project (reply within 3 business days)",
     troubles: ["Deadlines and renewals slip through", "Too many inquiries and bookings to keep up with", "Spreadsheets keep falling apart"],
-    trust: ["Every demo on this site runs live", "No monthly fees"],
+    trust: ["Every demo on this site runs live", "No monthly service fees"],
     about: "About the maker (Japanese) →",
     categories: "Categories",
     picks: "Start here",
