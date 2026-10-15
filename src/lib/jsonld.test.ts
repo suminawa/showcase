@@ -66,6 +66,14 @@ describe("jsonld", () => {
       availability: "https://schema.org/InStock",
     });
     expect(p.offers.url).toMatch(/\/projects\/booking$/);
+    expect(p.offers.shippingDetails).toMatchObject({ shippingRate: { value: 0, currency: "JPY" }, shippingDestination: { addressCountry: "JP" } });
+    expect(p.offers.hasMerchantReturnPolicy.returnPolicyCategory).toBe("https://schema.org/MerchantReturnNotPermitted");
+  });
+
+  it("無料の見本は返品の決まりを持たない（送料の情報は持つ）", () => {
+    const p = roundTrip(productJsonLd({ name: "見本", description: "d", path: "/projects/x", price: 0 }));
+    expect(p.offers.hasMerchantReturnPolicy).toBeUndefined();
+    expect(p.offers.shippingDetails).toBeDefined();
   });
 
   it("Article は見出し・日付（ISO）・書き手・日本語を持つ", () => {

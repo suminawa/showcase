@@ -76,6 +76,26 @@ export function productJsonLd(p: { name: string; description: string; path: stri
       availability: "https://schema.org/InStock",
       url: abs(p.path),
       seller: ORG_REF,
+      // ダウンロードで届くので送料 0 円・その日のうち。返品の決まりは紙の RETURN_NOTE と同じ（有料のときだけ）
+      shippingDetails: {
+        "@type": "OfferShippingDetails",
+        shippingRate: { "@type": "MonetaryAmount", value: 0, currency: "JPY" },
+        shippingDestination: { "@type": "DefinedRegion", addressCountry: "JP" },
+        deliveryTime: {
+          "@type": "ShippingDeliveryTime",
+          handlingTime: { "@type": "QuantitativeValue", minValue: 0, maxValue: 0, unitCode: "DAY" },
+          transitTime: { "@type": "QuantitativeValue", minValue: 0, maxValue: 0, unitCode: "DAY" },
+        },
+      },
+      ...(p.price > 0
+        ? {
+            hasMerchantReturnPolicy: {
+              "@type": "MerchantReturnPolicy",
+              applicableCountry: "JP",
+              returnPolicyCategory: "https://schema.org/MerchantReturnNotPermitted",
+            },
+          }
+        : {}),
     },
   };
 }

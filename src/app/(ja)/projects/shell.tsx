@@ -10,12 +10,13 @@ import { JsonLd } from "@/components/JsonLd";
 import { LangSwitch } from "@/components/lang/LangSwitch";
 import { pageMetadata } from "@/i18n/meta";
 import { hrefFor, localePath, type Lang } from "@/i18n/routes";
-import { PURCHASE_NOTE, UI } from "@/i18n/ui";
+import { PURCHASE_NOTE, RETURN_NOTE, UI } from "@/i18n/ui";
 import links from "@/data/links.json";
 import { goHref, type LinkKey } from "@/lib/go";
 import { NoteEmbed } from "@/components/note/NoteEmbed";
 import { guideHref, guides } from "@/lib/guides";
 import { NO_OG, projectJsonLd } from "@/lib/jsonld-project";
+import { projects } from "@/lib/projects";
 
 import { fontVars } from "./fonts";
 import s from "./projects.module.css";
@@ -88,11 +89,19 @@ export function ProjectShell({
         </header>
 
         <div className={s.work}>{children}</div>
+        <ReturnNote lang={lang} slug={slug} />
         {/* 関連する案内記事は作品の【あと】に（2026-10-07）。頭に置くと、動く実物が初画面の下へ押し出されていた */}
         {lang === "ja" && <RelatedGuides slug={slug} />}
       </main>
     </ViewTransition>
   );
+}
+
+/** 有料の売り物の紙にだけ出す、返品と返金の決まり（構造化データの hasMerchantReturnPolicy と同じ中身） */
+function ReturnNote({ lang, slug }: { lang: Lang; slug: string }) {
+  const sale = projects.find((p) => p.slug === slug)?.sale;
+  if (sale?.status !== "onsale" || sale.price == null) return null;
+  return <p className={s.lede}>{RETURN_NOTE[lang]}</p>;
 }
 
 /** 日本語の紙にだけ出す、この見本・この売り物を結びに置いている案内記事への一行（guides の kit か shop がこの slug） */

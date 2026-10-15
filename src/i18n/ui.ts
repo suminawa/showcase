@@ -60,6 +60,13 @@ export const PURCHASE_NOTE: Record<Exclude<Lang, "ja">, string> = {
   fr: "L’achat se fait en japonais sur BOOTH ou note, avec paiement en yens.",
 };
 
+/** 有料のキットの紙に出す、返品と返金の決まり（構造化データの MerchantReturnNotPermitted と同じ中身） */
+export const RETURN_NOTE: Record<Lang, string> = {
+  ja: "デジタル商品のため、購入後の返品・返金はお受けしていません。ファイルが開けない・動かないなどの不具合には対応します。",
+  en: "As these are digital products, returns and refunds are not accepted after purchase. If a file will not open or does not work, we will fix it.",
+  fr: "S’agissant de produits numériques, les retours et remboursements ne sont pas acceptés après l’achat. Si un fichier ne s’ouvre pas ou ne fonctionne pas, nous le corrigeons.",
+};
+
 /** 円の書き方。日本語と英語は「¥9,800」、仏語は「9 800 ¥」 */
 export function money(lang: Lang, price: number): string {
   if (lang !== "fr") return yen(price);
