@@ -23,12 +23,24 @@
   margin: 0;
 }
 
+/* 次の一歩の 2 択（型を買う／制作を頼む） */
+.cta {
+  margin: 0 0 0.75rem;
+}
+
+/* 押す字の途中で折らない（「BOOTH で／見る」に割れていた） */
+.cta a {
+  white-space: nowrap;
+}
+
+.cta a,
 .links a {
   color: var(--d-fg);
   text-decoration: underline;
   text-underline-offset: 0.2em;
 }
 
+.cta a:focus-visible,
 .links a:focus-visible {
   outline: 2px solid var(--d-brand);
   outline-offset: 2px;
