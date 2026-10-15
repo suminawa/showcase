@@ -103,6 +103,14 @@ describe("/go/[key]/[dest]", () => {
     expect(lines.map((l) => l.from)).toEqual(froms);
   });
 
+  it("紙の外に置く道の from は媒体の符号で受け、知らない符号は unknown", async () => {
+    for (const from of ["yt", "yts", "x", "ig", "zenn", "line", "note", "booth", "cw", "lc", "cn", "tiktok"]) {
+      await call("booking", "note", `?from=${from}`);
+    }
+    const lines = log.mock.calls.map((c) => JSON.parse(String(c[0])));
+    expect(lines.map((l) => l.from)).toEqual(["yt", "yts", "x", "ig", "zenn", "line", "note", "booth", "cw", "lc", "cn", "unknown"]);
+  });
+
   it("resolveGo は https の URL だけを返す", () => {
     expect(resolveGo("s1", "booth")).toBe(links.s1.booth);
     expect(resolveGo("s1", "toString")).toBeNull();

@@ -8,6 +8,7 @@ import { ViewTransition } from "react";
 
 import { JsonLd } from "@/components/JsonLd";
 import { LangSwitch } from "@/components/lang/LangSwitch";
+import { ContactMail } from "@/components/track/ContactMail";
 import { pageMetadata } from "@/i18n/meta";
 import { hrefFor, localePath, type Lang } from "@/i18n/routes";
 import { PURCHASE_NOTE, RETURN_NOTE, UI } from "@/i18n/ui";
@@ -264,9 +265,7 @@ export function ContactLine({ lang }: { lang: Lang }) {
   return (
     <p className={s.lede} id="contact">
       {t.before}
-      <a href="mailto:hello@suminawa.dev" className={s.textLink}>
-        hello@suminawa.dev
-      </a>
+      <ContactMail className={s.textLink} />
       {t.after}
     </p>
   );

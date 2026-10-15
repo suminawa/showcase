@@ -5,7 +5,7 @@
  * - 押された回数は Vercel Web Analytics のカスタムイベント「go」で数える（Cookie を使わない計測。
  *   こちらが添える値は target（key/dest）と from の 2 つだけ。Pro の枠が 2 つまでのため）。
  *   実行ログには key・dest・from を 1 行の JSON で残す。
- *   from は既知の紙の道と照らし、知らない値は "unknown"。こちらのコードは IP・Cookie・UA を読まず、保存もしない
+ *   from は既知の紙の道・媒体の符号と照らし、知らない値は "unknown"。こちらのコードは IP・Cookie・UA を読まず、保存もしない
  * - イベントを送るのは、人が押して開いたときだけ（ブラウザが付ける Sec-Fetch-User: ?1 があるとき。紙の上のリンクも、
  *   zip の README の短い道も同じ）。巡回の機械がリンクをたどった分と、先読みは数えない
  *   （10/14、30 日で go 600 件・サイト全体の閲覧 130 件と、機械の分がほとんどだった）。実行ログには person で残す
@@ -24,8 +24,14 @@ if (process.env.VERCEL_ENV === "production") {
   process.env.VERCEL_WEB_ANALYTICS_ENDPOINT ??= "https://suminawa.dev/_vercel/insights/event";
 }
 
-/** from として受け付ける道。suminawa.dev の紙の道（sitemap と同じ一覧）に限る */
-const KNOWN_FROM = new Set(sitemapPaths());
+/**
+ * 媒体の符号。紙の外（動画の概要欄・投稿・提案文など）に置く /go/ の道は from にこれを書く。
+ * yt = YouTube、yts = Shorts、ig = Instagram、cw = CrowdWorks、lc = Lancers、cn = ココナラ
+ */
+const CHANNELS = ["yt", "yts", "x", "ig", "zenn", "line", "note", "booth", "cw", "lc", "cn"];
+
+/** from として受け付ける値。suminawa.dev の紙の道（sitemap と同じ一覧）と、媒体の符号に限る */
+const KNOWN_FROM = new Set([...sitemapPaths(), ...CHANNELS]);
 
 function recordFrom(raw: string | null): string {
   return raw !== null && KNOWN_FROM.has(raw) ? raw : "unknown";

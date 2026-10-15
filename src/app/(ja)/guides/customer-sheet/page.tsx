@@ -21,6 +21,7 @@ import {
   GuideLinks,
   guideMetadata,
 } from "../parts";
+import { ContactMail } from "@/components/track/ContactMail";
 
 const IMAGE = "/og/sheet-app.png";
 const guide = guideBySlug("customer-sheet");
@@ -173,9 +174,7 @@ export default function CustomerSheetGuide() {
           </p>
           <p className={g.text}>
             ご相談は{" "}
-            <a href="mailto:hello@suminawa.dev" className={s.textLink}>
-              hello@suminawa.dev
-            </a>{" "}
+            <ContactMail className={s.textLink} />{" "}
             へ。3 営業日以内に返信します。
           </p>
         </section>

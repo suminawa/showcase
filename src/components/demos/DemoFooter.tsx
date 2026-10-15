@@ -1,5 +1,7 @@
 import Link from "next/link";
 
+import { ContactMail } from "@/components/track/ContactMail";
+
 import { spacedWord, trailingSpacedWord } from "./spacedWord";
 import s from "./demo-shared.module.css";
 
@@ -32,7 +34,7 @@ export function DemoFooter({
       </p>
       <p className={s.links}>
         <Link href="/">suminawa.dev の作品一覧へ</Link>
-        <a href="mailto:hello@suminawa.dev">制作の相談は hello@suminawa.dev へ</a>
+        <ContactMail>制作の相談は hello@suminawa.dev へ</ContactMail>
       </p>
     </footer>
   );

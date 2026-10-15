@@ -7,6 +7,7 @@ import type { Metadata } from "next";
 import { Analytics } from "@vercel/analytics/next";
 
 import { JsonLd } from "@/components/JsonLd";
+import { ArriveTracker } from "@/components/track/ArriveTracker";
 import { REVEAL_FLAG } from "@/components/ryoushi/fonts";
 import { siteJsonLd } from "@/lib/jsonld";
 import { SITE_DESCRIPTION, SITE_NAME, siteUrl } from "@/lib/site";
@@ -51,6 +52,8 @@ export function RootDocument({ lang, children }: { lang: string; children: React
         {children}
         {/* Vercel Web Analytics。Cookie を使わず、個人を特定する情報も持たないページビューの数だけ */}
         <Analytics />
+        {/* 提案文・各媒体から ?ref= 付きで来たときだけ、arrive を 1 回送る */}
+        <ArriveTracker />
       </body>
     </html>
   );

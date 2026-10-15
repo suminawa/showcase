@@ -10,6 +10,7 @@
 import Link from "next/link";
 
 import { Sheet, SheetSection } from "@/components/ryoushi";
+import { ContactMail } from "@/components/track/ContactMail";
 import { localContact } from "@/i18n/catalog";
 import { pageMetadata } from "@/i18n/meta";
 import { hrefFor, type Lang } from "@/i18n/routes";
@@ -69,9 +70,7 @@ export function ContactPage({ lang }: { lang: Lang }) {
       <footer className={s.close}>
         <p className={s.menuNote}>
           {note.before}
-          <a className={s.mailLink} href={`mailto:${note.mail}`}>
-            {note.mail}
-          </a>
+          <ContactMail className={s.mailLink}>{note.mail}</ContactMail>
           {note.after}
         </p>
         {/* ほかの置き場。宛先と同じ小さな字で一行だけ ── 品書きより前に出さない */}

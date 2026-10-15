@@ -13,6 +13,7 @@ import { fontVars } from "../../projects/fonts";
 import s from "../../projects/projects.module.css";
 import g from "../guides.module.css";
 import { GuideAnswer, GuideByline, GuideJsonLd, GuideLinks, guideMetadata } from "../parts";
+import { ContactMail } from "@/components/track/ContactMail";
 
 const IMAGE = "/og/doc-reader.png";
 const guide = guideBySlug("local-transcription");
@@ -119,9 +120,7 @@ export default function LocalTranscriptionGuide() {
               問い合わせメールの仕分け
             </Link>
             と同じ「機械で読んで人が確かめる」組み方です。ご相談は{" "}
-            <a href="mailto:hello@suminawa.dev" className={s.textLink}>
-              hello@suminawa.dev
-            </a>{" "}
+            <ContactMail className={s.textLink} />{" "}
             へ。3 営業日以内に返信します。
           </p>
         </section>
