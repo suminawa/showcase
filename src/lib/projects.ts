@@ -61,6 +61,11 @@ export type Project = {
    * 中身を並べた分類のページを書く。
    */
   href?: string;
+  /**
+   * 一覧と件数に出さない（ページと sitemap には残す）。売り場の道から外したいものだけが持つ。
+   * 30 日の帳面は発注者に「誰からも買われていない・AI 任せ」と読まれるので、note からだけ結ぶ（2026-10-15 監査 改善 5）
+   */
+  unlisted?: boolean;
 };
 
 /**
@@ -90,7 +95,7 @@ export const GATES: readonly Gate[] = [
   {
     id: "works",
     label: "Works",
-    lead: "作品と道具、30 日の帳面",
+    lead: "作品と道具",
     href: "/works",
   },
 ];
@@ -395,6 +400,7 @@ export const projects: Project[] = [
     description: "AI に全部やらせて 30 日。売上と時間を毎日書く公開の帳面。",
     tags: ["Next.js", "公開ログ"],
     category: "works",
+    unlisted: true,
   },
 ];
 
@@ -410,7 +416,7 @@ export function projectsByCategory(category: Category): Project[] {
   return [
     ...projects.filter((project) => project.category === category),
     ...projects.filter((project) => project.alsoIn === category),
-  ];
+  ].filter((project) => !project.unlisted);
 }
 
 /**

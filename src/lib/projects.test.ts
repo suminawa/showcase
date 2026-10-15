@@ -34,11 +34,11 @@ describe("入口 3 行", () => {
   it("件数はレジストリから数える（手で書かない）", () => {
     expect(categoryCount("kits")).toEqual({ total: 18, onsale: 17 });
     expect(categoryCount("sites")).toEqual({ total: 6, onsale: 0 });
-    expect(categoryCount("works")).toEqual({ total: 4, onsale: 0 });
+    expect(categoryCount("works")).toEqual({ total: 3, onsale: 0 });
 
     expect(countLabel("kits")).toBe("18 件　発売中 17 件");
     expect(countLabel("sites")).toBe("6 件");
-    expect(countLabel("works")).toBe("4 件");
+    expect(countLabel("works")).toBe("3 件");
   });
 
   it("入口の件数と、その先のページに並ぶ行数が一致する", () => {
@@ -266,7 +266,7 @@ describe("projects registry", () => {
     expect(projects.filter((p) => projectFigure(p) !== null)).toHaveLength(7);
   });
 
-  it("sites は見本 6 件、works は作品と道具 4 件（無料で触れる電卓を含む）", () => {
+  it("sites は見本 6 件、works は作品と道具 3 件（無料で触れる電卓を含む）", () => {
     expect(projectsByCategory("sites").map((p) => p.slug)).toEqual([
       "corporate-site",
       "saas-lp",
@@ -278,7 +278,7 @@ describe("projects registry", () => {
     expect(projectsByCategory("works").map((p) => p.slug)).toEqual([
       "suminagashi",
       "tax-back",
-      "30days",
+      // 30 日の帳面は一覧に出さない（unlisted）。ページは /projects/30days に残る
       // 主の分類は kits。借りてきた行は後ろに添える
       "quote-simulator",
     ]);

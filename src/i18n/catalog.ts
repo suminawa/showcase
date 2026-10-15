@@ -51,7 +51,7 @@ export const CATALOG: Record<ForeignLang, Catalog> = {
     gates: {
       kits: "Kits & templates to buy",
       sites: "Sample sites by industry",
-      works: "Works, tools, Thirty Days",
+      works: "Works and tools",
     },
     index: {
       kits: {
@@ -245,7 +245,7 @@ export const CATALOG: Record<ForeignLang, Catalog> = {
     gates: {
       kits: "Kits et modèles à acheter",
       sites: "Sites d’exemple par secteur",
-      works: "Réalisations, outils, 30 jours",
+      works: "Réalisations et outils",
     },
     index: {
       kits: {
