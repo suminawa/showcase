@@ -27,11 +27,12 @@ export const copy: Record<"ja" | "en" | "fr", typeof ja> = {
   en: {
     description:
       "suminawa builds small tools for business automation and the web: kits and live demos made with Google Apps Script (GAS) and AI, ready to try in your browser.",
-    tagline: "Things I've built.",
+    /* 英語版は受託の窓（Contra・Fiverr から来る人）に絞る。仏語は凍結（2026-10-15 監査 改善 8） */
+    tagline: "I build Google Apps Script automations, AI help desks and landing pages for small businesses.",
     pitchText:
       "I automate office work for small companies and shops with Google Apps Script and AI. Buy a one-time kit (from ¥2,980) and set it up yourself, or have me install it for you (from ¥30,000).",
     ctaPrimary: "Start from your problem",
-    ctaSecondary: "Ask about setup (reply within 3 business days)",
+    ctaSecondary: "Start a project (reply within 3 business days)",
     troubles: ["Deadlines and renewals slip through", "Too many inquiries and bookings to keep up with", "Spreadsheets keep falling apart"],
     trust: ["Every demo on this site runs live", "No monthly fees"],
     about: "About the maker (Japanese) →",
