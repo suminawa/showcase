@@ -75,12 +75,11 @@ describe("分類のページの頭", () => {
 });
 
 describe("いま見てほしいもの 4 点", () => {
-  it("並びは 1 か所。AI 案内窓口・AI 書類読み取り・3D・墨流し", () => {
+  it("並びは 1 か所。AI 案内窓口・AI 書類読み取り・3D（墨流しは Works にだけ）", () => {
     expect(FEATURED).toEqual([
       "ai-concierge",
       "doc-reader",
       "configurator",
-      "suminagashi",
     ]);
     expect(featuredProjects().map((p) => p.slug)).toEqual([...FEATURED]);
   });

@@ -294,7 +294,7 @@
    敷き始めを pitch の整数倍ずらしても位相は狂わない ── これが重ね合わせの前提。
    罫はすべて擬似要素なので DOM にもアクセシビリティツリーにも現れず、
    pointer-events も持たない。 */
-.mark::after,
+.en::before,
 .head::before,
 .row::after {
   content: "";
@@ -317,6 +317,9 @@
  * 幅は行の箱の幅 ── 塊の中の行はどれも塊の幅いっぱいに組んである。
  */
 .showcase,
+.en,
+.pitchText,
+.trust,
 .gate,
 .shelfName,
 .text,
@@ -673,18 +676,16 @@
  *   罫線ノートの余りのページに見えた。罫は字を載せるための線なので、
  *   字の来ない所には引かない。
  */
-.mark::after {
+.en::before {
   /*
-   * 名乗りの帯の罫。大字の足元の一本・送りの一本・英文（と落款）が座る一本の
-   * 3 行だけを、紙幅いっぱいに引く。英文の下（入口までの空き）には引かない。
-   * 下から測る（下の寸法が全部罫の整数倍）── 余白（空き）＋ 入口の行 ＋ 空き。
+   * 大字の足元の一本と、送りの一本。見出しの行そのものの罫は .en の背景が引く
+   * （見出しは狭い紙で 2〜3 行に折れるので、下から数えると大字の帯に罫が食い込む）。
+   * 2026-10-15 に名乗りの下へ見出しと困りごとの入口を入れたので、.mark の下端から
+   * 数えていた版面（.mark::after）を、見出しの頭から上へ 2 本に置き換えた。
    */
-  bottom: calc(
-    var(--hi-block-gap) + var(--hi-gates-rows) * var(--hi-kei-pitch) +
-      var(--hi-gates-gap)
-  );
-  height: calc(3 * var(--hi-kei-pitch));
-  background-position: 0 100%;
+  bottom: 100%;
+  height: calc(2 * var(--hi-kei-pitch));
+  background-position: 0 0;
   mask-image: linear-gradient(
     to bottom,
     transparent 0,
@@ -740,7 +741,48 @@
      幅に比例して動く。768〜1920px の 5 幅で「墨の左端 − 英文〜落款の幅 − 12px」
      を測り、それを下回る直線で当てた（1280px で x=603、上限まで 3px）。
      狭い紙では下の --hi-en-left が左寄せに上書きする */
-  margin-left: var(--hi-en-left, calc(59.46vw - 225px));
+  /* 見出しになった（2026-10-15）。右へ送らず、大字と同じ起点から組む。
+     字の欄は下の塊と同じ 36em で止める。折れるのは文節の切れ目だけ（auto-phrase） */
+  position: relative;
+  margin-left: 0;
+  max-width: 36em;
+  word-break: auto-phrase;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  color: var(--hi-sumi);
+}
+
+/*
+ * 見出しの下の塊（補足・押す先 2 つ・困りごとの入口・信頼の一行）。
+ * 字はすべて小で、行送りは pitch ちょうど ── 罫の位相を動かさない。
+ * 空きはどれも罫 1 本。起点は大字と同じ 1 列目。
+ */
+.pitch {
+  max-width: 36em;
+  margin-top: var(--hi-kei-pitch);
+}
+
+.pitchText {
+  word-break: auto-phrase;
+  font-size: var(--hi-tiny);
+  line-height: 2.3;
+  letter-spacing: 0.05em;
+  color: var(--hi-sumi-2);
+}
+
+.pitch .troubles {
+  margin-top: var(--hi-kei-pitch);
+  /* 入口 3 行と同じく、湿りの漏れは 1 行に抑える */
+  --hi-wet-y: var(--hi-kei-pitch);
+  --hi-wet-y2: var(--hi-kei-pitch);
+}
+
+.trust {
+  margin-top: var(--hi-kei-pitch);
+  font-size: var(--hi-tiny);
+  line-height: 2.3;
+  letter-spacing: 0.05em;
+  color: var(--hi-sumi-3);
 }
 
 /*
@@ -2006,12 +2048,6 @@
     --hi-column: 9vw;
   }
 
-  /* 英文と落款を大字の直下へ寄せると、縦長の紙では落款が右上の墨の
-     下の塊に乗る（390px で落款の箱に墨の画素 256、最暗 34/255）。
-     二つを一緒に左へ寄せ、墨の手前で止める（左端の下限は紙の左の縁） */
-  .paper {
-    --hi-en-left: 8vw;
-  }
   .zHead {
     left: calc(-0.85 * var(--hi-pad));
     width: calc(9vw + 0.85 * var(--hi-pad));

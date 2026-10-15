@@ -71,6 +71,7 @@ function Row({
   lang,
   localized,
   withGuides,
+  showTags,
 }: {
   project: Project;
   showSale: boolean;
@@ -78,6 +79,7 @@ function Row({
   lang: Lang;
   localized: boolean;
   withGuides: boolean;
+  showTags: boolean;
 }) {
   const project = localized ? source : localProject(lang, source);
   const href = hrefFor(lang, projectHref(project));
@@ -97,11 +99,13 @@ function Row({
           )}
         </span>
         <span className={s.desc}>{project.description}</span>
-        <span className={s.tags}>
-          {project.tags.map((t) => (
-            <span key={t}>{t}</span>
-          ))}
-        </span>
+        {showTags && (
+          <span className={s.tags}>
+            {project.tags.map((t) => (
+              <span key={t}>{t}</span>
+            ))}
+          </span>
+        )}
       </span>
       {fig && <Figure src={fig} title={project.title} lang={lang} />}
     </>
@@ -176,6 +180,7 @@ export function Rows({
   lang = "ja",
   localized = false,
   withGuides = false,
+  showTags = true,
 }: {
   items: Project[];
   from: string;
@@ -185,11 +190,13 @@ export function Rows({
   localized?: boolean;
   /** 行の下に案内記事への道を添える（日本語の /kits だけ） */
   withGuides?: boolean;
+  /** 技術の札を出す。/kits の事業者本人向けの段では出さない */
+  showTags?: boolean;
 }) {
   return (
     <ol className={s.rows}>
       {items.map((project) => (
-        <Row key={project.slug} project={project} showSale={showSale} from={from} lang={lang} localized={localized} withGuides={withGuides} />
+        <Row key={project.slug} project={project} showSale={showSale} from={from} lang={lang} localized={localized} withGuides={withGuides} showTags={showTags} />
       ))}
     </ol>
   );

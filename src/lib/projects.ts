@@ -449,13 +449,27 @@ export function countLabel(category: Category): string {
 /**
  * いま見てほしいもの。**並びはここ 1 か所**で、トップはこの順にそのまま組む。
  * 4 点に絞るのは、提案の URL から来た人がひと目で選べる数がそこまでだから。
+ * 墨流しは外した（2026-10-15）。発注者の紙に作品は置かず、Works にだけ並べる。
  */
 export const FEATURED: readonly string[] = [
   "ai-concierge",
   "doc-reader",
   "configurator",
-  "suminagashi",
 ];
+
+/**
+ * /kits の後半に「制作者・開発者向け」の見出しを立ててまとめるキット（2026-10-15 監査 改善 1）。
+ * 前半は事業者本人向けで、そちらの行には技術の札を出さない（発注者には意味が通じない）。
+ */
+export const MAKER_KITS: ReadonlySet<string> = new Set([
+  "saas-starter",
+  "lp-pack",
+  "rag-eval-harness",
+  "mcp-server",
+  "configurator",
+  "shopify-configurator",
+  "quote-simulator",
+]);
 
 export function featuredProjects(): Project[] {
   const by = new Map(projects.map((project) => [project.slug, project]));

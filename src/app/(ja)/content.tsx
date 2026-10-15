@@ -14,7 +14,8 @@
  *   階段を上ることで初めて目に見える。界線は「罫を使わない」という飛白の法を意図的に
  *   破る一点で、分けるための線ではなく、字を載せるための線として引いている。
  * FIRST VIEWPORT: 右上に入りの一筆、左下に SUMINAWA、左端を降りる脈の頭。
- *   名乗りの下に置くのは入口の 3 行だけで、品物の名は一つも出さない。
+ *   名乗りの下は 見出し・補足・押す先 2 つ・困りごとの入口 3 行・信頼の一行、それから入口の 3 行
+ *   （2026-10-15 監査 改善 1。提案文から来た発注者に「誰に・何を・いくらで・次に何を」を第一画面で言う）。
  * SHORT PAGE: 2026-09-21 に組み替えた。前は全件（19 行）をこの一枚に積んでいて
  *   PC で 5,500px あり、提案の URL から来た人がひと目で選べなかった。
  *   いまは 入口 3 行 → いま見てほしいもの 4 点 → 制作のご相談 の三つだけを置き、
@@ -45,11 +46,18 @@ import {
 } from "@/i18n/catalog";
 import { hrefFor, type Lang } from "@/i18n/routes";
 import { guideHref, guides } from "@/lib/guides";
-import { featuredProjects, projectHref } from "@/lib/projects";
+import { featuredProjects, projectHref, projects } from "@/lib/projects";
 import { STRANDS, STRANDS_NARROW, type VeinSegment } from "@/lib/vein";
 
 import { copy } from "./copy";
 import s from "./ryoushi.module.css";
+
+/** 困りごとの入口 3 行に結ぶキット。並びは copy の troubles と同じ */
+const TROUBLE_KITS: readonly (readonly string[])[] = [
+  ["deadline"],
+  ["form", "booking", "ai-concierge"],
+  ["sheet-app", "dashboard"],
+];
 
 /** 芯 / 添え / 乾き の三筋。太さと不透明度は CSS 側で与える */
 const STRAND_CLASS = [s.strandCore, s.strandSide, s.strandDry];
@@ -168,6 +176,49 @@ export function Home({ lang }: { lang: Lang }) {
             墨
           </span>
         </p>
+
+        <div className={s.pitch}>
+          <p className={s.pitchText}>{t.pitchText}</p>
+          <p className={s.closeLinks}>
+            <a href="#troubles" className={s.contactMain}>
+              {t.ctaPrimary}
+            </a>
+            <Link href={hrefFor(lang, "/contact")} className={s.contact}>
+              {t.ctaSecondary}
+            </Link>
+          </p>
+          {/* 困りごとの入口。行の文法は 4 点と同じで、触れるとその一行だけが濡れる */}
+          <ol className={`${s.picks} ${s.troubles}`} id="troubles" aria-label={t.ctaPrimary}>
+            {t.troubles.map((trouble, i) => (
+              <li key={trouble} className={s.row}>
+                <span className={s.flow} aria-hidden="true" />
+                <span className={s.flowDeep} aria-hidden="true" />
+                <span className={s.text}>
+                  <span className={s.title}>{trouble}</span>
+                  <span className={s.desc}>
+                    {TROUBLE_KITS[i].map((slug, j) => {
+                      const kit = localProject(lang, projects.find((p) => p.slug === slug)!);
+                      return (
+                        <span key={slug}>
+                          {j > 0 && "／"}
+                          <Link href={hrefFor(lang, projectHref(kit))} className={s.mailLink}>
+                            {kit.title}
+                          </Link>
+                        </span>
+                      );
+                    })}
+                  </span>
+                </span>
+              </li>
+            ))}
+          </ol>
+          <p className={s.trust}>
+            {t.trust.join("／")}／
+            <Link href="/about" className={s.contact} hrefLang={lang === "ja" ? undefined : "ja"}>
+              {t.about}
+            </Link>
+          </p>
+        </div>
 
         {/* 入口 3 行。全件はこの先にあり、件数はレジストリが数える。
             行の文法は目録の行と同じで、触れるとその紙だけが濡れる */}
