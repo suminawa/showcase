@@ -4,7 +4,8 @@
  * 数字の出どころは公開済みの受託メニュー（concierge/content/services.md）ひとつで、
  * そこに書いていない額は足さない。肩書き・経歴・実績の数は書かない ──
  * ここに置くのは品書きだけで、語るのは分類のページに並ぶ実物のほうである。
- * フォームは置かない（メールアドレスを集めない）。
+ * 日本語の紙にだけ、頼み方と目安の階段とよくあるご質問を置く（2026-10-15 監査 改善 4）。
+ * 問い合わせのフォームはまだ置かない（自社のフォーム受付キットを持ち主のアカウントで公開してから。下の印の場所）。
  * FORM: 料紙（分類のページ）— 文法は DESIGN.md
  */
 import Link from "next/link";
@@ -14,7 +15,7 @@ import { ContactMail } from "@/components/track/ContactMail";
 import { localContact } from "@/i18n/catalog";
 import { pageMetadata } from "@/i18n/meta";
 import { hrefFor, type Lang } from "@/i18n/routes";
-import { ELSEWHERE } from "@/lib/projects";
+import { CONTACT_FAQ, ELSEWHERE, PRICE_LADDER } from "@/lib/projects";
 import { UI } from "@/i18n/ui";
 
 import s from "../ryoushi.module.css";
@@ -46,6 +47,29 @@ export function ContactPage({ lang }: { lang: Lang }) {
         中身が 4 行と 3 行しかない紙では、その空白のほうが字より長くなり、
         書きかけの紙に見えた。一つの段なら小見出しを罫 2 本で継げる。
       */}
+      {lang === "ja" && (
+        <SheetSection name="頼み方と目安">
+          <table className={s.ladder}>
+            <thead>
+              <tr>
+                <th scope="col">頼み方</th>
+                <th scope="col">目安</th>
+                <th scope="col">向く方</th>
+              </tr>
+            </thead>
+            <tbody>
+              {PRICE_LADDER.map((row) => (
+                <tr key={row.how}>
+                  <th scope="row">{row.how}</th>
+                  <td>{row.price}</td>
+                  <td>{row.who}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </SheetSection>
+      )}
+
       <SheetSection name={HEADS[lang].services}>
         <ul className={s.menu}>
           {services.map((item) => (
@@ -67,6 +91,23 @@ export function ContactPage({ lang }: { lang: Lang }) {
         </ol>
       </SheetSection>
 
+      {lang === "ja" && (
+        <SheetSection name="よくあるご質問">
+          <dl className={s.faq}>
+            {CONTACT_FAQ.map((item) => (
+              <div key={item.q}>
+                <dt>{item.q}</dt>
+                <dd>{item.a}</dd>
+              </div>
+            ))}
+          </dl>
+        </SheetSection>
+      )}
+
+      {/* TODO(フォーム): ここに問い合わせのフォームを置く（自社の「フォーム受付 GAS キット」。
+          項目はお名前・メール・ご相談内容・ご予算の目安〈5 万円未満／5〜15 万円／15 万円以上／未定〉の 4 つ）。
+          GAS のウェブアプリは持ち主のアカウントで公開する必要があるので、公開の URL が届いてから組む。
+          送信のときも track("contact", { from }) を送る。下の mailto は残す */}
       <footer className={s.close}>
         <p className={s.menuNote}>
           {note.before}

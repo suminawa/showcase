@@ -69,7 +69,7 @@ export const CATALOG: Record<ForeignLang, Catalog> = {
     },
     contact: {
       title: "Project inquiries",
-      lede: "Websites and landing pages, business automation, embedded components, and WebGL visuals, built to order.",
+      lede: "Websites and landing pages, business automation, embedded components, and WebGL visuals, built to order. Replies within 3 business days.",
     },
     services: [
       { title: "Websites and landing pages", price: "From ¥150,000 per landing page" },
@@ -263,7 +263,7 @@ export const CATALOG: Record<ForeignLang, Catalog> = {
     },
     contact: {
       title: "Confier un projet",
-      lede: "Sites et landing pages, automatisation des tâches, intégration de composants et effets WebGL, réalisés sur mesure.",
+      lede: "Sites et landing pages, automatisation des tâches, intégration de composants et effets WebGL, réalisés sur mesure. Réponse sous 3 jours ouvrés.",
     },
     services: [
       { title: "Sites et landing pages", price: "Landing page à partir de 150 000 ¥" },
