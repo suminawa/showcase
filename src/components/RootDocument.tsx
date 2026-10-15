@@ -7,9 +7,11 @@ import type { Metadata } from "next";
 import { Analytics } from "@vercel/analytics/next";
 
 import { JsonLd } from "@/components/JsonLd";
+import { SiteFooter } from "@/components/footer/SiteFooter";
 import { ArriveTracker } from "@/components/track/ArriveTracker";
 import { REVEAL_FLAG } from "@/components/ryoushi/fonts";
 import { siteJsonLd } from "@/lib/jsonld";
+import type { Lang } from "@/i18n/routes";
 import { SITE_DESCRIPTION, SITE_NAME, siteUrl } from "@/lib/site";
 
 import "@/app/globals.css";
@@ -38,7 +40,7 @@ export const rootMetadata: Metadata = {
   },
 };
 
-export function RootDocument({ lang, children }: { lang: string; children: React.ReactNode }) {
+export function RootDocument({ lang, children }: { lang: Lang; children: React.ReactNode }) {
   return (
     /* 現れる演出の印（data-hi）は、本文より先に走る一行の script が付ける。
        サーバーが書いた html にはまだ無いので、その一点だけ照合を見送る */
@@ -50,6 +52,8 @@ export function RootDocument({ lang, children }: { lang: string; children: React
         <script dangerouslySetInnerHTML={{ __html: REVEAL_FLAG }} />
         <JsonLd data={siteJsonLd()} />
         {children}
+        {/* 共通の一行（キット・悩みから読む・見本サイト・制作のご相談・運営者について）。どの紙にも出す */}
+        <SiteFooter lang={lang} />
         {/* Vercel Web Analytics。Cookie を使わず、個人を特定する情報も持たないページビューの数だけ */}
         <Analytics />
         {/* 提案文・各媒体から ?ref= 付きで来たときだけ、arrive を 1 回送る */}

@@ -1,0 +1,37 @@
+/* 共通の一行。料紙の墨の濃淡だけで組み、枠も色も足さない。どの紙の地の上でも読めるよう、地は自分で持つ */
+.footer {
+  background: var(--ryoushi-paper);
+  color: var(--ryoushi-sumi-3);
+  border-top: 1px solid color-mix(in srgb, var(--ryoushi-sumi) 14%, transparent);
+  padding: 24px max(16px, 5.2vw) 32px;
+  font-family: "Hiragino Mincho ProN", "Yu Mincho", YuMincho, "Noto Serif JP", serif;
+  font-size: 0.9375rem;
+  line-height: 1.8;
+  letter-spacing: 0.06em;
+}
+
+.list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 28px;
+}
+
+.link {
+  display: inline-block;
+  /* 指の下限 44px */
+  padding-block: 10px;
+  color: inherit;
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-decoration-color: color-mix(in srgb, var(--ryoushi-sumi) 34%, transparent);
+  text-underline-offset: 0.35em;
+}
+
+.link:hover,
+.link:focus-visible {
+  color: var(--ryoushi-sumi);
+  text-decoration-color: var(--ryoushi-sumi);
+}
