@@ -11,14 +11,12 @@
  * FORM: 料紙（作品ページ）— 文法は DESIGN.md
  * このページはサーバー部品のまま。道具（Tool）は "use client" のこの下だけに閉じる。
  */
+import { KitClose, KitPriceLine } from "@/components/kit-demo/KitClose";
 import type { Lang } from "@/i18n/routes";
 
 import {
   AFTER_TOOL,
   ProjectShell,
-  PurchaseNote,
-  ShopEmbed,
-  ShopLinks,
   projectMetadata,
 } from "../shell";
 import s from "../projects.module.css";
@@ -39,6 +37,7 @@ export function Content({ lang }: { lang: Lang }) {
       latin="Booking"
       lede={t.lede}
     >
+      <KitPriceLine slug="booking" lang={lang} />
       <p className={s.lede}>{t.intro}</p>
       {/* 道具の中だけは自前の色と字を持つ。その根がこの一枚 */}
       <div className={f.tool}>
@@ -49,12 +48,7 @@ export function Content({ lang }: { lang: Lang }) {
       </p>
       <p className={s.lede}>{t.options}</p>
       <p className={s.lede}>{t.setup}</p>
-      <p className={s.lede}>
-        {t.kit}
-        <ShopLinks lang={lang} slug="booking" linkKey="booking" />
-      </p>
-      <ShopEmbed linkKey="booking" />
-      <PurchaseNote lang={lang} />
+      <KitClose slug="booking" lang={lang} />
     </ProjectShell>
   );
 }

@@ -12,15 +12,12 @@
  * FORM: 料紙（作品ページ）— 文法は DESIGN.md
  * このページはサーバー部品のまま。道具（Tool）は "use client" のこの下だけに閉じる。
  */
-import { projectPriceNow } from "@/i18n/catalog";
+import { KitClose, KitPriceLine } from "@/components/kit-demo/KitClose";
 import type { Lang } from "@/i18n/routes";
 
 import {
   AFTER_TOOL,
   ProjectShell,
-  PurchaseNote,
-  ShopEmbed,
-  ShopLinks,
   projectMetadata,
 } from "../shell";
 import s from "../projects.module.css";
@@ -40,6 +37,7 @@ export function Content({ lang }: { lang: Lang }) {
       latin="SaaS Starter"
       lede={t.lede}
     >
+      <KitPriceLine slug="saas-starter" lang={lang} />
       <p className={s.lede}>{t.intro}</p>
 
       {/* 道具の中だけは自前の色と字を持つ。その根が Tool の中の 1 枚 */}
@@ -52,12 +50,7 @@ export function Content({ lang }: { lang: Lang }) {
       <p className={s.lede}>{t.billing}</p>
       <p className={s.lede}>{t.offline}</p>
       <p className={s.lede}>{t.contents}</p>
-      <p className={s.lede}>
-        {t.kit(projectPriceNow("saas-starter"))}
-        <ShopLinks lang={lang} slug="saas-starter" linkKey="saas-starter" />
-      </p>
-      <ShopEmbed linkKey="saas-starter" />
-      <PurchaseNote lang={lang} />
+      <KitClose slug="saas-starter" lang={lang} />
     </ProjectShell>
   );
 }

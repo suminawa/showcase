@@ -62,9 +62,9 @@ export const PURCHASE_NOTE: Record<Exclude<Lang, "ja">, string> = {
 
 /** 有料のキットの紙に出す、返品と返金の決まり（構造化データの MerchantReturnNotPermitted と同じ中身） */
 export const RETURN_NOTE: Record<Lang, string> = {
-  ja: "デジタル商品のため、購入後の返品・返金はお受けしていません。ファイルが開けない・動かないなどの不具合には対応します。",
-  en: "As these are digital products, returns and refunds are not accepted after purchase. If a file will not open or does not work, we will fix it.",
-  fr: "S’agissant de produits numériques, les retours et remboursements ne sont pas acceptés après l’achat. Si un fichier ne s’ouvre pas ou ne fonctionne pas, nous le corrigeons.",
+  ja: "ご購入から 14 日は、手順書どおりに動かないときにメールで設置まで一緒に確かめます。デジタル商品のため、返品・返金はお受けしていません。",
+  en: "For 14 days after purchase, if it does not work by following the guide, we will work through the setup with you by email. As these are digital products, returns and refunds are not accepted.",
+  fr: "Pendant 14 jours après l’achat, si le kit ne fonctionne pas en suivant le guide, nous vérifions l’installation avec vous par e-mail. S’agissant de produits numériques, les retours et remboursements ne sont pas acceptés.",
 };
 
 /** 円の書き方。日本語と英語は「¥9,800」、仏語は「9 800 ¥」 */

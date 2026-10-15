@@ -3,11 +3,14 @@
  * 中身・導入の時間・比べ方の文は src/lib/kit-demos.ts の一箇所から写す。
  * 値段は要求の時刻で決まる（kitDemo は既定で今の時刻）。置くページは dynamic = "force-dynamic"。
  * 売り場への道は /go/ の渡し口（goHref）を通す。
+ * 押す先は 3 つで、主は BOOTH（買う）、note は「読む」、設置の依頼は /contact（2026-10-15 監査 改善 3）。
  */
+import Link from "next/link";
+
 import { NoteEmbed } from "@/components/note/NoteEmbed";
 import links from "@/data/links.json";
 import { localKitDemo } from "@/i18n/kit-demos";
-import { localePath, type Lang } from "@/i18n/routes";
+import { hrefFor, localePath, type Lang } from "@/i18n/routes";
 import { PURCHASE_NOTE, dateLabel } from "@/i18n/ui";
 import { goHref } from "@/lib/go";
 import { CHECKED_ON, type KitDemoSlug } from "@/lib/kit-demos";
@@ -17,8 +20,9 @@ import s from "./kit-demo.module.css";
 /** 結びの言葉。中身・比べ方の文は src/lib/kit-demos.ts（日本語）と src/i18n/kit-demos.ts（英仏） */
 const T = {
   ja: {
-    note: "note で詳しく読む",
+    note: "note で中身を詳しく読む",
     booth: "BOOTH で購入する",
+    install: "設置まで頼む（30,000 円〜）",
     title: (name: string) => `この見本は『${name}』の実物の仕組みです`,
     priceIs: (price: string) => `${price}です。`,
     box: "入っているもの",
@@ -30,8 +34,9 @@ const T = {
       `ほかの道具の内容と値段は、${date} に各社のページで確かめたものです。`,
   },
   en: {
-    note: "Read more on note",
+    note: "Read the details on note",
     booth: "Buy on BOOTH",
+    install: "Have it set up for you (from ¥30,000)",
     title: (name: string) => `This demo runs the actual ${name}`,
     priceIs: (price: string) => `${price}.`,
     box: "What’s included",
@@ -43,8 +48,9 @@ const T = {
       `Features and prices of the other tools were checked on each vendor’s site on ${date}.`,
   },
   fr: {
-    note: "En savoir plus sur note",
+    note: "Lire le détail sur note",
     booth: "Acheter sur BOOTH",
+    install: "Faire installer (dès 30 000 ¥)",
     title: (name: string) => `Cette démo fait tourner le véritable ${name}`,
     priceIs: (price: string) => `${price}.`,
     box: "Contenu",
@@ -63,6 +69,14 @@ function BuyLinks({ slug, lang }: { slug: KitDemoSlug; lang: Lang }) {
   return (
     <span className={s.buy}>
       <a
+        href={goHref(demo.linkKey, "booth", from)}
+        rel="nofollow"
+        className={s.linkMain}
+      >
+        {T[lang].booth}
+      </a>
+      <span aria-hidden="true">／</span>
+      <a
         href={goHref(demo.linkKey, "note", from)}
         rel="nofollow"
         className={s.link}
@@ -70,13 +84,9 @@ function BuyLinks({ slug, lang }: { slug: KitDemoSlug; lang: Lang }) {
         {T[lang].note}
       </a>
       <span aria-hidden="true">／</span>
-      <a
-        href={goHref(demo.linkKey, "booth", from)}
-        rel="nofollow"
-        className={s.link}
-      >
-        {T[lang].booth}
-      </a>
+      <Link href={hrefFor(lang, "/contact")} className={s.link}>
+        {T[lang].install}
+      </Link>
     </span>
   );
 }
@@ -121,7 +131,8 @@ export function KitClose({
   lang = "ja",
 }: {
   slug: KitDemoSlug;
-  made: string;
+  /** 見本が何の実物かの一文（無いページは題だけ） */
+  made?: string;
   /** 設定ごと頼める出品への案内（あるキットだけ）。値段の段落のすぐ下、修理の案内より前に置く */
   setup?: KitService;
   service?: KitService;
@@ -134,17 +145,18 @@ export function KitClose({
   const t = T[lang];
   // 比べる相手の名と一言のあいだ。日本語は全角の空き、英仏はダッシュ
   const gap = lang === "ja" ? "　" : " — ";
-  const year = CHECKED_ON.slice(0, 4);
+  const checked = demo.checkedOn ?? CHECKED_ON;
+  const year = checked.slice(0, 4);
   const checkedOn =
     lang === "ja"
-      ? CHECKED_ON.replace(/-/g, "/")
-      : `${dateLabel(lang, CHECKED_ON)}${lang === "en" ? "," : ""} ${year}`;
+      ? checked.replace(/-/g, "/")
+      : `${dateLabel(lang, checked)}${lang === "en" ? "," : ""} ${year}`;
   return (
     <section className={s.close} aria-labelledby="kit-close-title">
       <h2 id="kit-close-title" className={s.closeTitle}>
         {t.title(demo.name)}
       </h2>
-      <p className={s.body}>{made}</p>
+      {made && <p className={s.body}>{made}</p>}
       <p className={s.body}>
         {t.priceIs(demo.price)}
         {lang !== "ja" && demo.priceNote ? " " : ""}

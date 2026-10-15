@@ -11,16 +11,13 @@
  * FORM: 料紙（作品ページ）— 文法は DESIGN.md
  * このページはサーバー部品のまま。道具（Tool）は "use client" のこの下だけに閉じる。
  */
-import { projectPriceNow } from "@/i18n/catalog";
+import { KitClose, KitPriceLine } from "@/components/kit-demo/KitClose";
 import type { Lang } from "@/i18n/routes";
 
 import {
   AFTER_TOOL,
   DemoNote,
   ProjectShell,
-  PurchaseNote,
-  ShopEmbed,
-  ShopLinks,
   projectMetadata,
 } from "../shell";
 import s from "../projects.module.css";
@@ -41,6 +38,7 @@ export function Content({ lang }: { lang: Lang }) {
       latin="Sheet App"
       lede={t.lede}
     >
+      <KitPriceLine slug="sheet-app" lang={lang} />
       <DemoNote lang={lang} />
       {/* 道具の中だけは自前の色と字を持つ。その根がこの一枚 */}
       <div className={f.tool}>
@@ -50,12 +48,7 @@ export function Content({ lang }: { lang: Lang }) {
         {t.demo}
       </p>
       <p className={s.lede}>{t.access}</p>
-      <p className={s.lede}>
-        {t.kit(projectPriceNow("sheet-app"))}
-        <ShopLinks lang={lang} slug="sheet-app" linkKey="sheet-app" />
-      </p>
-      <ShopEmbed linkKey="sheet-app" />
-      <PurchaseNote lang={lang} />
+      <KitClose slug="sheet-app" lang={lang} made={t.made} />
     </ProjectShell>
   );
 }

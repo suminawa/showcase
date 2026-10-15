@@ -101,6 +101,13 @@
   color: var(--rp-sumi);
 }
 
+/* 主の押す先（BOOTH で購入する）。墨を一段濃くし、太さを一段上げるだけ */
+.linkMain {
+  composes: link;
+  color: var(--rp-sumi);
+  font-weight: 600;
+}
+
 /* ---- 値段の一行（頭の下） ------------------------------------------------ */
 
 .priceLine {

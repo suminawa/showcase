@@ -1,5 +1,6 @@
 /*
- * GAS キット 3 本の見本ページ（/projects/deadline・/projects/form・/projects/inbox-triage）の結び。
+ * キットの見本ページの結び。GAS キット 3 本（/projects/deadline・/projects/form・/projects/inbox-triage）と、
+ * 2026-10-15 に足した値段の高い 4 本（ai-concierge・sheet-app・booking・saas-starter。監査 改善 3）。
  * 中身・導入の時間・無料の道具との比べ方を、ここ一箇所に置く。
  *
  * 比べる相手と数字の出どころは、買い手の目で横に並べた調べ（2026-09-29 に各ページを読んだもの）。
@@ -9,7 +10,7 @@ import type { LinkKey } from "./go";
 import { nextDate, priceNow, shortDate, yen } from "./prices";
 import { projects } from "./projects";
 
-export type KitDemoSlug = "deadline" | "form" | "inbox-triage";
+export type KitDemoSlug = "deadline" | "form" | "inbox-triage" | "ai-concierge" | "sheet-app" | "booking" | "saas-starter";
 
 /** 比べる相手 1 つ。note は相手のページに書いてあることだけ */
 export type Alternative = { name: string; href: string; note: string };
@@ -29,10 +30,15 @@ export type KitDemo = {
   freeEnough: { who: string; alt: Alternative }[];
   /** このキットが合う方。数字を書く行は、出どころを alts に置く */
   fits: { who: string; alts?: Alternative[] }[];
+  /** 比べる相手のページを読んだ日（無ければ CHECKED_ON） */
+  checkedOn?: string;
 };
 
-/** 比べる相手のページを読んだ日 */
+/** 比べる相手のページを読んだ日（GAS キット 3 本） */
 export const CHECKED_ON = "2026-09-29";
+
+/** 2026-10-15 に足した 4 本の、比べる相手のページを読んだ日 */
+const CHECKED_ON_1015 = "2026-10-15";
 
 function listPrice(slug: string): number {
   const price = projects.find((p) => p.slug === slug)?.sale?.price;
@@ -60,6 +66,9 @@ const GAS_SETUP =
   "スプレッドシートにコードを貼り、メニューから初期化するまで 15〜20 分ほどです。途中で Google の確認画面（「このアプリは Google で確認されていません」）が出ます。ご自身で貼ったスクリプトなので出るのが正常で、手順書に進み方を画面の言葉のまま書いてあります。";
 
 const LICENSE_LINE = "LICENSE.md（ご購入者の業務で自由にお使いいただけます。改変したものをお客さまのスプレッドシートに組み込んで納品することもできます。再配布・転売はできません）";
+
+/** スプレッドシートに組み込まないキット（サイト・サーバーに置くもの）のライセンス */
+const LICENSE_WEB = "LICENSE.md（改変と納品は自由です。再配布・転売・同種の商品にすることはできません）";
 
 /** 値段を除いた、日付で変わらない部分 */
 type KitDemoBase = Omit<KitDemo, "price" | "priceNote">;
@@ -221,6 +230,161 @@ const BASES: Record<KitDemoSlug, KitDemoBase> = {
       { who: "Slack・Discord・LINE のどれにでも、要対応を先頭にした 1 通で知らせたい方" },
     ],
   },
+
+  "ai-concierge": {
+    slug: "ai-concierge",
+    linkKey: "ai-concierge",
+    name: "AI 案内窓口キット",
+    checkedOn: CHECKED_ON_1015,
+    box: [
+      "dist/（サーバーの部品・サイトに貼る窓・索引づくり・Node のアダプタ）",
+      "templates/nextjs（Vercel に置ける Next.js のテンプレート）",
+      "samples/（架空の工務店の文書 8 本と設定）と、31 問の評価（eval/）",
+      "日本語の手順書（README.ja.md）。API キーが無くても窓の動きを確かめられる方法まで書いてあります",
+      "src/ のソース一式とテスト",
+      LICENSE_WEB,
+    ],
+    setup:
+      "置き方は 3 通り（同梱のテンプレートを Vercel に置く・いまの Next.js に足す・自前のサーバーで動かす）で、どれでもサイトに貼るのは 2 行だけです。文書は Markdown で書き、コマンド 1 つで索引を作ります。答えを作る Claude API の利用料は、お客さまご自身の鍵にかかります。1 日 100 件を 30 日続けたときの目安は、モデルと質問の間隔によって月 4,600〜23,000 円ほどです。",
+    freeEnough: [
+      {
+        who: "AI に答えさせる件数が少なく、まず試してみたい方",
+        alt: {
+          name: "Tidio の無料プラン",
+          href: "https://www.tidio.com/pricing/",
+          note: "無料のプランがあります。AI の応答（Lyro）は、最初の 50 会話までです。",
+        },
+      },
+    ],
+    fits: [
+      { who: "自社の文書だけを根拠に、出典のリンクつきで答える窓をサイトに置きたい方。資料に無いことは問い合わせへ回します" },
+      {
+        who: "サービスの月額を払わず、API を使った分だけにしたい方。Chatbase は有料のプランだけで、月額です",
+        alts: [
+          {
+            name: "Chatbase の料金",
+            href: "https://www.chatbase.co/pricing",
+            note: "いちばん下の Hobby が、年払いで月 $32 からです。",
+          },
+        ],
+      },
+      { who: "答えられなかった質問を一覧で見て、文書を書き足していきたい方" },
+    ],
+  },
+
+  "sheet-app": {
+    slug: "sheet-app",
+    linkKey: "sheet-app",
+    name: "スプレッドシート業務アプリ キット",
+    checkedOn: CHECKED_ON_1015,
+    box: [
+      "dist/（Apps Script に貼る Code.gs・App.html・appsscript.json の 3 つ）",
+      "見本の台帳 3 種類（顧客管理・案件管理・在庫管理）の定義と表（CSV）",
+      "ブラウザだけで動く見本ページ（demo/）",
+      "日本語の手順書（README.ja.md）",
+      "src/ のソース一式とテスト",
+      LICENSE_LINE,
+    ],
+    setup:
+      "スプレッドシートを作り、3 つのファイルを貼って見本を読み込み、ウェブアプリとして公開するまで 10 分ほどです。途中で Google の確認画面が出ます。手順書に進み方を書いてあります。月額の費用はかかりません。AI（任意）を使うときだけ、ご自身の Anthropic の API キーに利用料がかかります。",
+    freeEnough: [
+      {
+        who: "試作や、10 人までの試用で足りる方",
+        alt: {
+          name: "AppSheet（Google）",
+          href: "https://about.appsheet.com/pricing/",
+          note: "アプリの作成と、10 人までの試用は無料です。",
+        },
+      },
+    ],
+    fits: [
+      {
+        who: "使う人が 10 人を超えても、1 人ごとの月額をかけたくない方。AppSheet は本番の利用が 1 人ごとの月額です",
+        alts: [
+          {
+            name: "AppSheet の料金",
+            href: "https://about.appsheet.com/pricing/",
+            note: "Starter が 1 人あたり月 $5 からです。",
+          },
+        ],
+      },
+      { who: "台帳はスプレッドシートのまま、スマートフォンで一覧・検索・登録・編集をしたい方" },
+      { who: "登録や更新を LINE・Slack・Discord に知らせたり、LINE で定型文を送ったりしたい方" },
+    ],
+  },
+
+  booking: {
+    slug: "booking",
+    linkKey: "booking",
+    name: "予約ページ キット",
+    checkedOn: CHECKED_ON_1015,
+    box: [
+      "dist/（Apps Script に貼る Code.gs・App.html・appsscript.json の 3 つ）",
+      "見本のお店（架空の整体院）の設定・枠・休み・サービス・予約のシート（CSV）",
+      "ブラウザだけで動く見本ページ（demo/）",
+      "日本語の手順書（README.ja.md）",
+      "src/ のソース一式とテスト",
+      LICENSE_LINE,
+    ],
+    setup:
+      "スプレッドシートを作り、3 つのファイルを貼って、ウェブアプリとして公開するまで 15 分ほどです。途中で Google の確認画面が出ます。月額の費用はかかりません。ご予約が何件入っても追加の費用はなく、メールは Google の枠（個人の Gmail で 1 日 100 通）で送ります。",
+    freeEnough: [
+      {
+        who: "Google カレンダーで、1 人の予定に予約を受けられれば足りる方",
+        alt: {
+          name: "Google カレンダーの予約スケジュール",
+          href: "https://support.google.com/calendar/answer/10729749?hl=ja",
+          note: "個人の Google アカウントでも作れます。一部の機能には、Google Workspace か Google One の有料の契約が必要です。",
+        },
+      },
+    ],
+    fits: [
+      { who: "同じ時間に 2 人以上の定員がある枠や、所要時間の違うサービスを選んでいただく形にしたい方" },
+      {
+        who: "確認メール・前日のリマインド・お客さまご自身でのキャンセルを、月額なしで付けたい方。Google カレンダーでは、リマインダーのメールは有料の契約の機能です",
+        alts: [
+          {
+            name: "Google カレンダーの予約スケジュールについて",
+            href: "https://support.google.com/calendar/answer/190998?hl=ja",
+            note: "有料の契約で、リマインダーのメールや有料の予約などが使えます。",
+          },
+        ],
+      },
+      { who: "ご予約をスプレッドシートに 1 行ずつ残し、Slack・Discord・LINE にも知らせたい方" },
+    ],
+  },
+
+  "saas-starter": {
+    slug: "saas-starter",
+    linkKey: "saas-starter",
+    name: "SaaS スターター キット",
+    checkedOn: CHECKED_ON_1015,
+    box: [
+      "app/（画面）と src/（core・ports・adapters・server）",
+      "supabase/（移行の SQL・RLS の検査・認証メールのひな形）",
+      "legal/（特定商取引法に基づく表記・利用規約・プライバシーポリシーのひな形。日本語と英語で 6 枚）",
+      "messages/（日本語と英語の文言）と、scripts/・test/（Docker も鍵も要らない検査）",
+      "README（日本語と英語）",
+      LICENSE_WEB,
+    ],
+    setup:
+      "npm ci・cp .env.example .env.local・npm run dev の 3 つで、Supabase にも Stripe にも通信しない見本モードが立ち上がり、15 分で全部の画面を一周できます。本番では、お客さまの Supabase と Stripe のアカウントにつなぎます。公開して事業で使う段階では、2026 年 9 月の各社の料金で、Vercel Pro と Supabase Pro に月 $45 ほどからかかります。",
+    freeEnough: [
+      {
+        who: "英語の画面で足り、役割はオーナーとメンバーの 2 つで足りる方",
+        alt: {
+          name: "Next.js SaaS Starter（GitHub）",
+          href: "https://github.com/nextjs/saas-starter",
+          note: "MIT ライセンスで無料です。メールとパスワードのログイン、Stripe の課金、Owner と Member の役割、Postgres（Drizzle）が入っています。",
+        },
+      },
+    ],
+    fits: [
+      { who: "特定商取引法の表記や日本円の月額課金を、はじめから日本の形で入れておきたい方" },
+      { who: "オーナー・管理者・メンバーの 3 つの役割を、画面・サーバー・データベースの決まり（RLS）で同じ 1 枚の表から決めたい方" },
+      { who: "組織とご招待、メールのリンク・合言葉・Google の 3 通りのログインまで、検査つきでそろえて始めたい方" },
+    ],
+  },
 };
 
 /** 日本語の結び（値段を除く）。英仏の訳（src/i18n/kit-demos.ts）と形を照らすテストだけが読む */
@@ -231,11 +395,9 @@ export function kitDemo(slug: KitDemoSlug, now: Date = new Date()): KitDemo {
   return { ...BASES[slug], ...kitPrice(slug, now) };
 }
 
-/** 3 本ぶんの結び。値段はその時刻で決まる */
+/** 全部の結び。値段はその時刻で決まる */
 export function kitDemos(now: Date = new Date()): Record<KitDemoSlug, KitDemo> {
-  return {
-    deadline: kitDemo("deadline", now),
-    form: kitDemo("form", now),
-    "inbox-triage": kitDemo("inbox-triage", now),
-  };
+  return Object.fromEntries(
+    (Object.keys(BASES) as KitDemoSlug[]).map((slug) => [slug, kitDemo(slug, now)]),
+  ) as Record<KitDemoSlug, KitDemo>;
 }

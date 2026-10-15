@@ -12,11 +12,12 @@ const LAST_SALE_MOMENT = new Date("2026-09-29T23:59:59+09:00");
 /** 2026-09-30 00:00:00 JST（定価に切り替わる時刻） */
 const FIRST_LIST_MOMENT = new Date("2026-09-30T00:00:00+09:00");
 
-describe("GAS キット 3 本の見本の結び", () => {
+describe("キットの見本の結び（GAS 3 本と、10/15 に足した 4 本）", () => {
   const KIT_DEMOS = kitDemos(LAST_SALE_MOMENT);
   const demos = Object.values(KIT_DEMOS);
 
-  it("3 本とも、一覧から見本のページへ渡し、sitemap に載る", () => {
+  it("7 本とも、一覧から見本のページへ渡し、sitemap に載る", () => {
+    expect(demos.map((d) => d.slug)).toEqual(["deadline", "form", "inbox-triage", "ai-concierge", "sheet-app", "booking", "saas-starter"]);
     for (const demo of demos) {
       const project = projects.find((p) => p.slug === demo.slug);
       expect(project?.title).toBe(demo.name);
@@ -99,7 +100,13 @@ describe("GAS キット 3 本の見本の結び", () => {
     expect(KIT_DEMOS.deadline.setup).toContain("15〜20 分");
     expect(KIT_DEMOS.form.setup).toContain("20 分");
     expect(KIT_DEMOS["inbox-triage"].setup).toContain("API キー");
-    for (const demo of demos) expect(demo.setup).toContain("確認画面");
+    // Apps Script に貼るキットは、Google の確認画面が出ることを必ず書く
+    for (const slug of ["deadline", "form", "inbox-triage", "sheet-app", "booking"] as const) expect(KIT_DEMOS[slug].setup).toContain("確認画面");
+  });
+
+  it("10/15 に足した 4 本は、比べる相手を 10/15 に確かめた日付を持つ", () => {
+    for (const slug of ["ai-concierge", "sheet-app", "booking", "saas-starter"] as const) expect(KIT_DEMOS[slug].checkedOn).toBe("2026-10-15");
+    expect(KIT_DEMOS.deadline.checkedOn).toBeUndefined();
   });
 
   it("yen は 3 桁で区切る", () => {

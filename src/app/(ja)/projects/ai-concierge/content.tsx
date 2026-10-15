@@ -9,6 +9,7 @@ import Script from "next/script";
 import "@suminawa/ai-concierge/ai-concierge.css";
 import "./skin.css";
 
+import { KitClose, KitPriceLine } from "@/components/kit-demo/KitClose";
 import type { Lang } from "@/i18n/routes";
 
 import {
@@ -16,8 +17,6 @@ import {
   ContactLine,
   DemoNote,
   ProjectShell,
-  PurchaseNote,
-  ShopLinks,
   projectMetadata,
 } from "../shell";
 import s from "../projects.module.css";
@@ -29,6 +28,7 @@ export function Content({ lang }: { lang: Lang }) {
   const t = copy[lang];
   return (
     <ProjectShell lang={lang} slug="ai-concierge" title={t.title} latin="Concierge" lede={t.lede}>
+      <KitPriceLine slug="ai-concierge" lang={lang} />
       <DemoNote lang={lang} />
       <div
         id="suminawa-concierge"
@@ -64,11 +64,7 @@ export function Content({ lang }: { lang: Lang }) {
       <p className={s.lede} style={AFTER_TOOL}>
         {t.sources}
       </p>
-      <p className={s.lede}>
-        {t.kit}
-        <ShopLinks lang={lang} slug="ai-concierge" linkKey="ai-concierge" />
-      </p>
-      <PurchaseNote lang={lang} />
+      <KitClose slug="ai-concierge" lang={lang} />
       <ContactLine lang={lang} />
     </ProjectShell>
   );
