@@ -19,6 +19,7 @@ import { CONTACT_FAQ, ELSEWHERE, PRICE_LADDER } from "@/lib/projects";
 import { UI } from "@/i18n/ui";
 
 import s from "../ryoushi.module.css";
+import { ContactForm } from "./ContactForm";
 
 /** 段の名。品書きと進め方の数字・文は src/i18n/catalog.ts（日本語は projects.ts） */
 const HEADS: Record<Lang, { services: string; steps: string }> = {
@@ -36,6 +37,7 @@ export function contactMetadata(lang: Lang) {
 }
 
 export function ContactPage({ lang }: { lang: Lang }) {
+  const endpoint = process.env.NEXT_PUBLIC_CONTACT_ENDPOINT;
   const { page, services, steps, note } = localContact(lang);
   return (
     <Sheet title={page.title} latin={page.latin} lede={page.lede} lang={lang} path="/contact">
@@ -104,10 +106,13 @@ export function ContactPage({ lang }: { lang: Lang }) {
         </SheetSection>
       )}
 
-      {/* TODO(フォーム): ここに問い合わせのフォームを置く（自社の「フォーム受付 GAS キット」。
-          項目はお名前・メール・ご相談内容・ご予算の目安〈5 万円未満／5〜15 万円／15 万円以上／未定〉の 4 つ）。
-          GAS のウェブアプリは持ち主のアカウントで公開する必要があるので、公開の URL が届いてから組む。
-          送信のときも track("contact", { from }) を送る。下の mailto は残す */}
+      {/* 問い合わせのフォーム（自社の「フォーム受付 GAS キット」）。送信先の URL は持ち主のアカウントで公開した
+          ウェブアプリで、環境変数 NEXT_PUBLIC_CONTACT_ENDPOINT に入る。無いあいだはこの節を出さず、下の mailto だけ */}
+      {lang === "ja" && endpoint && (
+        <SheetSection name="フォームで送る">
+          <ContactForm endpoint={endpoint} />
+        </SheetSection>
+      )}
       <footer className={s.close}>
         <p className={s.menuNote}>
           {note.before}
