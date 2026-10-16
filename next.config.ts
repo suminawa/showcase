@@ -11,6 +11,10 @@ const nextConfig: NextConfig = {
     ],
   },
   serverExternalPackages: ["@anthropic-ai/sdk", "@suminawa/doc-reader"],
+  // note のアイキャッチなど、別の場所（editor.note.com）のブラウザから fetch で取る画。公開の画なので誰が読んでもよい
+  async headers() {
+    return [{ source: "/og/note/:path*", headers: [{ key: "Access-Control-Allow-Origin", value: "*" }] }];
+  },
   async redirects() {
     return [
       { source: "/30days", destination: "/projects/30days", permanent: false },
