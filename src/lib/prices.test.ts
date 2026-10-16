@@ -12,11 +12,11 @@ describe("発売記念の価格は日本時間の日付で切り替わる", () =
   });
 
   it("最終日の 23:59:59 JST までは記念の値、翌 00:00 JST から定価", () => {
-    expect(priceNow("sheet-app", 12800, at("2026-10-02T23:59:59+09:00"))).toEqual({
+    expect(priceNow("line-concierge", 12800, at("2026-09-30T23:59:59+09:00"))).toEqual({
       price: 9800,
-      intro: { list: 12800, until: "2026-10-02" },
+      intro: { list: 12800, until: "2026-09-30" },
     });
-    expect(priceNow("sheet-app", 12800, at("2026-10-03T00:00:00+09:00"))).toEqual({
+    expect(priceNow("line-concierge", 12800, at("2026-10-01T00:00:00+09:00"))).toEqual({
       price: 12800,
     });
   });
@@ -57,10 +57,10 @@ describe("一覧の札", () => {
   const by = Object.fromEntries(projects.map((p) => [p.slug, p]));
 
   it("期間中は記念の値・最終日・定価、翌日からは定価だけ", () => {
-    expect(priceLabel(by["sheet-app"], at("2026-10-02T23:59:59+09:00"))).toBe(
-      "発売記念 ¥9,800（10/2 まで・定価 ¥12,800）",
+    expect(priceLabel(by["line-concierge"], at("2026-09-30T23:59:59+09:00"))).toBe(
+      "発売記念 ¥9,800（9/30 まで・定価 ¥12,800）",
     );
-    expect(priceLabel(by["sheet-app"], at("2026-10-03T00:00:00+09:00"))).toBe("発売中 ¥12,800");
+    expect(priceLabel(by["line-concierge"], at("2026-10-01T00:00:00+09:00"))).toBe("発売中 ¥12,800");
   });
 
   it("表に載せたキットは、どれも発売中で、記念の値が定価より安い", () => {
@@ -73,7 +73,7 @@ describe("一覧の札", () => {
   });
 
   it("slug を渡さない saleLabel は定価のまま（作品ページの頭の使い方は変わらない）", () => {
-    expect(saleLabel(by["sheet-app"].sale!)).toBe("発売中 ¥12,800");
+    expect(saleLabel(by["line-concierge"].sale!)).toBe("発売中 ¥12,800");
   });
 
   it("売り物でない行は札を持たない", () => {

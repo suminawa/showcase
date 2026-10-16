@@ -137,7 +137,7 @@ export default function CustomerSheetGuide() {
           <h2 className={g.heading}>そのまま使えるキットはありますか</h2>
           <p className={g.text}>
             見本と同じものを「スプレッドシート業務アプリ
-            キット」として販売しています（定価 ¥12,800
+            キット」として販売しています（定価 ¥9,800
             の買い切り）。一覧・検索・絞り込み・登録・編集・削除・CSV
             出力の画面と、顧客管理・案件管理・在庫管理の見本、LINE・Slack・Discord
             への通知が入っています。 ──{" "}

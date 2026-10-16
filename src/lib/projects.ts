@@ -309,7 +309,7 @@ export const projects: Project[] = [
     description: "定義シートに列を書くと、一覧と登録の画面ができる。1.1 で LINE 通知と LINE 送信。",
     tags: ["Google Apps Script", "LINE"],
     category: "kits",
-    sale: { status: "onsale", price: 12800 },
+    sale: { status: "onsale", price: 9800 },
   },
   {
     slug: "booking",

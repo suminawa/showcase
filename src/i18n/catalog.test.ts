@@ -64,13 +64,13 @@ describe("値札", () => {
   });
 
   it("英仏も同じ時刻で記念の値から定価へ切り替わる", () => {
-    const sheet = projects.find((p) => p.slug === "sheet-app")!;
-    expect(localPriceLabel("en", sheet, new Date("2026-10-02T23:59:00+09:00"))).toBe(
-      "Launch price ¥9,800 (until Oct 2, then ¥12,800)",
+    const line = projects.find((p) => p.slug === "line-concierge")!;
+    expect(localPriceLabel("en", line, new Date("2026-09-30T23:59:00+09:00"))).toBe(
+      "Launch price ¥9,800 (until Sep 30, then ¥12,800)",
     );
-    expect(localPriceLabel("en", sheet, new Date("2026-10-03T00:00:00+09:00"))).toBe("¥12,800");
-    expect(localPriceLabel("fr", sheet, new Date("2026-10-02T12:00:00+09:00"))).toBe(
-      "Prix de lancement 9 800 ¥ (jusqu’au 2 oct., puis 12 800 ¥)",
+    expect(localPriceLabel("en", line, new Date("2026-10-01T00:00:00+09:00"))).toBe("¥12,800");
+    expect(localPriceLabel("fr", line, new Date("2026-09-30T12:00:00+09:00"))).toBe(
+      "Prix de lancement 9 800 ¥ (jusqu’au 30 sept., puis 12 800 ¥)",
     );
   });
 

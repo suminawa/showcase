@@ -172,7 +172,7 @@ describe("projects registry", () => {
       "ai-concierge": 12800,
       "doc-reader": 16800,
       // 2026-09-22 に発売した 2 本。こちらも定価
-      "sheet-app": 12800,
+      "sheet-app": 9800,
       booking: 7980,
       // 2026-09-23 に発売した 2 本。ここは定価（問い合わせ整理の 9/29 までの記念の値は src/lib/prices.ts の表が持ち、
       // 一覧・トップ・作品ページの札はそこから出す）

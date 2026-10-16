@@ -24,7 +24,6 @@ export const INTRO_PRICES: Readonly<Record<string, IntroPrice>> = {
   "line-concierge": { price: 9800, until: "2026-09-30" },
   configurator: { price: 9800, until: "2026-09-30" },
   "saas-starter": { price: 16800, until: "2026-09-30" },
-  "sheet-app": { price: 9800, until: "2026-10-02" },
 };
 
 const JST_OFFSET_MS = 9 * 60 * 60 * 1000;
