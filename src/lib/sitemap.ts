@@ -12,7 +12,7 @@ import { FOREIGN_LANGS, TRANSLATED_PATHS, isTranslated, localePath, splitLang } 
  * 最後に、訳のある紙の英仏の道（/en…・/fr…）。/go/ の from もこの一覧で照らす。
  */
 export function sitemapPaths(): string[] {
-  const paths = ["/", ...GATES.map((gate) => gate.href), "/contact"];
+  const paths = ["/", ...GATES.map((gate) => gate.href), "/contact", "/about"];
   for (const p of projects) {
     // 紙の中の節へ飛ぶ行（#…）は、その紙を 1 度だけ載せる
     const href = projectHref(p).split("#")[0];
