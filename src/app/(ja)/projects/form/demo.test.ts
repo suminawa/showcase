@@ -31,9 +31,9 @@ describe("フォーム受付の写し（キットの README どおりに動く�
 
   it("受付シートの 1 行", () => {
     const header = buildHeader(config, order);
-    expect(header).toEqual(["受付日時", "受付番号", "name", "email", "message", "送信元"]);
+    expect(header).toEqual(["受付日時", "受付番号", "name", "email", "message", "送信元", "通知"]);   // 1.1.2 で「通知」列（未送信の印）が増えた
     const built = buildRow(header, { stamp: "2026-09-14 10:32:05", receipt: "20260914-001", fields, order, source: context.source });
-    expect(built.row).toEqual(["2026-09-14 10:32:05", "20260914-001", "見本 太郎", "taro@example.com", "料金と納期を知りたいです。", "https://example.com/contact"]);
+    expect(built.row).toEqual(["2026-09-14 10:32:05", "20260914-001", "見本 太郎", "taro@example.com", "料金と納期を知りたいです。", "https://example.com/contact", ""]);
   });
 
   it("通知の 1 通", () => {
@@ -79,6 +79,7 @@ describe("フォーム受付の見本（receive は doPost と同じ順）", () 
       "2026-10-05",
       "13:00",
       PAGE_URL,
+      "",
     ]);
     expect(outcome.row!.rowNumber).toBe(4);
     expect(outcome.notification).toBe(
