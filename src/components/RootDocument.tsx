@@ -8,8 +8,9 @@ import { Analytics } from "@vercel/analytics/next";
 
 import { JsonLd } from "@/components/JsonLd";
 import { SiteFooter } from "@/components/footer/SiteFooter";
+import { SiteHeader } from "@/components/site/SiteHeader";
 import { ArriveTracker } from "@/components/track/ArriveTracker";
-import { REVEAL_FLAG } from "@/components/ryoushi/fonts";
+import { REVEAL_FLAG } from "@/components/ryoushi/reveal";
 import { siteJsonLd } from "@/lib/jsonld";
 import type { Lang } from "@/i18n/routes";
 import { SITE_DESCRIPTION, SITE_NAME, siteUrl } from "@/lib/site";
@@ -18,8 +19,8 @@ import "@/app/globals.css";
 
 /*
  * OGP の画像は src/app/opengraph-image.png（1200×630）。
- * 実際のトップ画面を 2 倍で焼いて縮めたもので、意匠の写しではなく現物である。
- * ＊ トップの意匠を変えたら焼き直すこと。自動では追随しない。
+ * 実際のトップ画面を焼いて縮めたもので、意匠の写しではなく現物である。
+ * ＊ トップの意匠を変えたら焼き直すこと（scripts/bake-og.mjs）。自動では追随しない。
  */
 export const rootMetadata: Metadata = {
   metadataBase: new URL(siteUrl),
@@ -51,8 +52,10 @@ export function RootDocument({ lang, children }: { lang: Lang; children: React.R
             「script は描画されない」と叱る（2026-10-07）。根は移動で描き直されない */}
         <script dangerouslySetInnerHTML={{ __html: REVEAL_FLAG }} />
         <JsonLd data={siteJsonLd()} />
+        {/* 共通の頭（落款と名乗り・キット・頼み方と料金・運営者）。見本サイトでは globals.css が隠す */}
+        <SiteHeader lang={lang} />
         {children}
-        {/* 共通の一行（キット・悩みから読む・見本サイト・制作のご相談・運営者について）。どの紙にも出す */}
+        {/* 共通のフッター（キット・ご相談・このサイト・ほかの場所・言語）。どの紙にも出す */}
         <SiteFooter lang={lang} />
         {/* Vercel Web Analytics。Cookie を使わず、個人を特定する情報も持たないページビューの数だけ */}
         <Analytics />

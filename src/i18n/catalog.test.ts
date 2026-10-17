@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import { guides } from "@/lib/guides";
-import { GATES, projects, priceLabel, saleLabel, type Sale } from "@/lib/projects";
+import { GATES, PILLARS, projects, priceLabel, saleLabel, type Sale } from "@/lib/projects";
 
 import { CATALOG, localPriceLabel, localProject, localSaleLabel } from "./catalog";
 import { FOREIGN_LANGS } from "./routes";
@@ -28,9 +28,11 @@ describe("目録の英仏", () => {
     }
   });
 
-  it("入口・guides にも en・fr がある", () => {
+  it("入口・三つの柱・guides にも en・fr がある", () => {
     for (const lang of FOREIGN_LANGS) {
       for (const g of GATES) expect(CATALOG[lang].gates[g.id]).toBeTruthy();
+      for (const p of PILLARS) expect(CATALOG[lang].pillars[p.id], `${lang} ${p.id}`).toBeTruthy();
+      expect(Object.keys(CATALOG[lang].pillars).sort()).toEqual(PILLARS.map((p) => p.id).sort());
       for (const g of guides) expect(CATALOG[lang].guides.titles[g.slug], `${lang} ${g.slug}`).toBeTruthy();
     }
   });

@@ -1,0 +1,250 @@
+/* 頼み方と料金。頭（題・一行・宛先の箱）→ 階段 → 進め方 → よくあるご質問 → フォーム → ほかの場所 */
+
+.page {
+  display: block;
+  padding-bottom: 72px;
+}
+
+.head {
+  display: grid;
+  gap: 20px;
+  padding: 32px 0 8px;
+}
+
+@media (min-width: 1024px) {
+  .head {
+    grid-template-columns: minmax(0, 7fr) minmax(300px, 5fr);
+    gap: 56px;
+    align-items: start;
+    padding-top: 56px;
+  }
+}
+
+.headMain {
+  display: grid;
+  gap: 14px;
+}
+
+.title {
+  margin: 0;
+  font-family: var(--m-mincho);
+  font-weight: 600;
+  font-size: clamp(1.75rem, 1.3rem + 1.8vw, 2.75rem);
+  line-height: 1.35;
+  letter-spacing: 0.04em;
+  font-feature-settings: "palt" 1;
+}
+
+/* 宛先の箱。白いセルに、宛先を大きく */
+.mailBox {
+  display: grid;
+  gap: 8px;
+  padding: 20px;
+  background: var(--m-cell);
+  border: 1px solid var(--m-grid);
+}
+
+.mailHead {
+  margin: 0;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: var(--m-sumi-3);
+}
+
+.mail {
+  margin: 0;
+}
+
+.mailLink {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  font-size: clamp(1.125rem, 1rem + 0.6vw, 1.375rem);
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  color: var(--m-sumi);
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.25em;
+  overflow-wrap: anywhere;
+}
+
+.mailLink:focus-visible {
+  outline: 2px solid var(--m-shu);
+  outline-offset: 2px;
+}
+
+.section {
+  display: grid;
+  gap: 16px;
+  padding-top: 48px;
+  scroll-margin-top: 16px;
+}
+
+@media (min-width: 1024px) {
+  .section {
+    padding-top: 64px;
+  }
+}
+
+.after {
+  margin: 0;
+  max-width: 48em;
+  font-size: 0.875rem;
+  line-height: 1.75;
+  color: var(--m-sumi-3);
+}
+
+/* 英仏の頼めること（題と目安の二列） */
+.menu {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  background: var(--m-cell);
+  border: 1px solid var(--m-grid);
+}
+
+.menuItem {
+  display: grid;
+  gap: 2px 24px;
+  padding: 12px 14px;
+}
+
+.menuItem + .menuItem {
+  border-top: 1px solid var(--m-grid);
+}
+
+@media (min-width: 768px) {
+  .menuItem {
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+}
+
+.menuName {
+  font-weight: 600;
+}
+
+.menuPrice {
+  font-variant-numeric: tabular-nums;
+  color: var(--m-sumi-2);
+}
+
+/* 進め方。番号のマスつきの 3 段 */
+.steps {
+  display: grid;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  border-top: 1px solid var(--m-grid);
+  border-left: 1px solid var(--m-grid);
+}
+
+@media (min-width: 900px) {
+  .steps {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+.step {
+  display: grid;
+  grid-template-columns: 32px minmax(0, 1fr);
+  grid-template-areas:
+    "no name"
+    "no detail";
+  gap: 2px 14px;
+  padding: 14px 16px 16px 0;
+  background: var(--m-cell);
+  border-right: 1px solid var(--m-grid);
+  border-bottom: 1px solid var(--m-grid);
+}
+
+.stepNo {
+  grid-area: no;
+  align-self: stretch;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  margin: -14px 0 -16px;
+  padding-top: 16px;
+  background: var(--m-cell-head);
+  border-right: 1px solid var(--m-grid);
+  font-size: 0.75rem;
+  font-variant-numeric: tabular-nums;
+  color: var(--m-sumi-4);
+}
+
+.stepName {
+  grid-area: name;
+  font-weight: 600;
+}
+
+.stepDetail {
+  grid-area: detail;
+  font-size: 0.875rem;
+  line-height: 1.7;
+  color: var(--m-sumi-2);
+}
+
+/* よくあるご質問。問いと答えの二列（スマホは縦に） */
+.faq {
+  margin: 0;
+  background: var(--m-cell);
+  border: 1px solid var(--m-grid);
+}
+
+.qa {
+  display: grid;
+  gap: 4px 24px;
+  padding: 14px 16px;
+}
+
+.qa + .qa {
+  border-top: 1px solid var(--m-grid);
+}
+
+@media (min-width: 768px) {
+  .qa {
+    grid-template-columns: minmax(14em, 2fr) minmax(0, 3fr);
+  }
+}
+
+.qa dt {
+  font-weight: 600;
+}
+
+.qa dd {
+  margin: 0;
+  line-height: 1.75;
+  color: var(--m-sumi-2);
+}
+
+.formBox {
+  max-width: 40rem;
+  padding: 20px;
+  background: var(--m-cell);
+  border: 1px solid var(--m-grid);
+}
+
+.elsewhere {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0 20px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.elsewhereLink {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  color: var(--m-sumi-2);
+  text-decoration: underline;
+  text-underline-offset: 0.3em;
+}
+
+.elsewhereLink:focus-visible {
+  outline: 2px solid var(--m-shu);
+  outline-offset: 2px;
+}

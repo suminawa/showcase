@@ -8,7 +8,7 @@ import type { Lang } from "./routes";
 
 export const UI = {
   ja: {
-    back: "Showcase へ戻る",
+    back: "トップへ戻る",
     languages: "言語",
     categories: "分類",
     closeText: "ご用途に合わせた制作もお引き受けします。",
@@ -22,7 +22,7 @@ export const UI = {
     count: (total: number, onsale: number) => (onsale > 0 ? `${total} 件　発売中 ${onsale} 件` : `${total} 件`),
   },
   en: {
-    back: "Back to Showcase",
+    back: "Back to home",
     languages: "Language",
     categories: "Categories",
     closeText: "Custom builds for your own use case are welcome too.",
@@ -37,7 +37,7 @@ export const UI = {
       onsale > 0 ? `${total} items · ${onsale} on sale` : `${total} items`,
   },
   fr: {
-    back: "Retour à Showcase",
+    back: "Retour à l’accueil",
     languages: "Langue",
     categories: "Catégories",
     closeText: "Réalisations sur mesure possibles, selon vos besoins.",

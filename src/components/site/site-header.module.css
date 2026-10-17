@@ -1,0 +1,205 @@
+/* 頭。紙の地・下にマス目の線一本。高さは 56px（スマホ）・64px（PC） */
+
+.header {
+  position: relative;
+  z-index: 20;
+  background: var(--m-paper);
+  border-bottom: 1px solid var(--m-grid);
+  font-family: var(--m-gothic);
+}
+
+.inner {
+  display: flex;
+  align-items: center;
+  gap: 8px 20px;
+  max-width: calc(var(--m-max) + 2 * var(--m-gutter));
+  min-height: 56px;
+  margin-inline: auto;
+  padding-inline: var(--m-gutter);
+}
+
+@media (min-width: 1024px) {
+  .inner {
+    min-height: 64px;
+  }
+}
+
+.skip {
+  position: absolute;
+  left: 8px;
+  top: 8px;
+  z-index: 30;
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 0 16px;
+  background: var(--m-sumi);
+  color: var(--m-on-sumi);
+  font-size: 0.875rem;
+  transform: translateY(-200%);
+}
+
+.skip:focus-visible {
+  transform: none;
+  outline: 2px solid var(--m-shu);
+  outline-offset: 2px;
+}
+
+.brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 44px;
+  margin-right: auto;
+  color: var(--m-sumi);
+  text-decoration: none;
+}
+
+/* 落款。朱の四角に「墨」。朱を使うのはここと選択の枠だけ */
+.seal {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  background: var(--m-shu);
+  color: var(--m-paper);
+  font-family: var(--m-mincho);
+  font-weight: 600;
+  font-size: 14px;
+  line-height: 1;
+}
+
+.word {
+  font-size: 1.0625rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+}
+
+.brand:focus-visible,
+.item:focus-visible,
+.cta:focus-visible {
+  outline: 2px solid var(--m-shu);
+  outline-offset: 2px;
+}
+
+.nav {
+  display: flex;
+}
+
+.list {
+  display: flex;
+  gap: 0 4px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* 三つの柱（業務自動化・AI活用・Web制作）は PC だけ。それ未満の幅では「キット」の一つにまとめる */
+.wide {
+  display: none;
+}
+
+@media (min-width: 1024px) {
+  .wide {
+    display: block;
+  }
+  .narrow {
+    display: none;
+  }
+}
+
+.item {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 0 8px;
+  color: var(--m-sumi-2);
+  font-size: 0.875rem;
+  letter-spacing: 0.04em;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.item:hover {
+  color: var(--m-sumi);
+}
+
+/* いまいるページ。朱の 2px（選ばれている印）を、頭の下の線に重ねる */
+.item[aria-current="page"] {
+  color: var(--m-sumi);
+  font-weight: 600;
+}
+
+.item[aria-current="page"]::after {
+  content: "";
+  position: absolute;
+  left: 8px;
+  right: 8px;
+  bottom: -7px;
+  height: 2px;
+  background: var(--m-shu);
+}
+
+@media (min-width: 1024px) {
+  .item {
+    padding: 0 12px;
+    font-size: 0.9375rem;
+  }
+  .item[aria-current="page"]::after {
+    left: 12px;
+    right: 12px;
+    bottom: -11px;
+  }
+}
+
+/* 相談する（PC だけ。スマホでは本文の中に置く） */
+.cta {
+  display: none;
+}
+
+@media (min-width: 768px) {
+  .cta {
+    display: inline-flex;
+    align-items: center;
+    /* 押せるものは 44px 以上（頭の高さ 64px の中に収まる） */
+    min-height: 44px;
+    padding: 0 16px;
+    background: var(--m-sumi);
+    color: var(--m-on-sumi);
+    font-size: 0.875rem;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-decoration: none;
+  }
+  .cta:hover {
+    background: var(--m-sumi-2);
+  }
+}
+
+@media (max-width: 419px) {
+  .inner {
+    gap: 0 8px;
+  }
+  .brand {
+    gap: 8px;
+  }
+  .word {
+    font-size: 1rem;
+  }
+  .item {
+    padding: 0 6px;
+    font-size: 0.8125rem;
+  }
+}
+
+/* 320px 前後では、案内を名乗りの下の段へ送る（横にはみ出させない） */
+@media (max-width: 349px) {
+  .inner {
+    flex-wrap: wrap;
+  }
+  .nav {
+    width: 100%;
+  }
+}

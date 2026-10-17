@@ -3,10 +3,10 @@ import { SITE_DESCRIPTION } from "@/lib/site";
 /** トップの紙の言葉（src/app/content.tsx）。品物の題・入口・品書きは src/i18n/catalog.ts */
 const ja = {
   description: SITE_DESCRIPTION,
-  /* 名乗りの一行。誰の・何を・どうするかを言う（2026-10-15 監査 改善 1。提案文から来る発注者に、何の店かを 5 秒で） */
-  tagline: "スプレッドシートと Gmail・LINE の手作業を、動く仕組みにします。",
+  /* 名乗りの一行。三つの柱を名で言う（2026-10-17、持ち主の指示。トップの方眼の見出しと同じ字）。二文は TopPage の見出しの横に出す */
+  tagline: "業務自動化、AI活用、Web制作。",
   pitchText:
-    "士業の事務所・工務店・教室など、小さな会社やお店の事務向けに、期限の通知・フォームの受付・予約ページ・AI による問い合わせの整理といったキットを作っています。買い切りのキット（¥2,980〜）をご自身で入れることも、設置ごとお任せいただくこと（30,000 円〜）もできます。",
+    "期限の通知や予約の受付を自動にする道具、自社の文書だけを根拠に答える AI の窓口と書類の読み取り、LP・サイト・Webアプリの制作。買い切りのキット（税込 ¥2,980〜）をご自身で入れることも、設置や制作ごとお任せいただくこともできます。",
   ctaPrimary: "困りごとから選ぶ",
   ctaSecondary: "設置を相談する（3 営業日以内に返信）",
   /* 困りごとの入口 3 枚。並びは content.tsx の TROUBLE_KITS と同じ */
@@ -26,11 +26,11 @@ export const copy: Record<"ja" | "en" | "fr", typeof ja> = {
   ja,
   en: {
     description:
-      "suminawa builds small tools for business automation and the web: kits and live demos made with Google Apps Script (GAS) and AI, ready to try in your browser.",
-    /* 英語版は受託の窓（Contra・Fiverr から来る人）に絞る。仏語は凍結（2026-10-15 監査 改善 8） */
-    tagline: "I build Google Apps Script automations, AI help desks and landing pages for small businesses.",
+      "suminawa: business automation, AI tools and web production for small businesses. One-time-purchase kits built with Google Apps Script and the Claude API, sample sites, and live demos you can try in your browser.",
+    /* 英語版は受託の窓（Contra・Fiverr から来る人）に絞る。仏語は凍結（2026-10-15 監査 改善 8）。名乗りは三つの柱で（2026-10-17） */
+    tagline: "Business automation, AI tools and web production for small businesses.",
     pitchText:
-      "I automate office work for small companies and shops with Google Apps Script and AI. Buy a one-time kit (from ¥2,980) and set it up yourself, or have me install it for you (from ¥30,000).",
+      "I build Google Apps Script automations, AI help desks and document readers on the Claude API, and landing pages and web apps. Buy a one-time kit (from ¥2,980) and set it up yourself, or have me install or build it for you (from ¥30,000).",
     ctaPrimary: "Start from your problem",
     ctaSecondary: "Start a project (reply within 3 business days)",
     troubles: ["Deadlines and renewals slip through", "Too many inquiries and bookings to keep up with", "Spreadsheets keep falling apart"],
@@ -46,10 +46,10 @@ export const copy: Record<"ja" | "en" | "fr", typeof ja> = {
   },
   fr: {
     description:
-      "suminawa conçoit de petits outils pour automatiser le travail et pour le web : des kits et des démos en Google Apps Script (GAS) et IA, à essayer directement dans le navigateur.",
-    tagline: "Ce que j’ai réalisé.",
+      "suminawa : automatisation, outils IA et création web pour les petites entreprises. Des kits en achat unique (Google Apps Script, API Claude), des sites d’exemple et des démos à essayer directement dans le navigateur.",
+    tagline: "Automatisation, outils IA et création web pour les petites entreprises.",
     pitchText:
-      "J’automatise le travail administratif des petites entreprises et des commerces avec Google Apps Script et l’IA. Achetez un kit (dès 2 980 ¥) pour l’installer vous-même, ou confiez-moi l’installation (dès 30 000 ¥).",
+      "Je conçois des automatisations Google Apps Script, des assistants IA et des lecteurs de documents sur l’API Claude, ainsi que des landing pages et des applications web. Achetez un kit (dès 2 980 ¥) pour l’installer vous-même, ou confiez-moi l’installation ou la réalisation (dès 30 000 ¥).",
     ctaPrimary: "Partir de votre besoin",
     ctaSecondary: "Demander une installation (réponse sous 3 jours ouvrés)",
     troubles: ["Des échéances qui passent inaperçues", "Trop de demandes et de réservations à suivre", "Des tableaux qui deviennent ingérables"],

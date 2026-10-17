@@ -1,0 +1,308 @@
+/*
+ * 品物のページの購入の箱（KitBuy）・購入の一行（KitPriceLine）・結び（KitClose）。
+ * 方眼の文法: 白いセル・マス目の線・帳票。押す先は墨（BOOTH）と白（note）。
+ */
+
+/* ---- 購入の箱（頭の右） ----------------------------------------------------- */
+
+.buy {
+  display: grid;
+  gap: 14px;
+  padding: 20px;
+  background: var(--m-cell);
+  border: 1px solid var(--m-grid);
+}
+
+@media (min-width: 1024px) {
+  .buy {
+    padding: 24px;
+  }
+}
+
+.price {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 4px 12px;
+  margin: 0;
+}
+
+.yen {
+  font-size: clamp(1.625rem, 1.3rem + 1.2vw, 2.125rem);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.01em;
+  line-height: 1.2;
+  color: var(--m-sumi);
+}
+
+.tax {
+  font-size: 0.8125rem;
+  letter-spacing: 0.04em;
+  color: var(--m-sumi-3);
+}
+
+.buttons {
+  display: grid;
+  gap: 8px;
+}
+
+.buy .buttons > * {
+  width: 100%;
+}
+
+.facts {
+  font-size: 0.875rem;
+}
+
+.fact {
+  display: contents;
+}
+
+.more {
+  display: grid;
+  margin: -6px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.small {
+  margin: 0;
+  font-size: 0.8125rem;
+  line-height: 1.7;
+  color: var(--m-sumi-3);
+}
+
+/* ---- 購入の一行（頭の下） --------------------------------------------------- */
+
+.strip {
+  display: grid;
+  gap: 10px;
+  padding: 16px;
+  background: var(--m-cell);
+  border: 1px solid var(--m-grid);
+}
+
+.strip .yen {
+  font-size: 1.375rem;
+}
+
+@media (min-width: 768px) {
+  .strip {
+    grid-template-columns: auto minmax(0, 1fr);
+    align-items: center;
+    gap: 10px 24px;
+    padding: 16px 20px;
+  }
+  .strip .buttons {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px 16px;
+  }
+  .strip > .small {
+    grid-column: 1 / -1;
+  }
+}
+
+/* ---- 結び ------------------------------------------------------------------ */
+
+.close {
+  display: grid;
+  gap: 32px;
+  margin-top: 48px;
+  padding-top: 40px;
+  border-top: 1px solid var(--m-grid);
+  min-width: 0;
+}
+
+@media (min-width: 1024px) {
+  .close {
+    gap: 40px;
+    margin-top: 72px;
+    padding-top: 56px;
+  }
+}
+
+.closeHead {
+  display: grid;
+  gap: 10px;
+  max-width: 46rem;
+}
+
+.h2 {
+  margin: 0;
+  font-family: var(--m-mincho);
+  font-weight: 600;
+  font-size: clamp(1.375rem, 1.1rem + 1vw, 1.75rem);
+  line-height: 1.5;
+  letter-spacing: 0.03em;
+  font-feature-settings: "palt" 1;
+  word-break: auto-phrase;
+  text-wrap: pretty;
+}
+
+.h3 {
+  margin: 0 0 10px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--m-grid);
+  font-size: 0.9375rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: var(--m-sumi);
+}
+
+.body {
+  margin: 0;
+  font-size: 0.9375rem;
+  line-height: 1.85;
+  color: var(--m-sumi-2);
+  max-width: 44em;
+}
+
+.body + .body {
+  margin-top: 10px;
+}
+
+.pair {
+  display: grid;
+  gap: 32px;
+}
+
+@media (min-width: 900px) {
+  .pair {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: 40px;
+  }
+}
+
+.block {
+  min-width: 0;
+}
+
+.list {
+  display: grid;
+  gap: 6px;
+  margin: 0;
+  padding: 0 0 0 1.2em;
+  font-size: 0.9375rem;
+  line-height: 1.75;
+  color: var(--m-sumi-2);
+}
+
+/* 比べ方。二つの欄を白いセルに並べる */
+.compare {
+  min-width: 0;
+}
+
+.compareGrid {
+  display: grid;
+  border-top: 1px solid var(--m-grid);
+  border-left: 1px solid var(--m-grid);
+}
+
+@media (min-width: 900px) {
+  .compareGrid {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  }
+}
+
+.compareCol {
+  padding: 16px 18px;
+  background: var(--m-cell);
+  border-right: 1px solid var(--m-grid);
+  border-bottom: 1px solid var(--m-grid);
+}
+
+.compareHead {
+  margin: 0 0 10px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--m-sumi);
+}
+
+.cases {
+  display: grid;
+  gap: 14px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.cases > li {
+  display: grid;
+  gap: 4px;
+  font-size: 0.875rem;
+  line-height: 1.75;
+  color: var(--m-sumi-3);
+}
+
+.who {
+  color: var(--m-sumi);
+  font-weight: 600;
+}
+
+.alt {
+  display: block;
+}
+
+.when {
+  color: var(--m-sumi-4);
+  font-size: 0.8125rem;
+}
+
+.compare > .small {
+  margin-top: 10px;
+}
+
+.updates {
+  display: grid;
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.update {
+  display: grid;
+  gap: 2px;
+  font-size: 0.875rem;
+  line-height: 1.75;
+  color: var(--m-sumi-2);
+}
+
+.updateHead {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  color: var(--m-sumi-3);
+}
+
+.closeBuy {
+  display: grid;
+  gap: 12px;
+  padding: 20px;
+  background: var(--m-cell);
+  border: 1px solid var(--m-grid);
+}
+
+@media (min-width: 768px) {
+  .closeBuy {
+    grid-template-columns: auto minmax(0, 1fr);
+    align-items: center;
+    gap: 12px 24px;
+  }
+  .closeBuy .buttons {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px 16px;
+  }
+}
+
+.closeLine {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--m-sumi);
+}

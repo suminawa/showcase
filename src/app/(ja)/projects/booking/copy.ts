@@ -1,10 +1,10 @@
 const ja = {
   meta: {
     title: "予約ページ キット",
-    description: "スプレッドシートに枠を書くだけで、公開した URL がそのまま予約ページになる Apps Script のキットの見本です。",
+    description: "スプレッドシートに枠を書くだけで、公開した URL がそのまま予約ページになる Apps Script のキットの見本です。予約が月 50 件を超えても、月額はかかりません。",
   },
   title: "予約ページ キット",
-  lede: "電話に出られない時間のご予約も、お客さまが空いている枠から選んで入れられます。スプレッドシートに枠を書くと、公開した URL がそのまま予約ページになります。",
+  lede: "スプレッドシートに枠を書くと、公開した URL がそのまま予約ページになります。電話に出られない時間のご予約も受け付け、予約が月 50 件を超えても月額はかかりません。",
   intro: "この見本は、架空のお店「ひだまり整体院」の見本データをブラウザの中で動かしています。ご予約はページを閉じると消えます。",
   flow: "お客さまは空きカレンダーから日を選び、時間を選び、お名前と連絡先を入れて、確認をはさんでご予約いただけます。Google アカウントもログインも要りません。受け付けたご予約は「予約」シートに 1 行たまり、お客さまへ確認メール、お店へお知らせのメールが届きます。前日のリマインドも自動で送れます。",
   options: "Google カレンダーへの登録は任意で、設定を空にしておけば登録しません。キャンセルは確認メールに書かれた URL からお客さまご自身で手続きでき、締切は設定で決められます。Slack・Discord・LINE への通知も、設定に URL を入れれば届きます。所要時間の違うサービスを並べて選んでいただくこともでき、画面はスマートフォンを先に考えた作りです。",
@@ -16,10 +16,10 @@ export const copy: Record<"ja" | "en" | "fr", typeof ja> = {
   en: {
     meta: {
       title: "Booking Page Kit",
-      description: "Demo of an Apps Script kit: write time slots in a spreadsheet, and the published URL becomes your booking page.",
+      description: "Demo of an Apps Script kit: write time slots in a spreadsheet, and the published URL becomes your booking page. No monthly fee, even past 50 bookings a month.",
     },
     title: "Booking Page Kit",
-    lede: "Write your time slots in a spreadsheet, and the published URL becomes your booking page",
+    lede: "Write your time slots in a spreadsheet, and the published URL becomes your booking page. It takes bookings while you can’t answer the phone, with no monthly fee even past 50 bookings a month.",
     intro: "This demo runs on sample data for a fictional bodywork clinic, entirely in your browser (the demo is in Japanese). Bookings disappear when you close the page.",
     flow: "Customers pick a day on the availability calendar, choose a time, enter their name and contact details, and confirm. No Google account or login needed. Each booking is added as a row to the bookings sheet; the customer gets a confirmation email and the business gets a notification. Day-before reminders can go out automatically.",
     options: "Adding bookings to Google Calendar is optional; leave the setting empty to skip it. Customers can cancel on their own from the link in the confirmation email, with a cutoff you set. Slack, Discord, and LINE notifications work once you add a URL in the settings. You can offer several services with different durations, and the screens are designed mobile-first.",
@@ -28,10 +28,10 @@ export const copy: Record<"ja" | "en" | "fr", typeof ja> = {
   fr: {
     meta: {
       title: "Kit de page de réservation",
-      description: "Démo d’un kit Apps Script : inscrivez vos créneaux dans un tableur, et l’URL publiée devient votre page de réservation.",
+      description: "Démo d’un kit Apps Script : inscrivez vos créneaux dans un tableur, et l’URL publiée devient votre page de réservation. Sans abonnement, même au-delà de 50 réservations par mois.",
     },
     title: "Kit de page de réservation",
-    lede: "Inscrivez vos créneaux dans un tableur : l’URL publiée devient votre page de réservation",
+    lede: "Inscrivez vos créneaux dans un tableur : l’URL publiée devient votre page de réservation. Elle prend les rendez-vous quand vous ne pouvez pas répondre au téléphone, sans abonnement même au-delà de 50 réservations par mois.",
     intro: "Cette démo, en japonais, fonctionne entièrement dans votre navigateur avec les données d’un cabinet de soins fictif. Les réservations disparaissent à la fermeture de la page.",
     flow: "Le client choisit un jour dans le calendrier des disponibilités, puis une heure, saisit son nom et ses coordonnées et confirme. Aucun compte Google ni connexion requis. Chaque réservation s’ajoute sous forme de ligne dans la feuille des réservations ; le client reçoit un e-mail de confirmation et l’établissement une notification. Un rappel peut aussi être envoyé automatiquement la veille.",
     options: "L’ajout à Google Agenda est facultatif : laissez le réglage vide pour ne pas l’utiliser. Le client peut annuler lui-même depuis le lien de l’e-mail de confirmation, avec une date limite que vous fixez. Les notifications Slack, Discord et LINE fonctionnent dès que vous indiquez une URL dans les réglages. Vous pouvez proposer plusieurs prestations de durées différentes, et les écrans sont pensés d’abord pour le mobile.",

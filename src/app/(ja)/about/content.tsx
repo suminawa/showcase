@@ -5,15 +5,15 @@
  * 書いてよい経歴の範囲は suminawa-ops の experience-facts.md（会社名・案件名・氏名は書かない。年数は「3 年以上」まで）。
  * 氏名・所在地は紙に載せない ── 商品の販売は BOOTH と note が売り手で、この紙は売り場ではない。
  * 契約と請求の書面でお知らせする、と書くにとどめる。インボイスの登録番号は無い（direct-sales.md §5-4）。
- * FORM: 料紙（分類のページ）— 文法は DESIGN.md
+ * FORM: 方眼（DESIGN.md）。文は前の版のまま、組み方だけを替えた（2026-10-17）。
  */
 import Link from "next/link";
 
-import { Sheet, SheetClose, SheetSection } from "@/components/ryoushi";
+import u from "@/components/site/ui.module.css";
 import { ContactMail } from "@/components/track/ContactMail";
 import { pageMetadata } from "@/i18n/meta";
 
-import s from "../ryoushi.module.css";
+import s from "./about.module.css";
 
 const PAGE = {
   title: "運営者について",
@@ -29,7 +29,7 @@ const OPERATOR: { q: string; a: React.ReactNode }[] = [
     q: "連絡先",
     a: (
       <>
-        <ContactMail className={s.mailLink} /> ── 3 営業日以内に返信します。
+        <ContactMail className={u.link} /> ── 3 営業日以内に返信します。
       </>
     ),
   },
@@ -47,7 +47,7 @@ const TERMS: { q: string; a: React.ReactNode }[] = [
     a: (
       <>
         ココナラ・ランサーズ・クラウドワークスを通して、またはメールで直接お受けします。範囲と納品物を先に文章で固め、お見積もりに修正の回数まで書きます。目安は{" "}
-        <Link href="/contact" className={s.mailLink}>
+        <Link href="/contact" className={u.link}>
           制作のご相談
         </Link>
         {" "}の紙に。
@@ -84,14 +84,23 @@ const PRIVACY: { q: string; a: string }[] = [
 
 function Pairs({ items }: { items: { q: string; a: React.ReactNode }[] }) {
   return (
-    <dl className={s.faq}>
+    <dl className={s.pairs}>
       {items.map((item) => (
-        <div key={item.q}>
+        <div key={item.q} className={s.pair}>
           <dt>{item.q}</dt>
           <dd>{item.a}</dd>
         </div>
       ))}
     </dl>
+  );
+}
+
+function Section({ name, children }: { name: string; children: React.ReactNode }) {
+  return (
+    <section className={s.section} aria-label={name}>
+      <h2 className={u.h2}>{name}</h2>
+      {children}
+    </section>
   );
 }
 
@@ -103,45 +112,55 @@ export const aboutMetadata = {
 
 export function AboutPage() {
   return (
-    <Sheet title={PAGE.title} latin={PAGE.latin} lede={PAGE.lede}>
-      <SheetSection name="名義と連絡先">
+    <main id="main" className={s.page}>
+      <div className={u.wrap}>
+        <header className={s.head}>
+          <h1 className={s.title}>{PAGE.title}</h1>
+          <p className={u.lede}>{PAGE.lede}</p>
+        </header>
+      <Section name="名義と連絡先">
         <Pairs items={OPERATOR} />
-      </SheetSection>
+      </Section>
 
-      <SheetSection name="経歴">
-        <p className={s.closeText}>
+      <Section name="経歴">
+        <p className={s.text}>
           仕事で、Web システムの開発・保守（PHP・JavaScript・PostgreSQL）、発注者側の SE
           として要件定義から受入テスト・本番適用まで、受託システムの品質保証と設計レビュー、Excel（VBA）と Python
           による業務の自動化ツールの開発を、あわせて 3 年以上担当してきました。
         </p>
-        <p className={s.closeText}>
+        <p className={s.text}>
           いまは、小さな会社の事務を Google スプレッドシートと Apps Script、Claude API
           で自動化するキットと、業種別の見本サイトを自主制作で作り、このサイトで公開しています。会社名・案件名は出さず、自分で作って動かしているものだけを実績として載せています。G
           検定 合格（2026 年 1 月）。
         </p>
-      </SheetSection>
+      </Section>
 
-      <SheetSection name="作っているもの">
-        <p className={s.closeText}>
-          <Link href="/kits" className={s.mailLink}>
+      <Section name="作っているもの">
+        <p className={s.text}>
+          <Link href="/kits" className={u.link}>
             業務キット
           </Link>
           （期限アラート・フォーム受付・予約ページなど、買い切りで自分で入れられるもの）、
-          <Link href="/sites" className={s.mailLink}>
+          <Link href="/sites" className={u.link}>
             業種別の見本サイト
           </Link>
           、業務への AI の組み込み（案内窓口・書類の読み取り・問い合わせの仕分け）。見本はすべてその場で動きます。
         </p>
-      </SheetSection>
+      </Section>
 
-      <SheetSection name="お取引の決まり">
+      <Section name="お取引の決まり">
         <Pairs items={TERMS} />
-      </SheetSection>
+      </Section>
 
-      <SheetSection name="プライバシー方針">
+      <Section name="プライバシー方針">
         <Pairs items={PRIVACY} />
-      </SheetSection>
-      <SheetClose />
-    </Sheet>
+      </Section>
+        <p className={s.close}>
+          <Link href="/contact" className={u.btn}>
+            頼み方と料金を見る
+          </Link>
+        </p>
+      </div>
+    </main>
   );
 }

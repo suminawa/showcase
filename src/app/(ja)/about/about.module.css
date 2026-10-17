@@ -1,0 +1,90 @@
+/* 運営者について。題・一行と、名義・経歴・作っているもの・お取引の決まり・プライバシー方針の段 */
+
+.page {
+  display: block;
+  padding-bottom: 72px;
+}
+
+.head {
+  display: grid;
+  gap: 14px;
+  padding: 32px 0 8px;
+  max-width: 48rem;
+}
+
+@media (min-width: 1024px) {
+  .head {
+    padding-top: 56px;
+  }
+}
+
+.title {
+  margin: 0;
+  font-family: var(--m-mincho);
+  font-weight: 600;
+  font-size: clamp(1.75rem, 1.3rem + 1.8vw, 2.75rem);
+  line-height: 1.35;
+  letter-spacing: 0.04em;
+  font-feature-settings: "palt" 1;
+}
+
+.section {
+  display: grid;
+  gap: 16px;
+  padding-top: 48px;
+  max-width: 64rem;
+}
+
+@media (min-width: 1024px) {
+  .section {
+    padding-top: 64px;
+  }
+}
+
+.text {
+  margin: 0;
+  max-width: 40em;
+  font-size: 1rem;
+  line-height: 1.9;
+  color: var(--m-sumi-2);
+}
+
+/* 項目と値の帳票。白いセル・マス目の線。スマホは縦に積む */
+.pairs {
+  margin: 0;
+  background: var(--m-cell);
+  border: 1px solid var(--m-grid);
+}
+
+.pair {
+  display: grid;
+  gap: 4px 24px;
+  padding: 14px 16px;
+}
+
+.pair + .pair {
+  border-top: 1px solid var(--m-grid);
+}
+
+@media (min-width: 768px) {
+  .pair {
+    grid-template-columns: 12em minmax(0, 1fr);
+  }
+}
+
+.pair dt {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--m-sumi);
+}
+
+.pair dd {
+  margin: 0;
+  font-size: 0.9375rem;
+  line-height: 1.8;
+  color: var(--m-sumi-2);
+}
+
+.close {
+  margin: 56px 0 0;
+}

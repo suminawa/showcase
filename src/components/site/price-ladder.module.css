@@ -1,0 +1,100 @@
+/* 頼み方と目安の階段。白いセルの表。スマホでは行ごとの札に組み替える */
+
+.wrap {
+  display: grid;
+  gap: 10px;
+}
+
+.note {
+  margin: 0;
+  font-size: 0.8125rem;
+  line-height: 1.7;
+  color: var(--m-sumi-3);
+}
+
+.ladder {
+  width: 100%;
+  border-collapse: collapse;
+  background: var(--m-cell);
+  font-size: 0.9375rem;
+  line-height: 1.6;
+}
+
+.caption {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+.ladder th,
+.ladder td {
+  padding: 12px 14px;
+  border: 1px solid var(--m-grid);
+  text-align: left;
+  vertical-align: top;
+}
+
+.ladder thead th {
+  background: var(--m-cell-head);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: var(--m-sumi-3);
+}
+
+.ladder tbody th {
+  font-weight: 600;
+  color: var(--m-sumi);
+}
+
+.ladder .price {
+  white-space: nowrap;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  color: var(--m-sumi);
+}
+
+.ladder .who {
+  color: var(--m-sumi-2);
+}
+
+@media (max-width: 639px) {
+  .ladder,
+  .ladder tbody,
+  .ladder tr,
+  .ladder th,
+  .ladder td {
+    display: block;
+  }
+  .ladder thead {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+  }
+  .ladder {
+    border-top: 1px solid var(--m-grid);
+  }
+  .ladder tr {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 2px 12px;
+    padding: 12px 14px;
+    border: 1px solid var(--m-grid);
+    border-top: 0;
+  }
+  .ladder th,
+  .ladder td {
+    padding: 0;
+    border: 0;
+  }
+  .ladder .who {
+    grid-column: 1 / -1;
+    font-size: 0.875rem;
+    color: var(--m-sumi-3);
+  }
+}

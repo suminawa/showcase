@@ -1,0 +1,228 @@
+/*
+ * キットのカード。白いセルが境目を共有して並ぶ（スプレッドシートの範囲）。
+ * スマホは写真を左に置いた行、640px から写真が上のカード。large（看板）はどの幅でも写真が上。
+ */
+
+.grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  border-top: 1px solid var(--m-grid);
+  border-left: 1px solid var(--m-grid);
+}
+
+@media (min-width: 640px) {
+  .grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 1024px) {
+  .grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+.card,
+.blank {
+  background: var(--m-cell);
+  border-right: 1px solid var(--m-grid);
+  border-bottom: 1px solid var(--m-grid);
+}
+
+.card {
+  display: grid;
+  grid-template-columns: 120px minmax(0, 1fr);
+  gap: 0 14px;
+  align-items: start;
+  padding: 14px;
+}
+
+/* 空のセル。無地の白（品物より目立たせない） */
+.blank {
+  display: none;
+}
+
+@media (min-width: 640px) and (max-width: 1023px) {
+  .blank[data-c2="true"] {
+    display: block;
+  }
+}
+
+@media (min-width: 1024px) {
+  .blank[data-c3="true"] {
+    display: block;
+  }
+}
+
+.shot {
+  background: var(--m-plate);
+  border: 1px solid var(--m-grid);
+  aspect-ratio: 4 / 3;
+  overflow: hidden;
+}
+
+.shot img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.body {
+  display: grid;
+  gap: 6px;
+  align-content: start;
+  min-width: 0;
+}
+
+.name {
+  margin: 0;
+  font-family: var(--m-mincho);
+  font-weight: 600;
+  font-size: 1.0625rem;
+  line-height: 1.45;
+  letter-spacing: 0.02em;
+  font-feature-settings: "palt" 1;
+  word-break: auto-phrase;
+}
+
+/* 品名のリンクをカード全体に広げる（押す先は一つ） */
+.stretch {
+  color: var(--m-sumi);
+  text-decoration: none;
+}
+
+.stretch::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+}
+
+.card:hover .stretch {
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.25em;
+}
+
+.desc {
+  margin: 0;
+  font-size: 0.875rem;
+  line-height: 1.7;
+  color: var(--m-sumi-3);
+}
+
+.tags {
+  margin: 0;
+  font-size: 0.75rem;
+  line-height: 1.6;
+  letter-spacing: 0.04em;
+  color: var(--m-sumi-4);
+}
+
+.price {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 2px 10px;
+  margin: 4px 0 0;
+}
+
+.yen {
+  font-size: 1.0625rem;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.02em;
+  color: var(--m-sumi);
+}
+
+.tax,
+.free {
+  font-size: 0.75rem;
+  letter-spacing: 0.04em;
+  color: var(--m-sumi-4);
+}
+
+.free {
+  padding: 1px 6px;
+  border: 1px solid var(--m-grid-strong);
+  color: var(--m-sumi-2);
+}
+
+@media (min-width: 640px) {
+  .card {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 16px;
+    padding: 20px;
+    align-content: start;
+  }
+  .name {
+    font-size: 1.125rem;
+  }
+}
+
+/* ---- large（看板）── どの幅でも写真が上、帳票つき --------------------------- */
+
+.large {
+  grid-template-columns: minmax(0, 1fr);
+  gap: 16px;
+  padding: 16px;
+}
+
+@media (min-width: 640px) {
+  .large {
+    padding: 24px;
+  }
+}
+
+.large .name {
+  font-size: 1.25rem;
+}
+
+.large .desc {
+  font-size: 0.9375rem;
+  color: var(--m-sumi-2);
+}
+
+.large .yen {
+  font-size: 1.375rem;
+}
+
+.facts {
+  margin-top: 6px;
+  font-size: 0.875rem;
+}
+
+/* スマホの看板のカードは、写真を少し低く（台紙の余白だけを切る）・帳票を詰めて、一枚を短くする */
+@media (max-width: 639px) {
+  .large .shot {
+    aspect-ratio: 16 / 10;
+  }
+  .facts dt,
+  .facts dd {
+    padding-block: 6px;
+  }
+}
+
+/* dl の中の組（dt と dd）を一行に。spec の二列の格子をそのまま使う */
+.fact {
+  display: contents;
+}
+
+/* 看板の並びは 640〜1023px でも 1 列（写真が上の大きなカードを 2 列に詰めない） */
+@media (min-width: 640px) and (max-width: 1023px) {
+  .gridLarge {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .gridLarge .large {
+    grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+    gap: 24px;
+    align-items: start;
+  }
+  .gridLarge .blank {
+    display: none !important;
+  }
+}

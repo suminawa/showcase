@@ -1,0 +1,253 @@
+/*
+ * 作品ページの枠（方眼）。現在地・頭（左右に割れることがある）・本文・返品の決まり・関連記事。
+ * .compat は、本文の中の前の版のクラス（projects.module.css の lede・textLink、見本の CSS、
+ * 悩みから読むの節）が読む --rp-* を、方眼の色と字で用意する。
+ */
+
+.page {
+  display: block;
+  padding-bottom: 72px;
+}
+
+.compat {
+  --rp-paper: var(--m-paper);
+  --rp-sumi: var(--m-sumi);
+  --rp-sumi-2: var(--m-sumi-2);
+  --rp-sumi-3: var(--m-sumi-3);
+  --rp-sumi-4: var(--m-sumi-4);
+  --rp-shu: var(--m-shu);
+  --rp-tiny: clamp(0.875rem, 0.8rem + 0.25vw, 1rem);
+  --rp-large: clamp(1.75rem, 4.2vw, 3rem);
+  --rp-pitch: calc(1.9 * var(--rp-tiny));
+  --rp-brush: cubic-bezier(0.2, 0, 0, 1);
+  --rp-soak: 160ms cubic-bezier(0.2, 0, 0, 1);
+  --rp-serif: var(--m-gothic);
+  --rp-serif-display: var(--m-mincho);
+  font-family: var(--m-gothic);
+  color: var(--m-sumi);
+}
+
+/* ---- 現在地 ------------------------------------------------------------------ */
+
+.crumbs {
+  padding-top: 16px;
+}
+
+.crumbs ol {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: 0.8125rem;
+  color: var(--m-sumi-3);
+}
+
+.crumbs li + li::before {
+  content: "›";
+  margin: 0 8px;
+  color: var(--m-sumi-4);
+}
+
+.crumbLink {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  color: var(--m-sumi-2);
+  text-decoration: underline;
+  text-underline-offset: 0.3em;
+  text-decoration-color: color-mix(in srgb, var(--m-sumi) 40%, transparent);
+}
+
+.crumbLink:focus-visible {
+  outline: 2px solid var(--m-shu);
+  outline-offset: 2px;
+}
+
+/* ---- 頭 ---------------------------------------------------------------------- */
+
+.head {
+  display: grid;
+  gap: 24px;
+  padding: 8px 0 32px;
+}
+
+.headSplit {
+  grid-template-areas:
+    "main"
+    "aside"
+    "extra";
+}
+
+.headSplit .headMain {
+  grid-area: main;
+}
+
+.headSplit .aside {
+  grid-area: aside;
+}
+
+.headSplit .headExtra {
+  grid-area: extra;
+}
+
+@media (min-width: 1024px) {
+  .head {
+    padding: 16px 0 40px;
+  }
+  .headSplit {
+    grid-template-columns: minmax(0, 7fr) minmax(320px, 5fr);
+    grid-template-rows: auto 1fr;
+    grid-template-areas:
+      "main aside"
+      "extra aside";
+    gap: 24px 56px;
+    align-items: start;
+  }
+}
+
+.headExtra {
+  min-width: 0;
+  max-width: 40rem;
+}
+
+.headMain {
+  display: grid;
+  gap: 14px;
+  align-content: start;
+  min-width: 0;
+}
+
+.title {
+  margin: 0;
+  font-family: var(--m-mincho);
+  font-weight: 600;
+  font-size: clamp(1.75rem, 1.25rem + 2vw, 2.75rem);
+  line-height: 1.35;
+  letter-spacing: 0.03em;
+  font-feature-settings: "palt" 1;
+  word-break: auto-phrase;
+  text-wrap: balance;
+}
+
+.lede {
+  margin: 0;
+  max-width: 36em;
+  font-size: 1rem;
+  line-height: 1.85;
+  color: var(--m-sumi-2);
+  text-wrap: pretty;
+  word-break: auto-phrase;
+}
+
+@media (min-width: 1024px) {
+  .lede {
+    font-size: 1.0625rem;
+  }
+}
+
+.aside {
+  min-width: 0;
+}
+
+/* ---- 本文 -------------------------------------------------------------------- */
+
+.work {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  min-width: 0;
+}
+
+.note {
+  margin: 40px 0 0;
+  max-width: 44em;
+  font-size: 0.8125rem;
+  line-height: 1.75;
+  color: var(--m-sumi-3);
+}
+
+.related {
+  margin-top: 32px;
+  padding-top: 20px;
+  border-top: 1px solid var(--m-grid);
+  max-width: 48em;
+}
+
+.relatedHead {
+  margin: 0 0 6px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--m-sumi);
+}
+
+.relatedList {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.relatedLink {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  font-size: 0.9375rem;
+  color: var(--m-sumi-2);
+  text-decoration: underline;
+  text-underline-offset: 0.3em;
+  text-decoration-color: color-mix(in srgb, var(--m-sumi) 40%, transparent);
+}
+
+.relatedLink:focus-visible {
+  outline: 2px solid var(--m-shu);
+  outline-offset: 2px;
+}
+
+/* ---- 見本の札 ---------------------------------------------------------------- */
+
+.demoLabel {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: stretch;
+  margin: 0;
+  background: var(--m-cell);
+  border: 1px solid var(--m-grid);
+  font-size: 0.8125rem;
+  line-height: 1.6;
+  color: var(--m-sumi-3);
+}
+
+.demoLabel > span:last-child {
+  display: inline-flex;
+  align-items: center;
+  padding: 8px 14px;
+  flex: 1 1 16em;
+}
+
+.demoTag {
+  display: inline-flex;
+  align-items: center;
+  padding: 8px 14px;
+  background: var(--m-cell-head);
+  border-right: 1px solid var(--m-grid);
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  color: var(--m-sumi);
+}
+
+/* ---- 本文の段落（看板 3 本のページの、見本の前後の説明） ------------------------ */
+
+.body {
+  margin: 0;
+  max-width: 44em;
+  font-size: 0.9375rem;
+  line-height: 1.85;
+  color: var(--m-sumi-2);
+}
+
+.prose {
+  display: grid;
+  gap: 12px;
+  margin-top: 16px;
+}

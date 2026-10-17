@@ -281,7 +281,7 @@
   letter-spacing: 0.06em;
   color: var(--rp-sumi-4);
   max-width: 34em;
-  animation: rp-rise 1000ms var(--rp-brush) 700ms both;
+  /* 入場の演出は外した（2026-10-17）。作品ページの本文は最初から見えている（DESIGN.md の動きの決まり） */
 }
 
 /* ==========================================================================

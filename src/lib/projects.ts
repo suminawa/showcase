@@ -115,7 +115,7 @@ export const INDEX_PAGES: Record<Category, IndexPage> = {
   kits: {
     title: "キットとテンプレート",
     latin: "Kits",
-    lede: "買い切りのキットとテンプレートです。表示のお値段は税込です。迷ったときは、期限アラート・フォーム受付・予約ページの 3 本からご覧ください。",
+    lede: "業務自動化・AI活用・Web制作の三つの棚に、買い切りのキットとテンプレートを並べています。お値段は税込で、月額のサービス料はかかりません。迷ったときは、期限アラート・フォーム受付・予約ページの 3 本からご覧ください。",
   },
   sites: {
     title: "見本サイト",
@@ -131,9 +131,9 @@ export const INDEX_PAGES: Record<Category, IndexPage> = {
 
 /** 制作のご相談の紙（/contact）の頭。分類のページと同じ三点で組む */
 export const CONTACT_PAGE: IndexPage = {
-  title: "制作のご相談",
+  title: "頼み方と料金",
   latin: "Contact",
-  lede: "サイト・LP の制作、業務の自動化、埋め込み部品の設置、WebGL の演出をお引き受けします。3 営業日以内に返信します。",
+  lede: "会社・事務所の事務の自動化（Google スプレッドシート・Gmail・LINE）、キットの設置、1 か所の修正をお引き受けします。サイト・LP の制作もご相談ください。3 営業日以内に返信します。",
 };
 
 /**
@@ -142,7 +142,7 @@ export const CONTACT_PAGE: IndexPage = {
  * 値段は既存の出品と受託メニューの値で、ここで新しい額を作らない。
  */
 export const PRICE_LADDER: { how: string; price: string; who: string }[] = [
-  { how: "キットを買ってご自身で入れる", price: "¥2,980〜19,800（税込）", who: "手順書どおりに 15〜20 分の作業ができる方" },
+  { how: "キットを買ってご自身で入れる", price: "¥2,980〜19,800（税込）", who: "手順書を見ながら、ご自身で貼り付けと設定ができる方" },
   { how: "1 か所の修正・Excel や VBA の直し", price: "5,000 円〜", who: "今あるものを少し直したい方" },
   { how: "キットの設置をお任せ", price: "30,000 円〜", who: "貼り付けと設定ごと任せたい方" },
   { how: "個別の自動化・AI の組み込み", price: "40,000 円〜", who: "表や業務に合わせて作りたい方" },
@@ -161,43 +161,31 @@ export const CONTACT_FAQ: { q: string; a: string }[] = [
   { q: "ココナラやランサーズを通して頼めますか？", a: "はい。ココナラ・ランサーズのどちらからでもお受けします。" },
 ];
 
+/** 埋め込み部品の設置。頼み方の階段（PRICE_LADDER）に無い頼み方なので、/contact では階段の下に一行で添える */
+export const EMBED_SERVICE = {
+  title: "埋め込み部品の設置（AI 案内窓口・間取り・3D の商品ページ）",
+  price: "60,000 円から",
+};
+
 /**
- * 制作のご相談（/contact）に出す品書き。
+ * 制作のご相談（/contact）に出す品書き。頼みやすい順（安い順）に並べる（2026-10-17 監査 marketing 8）。
  *
- * 数字の出どころは公開済みの受託メニュー（concierge/content/services.md）で、
- * そこに書いていない額は**足さない**。肩書き・経歴・実績の数はここに書かない ──
- * ここに置くのは品書きだけで、語るのは分類のページに並ぶ実物のほうである。
+ * 数字の出どころは公開済みの受託メニュー（concierge/content/services.md）と PRICE_LADDER で、
+ * そこに書いていない額は**足さない**。WebGL の演出は品書きから外した（作品は /works に残る）。
  */
 export const SERVICES: { title: string; price: string }[] = [
+  { title: "1 か所の修正（Excel・VBA・フォーム・GAS）", price: "5,000 円から" },
+  { title: "キットの設置をお任せ", price: "30,000 円から" },
+  { title: "個別の自動化・AI の組み込み", price: "40,000 円から" },
+  EMBED_SERVICE,
   { title: "サイト・LP の制作", price: "1 ページの LP は 150,000 円から" },
-  {
-    title: "業務の自動化（Google Apps Script）",
-    price: "既製キットの導入は 30,000 円、個別の開発は 40,000 円から",
-  },
-  {
-    title: "埋め込み部品の設置（AI 案内窓口・間取り・3D の商品ページ）",
-    price: "60,000 円から",
-  },
-  { title: "WebGL / GLSL の演出", price: "50,000 円から" },
 ];
 
 /**
- * トップの結びに出す品書き（3 行）。
- *
- * 全部（4 行）を出すと、初めて来た人が一息で読める量を超える。
- * ここは「何を頼めて、いくらくらいからか」を 5 秒で言うための場所なので、
- * 頼まれることの多い 3 つだけに絞り、残りと進め方は /contact に置く。
- * 数字は上の SERVICES と同じ出どころ（公開済みの受託メニュー）で、
- * ここで新しい額を作らない ── 短くするのは語のほうだけである。
+ * 品書きの短い版（3 行）。頼まれることの多い 3 つに絞る。額は SERVICES と同じ出どころ。
+ * 英仏のトップ（前の組み方のまま）が読む。
  */
-export const SERVICES_BRIEF: { title: string; price: string }[] = [
-  { title: "サイト・LP の制作", price: "1 ページの LP は 150,000 円から" },
-  {
-    title: "業務の自動化（Google Apps Script）",
-    price: "既製キットの導入は 30,000 円から",
-  },
-  { title: "埋め込み部品の設置", price: "60,000 円から" },
-];
+export const SERVICES_BRIEF: { title: string; price: string }[] = SERVICES.slice(0, 3);
 
 /** 進め方。3 段だけ書く（出どころは同じく公開済みの受託メニュー） */
 export const STEPS: { title: string; detail: string }[] = [
@@ -225,7 +213,6 @@ export const ELSEWHERE: { name: string; href: string }[] = [
   { name: "BOOTH", href: "https://suminawa.booth.pm" },
   { name: "YouTube", href: "https://www.youtube.com/@suminawa" },
   { name: "X", href: "https://x.com/suminawa_dev" },
-  { name: "Instagram", href: "https://www.instagram.com/suminawa_dev/" },
   { name: "Zenn", href: "https://zenn.dev/suminawa" },
   { name: "LINE", href: "https://lin.ee/X789LxT" },
 ];
@@ -247,7 +234,7 @@ export const projects: Project[] = [
   {
     slug: "quote-simulator",
     title: "見積もり電卓テンプレ",
-    description: "条件を入れると、見積もりの内訳と合計がその場で出る電卓。",
+    description: "条件を入れると、見積もりの内訳と合計がその場で出ます。",
     tags: ["JavaScript", "React", "TypeScript"],
     category: "kits",
     // この紙の上では誰でも無料で使えるので、道具の一覧にも並ぶ
@@ -273,7 +260,7 @@ export const projects: Project[] = [
   {
     slug: "floorplan",
     title: "間取りシミュレーター",
-    description: "マス目を塗って間取りを描き、家具を置いて 3D で見る。",
+    description: "マス目を塗って間取りを描き、家具を置いて 3D で確かめられます。",
     tags: ["React Three Fiber", "TypeScript"],
     category: "kits",
     sale: { status: "onsale", price: 9800 },
@@ -281,7 +268,7 @@ export const projects: Project[] = [
   {
     slug: "lp-pack",
     title: "業種別 LP テンプレ パック",
-    description: "見本 6 本をひとまとめにしたもの。文言と色を替えて使う。",
+    description: "見本サイト 6 本の一式です。文言と色を差し替えて使えます。",
     tags: ["Next.js", "TypeScript"],
     category: "kits",
     // 中身は見本サイトそのもの。作品ページから 6 本と /sites へ渡す
@@ -290,7 +277,7 @@ export const projects: Project[] = [
   {
     slug: "ai-concierge",
     title: "AI 案内窓口キット",
-    description: "自社の文書だけを根拠に、サイトの上で質問に答える。",
+    description: "自社の文書だけを根拠に、サイトの上で質問に答える窓を置けます。",
     tags: ["Claude API", "Next.js"],
     category: "kits",
     sale: { status: "onsale", price: 12800 },
@@ -298,7 +285,7 @@ export const projects: Project[] = [
   {
     slug: "doc-reader",
     title: "AI 書類読み取りキット",
-    description: "請求書や領収書を読み取り、確認してから表に出す。",
+    description: "請求書や領収書を読み取り、確かめてから表に出せます。",
     tags: ["Claude API", "Next.js"],
     category: "kits",
     sale: { status: "onsale", price: 16800 },
@@ -306,7 +293,7 @@ export const projects: Project[] = [
   {
     slug: "sheet-app",
     title: "スプレッドシート業務アプリ キット",
-    description: "定義シートに列を書くと、一覧と登録の画面ができる。1.1 で LINE 通知と LINE 送信。",
+    description: "定義シートに列を書くと、一覧と登録の画面ができます。LINE にも知らせます。",
     tags: ["Google Apps Script", "LINE"],
     category: "kits",
     sale: { status: "onsale", price: 9800 },
@@ -322,7 +309,7 @@ export const projects: Project[] = [
   {
     slug: "inbox-triage",
     title: "AI 問い合わせ整理キット",
-    description: "Gmail の問い合わせを AI が読み、分類と要約を表に、返信案を下書きに。",
+    description: "Gmail の問い合わせを AI が読み、分類と要約を表に、返信の案を下書きに残します。",
     tags: ["Google Apps Script", "Claude"],
     category: "kits",
     // 定価。発売記念の値と最終日は src/lib/prices.ts の表が持ち、一覧・トップ・作品ページの札はそこから出す
@@ -331,7 +318,7 @@ export const projects: Project[] = [
   {
     slug: "line-concierge",
     title: "LINE 案内窓口キット",
-    description: "LINE 公式アカウントに、自社の文書だけを根拠に敬体で答える窓口を置く。",
+    description: "LINE 公式アカウントに、自社の文書だけを根拠に答える窓口を置けます。",
     tags: ["Next.js", "TypeScript", "Claude"],
     category: "kits",
     // LINE の中で動くので動く見本は置けない。作品ページは中身と置き方を節で並べる（2026-10-04）
@@ -340,7 +327,7 @@ export const projects: Project[] = [
   {
     slug: "dashboard",
     title: "ダッシュボード キット",
-    description: "表や CSV の数字を、設定だけで KPI とグラフの画面にする。",
+    description: "表や CSV の数字を、設定だけで KPI とグラフの画面にできます。",
     tags: ["JavaScript", "SVG", "Google Apps Script"],
     category: "kits",
     sale: { status: "onsale", price: 9800 },
@@ -348,7 +335,7 @@ export const projects: Project[] = [
   {
     slug: "configurator",
     title: "3D 商品コンフィギュレーター",
-    description: "回しながら色や素材を選び、価格をその場で確かめる。",
+    description: "3D の商品を回しながら色や素材を選び、価格をその場で確かめられます。",
     tags: ["React Three Fiber", "glTF"],
     category: "kits",
     sale: { status: "onsale", price: 12800 },
@@ -356,7 +343,7 @@ export const projects: Project[] = [
   {
     slug: "saas-starter",
     title: "SaaS スターター キット",
-    description: "ログイン・組織・権限・課金がそろった会員制サービスの土台。",
+    description: "ログイン・組織・権限・課金がそろった、会員制サービスの土台です。",
     tags: ["Next.js", "TypeScript", "Supabase", "Stripe"],
     category: "kits",
     sale: { status: "onsale", price: 19800 },
@@ -364,7 +351,7 @@ export const projects: Project[] = [
   {
     slug: "shopify-configurator",
     title: "Shopify 用 3D コンフィギュレーター",
-    description: "Shopify の商品ページに 3D の選択を置く。選んだ内容は注文に残る。",
+    description: "Shopify の商品ページに 3D の選択を置けます。選んだ内容は注文に残ります。",
     tags: ["Three.js", "Shopify"],
     category: "kits",
     // 2026-09-30 発売。1 つの値段（記念価格なし）
@@ -374,7 +361,7 @@ export const projects: Project[] = [
   {
     slug: "survey-analysis",
     title: "お客さまアンケート キット",
-    description: "見本から Google フォームを作り、集まった声を AI が「今週の 3 つ」にまとめる。",
+    description: "Google フォームで集めた声を、AI が「今週の 3 つ」にまとめます。",
     tags: ["GAS", "Google Forms", "Claude"],
     category: "kits",
     // 2026-10-01 発売。1 つの値段（記念価格なし）。スプレッドシートの中で動くので、作品ページに動く見本は置かない
@@ -383,7 +370,7 @@ export const projects: Project[] = [
   {
     slug: "rag-eval-harness",
     title: "RAG 評価ハーネス",
-    description: "AI 窓口の更新で答えが悪くなっていないか、同じ質問表で確かめる。",
+    description: "AI 窓口の更新で答えが悪くなっていないか、同じ質問表で確かめられます。",
     tags: ["Node.js", "Claude", "CSV"],
     category: "kits",
     // 2026-10-04 発売。1 つの値段（記念価格なし）。手元の端末で動くので、作品ページは記録の再生の写しを置く
@@ -392,7 +379,7 @@ export const projects: Project[] = [
   {
     slug: "mcp-server",
     title: "MCP サーバー キット",
-    description: "業務アプリ・予約・書類のシートを、Claude や ChatGPT との会話から探して登録する。",
+    description: "業務アプリ・予約・書類のシートを、Claude や ChatGPT から読み書きできます。",
     tags: ["MCP", "TypeScript", "Claude"],
     category: "kits",
     // 2026-09-30: 単体では売らず、無料の見本として BOOTH で配る。値段と予定日は持たない
@@ -479,18 +466,117 @@ export function countLabel(category: Category): string {
 export const FEATURED: readonly string[] = ["deadline", "form", "booking"];
 
 /**
- * /kits の後半に「制作者・開発者向け」の見出しを立ててまとめるキット（2026-10-15 監査 改善 1）。
- * 前半は事業者本人向けで、そちらの行には技術の札を出さない（発注者には意味が通じない）。
+ * 3 本セット（BOOTH の同じページのバリエーションで選べる。2026-10-16 から常設の値段で、期限も理由も付けない）。
+ * 単品の合計は sale.price から数える（手で書かない）。
  */
-export const MAKER_KITS: ReadonlySet<string> = new Set([
-  "saas-starter",
-  "lp-pack",
-  "rag-eval-harness",
-  "mcp-server",
-  "configurator",
-  "shopify-configurator",
-  "quote-simulator",
-]);
+export const KIT_SET = {
+  name: "3 本セット",
+  /** 一覧やトップで書くときの短い名（看板の 2 本を先に） */
+  label: "予約ページ・フォーム受付・スプレッドシート業務アプリ",
+  slugs: ["sheet-app", "booking", "form"] as const,
+  /** 税込（円） */
+  price: 12800,
+};
+
+/** 3 本セットに入る単品の定価の合計（税込・円） */
+export function kitSetListTotal(): number {
+  return KIT_SET.slugs.reduce((sum, slug) => {
+    const price = projects.find((p) => p.slug === slug)?.sale?.price;
+    if (price == null) throw new Error(`3 本セットの単品に定価が無い: ${slug}`);
+    return sum + price;
+  }, 0);
+}
+
+/**
+ * 三つの柱（2026-10-17、持ち主の指示）。トップの 3 列・/kits の三つの棚・頭とフッターの案内が、同じ三つを使う。
+ *
+ *   automation … 業務自動化。看板 3 本（FEATURED）を先頭に、スプレッドシートで動く事務の道具
+ *   ai         … AI活用。案内窓口・書類の読み取り・問い合わせの整理のように、役目を決めた AI の道具
+ *   web        … Web制作・Webアプリ制作。LP のテンプレート・3D の部品・会員制サービスの土台
+ *
+ * 10/15 の監査の決め（主軸は中小企業の事務担当・看板 3 本）は、業務自動化の柱の中で保つ。
+ * 「何でも AI で」とは書かない（AI の柱は仕事の決まった道具として見せる）。
+ * 受託の一行の額は PRICE_LADDER と同じ出どころで、ここで新しい額を作らない。
+ */
+export type PillarId = "automation" | "ai" | "web";
+
+export type Pillar = {
+  id: PillarId;
+  /** 柱の名（棚の題・トップの列の題） */
+  name: string;
+  /** 頭の案内に出す短い名 */
+  short: string;
+  /** 一行の説明（敬体） */
+  lede: string;
+  /** 棚に並ぶキット。並びもここで決める（看板 3 本は先頭） */
+  slugs: readonly string[];
+  /** トップの列に出す代表 2〜3 本と、その一行 */
+  picks: readonly { slug: string; hook: string }[];
+  /** 動く見本への道（柱ごとに 1 つ）。業務自動化はトップの中の見本（#demo） */
+  demo: { label: string; href: string };
+  /** 受託の一行（税別）。額は PRICE_LADDER と同じ */
+  service: { label: string; price: string };
+};
+
+export const PILLARS: readonly Pillar[] = [
+  {
+    id: "automation",
+    name: "業務自動化",
+    short: "業務自動化",
+    lede: "表に書けば、仕事が回る。期限の通知、問い合わせの受付、予約のページを、Google スプレッドシートの中で動かします。",
+    slugs: ["deadline", "form", "booking", "sheet-app", "dashboard"],
+    picks: [
+      { slug: "deadline", hook: "期限を毎朝 1 通でお知らせします" },
+      { slug: "form", hook: "受付を記録して、自動で返信します" },
+      { slug: "booking", hook: "枠を書けば予約ページになります" },
+    ],
+    demo: { label: "期限アラートの動く見本", href: "#demo" },
+    service: { label: "設置まで頼む", price: "30,000 円〜" },
+  },
+  {
+    id: "ai",
+    name: "AI活用",
+    short: "AI活用",
+    lede: "案内窓口、書類の読み取り、問い合わせの整理など、役目を決めた AI の道具です。自社の文書だけを根拠に答えます。",
+    slugs: ["ai-concierge", "line-concierge", "doc-reader", "inbox-triage", "survey-analysis", "rag-eval-harness", "mcp-server"],
+    picks: [
+      { slug: "ai-concierge", hook: "自社の文書だけを根拠に答えます" },
+      { slug: "doc-reader", hook: "請求書や領収書を表に写します" },
+      { slug: "inbox-triage", hook: "問い合わせを分類し、返信の案を残します" },
+    ],
+    demo: { label: "書類読み取りの見本を試す", href: "/projects/doc-reader" },
+    service: { label: "AI の組み込みを頼む", price: "40,000 円〜" },
+  },
+  {
+    id: "web",
+    name: "Web制作・Webアプリ制作",
+    short: "Web制作",
+    lede: "業種別の LP テンプレート、3D の商品ページ、会員制サービスの土台。見本サイト 6 本は、その場で触れます。",
+    slugs: ["lp-pack", "saas-starter", "configurator", "shopify-configurator", "floorplan", "quote-simulator"],
+    picks: [
+      { slug: "lp-pack", hook: "見本サイト 6 本の一式です" },
+      { slug: "configurator", hook: "3D の商品を回して、色と価格を選べます" },
+      { slug: "saas-starter", hook: "ログイン・権限・課金がそろった土台です" },
+    ],
+    demo: { label: "見本サイト 6 本を見る", href: "/sites" },
+    service: { label: "LP・サイトの制作を頼む", price: "150,000 円〜" },
+  },
+];
+
+/** その柱に並ぶキット（柱の slugs の順）。登録に無い slug は落とさず、気づけるように投げる */
+export function pillarKits(pillar: Pillar): Project[] {
+  const by = new Map(projects.map((p) => [p.slug, p]));
+  return pillar.slugs.map((slug) => {
+    const project = by.get(slug);
+    if (!project) throw new Error(`柱のキットが見つからない: ${pillar.id} ${slug}`);
+    return project;
+  });
+}
+
+/** そのキットの柱。キット以外（見本サイト・作品）は undefined */
+export function pillarOf(slug: string): Pillar | undefined {
+  return PILLARS.find((p) => p.slugs.includes(slug));
+}
 
 export function featuredProjects(): Project[] {
   const by = new Map(projects.map((project) => [project.slug, project]));
