@@ -22,7 +22,7 @@ const TEXT = {
     en: "This guide is available in Japanese only.",
     fr: "Ce guide n’existe qu’en japonais.",
   },
-  back: { en: "Back to Showcase", fr: "Retour à Showcase" },
+  back: { en: "Back to home", fr: "Retour à l’accueil" },
 };
 
 function readLang(): ForeignLang | null {

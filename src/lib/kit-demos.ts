@@ -12,8 +12,11 @@ import { projects } from "./projects";
 
 export type KitDemoSlug = "deadline" | "form" | "inbox-triage" | "ai-concierge" | "sheet-app" | "booking" | "saas-starter";
 
-/** 比べる相手 1 つ。note は相手のページに書いてあることだけ */
-export type Alternative = { name: string; href: string; note: string };
+/**
+ * 比べる相手 1 つ。note は相手のページに書いてあることだけ。
+ * checkedOn は、キットの checkedOn と別の日に確かめた相手だけが持つ（その日付を相手の行に添える）
+ */
+export type Alternative = { name: string; href: string; note: string; checkedOn?: string };
 
 export type KitDemo = {
   slug: KitDemoSlug;
@@ -39,6 +42,10 @@ export const CHECKED_ON = "2026-09-29";
 
 /** 2026-10-15 に足した 4 本の、比べる相手のページを読んだ日 */
 const CHECKED_ON_1015 = "2026-10-15";
+
+/** STORES 予約の料金のページ（フリープランは月の予約 50 件まで）と、それを確かめた日 */
+export const STORES_PRICING = "https://stores.fun/reserve/pricing";
+export const STORES_CHECKED_ON = "2026-10-17";
 
 function listPrice(slug: string): number {
   const price = projects.find((p) => p.slug === slug)?.sale?.price;
@@ -337,8 +344,28 @@ const BASES: Record<KitDemoSlug, KitDemoBase> = {
           note: "個人の Google アカウントでも作れます。一部の機能には、Google Workspace か Google One の有料の契約が必要です。",
         },
       },
+      {
+        who: "ご予約が月 50 件までに収まる方",
+        alt: {
+          name: "STORES 予約（フリープラン）",
+          href: STORES_PRICING,
+          note: "無料のプランで受けられる予約は、月 50 件までです。",
+          checkedOn: STORES_CHECKED_ON,
+        },
+      },
     ],
     fits: [
+      {
+        who: "ご予約が月 50 件を超えても、予約サービスの月額をかけずに受け付けたい方。このキットは件数が増えても費用は変わりません",
+        alts: [
+          {
+            name: "STORES 予約の料金",
+            href: STORES_PRICING,
+            note: "無料のプランは、月の予約が 50 件までです。",
+            checkedOn: STORES_CHECKED_ON,
+          },
+        ],
+      },
       { who: "同じ時間に 2 人以上の定員がある枠や、所要時間の違うサービスを選んでいただく形にしたい方" },
       {
         who: "確認メール・前日のリマインド・お客さまご自身でのキャンセルを、月額なしで付けたい方。Google カレンダーでは、リマインダーのメールは有料の契約の機能です",

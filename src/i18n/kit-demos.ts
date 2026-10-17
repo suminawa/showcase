@@ -3,7 +3,7 @@
  * 比べる相手・出どころの URL・数字は日本語と同じもので、ここで新しい数字を作らない。
  * 値段は同じ表（prices.ts）を要求の時刻で引く。
  */
-import { kitDemo, type KitDemo, type KitDemoSlug } from "@/lib/kit-demos";
+import { STORES_CHECKED_ON, STORES_PRICING, kitDemo, type KitDemo, type KitDemoSlug } from "@/lib/kit-demos";
 import { nextDate, priceNow } from "@/lib/prices";
 import { projects } from "@/lib/projects";
 
@@ -301,8 +301,28 @@ export const KIT_DEMOS_I18N: Record<ForeignLang, Record<KitDemoSlug, KitDemoBase
             note: "Personal Google accounts can create them too. Some features need a paid Google Workspace or Google One subscription.",
           },
         },
+        {
+          who: "If your bookings stay within 50 a month",
+          alt: {
+            name: "STORES booking service (free plan)",
+            href: STORES_PRICING,
+            note: "The free plan takes up to 50 bookings a month.",
+            checkedOn: STORES_CHECKED_ON,
+          },
+        },
       ],
       fits: [
+        {
+          who: "You want to take more than 50 bookings a month without paying a booking service a monthly fee. This kit costs the same however many bookings come in",
+          alts: [
+            {
+              name: "STORES booking service pricing",
+              href: STORES_PRICING,
+              note: "The free plan is limited to 50 bookings a month.",
+              checkedOn: STORES_CHECKED_ON,
+            },
+          ],
+        },
         { who: "You want slots with room for 2 or more people at the same time, or a choice of services with different durations" },
         {
           who: "You want confirmation emails, day-before reminders and self-service cancellation with no monthly fee. In Google Calendar, reminder emails are a paid feature",
@@ -611,8 +631,28 @@ export const KIT_DEMOS_I18N: Record<ForeignLang, Record<KitDemoSlug, KitDemoBase
             note: "Un compte Google personnel suffit pour en créer. Certaines fonctions demandent un abonnement payant Google Workspace ou Google One.",
           },
         },
+        {
+          who: "Si vos réservations restent sous 50 par mois",
+          alt: {
+            name: "STORES, service de réservation (offre gratuite)",
+            href: STORES_PRICING,
+            note: "L’offre gratuite accepte jusqu’à 50 réservations par mois.",
+            checkedOn: STORES_CHECKED_ON,
+          },
+        },
       ],
       fits: [
+        {
+          who: "Vous voulez dépasser 50 réservations par mois sans payer d’abonnement à un service de réservation. Ce kit coûte la même chose quel que soit le nombre de réservations",
+          alts: [
+            {
+              name: "Tarifs du service de réservation STORES",
+              href: STORES_PRICING,
+              note: "L’offre gratuite est limitée à 50 réservations par mois.",
+              checkedOn: STORES_CHECKED_ON,
+            },
+          ],
+        },
         { who: "Vous voulez des créneaux ouverts à 2 personnes ou plus en même temps, ou un choix de prestations de durées différentes" },
         {
           who: "Vous voulez l’e-mail de confirmation, le rappel de la veille et l’annulation en libre-service, sans abonnement. Dans Google Agenda, les rappels par e-mail sont payants",

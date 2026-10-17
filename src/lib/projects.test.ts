@@ -1,6 +1,10 @@
 import { describe, expect, it } from "vitest";
 import {
   CONTACT_PAGE,
+  ELSEWHERE,
+  KIT_SET,
+  PRICE_LADDER,
+  kitSetListTotal,
   FEATURED,
   GATES,
   INDEX_PAGES,
@@ -62,7 +66,7 @@ describe("分類のページの頭", () => {
       expect(INDEX_PAGES[id].title.length).toBeGreaterThan(0);
       expect(INDEX_PAGES[id].lede).toMatch(/。$/);
     }
-    expect(CONTACT_PAGE.title).toBe("制作のご相談");
+    expect(CONTACT_PAGE.title).toBe("頼み方と料金");
     expect(CONTACT_PAGE.latin).toBe("Contact");
     expect(CONTACT_PAGE.lede).toMatch(/。$/);
   });
@@ -88,19 +92,35 @@ describe("はじめての方におすすめの 3 本", () => {
 });
 
 describe("制作のご相談", () => {
-  it("頼めること 4 行。数字は公開済みの受託メニューにあるものだけ", () => {
+  it("頼めること 5 行を頼みやすい順に。数字は公開済みの受託メニューと階段にあるものだけ（2026-10-17 監査 marketing 8）", () => {
     expect(SERVICES.map((s) => s.title)).toEqual([
-      "サイト・LP の制作",
-      "業務の自動化（Google Apps Script）",
+      "1 か所の修正（Excel・VBA・フォーム・GAS）",
+      "キットの設置をお任せ",
+      "個別の自動化・AI の組み込み",
       "埋め込み部品の設置（AI 案内窓口・間取り・3D の商品ページ）",
-      "WebGL / GLSL の演出",
+      "サイト・LP の制作",
     ]);
     expect(SERVICES.map((s) => s.price)).toEqual([
-      "1 ページの LP は 150,000 円から",
-      "既製キットの導入は 30,000 円、個別の開発は 40,000 円から",
+      "5,000 円から",
+      "30,000 円から",
+      "40,000 円から",
       "60,000 円から",
-      "50,000 円から",
+      "1 ページの LP は 150,000 円から",
     ]);
+    // 階段（PRICE_LADDER）と同じ額を言う
+    for (const price of ["5,000", "30,000", "40,000", "150,000"]) {
+      expect(PRICE_LADDER.some((row) => row.price.includes(price))).toBe(true);
+    }
+  });
+
+  it("3 本セットは単品の合計より安く、合計はレジストリの定価から数える", () => {
+    expect(KIT_SET.slugs).toEqual(["sheet-app", "booking", "form"]);
+    expect(kitSetListTotal()).toBe(21260);
+    expect(KIT_SET.price).toBeLessThan(kitSetListTotal());
+  });
+
+  it("ほかの置き場に、止めた Instagram を載せない", () => {
+    expect(ELSEWHERE.map((e) => e.name)).not.toContain("Instagram");
   });
 
   it("進め方は 3 段", () => {

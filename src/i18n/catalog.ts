@@ -56,7 +56,7 @@ export const CATALOG: Record<ForeignLang, Catalog> = {
     index: {
       kits: {
         title: "Kits and templates",
-        lede: "Ready-to-use kits and templates, shown at today’s price (during a launch offer, with its end date and the regular price). Sold on BOOTH or note, in Japanese and priced in yen.",
+        lede: "One-time-purchase kits and templates, with no monthly service fee. Sold on BOOTH or note, in Japanese and priced in yen.",
       },
       sites: {
         title: "Sample sites",
@@ -69,24 +69,19 @@ export const CATALOG: Record<ForeignLang, Catalog> = {
     },
     contact: {
       title: "Project inquiries",
-      lede: "Websites and landing pages, business automation, embedded components, and WebGL visuals, built to order. Replies within 3 business days.",
+      lede: "Office automation for companies (Google Sheets, Gmail, LINE), kit setup, and one-off fixes. Websites and landing pages are welcome too. Replies within 3 business days.",
     },
     services: [
+      { title: "One fix (Excel, VBA, forms, GAS)", price: "From ¥5,000" },
+      { title: "Kit setup, done for you", price: "From ¥30,000" },
+      { title: "Custom automation and AI integration", price: "From ¥40,000" },
+      { title: "Embedded components (AI help desk, floor plan, 3D product page)", price: "From ¥60,000" },
       { title: "Websites and landing pages", price: "From ¥150,000 per landing page" },
-      {
-        title: "Business automation (Google Apps Script)",
-        price: "Setting up a ready-made kit: ¥30,000. Custom development from ¥40,000",
-      },
-      {
-        title: "Embedded components (AI help desk, floor plan, 3D product page)",
-        price: "From ¥60,000",
-      },
-      { title: "WebGL / GLSL visuals", price: "From ¥50,000" },
     ],
     servicesBrief: [
-      { title: "Websites and landing pages", price: "From ¥150,000 per landing page" },
-      { title: "Business automation (Google Apps Script)", price: "Ready-made kit setup from ¥30,000" },
-      { title: "Embedded components", price: "From ¥60,000" },
+      { title: "One fix (Excel, VBA, forms, GAS)", price: "From ¥5,000" },
+      { title: "Kit setup, done for you", price: "From ¥30,000" },
+      { title: "Custom automation and AI integration", price: "From ¥40,000" },
     ],
     steps: [
       { title: "Inquiry", detail: "We start by email: your goals and where things stand today" },
@@ -250,7 +245,7 @@ export const CATALOG: Record<ForeignLang, Catalog> = {
     index: {
       kits: {
         title: "Kits et modèles",
-        lede: "Des kits et des modèles prêts à l’emploi, affichés au prix du jour (avec, pendant une offre de lancement, sa date de fin et le prix normal). Vendus en japonais sur BOOTH ou note, en yens.",
+        lede: "Des kits et des modèles en achat unique, sans abonnement. Vendus en japonais sur BOOTH ou note, en yens.",
       },
       sites: {
         title: "Sites d’exemple",
@@ -263,24 +258,19 @@ export const CATALOG: Record<ForeignLang, Catalog> = {
     },
     contact: {
       title: "Confier un projet",
-      lede: "Sites et landing pages, automatisation des tâches, intégration de composants et effets WebGL, réalisés sur mesure. Réponse sous 3 jours ouvrés.",
+      lede: "Automatisation du travail administratif (Google Sheets, Gmail, LINE), installation de kits et corrections ponctuelles. Sites et landing pages également. Réponse sous 3 jours ouvrés.",
     },
     services: [
-      { title: "Sites et landing pages", price: "Landing page à partir de 150 000 ¥" },
-      {
-        title: "Automatisation des tâches (Google Apps Script)",
-        price: "Mise en place d’un kit existant : 30 000 ¥. Développement sur mesure à partir de 40 000 ¥",
-      },
-      {
-        title: "Intégration de composants (assistant IA, simulateur de plan, page produit 3D)",
-        price: "À partir de 60 000 ¥",
-      },
-      { title: "Effets WebGL / GLSL", price: "À partir de 50 000 ¥" },
+      { title: "Une correction (Excel, VBA, formulaires, GAS)", price: "À partir de 5 000 ¥" },
+      { title: "Installation d’un kit, faite pour vous", price: "À partir de 30 000 ¥" },
+      { title: "Automatisation sur mesure et intégration de l’IA", price: "À partir de 40 000 ¥" },
+      { title: "Intégration de composants (assistant IA, simulateur de plan, page produit 3D)", price: "À partir de 60 000 ¥" },
+      { title: "Sites et landing pages", price: "Landing page à partir de 150 000 ¥" },
     ],
     servicesBrief: [
-      { title: "Sites et landing pages", price: "Landing page à partir de 150 000 ¥" },
-      { title: "Automatisation des tâches (Google Apps Script)", price: "Mise en place d’un kit existant à partir de 30 000 ¥" },
-      { title: "Intégration de composants", price: "À partir de 60 000 ¥" },
+      { title: "Une correction (Excel, VBA, formulaires, GAS)", price: "À partir de 5 000 ¥" },
+      { title: "Installation d’un kit, faite pour vous", price: "À partir de 30 000 ¥" },
+      { title: "Automatisation sur mesure et intégration de l’IA", price: "À partir de 40 000 ¥" },
     ],
     steps: [
       { title: "Premier contact", detail: "Par e-mail : vos objectifs et la situation actuelle" },
