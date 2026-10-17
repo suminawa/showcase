@@ -95,6 +95,20 @@
   list-style: none;
 }
 
+/* 三つの柱（業務自動化・AI活用・Web制作）は PC だけ。それ未満の幅では「キット」の一つにまとめる */
+.wide {
+  display: none;
+}
+
+@media (min-width: 1024px) {
+  .wide {
+    display: block;
+  }
+  .narrow {
+    display: none;
+  }
+}
+
 .item {
   position: relative;
   display: inline-flex;
@@ -149,7 +163,8 @@
   .cta {
     display: inline-flex;
     align-items: center;
-    min-height: 40px;
+    /* 押せるものは 44px 以上（頭の高さ 64px の中に収まる） */
+    min-height: 44px;
     padding: 0 16px;
     background: var(--m-sumi);
     color: var(--m-on-sumi);
