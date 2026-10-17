@@ -24,7 +24,11 @@ function concierge(): Promise<Concierge> {
       const config = resolveConfig({ file: await loadConfigFile("concierge/concierge.config.json"), env });
       const index = await loadIndex(config.indexPath);
       return createConcierge(config, { index });
-    })();
+    })().catch((error: unknown) => {
+      // 読み込みに失敗した約束を持ち続けない（次のリクエストでやり直す。/api/reader と同じ）
+      ready = null;
+      throw error;
+    });
   }
   return ready;
 }

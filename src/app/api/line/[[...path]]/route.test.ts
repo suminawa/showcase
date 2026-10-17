@@ -137,4 +137,12 @@ describe("/api/line", () => {
     expect(fetchMock.mock.calls.some(([input]) => String(input).includes("anthropic"))).toBe(false);
     expect(replies()).toHaveLength(1);
   });
+
+  it("設定が読めなかったら次の要求で組み直す（失敗を持ち続けない）", async () => {
+    vi.stubEnv("UPSTASH_REDIS_REST_URL", "https://example.upstash.io");
+    const route = await load();
+    await expect(webhook(route, textEvent("こんにちは"))).rejects.toThrow(/UPSTASH/);
+    vi.stubEnv("UPSTASH_REDIS_REST_URL", "");
+    expect((await webhook(route, textEvent("こんにちは"))).status).toBe(200);
+  });
 });

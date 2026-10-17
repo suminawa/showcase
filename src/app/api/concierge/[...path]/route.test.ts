@@ -76,4 +76,12 @@ describe("/api/concierge", () => {
     expect(text).not.toMatch(/500|down|anthropic/i);
     expect(fetch).toHaveBeenCalled();
   });
+
+  it("設定が読めなかったら次の要求で組み直す（失敗を持ち続けない）", async () => {
+    vi.stubEnv("CONCIERGE_INDEX", "concierge/data/no-such-index.json");
+    const route = await load();
+    await expect(chat(route, { question: "こんにちは" })).rejects.toThrow();
+    vi.stubEnv("CONCIERGE_INDEX", "concierge/data/index.json");
+    expect((await chat(route, { question: "こんにちは" })).status).toBe(200);
+  });
 });

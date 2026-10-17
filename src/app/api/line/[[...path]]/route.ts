@@ -26,7 +26,11 @@ function bot(): Promise<LineBot> {
       const config = resolveLineConfig({ file: await loadConfigFile("concierge/concierge.config.json"), env });
       const index = await loadIndex(config.concierge.indexPath);
       return createLineBot(config, { index, store: createStoreFromEnv(env) });
-    })();
+    })().catch((error: unknown) => {
+      // 読み込みに失敗した約束を持ち続けない（次のリクエストでやり直す。/api/reader と同じ）
+      ready = null;
+      throw error;
+    });
   }
   return ready;
 }
