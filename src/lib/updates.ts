@@ -15,6 +15,30 @@ export type KitUpdate = {
 
 export const UPDATES: readonly KitUpdate[] = [
   {
+    date: "2026-10-17",
+    slug: "deadline",
+    version: "1.2.0",
+    note: "通知先にメール（Gmail）と Google Chat を足し、カンマで区切って複数の通知先に送れるようにしました。一部の通知先にだけ送れなかったときは、届いた先で直す設定の行をお知らせします。",
+  },
+  {
+    date: "2026-10-17",
+    slug: "form",
+    version: "1.1.2",
+    note: "送れなかった通知を受付シートの「通知」の列と連絡先メールでお知らせし、送信の回数に上限を設けました。先頭が 0 の電話番号の 0 が消える不具合と、枠の時間帯が合わず受け付けられない不具合も直しました。",
+  },
+  {
+    date: "2026-10-17",
+    slug: "booking",
+    version: "1.1.1",
+    note: "前日のリマインドを送れなかったご予約があったとき、受付番号を Slack・Discord・LINE と連絡先メールにお知らせするようにしました。",
+  },
+  {
+    date: "2026-10-10",
+    slug: "sheet-app",
+    version: "1.1.2",
+    note: "台帳 ID でアプリを開けるようにし、同時更新のときは古い保存を拒否します。接続情報はスクリプト プロパティへ移し、LINE の受信は Cloudflare Worker の中継（上げ方は README の 12 章）を通るようにしました。",
+  },
+  {
     date: "2026-09-29",
     slug: "form",
     version: "1.1.1",
