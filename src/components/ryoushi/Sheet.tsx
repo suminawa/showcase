@@ -39,7 +39,7 @@ export function Sheet({
 }) {
   return (
     <ViewTransition default="paper">
-    <main className={`${s.paper} ${s.sheet} ${fontVars}`}>
+    <main className={`${s.paper} ${s.sheet} ${fontVars}`} id="main">
       {path && <LangSwitch lang={lang} path={path} />}
 
       {/* 入りの一筆。紙の右上を斜めに掠めて画面外へ抜ける */}

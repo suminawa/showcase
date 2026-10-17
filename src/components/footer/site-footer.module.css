@@ -1,37 +1,176 @@
-/* 共通の一行。料紙の墨の濃淡だけで組み、枠も色も足さない。どの紙の地の上でも読めるよう、地は自分で持つ */
+/* フッター。墨の面に紙の字（15.7:1）、添えは #C9C4B8（10.0:1）。墨の面の上のフォーカスは紙の色の輪 */
+
 .footer {
-  background: var(--ryoushi-paper);
-  color: var(--ryoushi-sumi-3);
-  border-top: 1px solid color-mix(in srgb, var(--ryoushi-sumi) 14%, transparent);
-  padding: 24px max(16px, 5.2vw) 32px;
-  font-family: "Hiragino Mincho ProN", "Yu Mincho", YuMincho, "Noto Serif JP", serif;
+  background: var(--m-sumi);
+  color: var(--m-on-sumi);
+  font-family: var(--m-gothic);
+}
+
+.inner {
+  display: grid;
+  gap: 40px;
+  max-width: calc(var(--m-max) + 2 * var(--m-gutter));
+  margin-inline: auto;
+  padding: 56px var(--m-gutter) 32px;
+}
+
+@media (min-width: 1024px) {
+  .inner {
+    grid-template-columns: minmax(0, 4fr) minmax(0, 8fr);
+    gap: 48px 64px;
+    padding-top: 72px;
+  }
+}
+
+.brand {
+  display: grid;
+  gap: 12px;
+  align-content: start;
+}
+
+.mark {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0;
+  font-size: 1.0625rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+}
+
+.seal {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  background: var(--m-shu);
+  color: var(--m-paper);
+  font-family: var(--m-mincho);
+  font-weight: 600;
+  font-size: 14px;
+  line-height: 1;
+}
+
+.line {
+  margin: 0;
+  font-family: var(--m-mincho);
+  font-weight: 600;
+  font-size: 1.125rem;
+  line-height: 1.6;
+  letter-spacing: 0.04em;
+  font-feature-settings: "palt" 1;
+}
+
+.mail {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0 12px;
+  margin: 0;
   font-size: 0.9375rem;
-  line-height: 1.8;
-  letter-spacing: 0.06em;
+}
+
+.reply {
+  color: var(--m-on-sumi-2);
+  font-size: 0.875rem;
+}
+
+.columns {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 32px 24px;
+}
+
+@media (min-width: 768px) {
+  .columns {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+.column {
+  display: grid;
+  gap: 8px;
+  align-content: start;
+}
+
+.head {
+  margin: 0 0 4px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid color-mix(in srgb, var(--m-on-sumi) 22%, transparent);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  color: var(--m-on-sumi-2);
 }
 
 .list {
-  list-style: none;
+  display: grid;
   margin: 0;
   padding: 0;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 4px 28px;
+  list-style: none;
 }
 
 .link {
-  display: inline-block;
-  /* 指の下限 44px */
-  padding-block: 10px;
-  color: inherit;
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  color: var(--m-on-sumi);
+  font-size: 0.9375rem;
   text-decoration: underline;
   text-decoration-thickness: 1px;
-  text-decoration-color: color-mix(in srgb, var(--ryoushi-sumi) 34%, transparent);
-  text-underline-offset: 0.35em;
+  text-underline-offset: 0.3em;
+  text-decoration-color: color-mix(in srgb, var(--m-on-sumi) 35%, transparent);
 }
 
-.link:hover,
+.link:hover {
+  text-decoration-color: var(--m-on-sumi);
+}
+
 .link:focus-visible {
-  color: var(--ryoushi-sumi);
-  text-decoration-color: var(--ryoushi-sumi);
+  outline: 2px solid var(--m-on-sumi);
+  outline-offset: 2px;
+}
+
+.base {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px 24px;
+  padding-top: 16px;
+  border-top: 1px solid color-mix(in srgb, var(--m-on-sumi) 22%, transparent);
+}
+
+@media (min-width: 1024px) {
+  .base {
+    grid-column: 1 / -1;
+  }
+}
+
+.langList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0 20px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.langCurrent {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  /* いまの言語は選ばれている印。墨の面の上なので、朱ではなく紙の色の下線にする（朱は墨の上で 3:1 に届かない） */
+  box-shadow: inset 0 -2px 0 var(--m-on-sumi);
+  min-height: 0;
+  padding-block: 12px 10px;
+}
+
+.copy {
+  margin: 0;
+  font-size: 0.8125rem;
+  color: var(--m-on-sumi-2);
 }

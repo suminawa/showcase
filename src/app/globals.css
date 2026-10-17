@@ -1,31 +1,45 @@
 @import "tailwindcss";
 
 /*
- * Showcase — 料紙（りょうし）
+ * suminawa.dev ── 方眼（2026-10-17）
  *
- * サイトは一つの世界で通す。界線を敷いた紙の上に、名乗りと作品が載る。
- * 枠・角丸・背景色の切り替え・チップ・カードは一つも使わない。構造を作るのは
- * 縦の余白（すべて界線の間隔の整数倍）と、墨の濃淡だけ。詳細は DESIGN.md。
+ * 事務の道具を、スプレッドシートと同じマス目に並べた店。地は紙、セルは白、境目はマス目の線。
+ * 朱は選択の枠と落款にだけ使う。詳細は DESIGN.md と docs/redesign/2026-10-17-concept.md。
  *
- * このファイルが持つのは【面をまたいで共有するものだけ】── 色と、地と、
- * 折り返しの規則。各面の文法はそれぞれの CSS Modules に閉じている。
- *   トップと分類のページ  src/app/ryoushi.module.css
- *   作品ページ   src/app/(ja)/projects/projects.module.css
- *   水盤の周り   src/components/suminagashi/basin.module.css
- *   帳面         src/components/quote-simulator/quote.module.css
+ * このファイルが持つのは【面をまたいで共有するものだけ】── 色と字の決まり、地、折り返しの規則。
+ * 部品の形は各部品の CSS Modules に閉じている。
+ *
+ * ＊ --ryoushi-* は前の世界（料紙）の色で、英仏のトップ・/sites・/works・案内記事がまだ読む。
+ *   --paper / --sumi / --ai は作品「墨流し」の水盤の色（作品の色であって紙の色ではない）。
  */
 
 :root {
-  /*
-   * ---- 料紙の色 ----
-   * 面をまたいで共有する唯一の出どころ。各面は --hi-* / --rp-* という
-   * 自前の名前で別名を付けて使う ── 名前を面ごとに閉じておくと、
-   * どこかの面だけ色を変えたくなったときに他を巻き込まない。
-   *
-   * コントラスト（紙 #F6F3EB 上、実測値）
-   *   #1C1A15 15.5:1 / #3A3730 10.9:1 / #55514A 7.1:1 / #6A665D 5.2:1
-   *   #A63A2E  5.9:1（朱）  #8E8A80 3.1:1 → 図版専用。文字には使わない
-   */
+  /* ---- 方眼の色（紙の上のコントラスト: 墨 15.7 / 10.7 / 7.1 / 5.2:1、朱 5.8:1） ---- */
+  --m-paper: #f6f3eb;
+  --m-plate: #f4efe6; /* 写真の台紙（キットの撮影と同じ紙） */
+  --m-cell: #fffefa;
+  --m-cell-head: #efebe2;
+  --m-sumi: #1c1a15;
+  --m-sumi-2: #3a3730;
+  --m-sumi-3: #55514a;
+  --m-sumi-4: #6a665d;
+  --m-grid: #d7d4cb;
+  --m-grid-strong: #b1ada3;
+  --m-shu: #a63a2e;
+  --m-on-sumi: #f6f3eb;
+  --m-on-sumi-2: #c9c4b8; /* 墨の面の上で 10.0:1 */
+
+  /* ---- 字 ---- */
+  --m-gothic: "Hiragino Sans", "Hiragino Kaku Gothic ProN", "BIZ UDPGothic", "Yu Gothic UI", "Yu Gothic", Meiryo,
+    "Noto Sans JP", system-ui, sans-serif;
+  /* 明朝は見出しだけ。Apple の端末はヒラギノ明朝（読み込まない）、ほかは Shippori Mincho 600 を読む */
+  --m-mincho: "Hiragino Mincho ProN", var(--m-mincho-face), "Yu Mincho", YuMincho, "Noto Serif JP", serif;
+
+  /* ---- 寸法 ---- */
+  --m-gutter: 16px;
+  --m-max: 1200px;
+
+  /* ---- 前の世界（料紙）の色。英仏のトップ・/sites・/works・案内記事が読む ---- */
   --ryoushi-paper: #f6f3eb;
   --ryoushi-sumi: #1c1a15;
   --ryoushi-sumi-2: #3a3730;
@@ -34,12 +48,7 @@
   --ryoushi-kasure: #8e8a80;
   --ryoushi-shu: #a63a2e;
 
-  /*
-   * ---- 作品「墨流し」の水盤の中で使う色 ----
-   * これは【作品の色】であって紙の色ではない。だから料紙に寄せていない ──
-   * 額装が変わっても、掛かっている絵は変わらない。
-   * PAPER は流体ソルバの定数と完全同値（減法混色の基準値）。
-   */
+  /* ---- 作品「墨流し」の水盤の中で使う色（作品の色。紙の色ではない） ---- */
   --paper: #f6f3ed;
   --sumi: #14171b; /* paper 上で 16.4:1 */
   --sumi-soft: #5a564c; /* paper 上で 6.7:1 */
@@ -48,61 +57,45 @@
   color-scheme: light;
 }
 
+@media (min-width: 640px) {
+  :root {
+    --m-gutter: 24px;
+  }
+}
+
+@media (min-width: 1024px) {
+  :root {
+    --m-gutter: 40px;
+  }
+}
+
 @theme inline {
-  /* 紙の字は明朝（各面の CSS Modules が持つ）。sans は見本の中だけで使う */
+  /* 見本サイトの中の sans（見本は自前の字を持つ） */
   --font-sans: ui-sans-serif, system-ui, "Hiragino Sans", sans-serif;
 }
 
 /*
- * 紙をめくる（View Transitions、2026-10-07）。
- * 面と面のあいだを、墨が乾いて次の紙に滲むように渡す。
- *   古い紙 … 160ms で薄れる（墨が乾く）
- *   新しい紙 … 120ms 待って 320ms で現れ、2 行ぶん（8px）下から座る
- *   題      … 触れた行の題が、次の紙の題へ伸びる（share="morph"）。途中で一度滲む
- * reduced-motion では一切動かさない。
+ * ページの移動（View Transitions）。品物の名が次のページの題へ伸びる（どれを開いたかを見失わない）。
+ * 面そのものは短く入れ替えるだけ。にじみや揺れは使わない。reduced-motion では動かさない。
  */
 ::view-transition-old(.paper) {
-  animation: 160ms cubic-bezier(0.4, 0, 1, 1) both ryoushi-dry;
+  animation: 120ms cubic-bezier(0.4, 0, 1, 1) both m-fade-out;
 }
 ::view-transition-new(.paper) {
-  animation:
-    320ms cubic-bezier(0.22, 0.68, 0.28, 1) 120ms both ryoushi-wet,
-    420ms cubic-bezier(0.22, 0.68, 0.28, 1) both ryoushi-settle;
+  animation: 180ms cubic-bezier(0.2, 0, 0, 1) 60ms both m-fade-in;
 }
 ::view-transition-group(.morph) {
-  animation-duration: 420ms;
-  animation-timing-function: cubic-bezier(0.22, 0.68, 0.28, 1);
+  animation-duration: 300ms;
+  animation-timing-function: cubic-bezier(0.2, 0, 0, 1);
 }
-::view-transition-image-pair(.morph) {
-  animation: 420ms ryoushi-bleed;
-}
-@keyframes ryoushi-dry {
+@keyframes m-fade-out {
   to {
     opacity: 0;
-    filter: blur(1.5px);
   }
 }
-@keyframes ryoushi-wet {
+@keyframes m-fade-in {
   from {
     opacity: 0;
-    filter: blur(2px);
-  }
-  to {
-    opacity: 1;
-    filter: blur(0);
-  }
-}
-@keyframes ryoushi-settle {
-  from {
-    transform: translateY(8px);
-  }
-  to {
-    transform: translateY(0);
-  }
-}
-@keyframes ryoushi-bleed {
-  35% {
-    filter: blur(2.5px);
   }
 }
 @media (prefers-reduced-motion: reduce) {
@@ -114,8 +107,15 @@
 }
 
 body {
-  background: var(--ryoushi-paper);
-  color: var(--ryoushi-sumi);
+  background: var(--m-paper);
+  color: var(--m-sumi);
+  font-family: var(--m-gothic);
   /* 小書きカナ・長音符が行頭に来る折り返しを禁じる（既定は緩い） */
   line-break: strict;
+  -webkit-text-size-adjust: 100%;
+}
+
+/* 見本サイト（架空の会社のページ）には、このサイトの頭を出さない。目印は demos/layout.tsx が置く */
+body:has([data-demo-page]) [data-site-header] {
+  display: none;
 }
