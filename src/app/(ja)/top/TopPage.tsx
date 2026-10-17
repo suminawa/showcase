@@ -73,7 +73,9 @@ export function TopPage() {
             </p>
 
             <div className={s.picks}>
-              <h2 className={s.picksHead}>はじめての方におすすめの 3 本</h2>
+              <h2 className={s.picksHead}>
+                はじめての方におすすめの 3 本<span className={s.picksTax}>税込・買い切り</span>
+              </h2>
               <ol className={s.pickList}>
                 {start.map((project, i) => (
                   <li key={project.slug} className={u.select}>
@@ -100,7 +102,7 @@ export function TopPage() {
                 {kitCount} 本のキットを見る
               </Link>
               <Link href="/contact" className={u.linkLine}>
-                設置まで頼む（30,000 円〜）
+                設置まで頼む（30,000 円〜・税別）
               </Link>
             </p>
           </div>
@@ -152,7 +154,7 @@ export function TopPage() {
               3 本の中身
             </h2>
             <p className={u.lede}>
-              どれも Google スプレッドシートで動きます。手順書どおりに 15〜20 分ほどで置けて、月額の費用はかかりません。
+              どれも Google スプレッドシートで動きます。手順書どおりに 15〜20 分ほどで使い始められ、月額の費用はかかりません。
             </p>
           </div>
           <KitGrid count={start.length} large label="はじめての方におすすめの 3 本">
@@ -160,10 +162,6 @@ export function TopPage() {
               <KitCard key={project.slug} project={project} large facts={KIT_FACTS[project.slug as FlagshipSlug].ja} />
             ))}
           </KitGrid>
-          <p className={s.setLine}>
-            {titleOf(KIT_SET.slugs[0], allKits)}・{titleOf(KIT_SET.slugs[1], allKits)}・{titleOf(KIT_SET.slugs[2], allKits)}
-            は、{KIT_SET.name}（{yen(KIT_SET.price)}・単品の合計 {yen(kitSetListTotal())}）でもお求めいただけます。セットは、BOOTH の各キットのページで選べます。
-          </p>
         </div>
       </section>
 
@@ -174,7 +172,7 @@ export function TopPage() {
             <h2 id="office-title" className={u.h2}>
               ほかの事務の道具
             </h2>
-            <p className={u.lede}>台帳の画面、数字のまとめ、AI による問い合わせの整理や書類の読み取り、LINE の窓口。</p>
+            <p className={u.lede}>台帳の画面、数字のまとめ、AI による問い合わせの整理や書類の読み取り、LINE の窓口。値段は税込・買い切りです。</p>
           </div>
           <ul className={s.officeList}>
             {office.map((project) => (
@@ -187,6 +185,9 @@ export function TopPage() {
               </li>
             ))}
           </ul>
+          <p className={s.setLine}>
+            {KIT_SET.label}の 3 本は、まとめて {yen(KIT_SET.price)}（税込。単品の合計 {yen(kitSetListTotal())}）でもお求めいただけます。セットは、BOOTH の各キットのページで選べます。
+          </p>
           <p className={s.more}>
             <Link href="/kits" className={u.linkLine}>
               {kitCount} 本すべてを、写真つきで見る
@@ -275,7 +276,7 @@ export function TopPage() {
             </ul>
             <p>
               <Link href="/guides" className={u.linkLine}>
-                悩みから読む の一覧へ
+                悩みから読むの一覧へ
               </Link>
             </p>
           </div>

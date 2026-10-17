@@ -8,6 +8,7 @@ import s from "./price-ladder.module.css";
 
 export function PriceLadder({ caption }: { caption?: string }) {
   return (
+    <div className={s.wrap}>
     <table className={s.ladder}>
       {caption && <caption className={s.caption}>{caption}</caption>}
       <thead>
@@ -27,5 +28,7 @@ export function PriceLadder({ caption }: { caption?: string }) {
         ))}
       </tbody>
     </table>
+    <p className={s.note}>キットの値段は税込です。そのほかは税別の目安で、内容を伺ってからお見積もりでお出しします。</p>
+    </div>
   );
 }

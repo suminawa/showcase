@@ -67,16 +67,10 @@ export function KitsPage() {
             <p className={k.note}>
               <span className={k.noteHead}>無料版</span>
               <span>
-                期限アラートには、3 日前と当日の期限だけを毎朝 Slack にお知らせする無料版「期限アラート ライト」があります。{" "}
+                期限アラートには、3 日前と当日の期限だけを毎朝 Slack にお知らせする無料版「期限アラート ライト」があります。
                 <a href={goHref("deadline-lite", "booth", "/kits")} rel="nofollow" className={u.link}>
                   BOOTH で受け取る
                 </a>
-              </span>
-            </p>
-            <p className={k.note}>
-              <span className={k.noteHead}>{KIT_SET.name}</span>
-              <span>
-                {KIT_SET.slugs.map(titleOf).join("・")}は、{KIT_SET.name}（{yen(KIT_SET.price)}・単品の合計 {yen(kitSetListTotal())}）でもお求めいただけます。セットは、BOOTH の各キットのページで選べます。
               </span>
             </p>
           </div>
@@ -98,6 +92,14 @@ export function KitsPage() {
               <KitCard key={project.slug} project={project} />
             ))}
           </KitGrid>
+          <div className={k.notes}>
+            <p className={k.note}>
+              <span className={k.noteHead}>{KIT_SET.name}</span>
+              <span>
+                {KIT_SET.label}の 3 本は、まとめて {yen(KIT_SET.price)}（税込。単品の合計 {yen(kitSetListTotal())}）でもお求めいただけます。セットは、BOOTH の各キットのページで選べます。
+              </span>
+            </p>
+          </div>
         </div>
       </section>
 
@@ -148,7 +150,7 @@ export function KitsPage() {
             <h2 id="kits-cta-title" className={u.h2}>
               設置まで任せたい方へ
             </h2>
-            <p className={u.lede}>キットの設置をお任せいただく場合は 30,000 円からです。1 か所の修正は 5,000 円からお受けします。</p>
+            <p className={u.lede}>キットの設置をお任せいただく場合は 30,000 円から（税別）です。1 か所の修正は 5,000 円から（税別）お受けします。</p>
           </div>
           <Link href="/contact" className={u.btn}>
             頼み方と料金を見る

@@ -1,7 +1,7 @@
 /*
  * 看板 3 本の帳票（品物のページの頭と、トップ・/kits のカードに出す欄）。
- * どの品物も同じ順で書く: 月額 → 置く時間 → 知らせる先などの要点 2 つ。
- * 値はすべて kit-demos.ts（置く時間・月額）と各ページの copy.ts（知らせる先・無料版）に書いてあることだけ。
+ * どの品物も同じ順で書く: 月額 → 使い始めるまで → 知らせる先などの要点 2 つ。
+ * 値はすべて kit-demos.ts（設定にかかる時間・月額）と各ページの copy.ts（知らせる先・無料版）に書いてあることだけ。
  */
 import type { Lang } from "@/i18n/routes";
 
@@ -16,7 +16,7 @@ export const KIT_FACTS: Record<FlagshipSlug, Record<Lang, KitFact[]>> = {
   deadline: {
     ja: [
       { label: "月額", value: "0 円（買い切り）" },
-      { label: "置く時間", value: "15〜20 分ほど" },
+      { label: "使い始めるまで", value: "15〜20 分ほど" },
       { label: "知らせる先", value: "Slack か Discord" },
       { label: "無料版", value: "あり（3 日前と当日だけを知らせる版）" },
     ],
@@ -36,7 +36,7 @@ export const KIT_FACTS: Record<FlagshipSlug, Record<Lang, KitFact[]>> = {
   form: {
     ja: [
       { label: "月額", value: "0 円（買い切り）" },
-      { label: "置く時間", value: "20 分ほど" },
+      { label: "使い始めるまで", value: "20 分ほど" },
       { label: "知らせる先", value: "Slack・Discord・LINE" },
       { label: "自動返信", value: "受付番号つきのメール" },
     ],
@@ -56,7 +56,7 @@ export const KIT_FACTS: Record<FlagshipSlug, Record<Lang, KitFact[]>> = {
   booking: {
     ja: [
       { label: "月額", value: "0 円（予約が月 50 件を超えても）" },
-      { label: "置く時間", value: "15 分ほど" },
+      { label: "使い始めるまで", value: "15 分ほど" },
       { label: "お客さま", value: "Google アカウントは要りません" },
       { label: "メール", value: "予約の確認と前日のリマインド" },
     ],

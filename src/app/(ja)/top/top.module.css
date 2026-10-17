@@ -109,11 +109,22 @@
 }
 
 .picksHead {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 12px;
   margin: 0;
   font-size: 0.8125rem;
   font-weight: 600;
   letter-spacing: 0.06em;
   color: var(--m-sumi-3);
+}
+
+.picksTax {
+  font-size: 0.75rem;
+  font-weight: 400;
+  letter-spacing: 0.04em;
+  color: var(--m-sumi-4);
 }
 
 .pickList {
@@ -350,11 +361,6 @@
     background: var(--m-cell);
     border-right: 1px solid var(--m-grid);
     border-bottom: 1px solid var(--m-grid);
-    background-image: repeating-linear-gradient(
-      135deg,
-      transparent 0 9px,
-      color-mix(in srgb, var(--m-grid) 55%, transparent) 9px 10px
-    );
   }
 }
 

@@ -88,7 +88,7 @@ export function ContactPage({ lang }: { lang: Lang }) {
             </h2>
             <PriceLadder />
             <p className={c.after}>
-              {EMBED_SERVICE.title}は、{EMBED_SERVICE.price}です。料金は税別の目安で、キットの値段だけは税込です。
+              {EMBED_SERVICE.title}は、{EMBED_SERVICE.price}（税別）です。
             </p>
           </section>
         ) : (

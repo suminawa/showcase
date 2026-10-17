@@ -151,7 +151,7 @@ export function HeroSheet() {
         )}
       </div>
       <p className={s.note}>
-        この 1 通は、キットの関数がこの画面の中で作っています。どこにも送りません。{" "}
+        この 1 通は、キットのプログラムがこの画面の中で作っています。どこにも送りません。
         <Link href="/projects/deadline" className={s.more}>
           表と設定をもっと触る
         </Link>

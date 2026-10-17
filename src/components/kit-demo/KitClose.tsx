@@ -32,7 +32,7 @@ const T = {
   ja: {
     note: "note で中身を詳しく読む",
     booth: "BOOTH で購入する",
-    install: "設置まで頼む（30,000 円〜）",
+    install: "設置まで頼む（30,000 円〜・税別）",
     free: "無料版を受け取る（BOOTH）",
     tax: "税込・買い切り",
     intro: (until: string, list: string) => `${until} までの発売記念の値です（定価 ${list}）。`,
@@ -41,7 +41,7 @@ const T = {
       `${names}は、3 本セット（${price}・単品の合計 ${total}）でもお求めいただけます。BOOTH の同じページで選べます。`,
     title: (name: string) => `この見本は『${name}』の実物の仕組みです`,
     box: "入っているもの",
-    setup: "置くのにかかる時間",
+    setup: "使い始めるまでの時間",
     compare: "比べてから選ぶ",
     freeEnough: "無料の道具で足りる方",
     fits: "このキットが合う方",
@@ -55,7 +55,7 @@ const T = {
   en: {
     note: "Read the details on note",
     booth: "Buy on BOOTH",
-    install: "Have it set up for you (from ¥30,000)",
+    install: "Have it set up for you (from ¥30,000 + tax)",
     free: "Get the free version (BOOTH)",
     tax: "tax included, one-time purchase",
     intro: (until: string, list: string) => `Launch price until ${until} (regular price ${list}).`,
@@ -78,7 +78,7 @@ const T = {
   fr: {
     note: "Lire le détail sur note",
     booth: "Acheter sur BOOTH",
-    install: "Faire installer (dès 30 000 ¥)",
+    install: "Faire installer (dès 30 000 ¥ HT)",
     free: "Obtenir la version gratuite (BOOTH)",
     tax: "TTC, achat unique",
     intro: (until: string, list: string) => `Prix de lancement jusqu’au ${until} (prix normal ${list}).`,

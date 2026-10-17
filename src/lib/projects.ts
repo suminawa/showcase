@@ -115,7 +115,7 @@ export const INDEX_PAGES: Record<Category, IndexPage> = {
   kits: {
     title: "キットとテンプレート",
     latin: "Kits",
-    lede: "買い切りのキットとテンプレートです。表示のお値段は税込で、月額のサービス料はかかりません。迷ったときは、期限アラート・フォーム受付・予約ページの 3 本からご覧ください。",
+    lede: "買い切りのキットとテンプレートです。キットのお値段は税込で、月額のサービス料はかかりません。迷ったときは、期限アラート・フォーム受付・予約ページの 3 本からご覧ください。",
   },
   sites: {
     title: "見本サイト",
@@ -142,7 +142,7 @@ export const CONTACT_PAGE: IndexPage = {
  * 値段は既存の出品と受託メニューの値で、ここで新しい額を作らない。
  */
 export const PRICE_LADDER: { how: string; price: string; who: string }[] = [
-  { how: "キットを買ってご自身で入れる", price: "¥2,980〜19,800（税込）", who: "手順書どおりに 15〜20 分の作業ができる方" },
+  { how: "キットを買ってご自身で入れる", price: "¥2,980〜19,800（税込）", who: "手順書を見ながら、ご自身で貼り付けと設定ができる方" },
   { how: "1 か所の修正・Excel や VBA の直し", price: "5,000 円〜", who: "今あるものを少し直したい方" },
   { how: "キットの設置をお任せ", price: "30,000 円〜", who: "貼り付けと設定ごと任せたい方" },
   { how: "個別の自動化・AI の組み込み", price: "40,000 円〜", who: "表や業務に合わせて作りたい方" },
@@ -471,6 +471,8 @@ export const FEATURED: readonly string[] = ["deadline", "form", "booking"];
  */
 export const KIT_SET = {
   name: "3 本セット",
+  /** 一覧やトップで書くときの短い名（看板の 2 本を先に） */
+  label: "予約ページ・フォーム受付・スプレッドシート業務アプリ",
   slugs: ["sheet-app", "booking", "form"] as const,
   /** 税込（円） */
   price: 12800,

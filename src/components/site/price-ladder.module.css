@@ -1,5 +1,17 @@
 /* 頼み方と目安の階段。白いセルの表。スマホでは行ごとの札に組み替える */
 
+.wrap {
+  display: grid;
+  gap: 10px;
+}
+
+.note {
+  margin: 0;
+  font-size: 0.8125rem;
+  line-height: 1.7;
+  color: var(--m-sumi-3);
+}
+
 .ladder {
   width: 100%;
   border-collapse: collapse;

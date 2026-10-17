@@ -86,10 +86,10 @@ const BASES: Record<KitDemoSlug, KitDemoBase> = {
     linkKey: "s2",
     name: "期限アラート GAS キット",
     box: [
-      "dist/Code.gs（Apps Script に貼る 1 本）と appsscript.json",
+      "スプレッドシートに貼るプログラム 1 本（dist/Code.gs）と、その設定のファイル（appsscript.json）",
       "見本の期限シートと設定シート（CSV）",
       "日本語の手順書（README.ja.md）。確認画面の進み方と、よくあるつまずきまで書いてあります",
-      "src/ のソース一式とテスト",
+      "元のプログラムとテストの一式（src/。中を直したい方向け）",
       LICENSE_LINE,
     ],
     setup: GAS_SETUP + "月額の費用はかかりません。",
@@ -140,11 +140,11 @@ const BASES: Record<KitDemoSlug, KitDemoBase> = {
     linkKey: "s3",
     name: "フォーム受付 GAS キット",
     box: [
-      "dist/Code.gs（Apps Script に貼る 1 本）と appsscript.json",
+      "スプレッドシートに貼るプログラム 1 本（dist/Code.gs）と、その設定のファイル（appsscript.json）",
       "そのまま使える見本のフォーム（form-sample.html）",
       "見本の設定シート・受付シート・枠シート（CSV）",
       "日本語の手順書（README.ja.md）。ウェブアプリとして公開する手順と、よくあるつまずきまで書いてあります",
-      "src/ のソース一式とテスト",
+      "元のプログラムとテストの一式（src/。中を直したい方向け）",
       LICENSE_LINE,
     ],
     setup:
@@ -193,7 +193,7 @@ const BASES: Record<KitDemoSlug, KitDemoBase> = {
     linkKey: "inbox-triage",
     name: "AI 問い合わせ整理キット",
     box: [
-      "dist/Code.gs（Apps Script に貼る 1 本）と appsscript.json",
+      "スプレッドシートに貼るプログラム 1 本（dist/Code.gs）と、その設定のファイル（appsscript.json）",
       "見本のメール 8 通とその答え、設定シートの見本（CSV）",
       "AI に実際に送っている文（prompt-sample.md）",
       "日本語の手順書（README.ja.md）。承認の画面の意味、費用の目安、誰のアカウントで動くかまで書いてあります",
@@ -248,7 +248,7 @@ const BASES: Record<KitDemoSlug, KitDemoBase> = {
       "templates/nextjs（Vercel に置ける Next.js のテンプレート）",
       "samples/（架空の工務店の文書 8 本と設定）と、31 問の評価（eval/）",
       "日本語の手順書（README.ja.md）。API キーが無くても窓の動きを確かめられる方法まで書いてあります",
-      "src/ のソース一式とテスト",
+      "元のプログラムとテストの一式（src/。中を直したい方向け）",
       LICENSE_WEB,
     ],
     setup:
@@ -285,11 +285,11 @@ const BASES: Record<KitDemoSlug, KitDemoBase> = {
     name: "スプレッドシート業務アプリ キット",
     checkedOn: CHECKED_ON_1015,
     box: [
-      "dist/（Apps Script に貼る Code.gs・App.html・appsscript.json の 3 つ）",
+      "スプレッドシートに貼るファイル 3 つ（dist/ の Code.gs・App.html・appsscript.json）",
       "見本の台帳 3 種類（顧客管理・案件管理・在庫管理）の定義と表（CSV）",
       "ブラウザだけで動く見本ページ（demo/）",
       "日本語の手順書（README.ja.md）",
-      "src/ のソース一式とテスト",
+      "元のプログラムとテストの一式（src/。中を直したい方向け）",
       LICENSE_LINE,
     ],
     setup:
@@ -326,11 +326,11 @@ const BASES: Record<KitDemoSlug, KitDemoBase> = {
     name: "予約ページ キット",
     checkedOn: CHECKED_ON_1015,
     box: [
-      "dist/（Apps Script に貼る Code.gs・App.html・appsscript.json の 3 つ）",
+      "スプレッドシートに貼るファイル 3 つ（dist/ の Code.gs・App.html・appsscript.json）",
       "見本のお店（架空の整体院）の設定・枠・休み・サービス・予約のシート（CSV）",
       "ブラウザだけで動く見本ページ（demo/）",
       "日本語の手順書（README.ja.md）",
-      "src/ のソース一式とテスト",
+      "元のプログラムとテストの一式（src/。中を直したい方向け）",
       LICENSE_LINE,
     ],
     setup:
