@@ -197,7 +197,7 @@ components:
 
 明朝は品のある見出しに、ゴシックはスマホの小さな字でも細らない本文に。日本語の書類と同じ役の分け方。
 
-**web の書体は読まない（2026-10-17 に実測して決めた）。** Shippori Mincho 600 を next/font で読むと、日本語の書体の @font-face（120 余りの切れ）だけで描画を止める CSS が gzip で 38KB 増え、スマホの Lighthouse の性能が 94 に落ちた。端末の明朝にすると 97〜99。Apple の端末のヒラギノ明朝 W6 は、BOOTH の 1 枚目と同じ字でもある。Android で CJK の明朝が無い端末では、見出しがゴシックの太字になる（崩れはしない）。料紙の Hina Mincho と Shippori Mincho 400/500 は、前の世界の紙（英仏のトップ・/sites・/works・案内記事）だけが読む。
+**見出しの web の書体は、描画を止めない読み方でだけ読む（2026-10-17 に実測して決めた）。** Shippori Mincho 600 を next/font で読むと、描画を止める CSS が gzip で 38KB 増えてスマホの Lighthouse の性能が 94 に落ち、Google Fonts の `<link rel="stylesheet">` を頭に置くと 71 まで落ちた。そこで、最初の描画のあとに script で書体の CSS を足す形（`display=swap`）にした。性能はスマホ 98／97、PC 100、CLS 0.003 で端末の明朝と同じ。最初の描画は端末の明朝（Android ではゴシック）で、読み込み後に Shippori Mincho に替わる。どの端末でも同じ字になるのが目的で、持ち主の決め（10/17「他の書体を指定したら全部で統一されるの」）。料紙の Hina Mincho と Shippori Mincho 400/500 は、前の世界の紙（英仏のトップ・/sites・/works・案内記事）だけが読む。
 
 ### Hierarchy
 

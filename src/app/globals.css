@@ -38,7 +38,7 @@
    * スマホの Lighthouse が 95 を割った。Apple はヒラギノ明朝 W6（BOOTH の 1 枚目と同じ字）、
    * Windows は游明朝 Demibold、Android は Noto Serif CJK（無い端末はゴシックの太字になる）。
    */
-  --m-mincho: "Hiragino Mincho ProN", "Hiragino Mincho Pro", "Yu Mincho", YuMincho, "Noto Serif CJK JP", "Noto Serif JP",
+  --m-mincho: "Shippori Mincho", "Hiragino Mincho ProN", "Hiragino Mincho Pro", "Yu Mincho", YuMincho, "Noto Serif CJK JP", "Noto Serif JP",
     serif;
 
   /* ---- 寸法 ---- */

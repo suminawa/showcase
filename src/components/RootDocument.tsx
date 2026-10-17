@@ -46,6 +46,18 @@ export function RootDocument({ lang, children }: { lang: Lang; children: React.R
     /* 現れる演出の印（data-hi）は、本文より先に走る一行の script が付ける。
        サーバーが書いた html にはまだ無いので、その一点だけ照合を見送る */
     <html lang={lang} suppressHydrationWarning>
+      <head>
+        {/* 見出しの明朝（Shippori Mincho 600）。端末の明朝が無い Android でも同じ字にするため、Google Fonts から一書体・一太さだけ読む */}
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        {/* 描画を止めないよう、書体の CSS は最初の描画のあとに足す（swap）。無くても端末の明朝で読める */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html:
+              "(function(){var l=document.createElement('link');l.rel='stylesheet';l.href='https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@600&display=swap';document.head.appendChild(l)})()",
+          }}
+        />
+      </head>
       <body className="antialiased">
         {/* 現れる演出の印（html[data-hi="on"]）。本文より先に走るので、隠す規則は最初の描画から効く。
             根のレイアウトに置く ── 面の部品に置くと、紙から紙へ移るたびに React が
