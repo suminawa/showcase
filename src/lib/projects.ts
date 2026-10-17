@@ -115,7 +115,7 @@ export const INDEX_PAGES: Record<Category, IndexPage> = {
   kits: {
     title: "キットとテンプレート",
     latin: "Kits",
-    lede: "そのまま使えるキットとテンプレートです。発売中のものは、いまのお値段を添えています（発売記念の期間中は、終わる日と定価も）。",
+    lede: "買い切りのキットとテンプレートです。表示のお値段は税込です。迷ったときは、期限アラート・フォーム受付・予約ページの 3 本からご覧ください。",
   },
   sites: {
     title: "見本サイト",
@@ -257,7 +257,7 @@ export const projects: Project[] = [
   {
     slug: "deadline",
     title: "期限アラート GAS キット",
-    description: "シートに書いた期限を、毎朝 1 通にまとめて知らせる。",
+    description: "シートに書いた期限を、毎朝 1 通にまとめてお知らせします。",
     tags: ["Google Apps Script"],
     category: "kits",
     sale: { status: "onsale", price: 2980 },
@@ -265,7 +265,7 @@ export const projects: Project[] = [
   {
     slug: "form",
     title: "フォーム受付 GAS キット",
-    description: "問い合わせの受け口。シートに貯め、通知と自動返信まで。",
+    description: "サイトの問い合わせを表に貯め、通知と自動返信まで行います。",
     tags: ["Google Apps Script"],
     category: "kits",
     sale: { status: "onsale", price: 3480 },
@@ -314,7 +314,7 @@ export const projects: Project[] = [
   {
     slug: "booking",
     title: "予約ページ キット",
-    description: "シートに枠を書くと、その URL が予約ページになる。",
+    description: "シートに枠を書くと、その URL が予約ページになります。",
     tags: ["Google Apps Script"],
     category: "kits",
     sale: { status: "onsale", price: 7980 },
@@ -476,11 +476,7 @@ export function countLabel(category: Category): string {
  * 4 点に絞るのは、提案の URL から来た人がひと目で選べる数がそこまでだから。
  * 墨流しは外した（2026-10-15）。発注者の紙に作品は置かず、Works にだけ並べる。
  */
-export const FEATURED: readonly string[] = [
-  "ai-concierge",
-  "doc-reader",
-  "configurator",
-];
+export const FEATURED: readonly string[] = ["deadline", "form", "booking"];
 
 /**
  * /kits の後半に「制作者・開発者向け」の見出しを立ててまとめるキット（2026-10-15 監査 改善 1）。

@@ -74,13 +74,9 @@ describe("分類のページの頭", () => {
   });
 });
 
-describe("いま見てほしいもの 4 点", () => {
-  it("並びは 1 か所。AI 案内窓口・AI 書類読み取り・3D（墨流しは Works にだけ）", () => {
-    expect(FEATURED).toEqual([
-      "ai-concierge",
-      "doc-reader",
-      "configurator",
-    ]);
+describe("はじめての方におすすめの 3 本", () => {
+  it("並びは 1 か所。看板 3 点（期限アラート・フォーム受付・予約ページ。2026-10-17 監査）", () => {
+    expect(FEATURED).toEqual(["deadline", "form", "booking"]);
     expect(featuredProjects().map((p) => p.slug)).toEqual([...FEATURED]);
   });
 

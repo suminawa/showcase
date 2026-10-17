@@ -15,7 +15,7 @@ import { copy } from "./copy";
 import { DeadlineDemo } from "./DeadlineDemo";
 
 /** ココナラの出品。名は日本語のまま出す（出品のページが日本語のため） */
-const SERVICE = { name: "スプレッドシートの期限通知を 1 本つなぎます", href: "https://coconala.com/services/4427437" };
+const SERVICE = { name: "GASでスプレッドシートの期限を毎朝通知します", href: "https://coconala.com/services/4427437" };
 
 /** 無料版（期限アラート ライト）。名は日本語のまま出す（BOOTH のページが日本語のため） */
 const FREE = { name: "期限アラート ライト", href: goHref("deadline-lite", "booth", "/projects/deadline") };
