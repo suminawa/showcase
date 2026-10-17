@@ -1,0 +1,355 @@
+/*
+ * トップの見本。白いシート（列の記号・行番号つき）と、墨の面に写した 1 通。
+ * 書き換えられるセルは、点線の下線で示す（マス目の線だけでは見分けられないため）。
+ * 選んでいるセルは朱の枠とフィルハンドル（選択の枠と同じ形）。
+ */
+
+.demo {
+  display: grid;
+  margin: 0;
+  min-width: 0;
+}
+
+.cap {
+  display: flex;
+  align-items: stretch;
+  border: 1px solid var(--m-grid);
+  background: var(--m-cell);
+}
+
+.capLabel {
+  display: inline-flex;
+  align-items: center;
+  padding: 0 12px;
+  background: var(--m-cell-head);
+  border-right: 1px solid var(--m-grid);
+  font-size: 0.75rem;
+  letter-spacing: 0.08em;
+  color: var(--m-sumi-3);
+}
+
+.capName {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 0 14px;
+  font-family: var(--m-mincho);
+  font-weight: 600;
+  font-size: 1rem;
+  letter-spacing: 0.02em;
+}
+
+.hint {
+  margin: 0;
+  padding: 8px 14px;
+  background: var(--m-cell);
+  border-inline: 1px solid var(--m-grid);
+  font-size: 0.8125rem;
+  line-height: 1.6;
+  color: var(--m-sumi-3);
+}
+
+.sheetWrap {
+  border-top: 1px solid var(--m-grid);
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  background: var(--m-cell);
+  border-inline: 1px solid var(--m-grid);
+}
+
+.sheetWrap:focus-visible {
+  outline: 2px solid var(--m-shu);
+  outline-offset: -2px;
+}
+
+.sheet {
+  width: 100%;
+  min-width: 330px;
+  border-collapse: collapse;
+  table-layout: fixed;
+  font-size: 0.875rem;
+  line-height: 1.5;
+  font-variant-numeric: tabular-nums;
+}
+
+.colNo {
+  width: 30px;
+}
+.colDue {
+  width: 104px;
+}
+.colWho {
+  width: 46px;
+}
+.colState {
+  width: 64px;
+}
+
+.sheet th,
+.sheet td {
+  position: relative;
+  padding: 7px 8px;
+  border: 1px solid var(--m-grid);
+  text-align: left;
+  vertical-align: middle;
+  font-weight: 400;
+  color: var(--m-sumi-2);
+}
+
+/* 外周の線は箱（.sheetWrap）が持つ */
+.sheet tr > :first-child {
+  border-left: 0;
+}
+.sheet tr > :last-child {
+  border-right: 0;
+}
+.sheet thead tr:first-child > * {
+  border-top: 0;
+}
+
+.letters td {
+  height: 22px;
+  padding: 0;
+  background: var(--m-cell-head);
+  text-align: center;
+  font-size: 0.6875rem;
+  letter-spacing: 0.06em;
+  color: var(--m-sumi-4);
+}
+
+.sheet thead th {
+  font-weight: 600;
+  color: var(--m-sumi);
+  font-size: 0.8125rem;
+}
+
+.sheet .rowNo {
+  padding: 0;
+  background: var(--m-cell-head);
+  text-align: center;
+  font-size: 0.6875rem;
+  color: var(--m-sumi-4);
+}
+
+.sheet .subject {
+  color: var(--m-sumi);
+  overflow-wrap: anywhere;
+}
+
+/* 完了の行は知らせない。スプレッドシートの条件付き書式のように、件名に取り消し線 */
+.sheet tr[data-done="true"] .subject {
+  color: var(--m-sumi-4);
+  text-decoration: line-through;
+  text-decoration-thickness: 1px;
+}
+
+/* 書き換えられるセル。中の欄がセルいっぱいに広がる */
+.sheet .cell {
+  padding: 0;
+}
+
+.input {
+  appearance: none;
+  display: block;
+  width: 100%;
+  min-height: 44px;
+  margin: 0;
+  padding: 0 8px;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  color: var(--m-sumi);
+  font: inherit;
+  font-size: 0.875rem;
+  /* 書き換えられる印。墨 55% の点線（紙の上で 3:1 を超える） */
+  text-decoration: underline dotted color-mix(in srgb, var(--m-sumi) 55%, transparent);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.3em;
+  cursor: text;
+}
+
+select.input {
+  padding-right: 18px;
+  cursor: pointer;
+  background-image: linear-gradient(45deg, transparent 50%, var(--m-sumi-3) 50%),
+    linear-gradient(135deg, var(--m-sumi-3) 50%, transparent 50%);
+  background-position:
+    calc(100% - 11px) 52%,
+    calc(100% - 7px) 52%;
+  background-size: 4px 4px;
+  background-repeat: no-repeat;
+}
+
+.input:focus-visible {
+  outline: none;
+}
+
+/* 選んでいるセル。朱の 2px と右下の四角（スプレッドシートの選択と同じ） */
+.cell:focus-within {
+  outline: 2px solid var(--m-shu);
+  outline-offset: -1px;
+  z-index: 2;
+}
+
+.cell:focus-within::after {
+  content: "";
+  position: absolute;
+  right: -4px;
+  bottom: -4px;
+  width: 7px;
+  height: 7px;
+  background: var(--m-shu);
+  box-shadow: 0 0 0 1px var(--m-cell);
+}
+
+@media (max-width: 639px) {
+  /* iOS が欄の拡大をしない大きさ */
+  .input {
+    font-size: 1rem;
+  }
+}
+
+/* ---- 見本の今日 ------------------------------------------------------------ */
+
+.today {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0 4px;
+  padding: 0 0 0 12px;
+  background: var(--m-cell);
+  border: 1px solid var(--m-grid);
+}
+
+.todayLabel {
+  margin-right: 8px;
+  font-size: 0.8125rem;
+  color: var(--m-sumi-3);
+}
+
+.step {
+  appearance: none;
+  width: 44px;
+  height: 44px;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  color: var(--m-sumi);
+  font: inherit;
+  font-size: 1.25rem;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.step:hover {
+  background: var(--m-cell-head);
+}
+
+.step:focus-visible,
+.reset:focus-visible,
+.more:focus-visible {
+  outline: 2px solid var(--m-shu);
+  outline-offset: -2px;
+}
+
+.date {
+  min-width: 6.5em;
+  text-align: center;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.reset {
+  appearance: none;
+  margin-left: auto;
+  min-height: 44px;
+  padding: 0 12px;
+  border: 0;
+  border-left: 1px solid var(--m-grid);
+  background: transparent;
+  color: var(--m-sumi-2);
+  font: inherit;
+  font-size: 0.8125rem;
+  text-decoration: underline;
+  text-underline-offset: 0.3em;
+  cursor: pointer;
+}
+
+/* ---- 届いた 1 通 ---------------------------------------------------------- */
+
+.post {
+  position: relative;
+  padding: 16px 18px 18px;
+  background: var(--m-sumi);
+  color: var(--m-on-sumi);
+}
+
+.postHead {
+  margin: 0 0 8px;
+  font-size: 0.75rem;
+  letter-spacing: 0.06em;
+  color: var(--m-on-sumi-2);
+}
+
+.postText {
+  margin: 0;
+  font: inherit;
+  font-size: 0.875rem;
+  line-height: 1.75;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.empty {
+  margin: 0;
+  font-size: 0.875rem;
+  line-height: 1.75;
+  color: var(--m-on-sumi-2);
+}
+
+.flash {
+  position: absolute;
+  inset: 4px;
+  border: 1px solid var(--m-on-sumi-2);
+  pointer-events: none;
+  animation: m-post-flash 640ms cubic-bezier(0.2, 0, 0, 1) forwards;
+}
+
+@keyframes m-post-flash {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .flash {
+    display: none;
+  }
+}
+
+.note {
+  margin: 10px 0 0;
+  font-size: 0.8125rem;
+  line-height: 1.7;
+  color: var(--m-sumi-3);
+}
+
+.more {
+  color: var(--m-sumi-2);
+  text-decoration: underline;
+  text-underline-offset: 0.3em;
+  white-space: nowrap;
+}
+
+.hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}

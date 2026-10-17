@@ -16,4 +16,4 @@ export const SITE_NAME = "墨縄 suminawa";
 
 /** トップと根の description（日本語） */
 export const SITE_DESCRIPTION =
-  "業務の自動化と Web の道具をつくる墨縄（suminawa）のサイトです。Google Apps Script（GAS）や AI を使ったキットと見本を、ブラウザでそのまま試せる形で置いています。";
+  "Google スプレッドシートで動く、買い切りの事務の道具（期限の通知・問い合わせの受付・予約ページほか）を、見本をその場で触ってから選べるサイトです。月額のサービス料はかかりません。設置や個別の自動化のご依頼もお受けします。運営は墨縄（suminawa）。";

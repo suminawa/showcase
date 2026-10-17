@@ -5,6 +5,7 @@ import {
   KIT_SET,
   PRICE_LADDER,
   kitSetListTotal,
+  kitShelves,
   FEATURED,
   GATES,
   INDEX_PAGES,
@@ -117,6 +118,16 @@ describe("制作のご相談", () => {
     expect(KIT_SET.slugs).toEqual(["sheet-app", "booking", "form"]);
     expect(kitSetListTotal()).toBe(21260);
     expect(KIT_SET.price).toBeLessThan(kitSetListTotal());
+  });
+
+  it("棚は三つ。キットを一度ずつ配り、間取りは制作者・開発者向け", () => {
+    const { start, office, makers } = kitShelves();
+    const all = [...start, ...office, ...makers].map((p) => p.slug);
+    expect(new Set(all).size).toBe(all.length);
+    expect(all.sort()).toEqual(projectsByCategory("kits").map((p) => p.slug).sort());
+    expect(start.map((p) => p.slug)).toEqual(["deadline", "form", "booking"]);
+    expect(makers.map((p) => p.slug)).toContain("floorplan");
+    expect(office.map((p) => p.slug)).not.toContain("floorplan");
   });
 
   it("ほかの置き場に、止めた Instagram を載せない", () => {

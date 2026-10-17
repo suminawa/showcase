@@ -500,6 +500,19 @@ export const MAKER_KITS: ReadonlySet<string> = new Set([
   "quote-simulator",
 ]);
 
+/**
+ * /kits とトップの棚。看板 3 本（FEATURED の並び）・事務の道具・制作者と開発者向けの三つに、
+ * キットを一度ずつ配る（登録の順のまま）。
+ */
+export function kitShelves(): { start: Project[]; office: Project[]; makers: Project[] } {
+  const kits = projects.filter((p) => p.category === "kits" && !p.unlisted);
+  return {
+    start: featuredProjects(),
+    office: kits.filter((p) => !FEATURED.includes(p.slug) && !MAKER_KITS.has(p.slug)),
+    makers: kits.filter((p) => MAKER_KITS.has(p.slug)),
+  };
+}
+
 export function featuredProjects(): Project[] {
   const by = new Map(projects.map((project) => [project.slug, project]));
   return FEATURED.map((slug) => {

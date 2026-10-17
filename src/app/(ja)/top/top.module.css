@@ -1,0 +1,545 @@
+/*
+ * トップ。PC は第一画面を左右に割り（左に名乗りと看板 3 本の入口、右に動く見本）、
+ * スマホは 1 列で看板 3 本の入口までを第一画面に収める。DESIGN.md の Layout。
+ */
+
+.page {
+  display: block;
+}
+
+/* ---- 第一画面 -------------------------------------------------------------- */
+
+.hero {
+  padding-block: 20px 40px;
+  border-bottom: 1px solid var(--m-grid);
+}
+
+@media (min-width: 1024px) {
+  .hero {
+    padding-block: 48px 64px;
+  }
+}
+
+.heroGrid {
+  display: grid;
+  gap: 32px;
+}
+
+@media (min-width: 1024px) {
+  .heroGrid {
+    grid-template-columns: minmax(0, 5fr) minmax(0, 6fr);
+    gap: 56px;
+    align-items: start;
+  }
+}
+
+.heroText {
+  /* マス目の寸法を、この欄の幅から決める（コンテナクエリ） */
+  container-type: inline-size;
+  display: grid;
+  gap: 14px;
+  min-width: 0;
+}
+
+@media (min-width: 1024px) {
+  .heroText {
+    gap: 20px;
+  }
+}
+
+.kicker {
+  margin: 0;
+  font-size: 0.875rem;
+  letter-spacing: 0.04em;
+  color: var(--m-sumi-3);
+}
+
+/*
+ * 一字一マスの見出し（The Masu Rule）。7 列 × 2 段。
+ * 字は 0.72 マス、字間は 0.28 マス。全角の字は 1em なので、送りがちょうど 1 マスになる。
+ * 左に半分の字間を足して、字をマスの真ん中に置く。palt は掛けない。
+ */
+.masu {
+  --cols: 7;
+  --masu: min(76px, calc(100cqi / var(--cols)));
+  margin: 0;
+  width: calc(var(--cols) * var(--masu) + 1px);
+  padding: 0 0 1px calc(0.14 * var(--masu));
+  font-family: var(--m-mincho);
+  font-weight: 600;
+  font-size: calc(0.72 * var(--masu));
+  line-height: var(--masu);
+  letter-spacing: calc(0.28 * var(--masu));
+  font-feature-settings: normal;
+  font-kerning: none;
+  text-spacing-trim: space-all;
+  white-space: nowrap;
+  color: var(--m-sumi);
+  background-color: var(--m-cell);
+  background-image:
+    linear-gradient(to right, var(--m-grid) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--m-grid) 1px, transparent 1px);
+  background-size: var(--masu) var(--masu);
+}
+
+.lede {
+  margin: 0;
+  max-width: 30em;
+  font-size: 1rem;
+  line-height: 1.8;
+  letter-spacing: 0.02em;
+  color: var(--m-sumi-2);
+  /* 最後の行に一字だけ残さない。文節で折る（効く端末だけ） */
+  text-wrap: pretty;
+  word-break: auto-phrase;
+}
+
+@media (min-width: 1024px) {
+  .lede {
+    font-size: 1.0625rem;
+  }
+}
+
+/* ---- 看板 3 本の入口（行番号つきのシート） ---------------------------------- */
+
+.picks {
+  display: grid;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.picksHead {
+  margin: 0;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  color: var(--m-sumi-3);
+}
+
+.pickList {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  background: var(--m-cell);
+  border: 1px solid var(--m-grid);
+}
+
+.pickList > li + li {
+  border-top: 1px solid var(--m-grid);
+}
+
+.pick {
+  display: grid;
+  grid-template-columns: 32px minmax(0, 1fr) auto;
+  align-items: stretch;
+  min-height: 60px;
+  color: var(--m-sumi);
+  text-decoration: none;
+}
+
+.pickNo {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--m-cell-head);
+  border-right: 1px solid var(--m-grid);
+  font-size: 0.6875rem;
+  font-variant-numeric: tabular-nums;
+  color: var(--m-sumi-4);
+}
+
+.pickBody {
+  display: grid;
+  align-content: center;
+  gap: 2px;
+  padding: 9px 12px;
+  min-width: 0;
+}
+
+.pickName {
+  font-family: var(--m-mincho);
+  font-weight: 600;
+  font-size: 1rem;
+  line-height: 1.4;
+  letter-spacing: 0.02em;
+  font-feature-settings: "palt" 1;
+}
+
+.pickHook {
+  font-size: 0.8125rem;
+  line-height: 1.5;
+  color: var(--m-sumi-3);
+}
+
+.pickPrice {
+  display: grid;
+  align-content: center;
+  justify-items: end;
+  gap: 2px;
+  padding: 9px 12px 9px 4px;
+}
+
+.pickYen {
+  font-size: 1rem;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.pickFree {
+  font-size: 0.6875rem;
+  letter-spacing: 0.04em;
+  color: var(--m-sumi-3);
+  white-space: nowrap;
+}
+
+.pick:hover .pickName {
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.25em;
+}
+
+@media (min-width: 1024px) {
+  .pick {
+    min-height: 64px;
+    grid-template-columns: 36px minmax(0, 1fr) auto;
+  }
+  .pickName {
+    font-size: 1.0625rem;
+  }
+  .pickHook {
+    font-size: 0.875rem;
+  }
+}
+
+.ctas {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 20px;
+  margin: 4px 0 0;
+}
+
+.heroDemo {
+  min-width: 0;
+}
+
+/* ---- 買う前に確かめられること（4 マス） ------------------------------------- */
+
+.facts {
+  padding-block: 40px;
+  border-bottom: 1px solid var(--m-grid);
+}
+
+@media (min-width: 1024px) {
+  .facts {
+    padding-block: 56px;
+  }
+}
+
+.factsTitle {
+  margin: 0 0 16px;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  color: var(--m-sumi-3);
+}
+
+.factGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  border-top: 1px solid var(--m-grid);
+  border-left: 1px solid var(--m-grid);
+}
+
+@media (min-width: 1024px) {
+  .factGrid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+.fact {
+  display: grid;
+  align-content: start;
+  gap: 4px;
+  padding: 16px;
+  background: var(--m-cell);
+  border-right: 1px solid var(--m-grid);
+  border-bottom: 1px solid var(--m-grid);
+}
+
+@media (min-width: 1024px) {
+  .fact {
+    padding: 24px;
+  }
+}
+
+.factFig {
+  font-family: var(--m-mincho);
+  font-weight: 600;
+  font-size: clamp(1.5rem, 1.2rem + 1.2vw, 2.25rem);
+  line-height: 1.25;
+  letter-spacing: 0.02em;
+  font-feature-settings: "palt" 1;
+}
+
+.factLabel {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: var(--m-sumi-2);
+}
+
+.factText {
+  margin-top: 4px;
+  font-size: 0.8125rem;
+  line-height: 1.7;
+  color: var(--m-sumi-3);
+}
+
+@media (min-width: 1024px) {
+  .factText {
+    font-size: 0.875rem;
+  }
+}
+
+/* ---- 看板の下の一行 --------------------------------------------------------- */
+
+.setLine {
+  margin: 16px 0 0;
+  max-width: 50em;
+  font-size: 0.875rem;
+  line-height: 1.7;
+  color: var(--m-sumi-3);
+}
+
+/* ---- ほかの事務の道具（2 列のシート） ---------------------------------------- */
+
+.office {
+  background: color-mix(in srgb, var(--m-cell-head) 45%, var(--m-paper));
+  border-block: 1px solid var(--m-grid);
+}
+
+.officeList {
+  display: grid;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  border-top: 1px solid var(--m-grid);
+  border-left: 1px solid var(--m-grid);
+}
+
+@media (min-width: 768px) {
+  .officeList {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+.officeList > li {
+  background: var(--m-cell);
+  border-right: 1px solid var(--m-grid);
+  border-bottom: 1px solid var(--m-grid);
+}
+
+/* 7 本を 2 列に並べると最後が一つ欠ける。空のマスとして閉じる */
+@media (min-width: 768px) {
+  .officeList:has(> li:nth-child(odd):last-child)::after {
+    content: "";
+    background: var(--m-cell);
+    border-right: 1px solid var(--m-grid);
+    border-bottom: 1px solid var(--m-grid);
+    background-image: repeating-linear-gradient(
+      135deg,
+      transparent 0 9px,
+      color-mix(in srgb, var(--m-grid) 55%, transparent) 9px 10px
+    );
+  }
+}
+
+.officeRow {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 2px 16px;
+  height: 100%;
+  padding: 14px 16px;
+  color: var(--m-sumi);
+  text-decoration: none;
+}
+
+.officeName {
+  font-family: var(--m-mincho);
+  font-weight: 600;
+  font-size: 1rem;
+  line-height: 1.5;
+  font-feature-settings: "palt" 1;
+}
+
+.officePrice {
+  grid-row: 1;
+  grid-column: 2;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.officeDesc {
+  grid-column: 1 / -1;
+  font-size: 0.875rem;
+  line-height: 1.7;
+  color: var(--m-sumi-3);
+}
+
+.officeRow:hover .officeName {
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.25em;
+}
+
+.more {
+  margin: 12px 0 0;
+}
+
+/* ---- 頼み方と料金 ---------------------------------------------------------- */
+
+.ladderGrid {
+  display: grid;
+  gap: 8px 56px;
+}
+
+@media (min-width: 1024px) {
+  .ladderGrid {
+    grid-template-columns: minmax(0, 4fr) minmax(0, 7fr);
+    align-items: start;
+  }
+}
+
+.ladderCta {
+  margin: 8px 0 0;
+}
+
+.tableWrap {
+  min-width: 0;
+}
+
+/* ---- 更新の記録 ------------------------------------------------------------ */
+
+.updates {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  background: var(--m-cell);
+  border: 1px solid var(--m-grid);
+}
+
+.update {
+  display: grid;
+  gap: 4px 20px;
+  padding: 14px 16px;
+}
+
+.update + .update {
+  border-top: 1px solid var(--m-grid);
+}
+
+@media (min-width: 768px) {
+  .update {
+    grid-template-columns: 7em minmax(12em, 16em) minmax(0, 1fr);
+    align-items: baseline;
+  }
+}
+
+.updateDate {
+  font-size: 0.8125rem;
+  font-variant-numeric: tabular-nums;
+  color: var(--m-sumi-4);
+}
+
+.updateKit {
+  font-weight: 600;
+  font-size: 0.9375rem;
+}
+
+.updateVer {
+  margin-left: 4px;
+  font-weight: 400;
+  font-size: 0.8125rem;
+  font-variant-numeric: tabular-nums;
+  color: var(--m-sumi-3);
+}
+
+.updateNote {
+  font-size: 0.875rem;
+  line-height: 1.7;
+  color: var(--m-sumi-2);
+}
+
+/* ---- 作っている人・悩みから読む -------------------------------------------- */
+
+.closing {
+  border-top: 1px solid var(--m-grid);
+}
+
+.closingGrid {
+  display: grid;
+  gap: 48px;
+}
+
+@media (min-width: 1024px) {
+  .closingGrid {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: 64px;
+  }
+}
+
+.maker,
+.reads {
+  display: grid;
+  gap: 14px;
+  align-content: start;
+}
+
+.maker p,
+.reads p {
+  margin: 0;
+}
+
+.readList {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  border-top: 1px solid var(--m-grid);
+}
+
+.readList > li {
+  border-bottom: 1px solid var(--m-grid);
+}
+
+.read {
+  display: flex;
+  align-items: center;
+  min-height: 52px;
+  padding: 8px 0;
+  font-size: 0.9375rem;
+  line-height: 1.6;
+  color: var(--m-sumi);
+  text-decoration: none;
+}
+
+.read:hover {
+  text-decoration: underline;
+  text-underline-offset: 0.25em;
+}
+
+.read:focus-visible {
+  outline: 2px solid var(--m-shu);
+  outline-offset: 2px;
+}
+
+.makers {
+  margin-top: 48px;
+  margin-bottom: 0;
+  font-size: 0.875rem;
+  line-height: 1.8;
+  color: var(--m-sumi-3);
+}
