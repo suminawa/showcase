@@ -14,6 +14,7 @@ import { guideBySlug } from "@/lib/guides";
 import { fontVars } from "../../projects/fonts";
 import s from "../../projects/projects.module.css";
 import g from "../guides.module.css";
+import { NoteEmbed } from "@/components/note/NoteEmbed";
 import {
   GuideAnswer,
   GuideByline,
@@ -22,6 +23,8 @@ import {
   guideMetadata,
 } from "../parts";
 import { ShopEmbed } from "../../projects/shell";
+
+const PRODUCT_NOTE = "https://note.com/suminawa/n/n5cb1589b56b5";
 
 const guide = guideBySlug("form-auto-reply");
 
@@ -306,6 +309,7 @@ export default function FormAutoReplyGuide() {
               日）で、お使いのフォームのつなぎ替えから動作確認、手順書までお受けします
             </li>
           </ul>
+          <NoteEmbed url={PRODUCT_NOTE} />
         </section>
         <GuideLinks guide={guide} />
       </div>

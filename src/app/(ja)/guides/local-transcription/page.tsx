@@ -12,8 +12,11 @@ import { guideBySlug } from "@/lib/guides";
 import { fontVars } from "../../projects/fonts";
 import s from "../../projects/projects.module.css";
 import g from "../guides.module.css";
+import { NoteEmbed } from "@/components/note/NoteEmbed";
 import { GuideAnswer, GuideByline, GuideJsonLd, GuideLinks, guideMetadata } from "../parts";
 import { ContactMail } from "@/components/track/ContactMail";
+
+const PRODUCT_NOTE = "https://note.com/suminawa/n/n7b540f1733e1";
 
 const IMAGE = "/og/doc-reader.png";
 const guide = guideBySlug("local-transcription");
@@ -104,6 +107,7 @@ export default function LocalTranscriptionGuide() {
               </Link>
             </figcaption>
           </figure>
+          <NoteEmbed url={PRODUCT_NOTE} />
         </section>
 
         <section className={g.section}>

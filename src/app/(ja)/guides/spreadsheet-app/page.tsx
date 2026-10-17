@@ -13,6 +13,7 @@ import { guideBySlug } from "@/lib/guides";
 import { fontVars } from "../../projects/fonts";
 import s from "../../projects/projects.module.css";
 import g from "../guides.module.css";
+import { NoteEmbed } from "@/components/note/NoteEmbed";
 import {
   GuideAnswer,
   GuideByline,
@@ -21,6 +22,8 @@ import {
   guideMetadata,
 } from "../parts";
 import { ShopEmbed } from "../../projects/shell";
+
+const PRODUCT_NOTE = "https://note.com/suminawa/n/n206d0f5b8324";
 
 const IMAGE = "/og/sheet-app.png";
 const guide = guideBySlug("spreadsheet-app");
@@ -226,6 +229,7 @@ export default function SpreadsheetAppGuide() {
               </a>
             </li>
           </ul>
+          <NoteEmbed url={PRODUCT_NOTE} />
         </section>
         <GuideLinks guide={guide} />
       </div>

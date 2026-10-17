@@ -13,6 +13,7 @@ import { guideBySlug } from "@/lib/guides";
 import { fontVars } from "../../projects/fonts";
 import s from "../../projects/projects.module.css";
 import g from "../guides.module.css";
+import { NoteEmbed } from "@/components/note/NoteEmbed";
 import {
   GuideAnswer,
   GuideByline,
@@ -21,6 +22,8 @@ import {
   guideMetadata,
 } from "../parts";
 import { ShopEmbed } from "../../projects/shell";
+
+const PRODUCT_NOTE = "https://note.com/suminawa/n/n9ead42f0701d";
 
 const IMAGE = "/og/quote-simulator.png";
 const guide = guideBySlug("quote-calculator");
@@ -219,6 +222,7 @@ export default function QuoteCalculatorGuide() {
               </Link>
             </li>
           </ul>
+          <NoteEmbed url={PRODUCT_NOTE} />
         </section>
         <GuideLinks guide={guide} />
       </div>

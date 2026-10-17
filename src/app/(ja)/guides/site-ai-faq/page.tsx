@@ -13,6 +13,7 @@ import { guideBySlug } from "@/lib/guides";
 import { fontVars } from "../../projects/fonts";
 import s from "../../projects/projects.module.css";
 import g from "../guides.module.css";
+import { NoteEmbed } from "@/components/note/NoteEmbed";
 import {
   GuideAnswer,
   GuideByline,
@@ -22,6 +23,8 @@ import {
 } from "../parts";
 import { ShopEmbed } from "../../projects/shell";
 import { ContactMail } from "@/components/track/ContactMail";
+
+const PRODUCT_NOTE = "https://note.com/suminawa/n/n4ca56c4ed189";
 
 const IMAGE = "/og/ai-concierge.png";
 const guide = guideBySlug("site-ai-faq");
@@ -202,6 +205,7 @@ export default function SiteAiFaqGuide() {
             </Link>
             をご覧ください。
           </p>
+          <NoteEmbed url={PRODUCT_NOTE} />
         </section>
 
         <section className={g.section}>

@@ -13,6 +13,7 @@ import { guideBySlug } from "@/lib/guides";
 import { fontVars } from "../../projects/fonts";
 import s from "../../projects/projects.module.css";
 import g from "../guides.module.css";
+import { NoteEmbed } from "@/components/note/NoteEmbed";
 import {
   GuideAnswer,
   GuideByline,
@@ -22,6 +23,8 @@ import {
 } from "../parts";
 import { ShopEmbed } from "../../projects/shell";
 import { ContactMail } from "@/components/track/ContactMail";
+
+const PRODUCT_NOTE = "https://note.com/suminawa/n/n206d0f5b8324";
 
 const IMAGE = "/og/sheet-app.png";
 const guide = guideBySlug("excel-list-cleanup");
@@ -209,6 +212,7 @@ export default function ExcelListCleanupGuide() {
             </a>
           </p>
           <ShopEmbed linkKey="sheet-app" />
+          <NoteEmbed url={PRODUCT_NOTE} />
         </section>
         <GuideLinks guide={guide} />
       </div>
