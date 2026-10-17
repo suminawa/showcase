@@ -7,7 +7,7 @@
  * 無いシートは sheets に載せない。空のシート（1 行も無い）は []。hasTrigger は「設定を確かめる」のときだけ使う。
  */
 import { collectSections, OVERDUE } from "./buckets.js";
-import { ConfigError, DEFAULT_ROWS, configKeyOf, parseConfig } from "./config.js";
+import { CHAT_URL_PREFIX, ConfigError, DEFAULT_ROWS, TARGETS, configKeyOf, mailListOf, parseConfig, targetNamesOf } from "./config.js";
 import { parseItems } from "./items.js";
 import { missingHeaders, missingSettingRows } from "./setup.js";
 
@@ -20,8 +20,8 @@ const TEMPLATE_KEYS = ["件名", "期限", "担当", "残日数"];
 /** 見本の Webhook URL に入っている印 */
 const SAMPLE_URL_MARK = "XXXXXXXXX/YYYYYYYYY";
 
-/** parseConfig が投げうる 4 項目。「設定を確かめる」はここを 1 つずつ確かめる */
-const STRICT_KEYS = ["通知先", "Webhook URL", "しきい値", "超過も通知する"];
+/** parseConfig が投げうる項目。「設定を確かめる」はここを 1 つずつ確かめる */
+const STRICT_KEYS = ["通知先", "Webhook URL", "メールの宛先", "Google Chat の Webhook URL", "しきい値", "超過も通知する"];
 
 function checkText_(value) {
   if (value === null || value === undefined) return "";
@@ -70,7 +70,7 @@ function failsAlone_(key, value) {
 }
 
 /**
- * 誤りがあっても読める設定。まず parseConfig をそのまま試し、投げたら投げうる 4 項目を外して読み直す
+ * 誤りがあっても読める設定。まず parseConfig をそのまま試し、投げたら投げうる項目を外して読み直す
  * （シート名・列名・完了の値・文面テンプレは投げないので、そのまま効く）。
  */
 function readableConfig_(rows) {
@@ -157,9 +157,30 @@ export function planInit(snapshot) {
 
   if (snapshot.timeZone !== "Asia/Tokyo") plan.notes.push(timeZoneNote_(snapshot.timeZone));
 
-  const url = checkText_(rawOf_(rawSettings_(rows), "Webhook URL"));
-  plan.nextStep = url === "" ? "次は「設定」シートの「Webhook URL」に、README の手順 2 で作る URL を貼り、「設定を確かめる」を実行してください。" : "次は「設定を確かめる」を実行してください。";
+  plan.nextStep = destinationsReady_(rawSettings_(rows))
+    ? "次は「設定を確かめる」を実行してください。"
+    : "次は README の手順 2 のとおりに、「設定」シートの「通知先」と送り先（「メールの宛先」か Webhook の URL）を書き、「設定を確かめる」を実行してください。";
   return plan;
+}
+
+/** 「通知先」に書いた名前のうち、知っているもの。空なら既定の slack */
+function chosenTargets_(raw) {
+  const names = targetNamesOf(rawOf_(raw, "通知先"));
+  if (names.length === 0) return ["slack"];
+  return names.filter((name) => TARGETS.indexOf(name) >= 0);
+}
+
+/** 通知先ごとの、送り先を書く設定の行 */
+const DESTINATION_KEYS = { slack: "Webhook URL", discord: "Webhook URL", gmail: "メールの宛先", googlechat: "Google Chat の Webhook URL" };
+
+/** 選んだ通知先の送り先（宛先・URL）が、どれも空でないか。形までは見ない（それは「設定を確かめる」） */
+function destinationsReady_(raw) {
+  const targets = chosenTargets_(raw);
+  if (targets.length === 0) return false;
+  for (let i = 0; i < targets.length; i += 1) {
+    if (checkText_(rawOf_(raw, DESTINATION_KEYS[targets[i]])) === "") return false;
+  }
+  return true;
 }
 
 /** 設定の行ごとの誤りを、最初の 1 つで止めずに全部集める（文は parseConfig と同じ語を使う） */
@@ -168,22 +189,62 @@ export function collectConfigProblems(rows) {
   const raw = rawSettings_(rows);
 
   const targetRaw = rawOf_(raw, "通知先");
-  const target = targetRaw === undefined || checkText_(targetRaw) === "" ? "slack" : checkText_(targetRaw).toLowerCase();
-  const targetOk = target === "slack" || target === "discord";
-  if (!targetOk) problems.push("「設定」シートの「通知先」は slack か discord にしてください（いまは「" + checkText_(targetRaw) + "」）。");
+  const named = targetNamesOf(targetRaw);
+  if (named.some((name) => TARGETS.indexOf(name) < 0)) {
+    problems.push("「設定」シートの「通知先」は " + TARGETS.join("・") + " から選んで、カンマで区切って書いてください（いまは「" + checkText_(targetRaw) + "」）。");
+  }
+  const targets = chosenTargets_(raw);
+  const slack = targets.indexOf("slack") >= 0;
+  const discord = targets.indexOf("discord") >= 0;
+  if (slack && discord) {
+    problems.push("「設定」シートの「通知先」に slack と discord は同時に書けません（「Webhook URL」の行が 1 つのため）。どちらか一方にしてください。");
+  }
 
+  // Webhook URL は slack か discord を選んだときだけ確かめる（通知先が読めないときも、これまでどおり確かめる）。
   // URL は人に見せない鍵なので、文には出さない
-  const url = checkText_(rawOf_(raw, "Webhook URL"));
-  if (url === "") {
-    problems.push("「設定」シートの「Webhook URL」が空です。README の手順 2 で作った URL を貼ってください。");
-  } else if (url.indexOf("https://") !== 0) {
-    problems.push("「設定」シートの「Webhook URL」は https:// で始まる URL です。前後に余分な字が入っていないかも確かめてください。");
-  } else if (url.indexOf(SAMPLE_URL_MARK) >= 0) {
-    problems.push("「設定」シートの「Webhook URL」が見本の URL のままです。README の手順 2 で作ったご自身の URL に貼り替えてください。");
-  } else if (targetOk && target === "slack" && /discord(app)?\.com\/api\/webhooks/.test(url)) {
-    problems.push("「通知先」が slack ですが、「Webhook URL」は Discord の URL です。「通知先」を discord にしてください。");
-  } else if (targetOk && target === "discord" && url.indexOf("hooks.slack.com") >= 0) {
-    problems.push("「通知先」が discord ですが、「Webhook URL」は Slack の URL です。「通知先」を slack にしてください。");
+  if (slack || discord || targets.length === 0) {
+    const url = checkText_(rawOf_(raw, "Webhook URL"));
+    if (url === "") {
+      problems.push("「設定」シートの「Webhook URL」が空です。README の手順 2 で作った URL を貼ってください。");
+    } else if (url.indexOf("https://") !== 0) {
+      problems.push("「設定」シートの「Webhook URL」は https:// で始まる URL です。前後に余分な字が入っていないかも確かめてください。");
+    } else if (url.indexOf(SAMPLE_URL_MARK) >= 0) {
+      problems.push("「設定」シートの「Webhook URL」が見本の URL のままです。README の手順 2 で作ったご自身の URL に貼り替えてください。");
+    } else if (url.indexOf(CHAT_URL_PREFIX) === 0) {
+      problems.push("「設定」シートの「Webhook URL」は Google Chat の URL です。Google Chat に送るときは、「通知先」を googlechat にし、URL は「Google Chat の Webhook URL」の行に貼ってください。");
+    } else if (slack && !discord && /discord(app)?\.com\/api\/webhooks/.test(url)) {
+      problems.push("「通知先」が slack ですが、「Webhook URL」は Discord の URL です。「通知先」を discord にしてください。");
+    } else if (discord && !slack && url.indexOf("hooks.slack.com") >= 0) {
+      problems.push("「通知先」が discord ですが、「Webhook URL」は Slack の URL です。「通知先」を slack にしてください。");
+    }
+  }
+
+  if (targets.indexOf("gmail") >= 0) {
+    const mailRaw = rawOf_(raw, "メールの宛先");
+    const list = mailListOf(mailRaw);
+    if (mailRaw === undefined) {
+      problems.push("「設定」シートに「メールの宛先」の行がありません。「初期化」を実行して行を足し、通知を受け取るメールアドレスを書いてください。");
+    } else if (list.invalid.length > 0) {
+      for (let i = 0; i < list.invalid.length; i += 1) {
+        problems.push("「設定」シートの「メールの宛先」の「" + list.invalid[i] + "」はメールアドレスの形ではありません。");
+      }
+    } else if (list.addresses.length === 0) {
+      problems.push("「設定」シートの「メールの宛先」が空です。通知を受け取るメールアドレスを書いてください（複数のときはカンマで区切ります）。");
+    }
+  }
+
+  if (targets.indexOf("googlechat") >= 0) {
+    const chatRaw = rawOf_(raw, "Google Chat の Webhook URL");
+    const chatUrl = checkText_(chatRaw);
+    if (chatRaw === undefined) {
+      problems.push("「設定」シートに「Google Chat の Webhook URL」の行がありません。「初期化」を実行して行を足し、URL を貼ってください。");
+    } else if (chatUrl === "") {
+      problems.push("「設定」シートの「Google Chat の Webhook URL」が空です。README の手順 2 の「Google Chat の場合」で作った URL を貼ってください。");
+    } else if (chatUrl.indexOf("https://") !== 0) {
+      problems.push("「設定」シートの「Google Chat の Webhook URL」は https:// で始まる URL です。前後に余分な字が入っていないかも確かめてください。");
+    } else if (chatUrl.indexOf(CHAT_URL_PREFIX) !== 0) {
+      problems.push("「設定」シートの「Google Chat の Webhook URL」は " + CHAT_URL_PREFIX + " で始まる URL です。Google Chat のスペースで作った Webhook の URL を貼ってください。");
+    }
   }
 
   const thresholds = rawOf_(raw, "しきい値");
@@ -258,11 +319,19 @@ export function checkNotes(snapshot) {
   const notes = [];
   const settings = snapshot.sheets[SETTINGS_TAB];
   if (settings === undefined) return notes;
-  const missing = missingRowsOf_(settings).filter((row) => row[0] !== "Webhook URL");
+  // 既定値が空の行（送り先）は、選んだ通知先で要るときに「直すところ」で出す
+  const missing = missingRowsOf_(settings).filter((row) => row[1] !== "");
   if (missing.length > 0) {
     notes.push(
       "「設定」シートに" + missing.map((row) => "「" + row[0] + "」").join("") + "の行がありません。既定値（" + missing.map((row) => row[1]).join(" と ") + "）で動きます。「初期化」を実行すると、既定値の行を足します。",
     );
+  }
+  const raw = rawSettings_(settings);
+  if (checkText_(rawOf_(raw, "メールの宛先")) !== "" && chosenTargets_(raw).indexOf("gmail") < 0) {
+    notes.push("「メールの宛先」が書いてありますが、「通知先」に gmail が無いため、メールは送りません。メールでも受け取るときは「通知先」に gmail を足してください（例: slack,gmail）。");
+  }
+  if (checkText_(rawOf_(raw, "Google Chat の Webhook URL")) !== "" && chosenTargets_(raw).indexOf("googlechat") < 0) {
+    notes.push("「Google Chat の Webhook URL」が書いてありますが、「通知先」に googlechat が無いため、Google Chat には送りません。Google Chat でも受け取るときは「通知先」に googlechat を足してください（例: gmail,googlechat）。");
   }
   const config = readableConfig_(settings);
   const values = snapshot.sheets[config.sheetName];
@@ -307,11 +376,16 @@ export function summaryLines(snapshot) {
       ? "今日の分: ありません（今日すでに送った分も数えています）"
       : "今日の分: " + sections.map((section) => dayLabel_(section.bucket) + " " + section.items.length + " 件").join("・") + "（今日すでに送った分も数えています）";
 
-  return [
-    "通知: " + config.target + " に、毎朝 8 時ごろ 1 通送ります（毎朝の実行: " + (snapshot.hasTrigger === true ? "作ってあります" : "まだ作っていません") + "）",
+  const lines = [
+    "通知: " + config.targets.join("・") + " に、毎朝 8 時ごろ 1 通" + (config.targets.length > 1 ? "ずつ" : "") + "送ります（毎朝の実行: " + (snapshot.hasTrigger === true ? "作ってあります" : "まだ作っていません") + "）",
+  ];
+  if (config.targets.indexOf("gmail") >= 0) {
+    lines.push("メールの宛先: " + config.mailTo.join("、") + "（件名は「【期限】月/日 の通知（件数）」です）");
+  }
+  return lines.concat([
     "知らせる日: " + days.join("・"),
     "読むシート: 「" + config.sheetName + "」の " + columns.join("・") + "。完了とみなす値: " + config.doneValues.join("・"),
     "いま知らせる対象の予定: " + parsed.items.length + " 件" + (done > 0 ? "（完了の " + done + " 件は除きます）" : ""),
     today,
-  ];
+  ]);
 }

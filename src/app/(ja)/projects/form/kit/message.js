@@ -95,6 +95,28 @@ export function failureLine(failure) {
   return "・" + label + ": 送れませんでした（" + String(failure.message).slice(0, 80) + "）。" + hint;
 }
 
+/**
+ * 通知先がすべて失敗したときに、「連絡先メール」（空なら「返信先」）へ送るメール。
+ * 届くはずだった通知の文をそのまま添えて、メールだけで受付の中身が分かるようにする
+ */
+export function buildUndeliveredMail(receipt, rowNumber, failures, text) {
+  return {
+    subject: "【フォーム受付】受付 " + receipt + " の通知を送れませんでした",
+    body: [
+      "受付 " + receipt + " の通知を、設定した通知先に送れませんでした。",
+      "受付シートの " + rowNumber + " 行目に記録してあります（「通知」の列に「未送信」と書きました）。",
+      "",
+      "送れなかった理由:",
+      failures.map(failureLine).join("\n"),
+      "",
+      "届くはずだった通知:",
+      text,
+      "",
+      "通知先の設定は、スプレッドシートのメニュー「フォーム受付」→「テスト送信」で確かめられます。",
+    ].join("\n"),
+  };
+}
+
 /** 失敗したときに、同じ通知先へ流す本文 */
 export function buildErrorText(error, stamp) {
   const detail = error && error.message ? error.message : String(error);

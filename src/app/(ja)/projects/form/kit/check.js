@@ -7,11 +7,12 @@
  * 無いシートは sheets に載せない。空のシート（1 行も無い）は []。
  * ウェブアプリの公開状態は読まない（このキットはトリガーも公開 URL も読まない決まり）。
  */
-import { ConfigError, DEFAULT_ROWS, configKeyOf, parseConfig } from "./config.js";
+import { ConfigError, DEFAULT_CONFIG, DEFAULT_ROWS, configKeyOf, limitOf, parseConfig } from "./config.js";
 import { toDateKey } from "./dates.js";
-import { RECEIPT_HEADER, SOURCE_HEADER, STAMP_HEADER, buildHeader, fieldNamesOf } from "./rows.js";
+import { NOTIFY_HEADER, RECEIPT_HEADER, SOURCE_HEADER, STAMP_HEADER, buildHeader, fieldNamesOf } from "./rows.js";
 import { CAPACITY_HEADER, DATE_HEADER, SLOT_HEADER, parseSlots } from "./slots.js";
 import { missingHeaders, missingSettingRows } from "./setup.js";
+import { EMAIL_PATTERN } from "./validate.js";
 
 /** 設定シートの名前（1.0 から固定） */
 export const SETTINGS_TAB = "設定";
@@ -22,8 +23,11 @@ const SAMPLE_URL_MARK = "XXXXXXXXX/YYYYYYYYY";
 /** parseConfig が投げうる項目。読める設定を作るときは、ここを外して読み直す */
 const STRICT_KEYS = ["通知先", "Slack Webhook URL", "Discord Webhook URL", "LINE チャネルアクセストークン", "LINE 送信先 ID", "自動返信"];
 
-/** このキットが使う見出し（フォームの入力欄の名前に使えない） */
+/** このキットが使う見出しのうち、消されたら足し直さないもの */
 const RESERVED_HEADERS = [STAMP_HEADER, RECEIPT_HEADER, SOURCE_HEADER];
+
+/** このキットが使う見出しのすべて（フォームの入力欄の名前に使えない）。「通知」は初期化で足す */
+const KIT_HEADERS = RESERVED_HEADERS.concat([NOTIFY_HEADER]);
 
 /** 枠シートの見出し */
 const SLOT_HEADERS = [DATE_HEADER, SLOT_HEADER, CAPACITY_HEADER];
@@ -134,8 +138,8 @@ export function planInit(snapshot) {
   if (intake === undefined || intake.length === 0) {
     plan.createSheets.push({ name: intakeName, rows: [buildHeader(config, [])], freeze: true, exists: intake !== undefined });
   } else {
-    // 足すのは「項目の並び」の名前だけ。消された 受付日時・受付番号・送信元 は足し直さない（rows.js と同じ決まり）
-    const missing = missingHeaders(intake[0], fieldNamesOf(config, []));
+    // 足すのは「項目の並び」の名前と「通知」だけ。消された 受付日時・受付番号・送信元 は足し直さない（rows.js と同じ決まり）
+    const missing = missingHeaders(intake[0], fieldNamesOf(config, []).concat([NOTIFY_HEADER]));
     if (missing.length > 0) plan.appendHeaders.push({ sheet: intakeName, names: missing });
     const lacking = missingHeaders(intake[0], RESERVED_HEADERS);
     for (let i = 0; i < lacking.length; i += 1) {
@@ -236,10 +240,24 @@ export function collectConfigProblems(rows) {
   if (config.honeypotField !== "" && config.requiredFields.indexOf(config.honeypotField) >= 0) {
     problems.push("「必須項目」に、迷惑投稿よけの見えない欄 " + config.honeypotField + " が入っています。この欄は人が入力しないので、すべての送信を受け付けなくなります。「必須項目」から外してください。");
   }
-  for (let i = 0; i < RESERVED_HEADERS.length; i += 1) {
-    if (config.fieldOrder.indexOf(RESERVED_HEADERS[i]) >= 0) {
-      problems.push("「項目の並び」に「" + RESERVED_HEADERS[i] + "」があります。受付日時・受付番号・送信元はこのキットが使う見出しなので、フォームの入力欄には別の名前を付けてください。");
+  for (let i = 0; i < KIT_HEADERS.length; i += 1) {
+    if (config.fieldOrder.indexOf(KIT_HEADERS[i]) >= 0) {
+      problems.push("「項目の並び」に「" + KIT_HEADERS[i] + "」があります。受付日時・受付番号・送信元・通知はこのキットが使う見出しなので、フォームの入力欄には別の名前を付けてください。");
     }
+  }
+  const limits = [
+    ["同じメールの上限（1 時間）", DEFAULT_CONFIG.mailLimitPerHour],
+    ["全体の上限（1 分）", DEFAULT_CONFIG.totalLimitPerMinute],
+  ];
+  for (let i = 0; i < limits.length; i += 1) {
+    const value = checkText_(rawOf_(raw, limits[i][0]));
+    if (value !== "" && limitOf(value, -1) < 0) {
+      problems.push("「設定」シートの「" + limits[i][0] + "」は 0 以上の整数で書いてください（いまは「" + value + "」）。いまは既定の " + limits[i][1] + " で動いています。0 にすると上限を設けません。");
+    }
+  }
+  const contact = checkText_(rawOf_(raw, "連絡先メール"));
+  if (contact !== "" && !EMAIL_PATTERN.test(contact)) {
+    problems.push("「設定」シートの「連絡先メール」の「" + contact + "」はメールアドレスの形ではありません（全角の＠や前後の空白にもご注意ください）。");
   }
   if (config.slotSheetName !== "" && (config.dateField === "") !== (config.slotField === "")) {
     problems.push("予約枠を使うときは「日付の項目名」と「時間帯の項目名」を両方書いてください（いまは「" + (config.dateField === "" ? "日付の項目名" : "時間帯の項目名") + "」が空です）。");
@@ -313,6 +331,7 @@ export function checkNotes(snapshot) {
 export function summaryLines(snapshot, extra) {
   const config = parseConfig(snapshot.sheets[SETTINGS_TAB]);
   const intake = snapshot.sheets[config.intakeSheetName];
+  const fallback = config.contactEmail !== "" ? config.contactEmail : config.replyTo;
   const lines = [
     "通知先: " + (config.targets.length === 0 ? "（通知しない）" : config.targets.join(", ")),
     "受付シート: 「" + config.intakeSheetName + "」" + (intake === undefined ? "（まだありません。1 件目の受付で作ります）" : "（いま " + dataRowCount_(intake) + " 件）"),
@@ -327,6 +346,12 @@ export function summaryLines(snapshot, extra) {
   lines.push("必須項目: " + (config.requiredFields.length === 0 ? "（なし）" : config.requiredFields.join(", ")));
   lines.push("項目の並び: " + (config.fieldOrder.length === 0 ? "（送られてきた順）" : config.fieldOrder.join(", ")));
   lines.push("自動返信: " + (config.autoReply ? "送る（宛先は「" + config.emailField + "」の値）。今日あと送れるメール: " + extra.quota + " 通" : "送らない"));
+  const perMail = config.mailLimitPerHour > 0 ? "同じメールアドレスは 1 時間に " + config.mailLimitPerHour + " 件まで" : "同じメールアドレスは上限なし";
+  const perAll = config.totalLimitPerMinute > 0 ? "全体では 1 分に " + config.totalLimitPerMinute + " 件まで" : "全体では上限なし";
+  lines.push("回数の上限: " + perMail + "・" + perAll + "（超えた分は受付シートに記録だけし、自動返信と通知は出しません）");
+  if (config.targets.length > 0) {
+    lines.push("通知がどこにも届かなかったとき: 受付シートの「通知」の列に「未送信」と書き" + (fallback === "" ? "ます（メールでも知るには「連絡先メール」を書いてください）" : "、" + fallback + " にメールでお知らせします"));
+  }
   lines.push("公開のしかた: README の手順 3。スクリプトを直したときは「新バージョン」で公開し直してください");
   return lines;
 }

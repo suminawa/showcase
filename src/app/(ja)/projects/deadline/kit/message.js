@@ -1,8 +1,8 @@
 // このファイルは「期限アラート GAS キット」の src/ からの写しです（中身は書き換えていません）。
 // 直すときはキットの側を直してから、scripts/sync-gas-kits.mjs を走らせてください。
 /**
- * 通知の本文と、Slack / Discord それぞれの送信データを作る。
- * 本文は装飾をほとんど使わない。Slack の mrkdwn でも Discord でも同じ見た目になる。
+ * 通知の本文と、Slack / Discord それぞれの送信データ、メールの件名を作る。
+ * 本文は装飾をほとんど使わない。Slack の mrkdwn でも Discord でもメールでも同じ見た目になる。
  */
 import { formatDisplay } from "./dates.js";
 
@@ -11,6 +11,9 @@ const SLACK_LIMIT = 39000;
 
 /** Discord の content は 2000 字まで。余裕を見てここで切る */
 const DISCORD_LIMIT = 1900;
+
+/** Google Chat の text は 4,096 字まで。余裕を見てここで切る */
+const CHAT_LIMIT = 4000;
 
 /** 担当の列が空のときに出す文字 */
 const NO_ASSIGNEE = "担当なし";
@@ -30,6 +33,14 @@ function truncate_(text, limit) {
 /** Slack の text では & < > が制御の字（<!channel> や <@U…> の呼び出し・リンク）なので、字のまま送る */
 function escapeSlack_(text) {
   return String(text).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+}
+
+/**
+ * Google Chat の text では <users/all>（全員への呼び出し）や <https://…|字>（リンク）が働く。
+ * 文字参照は字のまま出てしまうので、< > を全角の ＜ ＞ に置き換えて、働かないようにする
+ */
+function quietChat_(text) {
+  return String(text).replace(/</g, "＜").replace(/>/g, "＞");
 }
 
 /** 1 行分の文面。{件名} {期限} {担当} {残日数} を置き換える */
@@ -93,24 +104,82 @@ export function buildMessage(sections, options) {
   return notice === "" ? text : text + "\n\n" + notice;
 }
 
+/** 節に並んだ行の数 */
+function itemCount_(sections) {
+  let count = 0;
+  const rows = Array.isArray(sections) ? sections : [];
+  for (let i = 0; i < rows.length; i += 1) count += rows[i].items.length;
+  return count;
+}
+
+/**
+ * メール（gmail）の件名。短く、日付と件数だけ。例: 【期限】9/13 の通知（3 件）
+ * 知らせる行が無く、読めない行だけの日は「確認が必要な行 N 件」
+ */
+export function buildMailSubject(todayKey, sections, skipped) {
+  const parts = String(todayKey).split("-");
+  const day = Number(parts[1]) + "/" + Number(parts[2]);
+  const count = itemCount_(sections);
+  if (count > 0) return "【期限】" + day + " の通知（" + count + " 件）";
+  const rest = Array.isArray(skipped) ? skipped.length : 0;
+  return "【期限】" + day + " の通知（確認が必要な行 " + rest + " 件）";
+}
+
+/** エラーの 1 通の件名（メール） */
+export function buildErrorSubject(todayKey) {
+  return "【期限アラート｜エラー】" + formatDisplay(todayKey);
+}
+
+const TARGET_LABELS = { slack: "Slack", discord: "Discord", gmail: "Gmail", googlechat: "Google Chat" };
+
+/** 通知先の、人に見せる名前 */
+export function targetLabel(target) {
+  return Object.prototype.hasOwnProperty.call(TARGET_LABELS, target) ? TARGET_LABELS[target] : String(target);
+}
+
+/**
+ * 送れなかった通知先ごとの 1 行。返ってきた番号から、設定シートのどこを直すかを添える。
+ * failure = { target, message }（message は gas_notify.js の「Webhook が 404 を返しました: …」など）
+ */
+export function failureLine(failure) {
+  const message = String(failure.message);
+  const matched = message.match(/(\d{3}) を返しました/);
+  const status = matched ? Number(matched[1]) : 0;
+  let hint = "設定シートの値と、実行ログの文をご確認ください。";
+  if (failure.target === "gmail") {
+    hint = /上限|too many/i.test(message)
+      ? "今日送れるメールの数の上限に達しています。明日には戻ります。"
+      : "「メールの宛先」のアドレスをご確認ください。";
+  } else if ([400, 401, 403, 404, 410].indexOf(status) >= 0) {
+    hint = (failure.target === "googlechat" ? "「Google Chat の Webhook URL」" : "「Webhook URL」") + "が違うか、Webhook が消されています。URL を作り直して貼ってください。";
+  }
+  return "・" + targetLabel(failure.target) + ": 送れませんでした（" + message.slice(0, 80) + "）。" + hint;
+}
+
+/** 一部（または全部）の通知先に送れなかったときの文。エラーの 1 通の本文に入る */
+export function sendFailureText(failures) {
+  return "送れなかった通知先があります。\n" + failures.map(failureLine).join("\n");
+}
+
 /** 失敗したときに、同じ通知先へ流す本文 */
 export function buildErrorMessage(error, todayKey) {
   const detail = error && error.message ? error.message : String(error);
   return (
     "【期限アラート｜エラー】" +
     formatDisplay(todayKey) +
-    "\n通知を作れませんでした: " +
+    "\n通知の途中で止まりました: " +
     detail +
     "\nスプレッドシートの「設定」シートと期限のシートを確認してください。"
   );
 }
 
 /**
- * Slack は text、Discord は content。
+ * Slack と Google Chat は text、Discord は content。
  * 件名や担当はシートに書かれた字がそのまま入るので、@everyone や呼び出しとして働かせない:
- * Slack は & < > を文字参照にし、Discord は allowed_mentions を空にする
+ * Slack は & < > を文字参照にし、Discord は allowed_mentions を空にし、Google Chat は < > を全角にする
  */
 export function buildPayload(text, target) {
   if (target === "discord") return { content: truncate_(text, DISCORD_LIMIT), allowed_mentions: { parse: [] } };
+  if (target === "googlechat") return { text: truncate_(quietChat_(text), CHAT_LIMIT) };
   return { text: truncate_(escapeSlack_(text), SLACK_LIMIT) };
 }
