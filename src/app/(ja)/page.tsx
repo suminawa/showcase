@@ -7,7 +7,7 @@ import { TopPage } from "./top/TopPage";
 export const dynamic = "force-dynamic";
 
 export const metadata = pageMetadata("ja", "/", {
-  title: `スプレッドシートで動く、買い切りの事務の道具 | ${SITE_NAME}`,
+  title: `業務自動化・AI活用・Web制作のキットと受託 | ${SITE_NAME}`,
   description: SITE_DESCRIPTION,
   absoluteTitle: true,
 });

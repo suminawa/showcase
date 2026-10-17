@@ -1,6 +1,6 @@
 /*
  * どのページにも置くフッター（根の文書 RootDocument に 1 か所。見本サイトにも出す）。
- * 墨の面に、名乗りの一行・宛先・キット・ご相談・このサイト・ほかの場所、言語の切り替え。
+ * 墨の面に、名乗りの一行（三つの柱）・宛先・キット（三つの棚）・ご相談・このサイト・ほかの場所、言語の切り替え。
  * 運営者・悩みから読むは日本語の紙だけなので、英仏の紙からは hrefLang="ja" で渡す。
  */
 import Link from "next/link";
@@ -17,7 +17,7 @@ type Column = { head: string; items: Item[] };
 
 const T: Record<Lang, { line: string; reply: string; label: string; elsewhere: string; columns: Column[]; langs: string }> = {
   ja: {
-    line: "Google スプレッドシートで動く、買い切りの事務の道具。",
+    line: "業務自動化・AI活用・Web制作。買い切りのキットと、設置・制作のご依頼をお受けします。",
     reply: "3 営業日以内に返信します。",
     label: "フッターの案内",
     elsewhere: "ほかの場所",
@@ -26,9 +26,9 @@ const T: Record<Lang, { line: string; reply: string; label: string; elsewhere: s
       {
         head: "キット",
         items: [
-          { href: "/projects/deadline", label: "期限アラート" },
-          { href: "/projects/form", label: "フォーム受付" },
-          { href: "/projects/booking", label: "予約ページ" },
+          { href: "/kits#automation", label: "業務自動化" },
+          { href: "/kits#ai", label: "AI活用" },
+          { href: "/kits#web", label: "Web制作・Webアプリ制作" },
           { href: "/kits", label: "キットの一覧" },
         ],
       },
@@ -51,7 +51,7 @@ const T: Record<Lang, { line: string; reply: string; label: string; elsewhere: s
     ],
   },
   en: {
-    line: "One-time-purchase office tools that run in Google Sheets.",
+    line: "Business automation, AI tools and web production: one-time-purchase kits, plus setup and custom work.",
     reply: "Replies within 3 business days.",
     label: "Footer",
     elsewhere: "Elsewhere",
@@ -60,9 +60,9 @@ const T: Record<Lang, { line: string; reply: string; label: string; elsewhere: s
       {
         head: "Kits",
         items: [
-          { href: "/projects/deadline", label: "Deadline Alert" },
-          { href: "/projects/form", label: "Form Intake" },
-          { href: "/projects/booking", label: "Booking Page" },
+          { href: "/kits#automation", label: "Business automation" },
+          { href: "/kits#ai", label: "AI tools" },
+          { href: "/kits#web", label: "Web production and web apps" },
           { href: "/kits", label: "All kits" },
         ],
       },
@@ -79,7 +79,7 @@ const T: Record<Lang, { line: string; reply: string; label: string; elsewhere: s
     ],
   },
   fr: {
-    line: "Des outils de bureau en achat unique, qui fonctionnent dans Google Sheets.",
+    line: "Automatisation, outils IA et création web : des kits en achat unique, ainsi que l’installation et le sur-mesure.",
     reply: "Réponse sous 3 jours ouvrés.",
     label: "Pied de page",
     elsewhere: "Ailleurs",
@@ -88,9 +88,9 @@ const T: Record<Lang, { line: string; reply: string; label: string; elsewhere: s
       {
         head: "Kits",
         items: [
-          { href: "/projects/deadline", label: "Alertes d’échéances" },
-          { href: "/projects/form", label: "Réception de formulaires" },
-          { href: "/projects/booking", label: "Page de réservation" },
+          { href: "/kits#automation", label: "Automatisation" },
+          { href: "/kits#ai", label: "Outils IA" },
+          { href: "/kits#web", label: "Création web et applications web" },
           { href: "/kits", label: "Tous les kits" },
         ],
       },
