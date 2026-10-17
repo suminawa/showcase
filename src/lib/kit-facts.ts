@@ -17,7 +17,7 @@ export const KIT_FACTS: Record<FlagshipSlug, Record<Lang, KitFact[]>> = {
     ja: [
       { label: "月額", value: "0 円（買い切り）" },
       { label: "使い始めるまで", value: "15〜20 分ほど" },
-      { label: "知らせる先", value: "Slack か Discord" },
+      { label: "知らせる先", value: "Slack・Discord・メール・Google Chat" },
       { label: "無料版", value: "あり（3 日前と当日だけを知らせる版）" },
     ],
     en: [
