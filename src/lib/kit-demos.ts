@@ -120,7 +120,7 @@ const BASES: Record<KitDemoSlug, KitDemoBase> = {
       },
     ],
     fits: [
-      { who: "期限を過ぎたもの・今日のもの・N 日前のものを、毎朝 1 通にまとめて Slack か Discord で受け取りたい方" },
+      { who: "期限を過ぎたもの・今日のもの・N 日前のものを、毎朝 1 通にまとめて Slack・Discord・メール・Google Chat のうち選んだ先で受け取りたい方" },
       { who: "完了にした行は知らせず、同じ日に二度は届かないようにしたい方" },
       {
         who: "月額をかけずに、コードごと手元に置きたい方。Check Sheet Notifications は 2 本目のチェックから月額です",

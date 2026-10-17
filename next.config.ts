@@ -27,6 +27,11 @@ const nextConfig: NextConfig = {
       { source: "/projects", destination: "/kits", permanent: false },
       // 見本サイトの一覧は /sites にある。/demos だけを開いた人（LP パックの説明文の URL）を一覧へ送る
       { source: "/demos", destination: "/sites", permanent: false },
+      // Shorts の画面と声で伝える短い道（押せないので打ち込む。着いた数は ?ref=yts で数える。2026-10-17 監査）
+      { source: "/yoyaku", destination: "/projects/booking?ref=yts", permanent: false },
+      { source: "/kigen", destination: "/projects/deadline?ref=yts", permanent: false },
+      { source: "/uketsuke", destination: "/projects/form?ref=yts", permanent: false },
+      { source: "/madoguchi", destination: "/projects/ai-concierge?ref=yts", permanent: false },
     ];
   },
 };

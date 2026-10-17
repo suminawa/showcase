@@ -47,11 +47,13 @@ export const SAMPLE_ROWS: DeadlineRow[] = [
 /** 形だけの Webhook URL（実在しない）。見本の設定はキットの settings-sample.csv と同じ値 */
 const DEMO_WEBHOOK = "https://hooks.slack.com/services/T00000000/B00000000/demo0000000000000000";
 
-/** 設定シート（正しく書いたもの）。キットの見本と同じ 11 行 */
+/** 設定シート（正しく書いたもの）。キットの見本と同じ 13 行（1.2.0 でメールの宛先と Google Chat の行が増えた） */
 export const SETTINGS_OK: string[][] = [
   ["項目", "値"],
   ["通知先", "slack"],
   ["Webhook URL", DEMO_WEBHOOK],
+  ["メールの宛先", ""],
+  ["Google Chat の Webhook URL", ""],
   ["しきい値", "3,0"],
   ["超過も通知する", "TRUE"],
   ["文面テンプレ", "・{件名}（{期限}・{担当}）"],

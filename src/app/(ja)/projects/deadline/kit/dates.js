@@ -20,6 +20,22 @@ function utcMillisOf_(dateKey) {
 }
 
 /**
+ * 字で書いた日付をそろえる。全角の数字と区切り（２０２６／９／２０）を半角にし、
+ * 後ろに付いた時刻（2026/09/20 10:00）は落とす。どちらも、見た目は日付なのに読めないと言われやすい形
+ */
+function normalizeDateText_(value) {
+  return String(value)
+    .replace(/[０-９]/g, function (ch) {
+      return String.fromCharCode(ch.charCodeAt(0) - 0xfee0);
+    })
+    .replace(/[／]/g, "/")
+    .replace(/[－ー]/g, "-")
+    .replace(/[．]/g, ".")
+    .trim()
+    .replace(/[\s　]+\d{1,2}:\d{2}(:\d{2})?$/, "");
+}
+
+/**
  * セルの値（Date・文字列・空）を "YYYY-MM-DD" にする。読めなければ null。
  * 日付セルは Date で来るので、+9 時間ずらしてから年月日を取り出す。
  */
@@ -33,7 +49,7 @@ export function toDateKey(value, offsetMinutes) {
       shifted.getUTCFullYear() + "-" + pad2_(shifted.getUTCMonth() + 1) + "-" + pad2_(shifted.getUTCDate())
     );
   }
-  const matched = String(value).trim().match(/^(\d{4})[-/年.](\d{1,2})[-/月.](\d{1,2})日?$/);
+  const matched = normalizeDateText_(value).match(/^(\d{4})[-/年.](\d{1,2})[-/月.](\d{1,2})日?$/);
   if (!matched) return null;
   const year = Number(matched[1]);
   const month = Number(matched[2]);

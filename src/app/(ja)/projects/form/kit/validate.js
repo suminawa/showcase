@@ -12,7 +12,7 @@ export const MAX_FIELD_LENGTH = 2000;
 /** 1 回の送信で受け取る項目の数 */
 export const MAX_FIELD_COUNT = 30;
 
-const EMAIL_PATTERN = /^[^\s@,]+@[^\s@,]+\.[^\s@,]+$/;
+export const EMAIL_PATTERN = /^[^\s@,]+@[^\s@,]+\.[^\s@,]+$/;
 
 function fieldText_(fields, name) {
   const value = fields[name];
@@ -91,4 +91,18 @@ export function stripInternal(parsed, config) {
     fields[name] = fieldText_(incoming, name);
   }
   return { fields: fields, order: order, source: source };
+}
+
+/**
+ * 回数の上限の判定。stamps は、これまでに受けた時刻（ミリ秒）の並び（新しいものが後ろ）。
+ * 直近 windowMs の中に limit 件あれば上限。limit が 0 なら上限なし（覚えもしない）。
+ * 上限を超えた分の時刻も覚えるので、送り続ける相手はずっと上限のまま。覚えるのは新しい方から limit 件まで。
+ * 返り値: { limited, stamps: 次に覚えておく並び }
+ */
+export function rateCheck(stamps, nowMs, windowMs, limit) {
+  if (!(limit > 0)) return { limited: false, stamps: [] };
+  const recent = (Array.isArray(stamps) ? stamps : []).filter(function (at) {
+    return typeof at === "number" && at <= nowMs && nowMs - at < windowMs;
+  });
+  return { limited: recent.length >= limit, stamps: recent.concat([nowMs]).slice(-limit) };
 }

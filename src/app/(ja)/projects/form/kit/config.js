@@ -29,12 +29,15 @@ export const CONFIG_KEYS = [
   "自動返信の本文",
   "差出人名",
   "返信先",
+  "連絡先メール",
   "受付シート名",
   "枠シート名",
   "日付の項目名",
   "時間帯の項目名",
   "ハニーポットの項目名",
   "送信元の項目名",
+  "同じメールの上限（1 時間）",
+  "全体の上限（1 分）",
 ];
 
 /** 自動返信の本文の見本。{受付番号} と {項目一覧} が使える */
@@ -64,17 +67,22 @@ export const DEFAULT_CONFIG = {
   replyBody: DEFAULT_REPLY_BODY,
   senderName: "",
   replyTo: "",
+  contactEmail: "",
   intakeSheetName: "受付",
   slotSheetName: "枠",
   dateField: "date",
   slotField: "slot",
   honeypotField: "homepage",
   pageField: "page",
+  /** 同じメールアドレスから 1 時間に何件まで、自動返信と通知を出すか（0 は上限なし） */
+  mailLimitPerHour: 3,
+  /** 全体で 1 分に何件まで、自動返信と通知を出すか（0 は上限なし） */
+  totalLimitPerMinute: 10,
 };
 
 /**
  * 初期化で足す設定の行（CONFIG_KEYS の順に [項目, 値]）。行が無いときと同じ働きになる既定値を書く。
- * 空で書くと働きを止める 8 つがあるので、空にするのは URL・トークン・差出人名・返信先だけ。
+ * 空で書くと働きを止める 8 つがあるので、空にするのは URL・トークン・差出人名・返信先・連絡先メールだけ。
  * samples/settings-sample.csv とは Slack Webhook URL 以外が同じ（docs テストが見る）。
  */
 export const DEFAULT_ROWS = [
@@ -92,12 +100,15 @@ export const DEFAULT_ROWS = [
   ["自動返信の本文", DEFAULT_REPLY_BODY],
   ["差出人名", ""],
   ["返信先", ""],
+  ["連絡先メール", ""],
   ["受付シート名", "受付"],
   ["枠シート名", "枠"],
   ["日付の項目名", "date"],
   ["時間帯の項目名", "slot"],
   ["ハニーポットの項目名", "homepage"],
   ["送信元の項目名", "page"],
+  ["同じメールの上限（1 時間）", "3"],
+  ["全体の上限（1 分）", "10"],
 ];
 
 const TARGETS = ["slack", "discord", "line"];
@@ -135,6 +146,20 @@ function parseBoolean_(value, fallback, label) {
   if (["true", "yes", "1", "はい", "する", "○"].indexOf(text) >= 0) return true;
   if (["false", "no", "0", "いいえ", "しない", "×"].indexOf(text) >= 0) return false;
   throw new ConfigError("「" + label + "」は TRUE か FALSE で書いてください: " + String(value));
+}
+
+/**
+ * 回数の上限（0 以上の整数。全角の数字も読む）。空・読めない値は既定値のまま動かす。
+ * 書き間違いで受付ごと止めないため、ここでは投げない（「設定を確かめる」が知らせる）
+ */
+export function limitOf(value, fallback) {
+  if (value === undefined || value === null) return fallback;
+  const text = String(value)
+    .replace(/[０-９]/g, function (ch) {
+      return String.fromCharCode(ch.charCodeAt(0) - 0xfee0);
+    })
+    .trim();
+  return /^\d+$/.test(text) ? Number(text) : fallback;
 }
 
 /** 通知先に書いた宛先の設定が空なら、どの行を直せばよいかを言って止める */
@@ -240,11 +265,15 @@ export function parseConfig(rows) {
     replyBody: textOf("自動返信の本文", DEFAULT_CONFIG.replyBody),
     senderName: textOf("差出人名", ""),
     replyTo: textOf("返信先", ""),
+    // 形が崩れていても受付は止めない（送るときに失敗するだけ）。「設定を確かめる」が知らせる
+    contactEmail: textOf("連絡先メール", ""),
     intakeSheetName: textOf("受付シート名", DEFAULT_CONFIG.intakeSheetName),
     slotSheetName: textOrOff("枠シート名", DEFAULT_CONFIG.slotSheetName),
     dateField: textOrOff("日付の項目名", DEFAULT_CONFIG.dateField),
     slotField: textOrOff("時間帯の項目名", DEFAULT_CONFIG.slotField),
     honeypotField: textOrOff("ハニーポットの項目名", DEFAULT_CONFIG.honeypotField),
     pageField: textOrOff("送信元の項目名", DEFAULT_CONFIG.pageField),
+    mailLimitPerHour: limitOf(rawOf("同じメールの上限（1 時間）"), DEFAULT_CONFIG.mailLimitPerHour),
+    totalLimitPerMinute: limitOf(rawOf("全体の上限（1 分）"), DEFAULT_CONFIG.totalLimitPerMinute),
   };
 }

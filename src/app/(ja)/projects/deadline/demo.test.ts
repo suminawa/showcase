@@ -61,7 +61,7 @@ describe("期限アラートの写し（キットの見本どおりに動く）"
 
   it("見本の設定はキットの settings-sample.csv と同じ働き（URL だけ形の違う架空の値）", () => {
     const config = parseConfig(SETTINGS_OK);
-    expect(config.target).toBe("slack");
+    expect(config.targets).toEqual(["slack"]);
     expect(config.thresholds).toEqual([0, 3]);
     expect(config.notifyOverdue).toBe(true);
     expect(config.doneValues).toEqual(["完了"]);
@@ -105,7 +105,7 @@ describe("期限アラートの見本", () => {
   it("書き間違えた設定では、直すところを全部並べる", () => {
     const text = checkSettings(SETTINGS_BROKEN, SAMPLE_ROWS, SAMPLE_TODAY);
     expect(text.startsWith("直すところがあります。")).toBe(true);
-    expect(text).toContain("「通知先」は slack か discord にしてください（いまは「slak」）");
+    expect(text).toContain("「通知先」は slack・discord・gmail・googlechat から選んで、カンマで区切って書いてください（いまは「slak」）");
     expect(text).toContain("見本の URL のまま");
     expect(text).toContain("「しきい値」は、0 以上の整数をカンマで区切って");
     expect(text).toContain("{期日} は置き換わりません");

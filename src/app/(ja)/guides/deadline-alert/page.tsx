@@ -79,7 +79,7 @@ export default function DeadlineAlertGuide() {
         <section className={g.section}>
           <h2 className={g.heading}>毎朝 1 通で知らせると、何が変わりますか</h2>
           <p className={g.text}>
-            スプレッドシートに書いた期限を、毎朝 8 時に Slack か Discord へ 1
+            スプレッドシートに書いた期限を、毎朝 8 時に Slack・Discord・メール・Google Chat のうち選んだ先へ 1
             通でお知らせします。1
             通の中は、期限を過ぎたもの・今日が期限のもの・3
             日後が期限のものの順に並び、いちばん危ないものが先頭に来ます。「状態」が「完了」の行は知らせません。同じ日に

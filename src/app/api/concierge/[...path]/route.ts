@@ -5,6 +5,7 @@
  * API キーは Vercel の環境変数 ANTHROPIC_API_KEY だけから読む。鍵が無いあいだは「いまはお答えできません」を返す。
  */
 import { createConcierge, loadConfigFile, loadIndex, resolveConfig, type Concierge } from "@suminawa/ai-concierge";
+import { relayClient } from "@/lib/relay-client";
 
 export const runtime = "nodejs";
 export const maxDuration = 60;
@@ -23,7 +24,8 @@ function concierge(): Promise<Concierge> {
       };
       const config = resolveConfig({ file: await loadConfigFile("concierge/concierge.config.json"), env });
       const index = await loadIndex(config.indexPath);
-      return createConcierge(config, { index });
+      // 答えは、中継（syn-or の claude -p。RELAY_URL と Access のトークンがあるとき）か、無ければ ANTHROPIC_API_KEY
+      return createConcierge(config, { index, client: relayClient() ?? undefined });
     })().catch((error: unknown) => {
       // 読み込みに失敗した約束を持ち続けない（次のリクエストでやり直す。/api/reader と同じ）
       ready = null;

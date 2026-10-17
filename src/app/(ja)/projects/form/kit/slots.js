@@ -4,7 +4,7 @@
  * 予約枠。「枠」シート（日付・時間帯・定員）と、受付シートに入っている同じ日付・時間帯の行数を
  * 突き合わせて、満席かどうかを決める。枠シートに無い日付・時間帯は「枠なし」として受け付けない。
  */
-import { toDateKey } from "./dates.js";
+import { timeText, toDateKey } from "./dates.js";
 
 export const DATE_HEADER = "日付";
 export const SLOT_HEADER = "時間帯";
@@ -18,7 +18,8 @@ export const HALF_MESSAGE = "日付と時間帯の両方をお選びください
 
 function slotText_(value) {
   if (value === null || value === undefined) return "";
-  return String(value).trim();
+  const time = timeText(value);
+  return time === null ? String(value).trim() : time;
 }
 
 /** 全角数字（０〜９）を半角に直す。IME の全角入力を許すため */
@@ -28,9 +29,14 @@ function toHalfWidthDigits_(text) {
   });
 }
 
-/** 時間帯の突き合わせ用。空白（全角も）を落として比べる */
+/**
+ * 時間帯の突き合わせ用。空白（全角も）を落として比べる。
+ * 時刻のセル（Date）、全角の「１０：００」、「09:00」と「9:00」、秒つきの「10:00:00」も同じ字にそろえる
+ */
 export function normalizeSlot(value) {
-  return String(value === null || value === undefined ? "" : value).replace(/\s+/g, "");
+  const text = toHalfWidthDigits_(slotText_(value)).replace(/：/g, ":").replace(/\s+/g, "");
+  const matched = text.match(/^(\d{1,2}):(\d{2})(?::00)?$/);
+  return matched ? Number(matched[1]) + ":" + matched[2] : text;
 }
 
 export function slotKeyOf(dateKey, slot) {

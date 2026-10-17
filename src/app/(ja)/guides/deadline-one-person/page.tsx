@@ -75,7 +75,7 @@ export default function DeadlineOnePersonGuide() {
         <section className={g.section}>
           <h2 className={g.heading}>毎朝 1 通で知らせると、どう変わりますか</h2>
           <p className={g.text}>
-            スプレッドシートに書いた期限を、毎朝 1 回、Slack か Discord へ 1
+            スプレッドシートに書いた期限を、毎朝 1 回、Slack・Discord・メール・Google Chat のうち選んだ先へ 1
             通でお知らせします。期限を過ぎたもの・今日が期限のもの・3
             日後が期限のものの順に並びます。上司も同じチャンネルにいれば同じ通知が届くので、見落としの責任が
             1
@@ -140,8 +140,7 @@ export default function DeadlineOnePersonGuide() {
             毎朝 1 通の通知を組んだものを「期限アラート GAS
             キット」として販売しています（定価 ¥2,980
             の買い切り。月額の費用なし）。今のスプレッドシートに Apps Script 1
-            ファイルを貼って使います。Slack か Discord の Webhook
-            の作成と設定シートの記入はご自身で行います。メールや LINE
+            ファイルを貼って使います。通知先（Slack・Discord・メール・Google Chat）の設定と設定シートの記入はご自身で行います。LINE
             への通知は含みません。 ──{" "}
             <a
               href={goHref("s2", "booth", "/guides/deadline-one-person")}

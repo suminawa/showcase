@@ -4,22 +4,35 @@
  * 受付シートの見出しと 1 行を組み立てる。
  * 見出しは名前で探すので、買い手が列を並べ替えていても正しい場所に書く。
  * 見出しに無い項目は末尾に足す。消された見出し（受付日時・受付番号・送信元）は足し直さない。
+ * 「通知」の列は、通知が届かなかった行に印を書くためのもの（ふだんは空）。
  * シートに書く字は buildRow で safeCell_ を通す。買い手が送りつけられた数式を動かさないため。
  */
 
 export const STAMP_HEADER = "受付日時";
 export const RECEIPT_HEADER = "受付番号";
 export const SOURCE_HEADER = "送信元";
+export const NOTIFY_HEADER = "通知";
+
+/** 「通知」の列に書く字。通知先がすべて失敗したとき */
+export const NOTIFY_FAILED = "未送信";
+
+/** 「通知」の列に書く字。回数の上限を超えたため、自動返信と通知を出さなかったとき */
+export const NOTIFY_LIMITED = "上限のため未送信";
 
 function cellText_(value) {
   if (value === null || value === undefined) return "";
   return String(value).trim();
 }
 
-/** Sheets が数式として解釈する先頭文字を無力化する（見た目は変わらない） */
+/**
+ * Sheets が数式として解釈する先頭文字を無力化する（見た目は変わらない）。
+ * 先頭が 0 の数字だけ（電話 09012345678・郵便番号 0600001）と 16 桁以上の数字だけも ' を付けて字のまま置く。
+ * 付けないと数として読まれ、先頭の 0 や 16 桁目から先が消える
+ */
 function safeCell_(value) {
   const text = value === undefined || value === null ? "" : String(value);
-  return /^[=+\-@\t\r]/.test(text) ? "'" + text : text;
+  const numberLike = /^0\d+$/.test(text) || /^\d{16,}$/.test(text);
+  return /^[=+\-@\t\r]/.test(text) || numberLike ? "'" + text : text;
 }
 
 /** 列に並べる項目名。「項目の並び」があればその順、無ければ送られてきた順 */
@@ -39,12 +52,13 @@ export function fieldNamesOf(config, order) {
 
 /** シートが空のときの 1 行目。ここでは元の字のまま返し、シートに書く形にするのは buildRow */
 export function buildHeader(config, order) {
-  return [STAMP_HEADER, RECEIPT_HEADER].concat(fieldNamesOf(config, order)).concat([SOURCE_HEADER]);
+  return [STAMP_HEADER, RECEIPT_HEADER].concat(fieldNamesOf(config, order)).concat([SOURCE_HEADER, NOTIFY_HEADER]);
 }
 
 /**
  * 既にある見出しに合わせて 1 行を作る。
- * entry = { stamp, receipt, fields, order, source }（fields と order は stripInternal を通したもの）
+ * entry = { stamp, receipt, fields, order, source, notify }（fields と order は stripInternal を通したもの。
+ * notify は「通知」の列に書く字で、ふだんは空。字があるのに「通知」の列が無ければ、末尾に足す）
  * 返り値 { header, row, added }。header は足した見出しまで入った最終形で、そのままシートに書ける。
  * 送信から来る字（項目名・値・送信元）は safeCell_ を通す。受付日時と受付番号はこのキットが作る字なのでそのまま。
  * added は突き合わせに使う元の字のまま返す。
@@ -63,6 +77,10 @@ export function buildRow(header, entry) {
     names.push(name);
     added.push(name);
   }
+  if (entry.notify && names.indexOf(NOTIFY_HEADER) < 0) {
+    names.push(NOTIFY_HEADER);
+    added.push(NOTIFY_HEADER);
+  }
 
   const row = [];
   const written = [];
@@ -75,6 +93,8 @@ export function buildRow(header, entry) {
       row.push(entry.receipt);
     } else if (name === SOURCE_HEADER) {
       row.push(safeCell_(entry.source));
+    } else if (name === NOTIFY_HEADER) {
+      row.push(entry.notify === undefined ? "" : entry.notify);
     } else {
       row.push(safeCell_(entry.fields[name]));
     }
