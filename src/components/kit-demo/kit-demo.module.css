@@ -1,24 +1,18 @@
 /* ==========================================================================
-   GAS キットの見本 ── 料紙の上の帳面（Operate）
+   キットの見本の中身（期限アラート・フォーム受付・問い合わせ整理）と、問い合わせのフォーム
    --------------------------------------------------------------------------
-   見積もりシミュレーター・AI 書類読み取りと同じ帳面の法を引き継ぐ。
-
-     ・字は「大」と「小」の二段。この面の字はすべて「小」（題だけが「大」）
-     ・箱を持たない。枠・角丸・影・背景色の切り替え・チップを置かない。
-       構造は縦の余白（--rp-pitch の倍数）と、墨の濃淡と、墨の一本の罫だけ
-     ・朱は「選ばれていること」の印にだけ使う（設定の切り替え・メールの選択）。
-       警告にも強調にも使わない ── 直すところの文も、墨の濃さだけで語る
-
-   キットが作ったもの（通知の 1 通・メール・シートの行）は「届いたもの」として
-   置く。紙の上に写した一通で、アプリの画面の真似（吹き出し・アイコン）はしない。
-   色は --rp-*（projects.module.css の .paper が持つ）だけを使う。
+   方眼の文法（DESIGN.md）で組む。
+     ・表はスプレッドシートのまま: 白いセル・マス目の線・見出しの帯・行番号
+     ・キットが作ったもの（通知・メール）は「届いたもの」として墨の面に写す
+     ・押す先は墨（主）と白（従）。朱は選んでいる設定と、選んでいるセルの枠にだけ使う
+   色は --m-*（globals.css）だけを使う。クラスの名は前の版と同じ（各見本の TSX はそのまま）。
    ========================================================================== */
 
 /* ---- 置き場 ------------------------------------------------------------- */
 
 .layout {
   display: grid;
-  gap: calc(2 * var(--rp-pitch));
+  gap: 32px;
   align-items: start;
   min-width: 0;
 }
@@ -26,35 +20,35 @@
 @media (min-width: 1024px) {
   .layout {
     grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-    gap: calc(1.5 * var(--rp-pitch)) clamp(40px, 5vw, 88px);
+    gap: 32px 40px;
   }
   .sticky {
     position: sticky;
-    top: calc(1 * var(--rp-pitch));
+    top: 16px;
   }
 }
 
 .col {
   display: grid;
-  gap: calc(1 * var(--rp-pitch));
+  gap: 20px;
   min-width: 0;
 }
 
 .section {
   display: grid;
-  gap: calc(0.5 * var(--rp-pitch));
+  gap: 10px;
   min-width: 0;
-  scroll-margin-top: calc(1 * var(--rp-pitch));
+  scroll-margin-top: 16px;
 }
 
-/* 段の見出し。本文と同じ「小」のまま、字間を開けて「別の役の字」だと示す */
+/* 段の見出し。小さく太い字で「ここから別の役」と示す */
 .head {
   margin: 0;
-  font-size: var(--rp-tiny);
-  font-weight: 400;
-  line-height: 2;
-  letter-spacing: 0.24em;
-  color: var(--rp-sumi-4);
+  font-size: 0.875rem;
+  font-weight: 600;
+  line-height: 1.6;
+  letter-spacing: 0.04em;
+  color: var(--m-sumi);
 }
 
 .head:focus {
@@ -62,171 +56,161 @@
 }
 
 .head:focus-visible {
-  outline: 1px solid var(--rp-sumi);
-  outline-offset: 6px;
+  outline: 2px solid var(--m-shu);
+  outline-offset: 4px;
 }
 
 .body {
   margin: 0;
-  font-size: var(--rp-tiny);
-  line-height: 2.2;
-  letter-spacing: 0.04em;
-  color: var(--rp-sumi-2);
+  font-size: 0.9375rem;
+  line-height: 1.8;
+  color: var(--m-sumi-2);
   max-width: 40em;
 }
 
 .small {
   margin: 0;
-  font-size: var(--rp-tiny);
-  line-height: 2;
-  letter-spacing: 0.04em;
-  color: var(--rp-sumi-4);
-  max-width: 40em;
+  font-size: 0.8125rem;
+  line-height: 1.7;
+  color: var(--m-sumi-3);
+  max-width: 44em;
 }
 
 .link {
-  color: var(--rp-sumi-2);
+  color: var(--m-sumi-2);
   text-decoration: underline;
   text-decoration-thickness: 1px;
-  text-underline-offset: 0.35em;
-  transition: color 200ms var(--rp-brush);
-  /* 指の当たりだけ広げる（見た目の行間は変えない） */
-  display: inline-block;
-  padding-block: 0.7em;
-  margin-block: -0.7em;
+  text-underline-offset: 0.3em;
 }
 
-.link:hover,
+.link:hover {
+  color: var(--m-sumi);
+}
+
 .link:focus-visible {
-  color: var(--rp-sumi);
+  outline: 2px solid var(--m-shu);
+  outline-offset: 2px;
 }
 
-/* 主の押す先（BOOTH で購入する）。墨を一段濃くし、太さを一段上げるだけ */
 .linkMain {
   composes: link;
-  color: var(--rp-sumi);
+  color: var(--m-sumi);
   font-weight: 600;
 }
 
-/* ---- 値段の一行（頭の下） ------------------------------------------------ */
+/* ---- 届いたもの（通知・メール）── 墨の面に写す ---------------------------- */
 
-.priceLine {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.25em 1.5em;
-  margin: 0;
-  font-size: var(--rp-tiny);
-  line-height: 2.3;
-  letter-spacing: 0.06em;
-  color: var(--rp-sumi-3);
-}
-
-.priceNote {
-  display: block;
-  color: var(--rp-sumi-4);
-}
-
-.buy {
-  display: inline-flex;
-  flex-wrap: wrap;
-  gap: 0 0.6em;
-  color: var(--rp-sumi-4);
-}
-
-/* ---- 届いたもの（通知・メール） ------------------------------------------ */
-
-/* 上に墨の一本、左に何も持たない。一通は紙に写した字として置く */
 .post {
   display: grid;
-  gap: calc(0.25 * var(--rp-pitch));
-  padding-top: calc(0.5 * var(--rp-pitch));
-  border-top: 1px solid color-mix(in srgb, var(--rp-sumi) 30%, transparent);
+  gap: 6px;
+  padding: 14px 16px 16px;
+  background: var(--m-sumi);
+  color: var(--m-on-sumi);
   min-width: 0;
 }
 
 .postMeta {
   display: flex;
   flex-wrap: wrap;
-  gap: 0 1.2em;
+  gap: 0 1em;
   margin: 0;
-  font-size: var(--rp-tiny);
-  line-height: 2;
-  letter-spacing: 0.08em;
-  color: var(--rp-sumi-4);
+  font-size: 0.75rem;
+  line-height: 1.6;
+  letter-spacing: 0.04em;
+  color: var(--m-on-sumi-2);
 }
 
 .postText {
   margin: 0;
   font: inherit;
-  font-size: var(--rp-tiny);
-  line-height: 2;
-  letter-spacing: 0.04em;
-  color: var(--rp-sumi);
+  font-size: 0.875rem;
+  line-height: 1.75;
+  color: var(--m-on-sumi);
   white-space: pre-wrap;
   overflow-wrap: anywhere;
 }
 
+/* 書き換えたあと、作り直すまでのあいだ */
 .postText[data-stale="true"] {
-  color: var(--rp-sumi-4);
+  color: var(--m-on-sumi-2);
 }
 
 .empty {
   margin: 0;
-  font-size: var(--rp-tiny);
-  line-height: 2;
-  letter-spacing: 0.04em;
-  color: var(--rp-sumi-3);
+  font-size: 0.875rem;
+  line-height: 1.75;
+  color: var(--m-on-sumi-2);
 }
 
-/* ---- 動詞（ボタン）── 箱を持たない。下に墨の一本 ---------------------------- */
+/* 墨の面の中の項目と値（メールの宛先・件名） */
+.post .pairs dt {
+  color: var(--m-on-sumi-2);
+}
+
+.post .pairs dd {
+  color: var(--m-on-sumi);
+}
+
+/* ---- 押す先 -------------------------------------------------------------- */
 
 .verbs {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: calc(0.25 * var(--rp-pitch)) clamp(20px, 3vw, 36px);
+  gap: 8px;
 }
 
 .verb {
   appearance: none;
-  border: 0;
-  border-bottom: 1px solid color-mix(in srgb, var(--rp-sumi) 45%, transparent);
-  border-radius: 0;
-  background: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   min-height: 44px;
-  padding: 0 0 0.1em;
+  padding: 0 16px;
+  border: 1px solid var(--m-sumi);
+  border-radius: 0;
+  background: var(--m-cell);
+  color: var(--m-sumi);
   font: inherit;
-  font-size: var(--rp-tiny);
-  letter-spacing: 0.1em;
-  color: var(--rp-sumi-2);
-  cursor: pointer;
-  transition:
-    border-color var(--rp-soak),
-    color var(--rp-soak);
-}
-
-.verb:hover,
-.verb:focus-visible {
-  color: var(--rp-sumi);
-  border-bottom-color: var(--rp-sumi);
-}
-
-/* 本筋の動詞。太らせず、罫を濃く・字を墨にするだけ */
-.verbMain {
-  color: var(--rp-sumi);
-  border-bottom: 2px solid var(--rp-sumi);
+  font-size: 0.875rem;
   font-weight: 500;
+  letter-spacing: 0.02em;
+  cursor: pointer;
 }
 
-/* ---- 記入欄 ── 枠を持たず、下に一本 -------------------------------------- */
+.verb:hover {
+  background: var(--m-paper);
+}
+
+.verb:focus-visible {
+  outline: 2px solid var(--m-shu);
+  outline-offset: 2px;
+}
+
+.verb:disabled {
+  cursor: progress;
+  opacity: 0.7;
+}
+
+.verbMain {
+  background: var(--m-sumi);
+  color: var(--m-on-sumi);
+  font-weight: 600;
+}
+
+.verbMain:hover {
+  background: var(--m-sumi-2);
+}
+
+/* ---- 記入欄（表の外）── 白い欄と墨の縁 -------------------------------------- */
 
 .field {
   display: grid;
-  gap: calc(0.1 * var(--rp-pitch));
+  gap: 6px;
   min-width: 0;
-  font-size: var(--rp-tiny);
-  letter-spacing: 0.06em;
-  color: var(--rp-sumi-4);
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--m-sumi-2);
 }
 
 .input {
@@ -234,48 +218,41 @@
   width: 100%;
   min-width: 0;
   min-height: 44px;
-  border: 0;
-  border-bottom: 1px solid color-mix(in srgb, var(--rp-sumi) 50%, transparent); /* 紙との比 3:1 以上（非テキストの境界） */
+  border: 1px solid color-mix(in srgb, var(--m-sumi) 50%, transparent); /* 白の上で 3:1 以上 */
   border-radius: 0;
-  background: transparent;
-  padding: 0.2em 0;
+  background: var(--m-cell);
+  padding: 8px 10px;
   font: inherit;
-  font-size: max(16px, var(--rp-tiny)); /* iOS が拡大しない大きさ */
-  letter-spacing: 0.04em;
-  color: var(--rp-sumi);
-  transition: border-color var(--rp-soak);
+  font-weight: 400;
+  font-size: max(16px, 1rem); /* iOS が拡大しない大きさ */
+  line-height: 1.5;
+  color: var(--m-sumi);
 }
 
 .input::placeholder {
-  color: var(--rp-sumi-4);
+  color: var(--m-sumi-4);
 }
 
-.input:hover {
-  border-bottom-color: color-mix(in srgb, var(--rp-sumi) 70%, transparent);
-}
-
-/* 枠の無い世界なので、フォーカスは輪ではなく下の一本を太くして示す
-   （作品ページの .paper input:focus-visible の輪より強く当てるため、クラスを重ねる） */
-.input.input:focus-visible {
-  outline: none;
-  border-bottom: 2px solid var(--rp-sumi);
-  padding-bottom: calc(0.2em - 1px);
+.input:focus-visible {
+  outline: 2px solid var(--m-shu);
+  outline-offset: -1px;
+  border-color: var(--m-shu);
 }
 
 textarea.input {
   resize: vertical;
-  min-height: calc(3 * var(--rp-pitch));
-  line-height: 1.9;
+  min-height: 6em;
+  line-height: 1.7;
 }
 
 select.input {
-  padding-right: 1.4em;
-  background-image: linear-gradient(45deg, transparent 50%, var(--rp-sumi-3) 50%),
-    linear-gradient(135deg, var(--rp-sumi-3) 50%, transparent 50%);
+  padding-right: 28px;
+  background-image: linear-gradient(45deg, transparent 50%, var(--m-sumi-3) 50%),
+    linear-gradient(135deg, var(--m-sumi-3) 50%, transparent 50%);
   background-position:
-    calc(100% - 0.7em) 55%,
-    calc(100% - 0.35em) 55%;
-  background-size: 0.35em 0.35em;
+    calc(100% - 15px) 52%,
+    calc(100% - 10px) 52%;
+  background-size: 5px 5px;
   background-repeat: no-repeat;
   cursor: pointer;
 }
@@ -285,7 +262,7 @@ select.input {
 .choices {
   display: flex;
   flex-wrap: wrap;
-  gap: 0 clamp(20px, 3vw, 36px);
+  gap: 0 20px;
   border: 0;
   margin: 0;
   padding: 0;
@@ -298,9 +275,8 @@ select.input {
   align-items: center;
   gap: 0.6em;
   min-height: 44px;
-  font-size: var(--rp-tiny);
-  letter-spacing: 0.08em;
-  color: var(--rp-sumi-3);
+  font-size: 0.875rem;
+  color: var(--m-sumi-3);
   cursor: pointer;
 }
 
@@ -311,91 +287,144 @@ select.input {
   height: 1px;
 }
 
-/* 印は小さな正方形。点いていないときは墨の細い輪郭、点くと朱で埋まる */
 .dot {
   flex: none;
-  width: 0.62em;
-  height: 0.62em;
-  border: 1px solid var(--rp-sumi-3);
-  transition:
-    background-color 200ms var(--rp-brush),
-    border-color 200ms var(--rp-brush);
+  width: 14px;
+  height: 14px;
+  border: 1px solid var(--m-sumi-3);
+  background: var(--m-cell);
 }
 
 .choice:has(input:checked) {
-  color: var(--rp-sumi);
+  color: var(--m-sumi);
+  font-weight: 600;
 }
 
 .choice:has(input:checked) .dot {
-  background: var(--rp-shu);
-  border-color: var(--rp-shu);
+  background: var(--m-shu);
+  border-color: var(--m-shu);
+  box-shadow: inset 0 0 0 2px var(--m-cell);
 }
 
 .choice:has(input:focus-visible) {
-  outline: 1px solid var(--rp-sumi);
-  outline-offset: 4px;
+  outline: 2px solid var(--m-shu);
+  outline-offset: 2px;
 }
 
-/* ---- 表 ------------------------------------------------------------------ */
+/* ---- 表（スプレッドシート） ---------------------------------------------- */
 
-/* 横に長い表だけ、表の中で横に送る（紙は横にはみ出さない） */
 .scroll {
   max-width: 100%;
   overflow-x: auto;
   overscroll-behavior-x: contain;
+  background: var(--m-cell);
+  border: 1px solid var(--m-grid);
 }
 
 .scroll:focus-visible {
-  outline: 1px solid var(--rp-sumi);
-  outline-offset: 4px;
+  outline: 2px solid var(--m-shu);
+  outline-offset: 2px;
 }
 
 .table {
   width: 100%;
   border-collapse: collapse;
-  font-size: var(--rp-tiny);
-  line-height: 1.9;
-  letter-spacing: 0.02em;
+  font-size: 0.875rem;
+  line-height: 1.6;
+  font-variant-numeric: tabular-nums;
 }
 
 .table th,
 .table td {
-  padding: calc(0.2 * var(--rp-pitch)) 1em calc(0.2 * var(--rp-pitch)) 0;
+  position: relative;
+  padding: 8px 10px;
+  border: 1px solid var(--m-grid);
   text-align: left;
   vertical-align: top;
   font-weight: 400;
-  color: var(--rp-sumi-3);
+  color: var(--m-sumi-2);
 }
 
-.table th:last-child,
-.table td:last-child {
-  padding-right: 0;
+/* 外周の線は箱（.scroll）が持つ */
+.table tr > :first-child {
+  border-left: 0;
+}
+.table tr > :last-child {
+  border-right: 0;
+}
+.table thead tr:first-child > * {
+  border-top: 0;
+}
+.table tbody tr:last-child > * {
+  border-bottom: 0;
 }
 
 .table thead th {
-  color: var(--rp-sumi-4);
-  letter-spacing: 0.08em;
+  background: var(--m-cell-head);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--m-sumi);
   white-space: nowrap;
-}
-
-.table thead tr {
-  border-bottom: 1px solid color-mix(in srgb, var(--rp-sumi) 30%, transparent);
 }
 
 .nowrap {
   white-space: nowrap;
 }
 
-/* 足した行。色は変えず、墨を濃くして太さを一段だけ上げる */
+/* 足した行。濃く・太く（色は足さない） */
 .table tr[data-new="true"] td,
 .table tr[data-new="true"] th {
-  color: var(--rp-sumi);
-  font-weight: 500;
+  color: var(--m-sumi);
+  font-weight: 600;
 }
 
-.rowNo {
-  font-variant-numeric: tabular-nums;
-  color: var(--rp-sumi-4);
+.table .rowNo {
+  width: 2.4em;
+  background: var(--m-cell-head);
+  text-align: center;
+  font-size: 0.75rem;
+  color: var(--m-sumi-4);
+}
+
+/* 表の中の書ける欄は、セルいっぱいの欄にする。書ける印は点線の下線（マス目の線だけでは見分けられない） */
+.table .input {
+  min-height: 40px;
+  border: 0;
+  background: transparent;
+  padding: 6px 4px;
+  font-size: max(16px, 0.875rem);
+  text-decoration: underline dotted color-mix(in srgb, var(--m-sumi) 55%, transparent);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.3em;
+}
+
+@media (min-width: 640px) {
+  .table .input {
+    font-size: 0.875rem;
+  }
+}
+
+.table td:has(> .input),
+.table td:has(> select.input) {
+  padding: 0 6px;
+}
+
+.table td:has(.input:focus-visible) {
+  outline: 2px solid var(--m-shu);
+  outline-offset: -1px;
+  z-index: 2;
+}
+
+.table .input:focus-visible {
+  outline: none;
+}
+
+/* 表の中の書ける欄（件名）。長い件名は欄の中で折り返す */
+textarea.input.cellText {
+  min-height: 40px;
+  resize: none;
+  field-sizing: content;
+  line-height: 1.6;
 }
 
 /* ---- 項目と値（dl） ------------------------------------------------------ */
@@ -403,29 +432,30 @@ select.input {
 .pairs {
   display: grid;
   grid-template-columns: minmax(6.5em, max-content) minmax(0, 1fr);
-  gap: calc(0.1 * var(--rp-pitch)) 1.2em;
+  gap: 2px 14px;
   margin: 0;
-  font-size: var(--rp-tiny);
-  line-height: 2;
-  letter-spacing: 0.04em;
+  font-size: 0.875rem;
+  line-height: 1.7;
 }
 
 .pairs dt {
-  color: var(--rp-sumi-4);
+  color: var(--m-sumi-4);
 }
 
 .pairs dd {
   margin: 0;
-  color: var(--rp-sumi);
+  color: var(--m-sumi);
   overflow-wrap: anywhere;
   white-space: pre-wrap;
 }
 
-/* ---- 開いて読むもの（Claude に渡す文など） ------------------------------- */
+/* ---- 開いて読むもの（AI に渡す文など） ------------------------------------- */
 
 .details {
-  font-size: var(--rp-tiny);
-  color: var(--rp-sumi-3);
+  font-size: 0.875rem;
+  color: var(--m-sumi-3);
+  border: 1px solid var(--m-grid);
+  background: var(--m-cell);
 }
 
 .details summary {
@@ -433,34 +463,38 @@ select.input {
   min-height: 44px;
   display: flex;
   align-items: center;
-  letter-spacing: 0.08em;
-  color: var(--rp-sumi-2);
+  padding: 0 14px;
+  font-weight: 600;
+  color: var(--m-sumi-2);
 }
 
 .details summary:focus-visible {
-  outline: 1px solid var(--rp-sumi);
-  outline-offset: 4px;
+  outline: 2px solid var(--m-shu);
+  outline-offset: -2px;
 }
 
 .code {
-  margin: calc(0.25 * var(--rp-pitch)) 0 0;
-  padding: calc(0.5 * var(--rp-pitch)) 0 0;
-  border-top: 1px solid color-mix(in srgb, var(--rp-sumi) 30%, transparent);
+  margin: 0;
+  padding: 12px 14px 14px;
+  border-top: 1px solid var(--m-grid);
   font: inherit;
-  font-size: var(--rp-tiny);
-  line-height: 1.9;
-  color: var(--rp-sumi-2);
+  font-size: 0.8125rem;
+  line-height: 1.75;
+  color: var(--m-sumi-2);
   white-space: pre-wrap;
   overflow-wrap: anywhere;
 }
 
-/* 返事の JSON。紙の字のまま、罫を持たずに置く */
+/* 返事の JSON。等幅の字で、白いセルに置く */
 .json {
   margin: 0;
-  font: inherit;
-  font-size: var(--rp-tiny);
-  line-height: 1.8;
-  color: var(--rp-sumi-2);
+  padding: 12px 14px;
+  background: var(--m-cell);
+  border: 1px solid var(--m-grid);
+  font-family: ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+  font-size: 0.8125rem;
+  line-height: 1.7;
+  color: var(--m-sumi-2);
   white-space: pre-wrap;
   overflow-wrap: anywhere;
 }
@@ -487,85 +521,6 @@ select.input {
   border: 0;
 }
 
-/* ---- 結び ---------------------------------------------------------------- */
-
-.close {
-  display: grid;
-  gap: calc(1 * var(--rp-pitch));
-  margin-top: calc(2 * var(--rp-pitch));
-  padding-top: calc(1 * var(--rp-pitch));
-  border-top: 1px solid color-mix(in srgb, var(--rp-sumi) 30%, transparent);
-  min-width: 0;
-}
-
-.closeTitle {
-  margin: 0;
-  font-size: var(--rp-tiny);
-  font-weight: 500;
-  line-height: 2.3;
-  letter-spacing: 0.1em;
-  color: var(--rp-sumi);
-}
-
-.closeGrid {
-  display: grid;
-  gap: calc(1 * var(--rp-pitch)) clamp(40px, 5vw, 88px);
-  min-width: 0;
-}
-
-@media (min-width: 900px) {
-  .closeGrid {
-    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-  }
-}
-
-.compare {
-  display: grid;
-  gap: calc(0.5 * var(--rp-pitch));
-}
-
-.compareHead {
-  margin: 0 0 calc(0.25 * var(--rp-pitch));
-  font-size: var(--rp-tiny);
-  line-height: 2;
-  letter-spacing: 0.12em;
-  color: var(--rp-sumi-2);
-}
-
-.list {
-  margin: 0;
-  padding: 0;
-  list-style: none;
-  display: grid;
-  gap: calc(0.4 * var(--rp-pitch));
-  font-size: var(--rp-tiny);
-  line-height: 2;
-  letter-spacing: 0.04em;
-  color: var(--rp-sumi-3);
-}
-
-.list > li {
-  padding-left: 1em;
-  text-indent: -1em;
-}
-
-.list > li::before {
-  content: "・";
-}
-
-.who {
-  color: var(--rp-sumi);
-}
-
-.who::after {
-  content: "";
-  display: block;
-}
-
-.source {
-  display: block;
-}
-
 /* 表と一通を並べる紙で、表の側を広く取る（件名が折り返さずに読める幅） */
 @media (min-width: 1024px) {
   .layoutWideRight {
@@ -573,11 +528,14 @@ select.input {
   }
 }
 
-/* 表の中の書ける欄。長い件名は欄の中で折り返す（横に切らない） */
-textarea.input.cellText {
-  min-height: 44px;
-  resize: none;
-  field-sizing: content;
+/* ---- 前の版の結びのクラス（KitClose は kit-close.module.css へ移した。ほかの見本が読む名だけ残す） ---- */
+
+.list {
+  margin: 0;
+  padding: 0 0 0 1.2em;
+  display: grid;
+  gap: 6px;
+  font-size: 0.9375rem;
   line-height: 1.7;
-  padding-top: 0.45em;
+  color: var(--m-sumi-2);
 }

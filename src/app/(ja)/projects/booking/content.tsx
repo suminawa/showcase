@@ -1,19 +1,16 @@
 /*
- * THESIS: 予約という実務を、料紙の上の【道具】として扱う（Operate）。
- *   スプレッドシート業務アプリと同じ構えで、紙は床の間に退き、道具だけが載る。
- * OWN-WORLD: 頭（戻り・名乗り・一行）は料紙の文法そのまま。
- *   道具の中だけは別の世界で、色も字も道具自身が持つ（--bk-*）──
- *   額装が変わっても、掛かっている道具は変わらない。水盤と同じ理屈。
- * COLOR: 紙の側で色を持つのは朱の落款ひとつだけ。道具の中の緑は道具の色で、
- *   料紙には寄せない。
+ * THESIS: 予約という実務を、お客さまが触る画面そのもので見せる（Operate）。頭の右に購入の箱。
+ * OWN-WORLD: 頭と枠は方眼（DESIGN.md）。見本の中だけは別の世界で、色も字もキットの画面自身が持つ（--bk-*）──
+ *   お客さまに届く画面の色は、キットの色のまま見せる。
  * STORY: 空きカレンダーで日を選ぶと時間が出て、名前と連絡先を入れ、確認して予約が済む。
- * FIRST VIEWPORT: 頭（戻り・名乗り・一行）、見本の断りが一行、その下に道具。
- * FORM: 料紙（作品ページ）— 文法は DESIGN.md
+ *   予約が月 50 件を超えても月額はかからない（帳票と比べ方）。
+ * FIRST VIEWPORT: 現在地・題・一行、右に値段と BOOTH と帳票。その下に見本の頭。
  * このページはサーバー部品のまま。道具（Tool）は "use client" のこの下だけに閉じる。
  */
-import { KitClose, KitPriceLine } from "@/components/kit-demo/KitClose";
+import { KitBuy, KitClose, KitFacts } from "@/components/kit-demo/KitClose";
 import type { Lang } from "@/i18n/routes";
 
+import { DemoLabel } from "../demo-label";
 import {
   AFTER_TOOL,
   ProjectShell,
@@ -36,8 +33,10 @@ export function Content({ lang }: { lang: Lang }) {
       title={t.title}
       latin="Booking"
       lede={t.lede}
+      aside={<KitBuy slug="booking" lang={lang} />}
+      head={<KitFacts slug="booking" lang={lang} />}
     >
-      <KitPriceLine slug="booking" lang={lang} />
+      <DemoLabel lang={lang} />
       <p className={s.lede}>{t.intro}</p>
       {/* 道具の中だけは自前の色と字を持つ。その根がこの一枚 */}
       <div className={f.tool}>

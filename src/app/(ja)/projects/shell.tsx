@@ -1,17 +1,20 @@
 /*
- * 作品ページの共通の枠。どのページも同じ構え（入りの一筆・戻り・題と英字・一行・本文）なので、
- * 日本語のページと英仏のページ（[lang]）がここを通って同じ紙を描く。
+ * 作品ページの共通の枠（方眼。DESIGN.md）。日本語のページと英仏のページ（[lang]）がここを通る。
+ *   現在地（分類 › 題）→ 頭（題・一行・頭の下に添えるもの。右に購入の箱を置けるページもある）→ 本文 → 返品の決まり・関連記事
+ * 本文の中身は前の版のクラス（projects.module.css の lede・textLink、見本の CSS）を読むので、
+ * その変数（--rp-*）は .compat が方眼の色と字で用意する。
  * 文そのものは各ページの copy.ts（{ ja, en, fr } の同じ形）にある。
  */
 import Link from "next/link";
 import { ViewTransition } from "react";
 
 import { JsonLd } from "@/components/JsonLd";
-import { LangSwitch } from "@/components/lang/LangSwitch";
+import u from "@/components/site/ui.module.css";
 import { ContactMail } from "@/components/track/ContactMail";
+import { localIndexPage } from "@/i18n/catalog";
 import { pageMetadata } from "@/i18n/meta";
 import { hrefFor, localePath, type Lang } from "@/i18n/routes";
-import { PURCHASE_NOTE, RETURN_NOTE, UI } from "@/i18n/ui";
+import { PURCHASE_NOTE, RETURN_NOTE } from "@/i18n/ui";
 import links from "@/data/links.json";
 import { goHref, type LinkKey } from "@/lib/go";
 import { NoteEmbed } from "@/components/note/NoteEmbed";
@@ -19,7 +22,7 @@ import { guideHref, guides } from "@/lib/guides";
 import { NO_OG, projectJsonLd } from "@/lib/jsonld-project";
 import { projects } from "@/lib/projects";
 
-import { fontVars } from "./fonts";
+import sh from "./shell.module.css";
 import s from "./projects.module.css";
 
 export type PageMeta = { title: string; description: string };
@@ -37,62 +40,72 @@ export function projectMetadata(
   });
 }
 
+const CRUMBS: Record<Lang, string> = { ja: "現在地", en: "Breadcrumb", fr: "Fil d’Ariane" };
+const BUY: Record<Lang, string> = { ja: "購入", en: "Purchase", fr: "Achat" };
+
 export function ProjectShell({
   lang,
   slug,
   title,
-  latin,
   lede,
   head,
+  aside,
   children,
 }: {
   lang: Lang;
   slug: string;
   title: string;
+  /** 題に添える英字（前の版の名残。いまの頭には出さない） */
   latin: string;
   lede: React.ReactNode;
   /** 頭の一行の下に添えるもの（値札など） */
   head?: React.ReactNode;
+  /** 頭の右に置く箱（購入の箱）。あるページだけ、PC で頭を左右に割る */
+  aside?: React.ReactNode;
   children: React.ReactNode;
 }) {
+  const project = projects.find((p) => p.slug === slug);
+  const shelf = project ? localIndexPage(lang, project.category) : null;
   return (
     <ViewTransition default="paper">
-      <main className={`${s.paper} ${fontVars}`}>
+      <main id="main" className={`${sh.page} ${sh.compat}`}>
         <ProjectJsonLd lang={lang} slug={slug} title={title} />
-        <LangSwitch lang={lang} path={`/projects/${slug}`} />
-        {/* 入りの一筆。紙の右上を掠めて画面外へ抜ける。道具には一度も掛からない */}
-        <div className={s.stroke} aria-hidden="true">
-          <span className={`${s.ink} ${s.inkKasure}`} />
-          <span className={`${s.ink} ${s.inkCore}`} />
+        <div className={u.wrap}>
+          {project && shelf && (
+            <nav className={sh.crumbs} aria-label={CRUMBS[lang]}>
+              <ol>
+                <li>
+                  <Link href={hrefFor(lang, `/${project.category}`)} className={sh.crumbLink}>
+                    {shelf.title}
+                  </Link>
+                </li>
+                <li aria-current="page">{title}</li>
+              </ol>
+            </nav>
+          )}
+
+          {/* 割れる頭は、スマホでは 題 → 購入の箱 → 添えるもの、PC では左に題と添えるもの・右に購入の箱 */}
+          <header className={`${sh.head} ${aside ? sh.headSplit : ""}`}>
+            <div className={sh.headMain}>
+              {/* 一覧のカードの品名（KitCard）と同じ名。押したカードの名がこの題へ伸びる */}
+              <ViewTransition name={`t-${slug}`} share="morph" default="none">
+                <h1 className={sh.title}>{title}</h1>
+              </ViewTransition>
+              <p className={sh.lede}>{lede}</p>
+            </div>
+            {aside && (
+              <aside className={sh.aside} aria-label={BUY[lang]}>
+                {aside}
+              </aside>
+            )}
+            {head && <div className={sh.headExtra}>{head}</div>}
+          </header>
+
+          <div className={sh.work}>{children}</div>
+          <ReturnNote lang={lang} slug={slug} />
+          {/* 関連する案内記事は作品の【あと】に。頭に置くと、動く実物が初画面の下へ押し出される */}
+          {lang === "ja" && <RelatedGuides slug={slug} />}
         </div>
-
-        <header className={s.head}>
-          <Link href={hrefFor(lang, "/")} className={s.back}>
-            <span className={s.seal} aria-hidden="true">
-              墨
-            </span>
-            {UI[lang].back}
-          </Link>
-          {/* 一覧の行の題（Rows / トップの 4 点）と同じ名。触れた行の題がこの題へ伸びる */}
-          <ViewTransition name={`t-${slug}`} share="morph" default="none">
-            <h1 className={s.title}>
-              {title}
-              {/* 英語の題が英字の添えと同じ字になる紙（Thirty Days）では、二度書かない */}
-              {latin !== title && (
-                <span className={s.latin} aria-hidden="true">
-                  {latin}
-                </span>
-              )}
-            </h1>
-          </ViewTransition>
-          <p className={s.lede}>{lede}</p>
-          {head}
-        </header>
-
-        <div className={s.work}>{children}</div>
-        <ReturnNote lang={lang} slug={slug} />
-        {/* 関連する案内記事は作品の【あと】に（2026-10-07）。頭に置くと、動く実物が初画面の下へ押し出されていた */}
-        {lang === "ja" && <RelatedGuides slug={slug} />}
       </main>
     </ViewTransition>
   );
@@ -102,7 +115,7 @@ export function ProjectShell({
 function ReturnNote({ lang, slug }: { lang: Lang; slug: string }) {
   const sale = projects.find((p) => p.slug === slug)?.sale;
   if (sale?.status !== "onsale" || sale.price == null) return null;
-  return <p className={s.lede}>{RETURN_NOTE[lang]}</p>;
+  return <p className={sh.note}>{RETURN_NOTE[lang]}</p>;
 }
 
 /** 日本語の紙にだけ出す、この見本・この売り物を結びに置いている案内記事への一行（guides の kit か shop がこの slug） */
@@ -110,18 +123,20 @@ function RelatedGuides({ slug }: { slug: string }) {
   const related = guides.filter((g) => g.kit === slug || g.shop === slug);
   if (related.length === 0) return null;
   return (
-    // 頭の格子の間隔（半行）に半行を足し、一行の字を罫の上へ戻す
-    <p className={s.lede} style={{ marginTop: "var(--rp-pitch)" }}>
-      関連する案内記事:{" "}
-      {related.map((g, i) => (
-        <span key={g.slug}>
-          {i > 0 && "／"}
-          <Link href={guideHref(g)} className={s.textLink}>
-            {g.title}
-          </Link>
-        </span>
-      ))}
-    </p>
+    <section className={sh.related} aria-labelledby="related-guides">
+      <h2 id="related-guides" className={sh.relatedHead}>
+        関連する案内記事
+      </h2>
+      <ul className={sh.relatedList}>
+        {related.map((g) => (
+          <li key={g.slug}>
+            <Link href={guideHref(g)} className={sh.relatedLink}>
+              {g.title}
+            </Link>
+          </li>
+        ))}
+      </ul>
+    </section>
   );
 }
 
