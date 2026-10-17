@@ -8,6 +8,7 @@
 import { loadConfigFile, loadIndex } from "@suminawa/ai-concierge";
 import { createLineBot, createStoreFromEnv, resolveLineConfig, type LineBot } from "@suminawa/line-concierge";
 import { after } from "next/server";
+import { relayClient } from "@/lib/relay-client";
 
 export const runtime = "nodejs";
 export const maxDuration = 60;
@@ -25,7 +26,7 @@ function bot(): Promise<LineBot> {
       };
       const config = resolveLineConfig({ file: await loadConfigFile("concierge/concierge.config.json"), env });
       const index = await loadIndex(config.concierge.indexPath);
-      return createLineBot(config, { index, store: createStoreFromEnv(env) });
+      return createLineBot(config, { index, store: createStoreFromEnv(env), client: relayClient() ?? undefined });
     })().catch((error: unknown) => {
       // 読み込みに失敗した約束を持ち続けない（次のリクエストでやり直す。/api/reader と同じ）
       ready = null;
