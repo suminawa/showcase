@@ -209,10 +209,13 @@ select.input {
     padding: 0 4px;
   }
   .colDue {
-    width: 104px;
+    width: 112px;
   }
   .colWho {
     width: 44px;
+  }
+  .colState {
+    width: 58px;
   }
   /* 狭い画面ではセルの左右の空きを詰める（「総務」が縦に割れないように） */
   .sheet thead th,
