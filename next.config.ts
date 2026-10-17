@@ -27,6 +27,7 @@ const nextConfig: NextConfig = {
       { source: "/kigen", destination: "/projects/deadline?ref=yts", permanent: false },
       { source: "/uketsuke", destination: "/projects/form?ref=yts", permanent: false },
       { source: "/madoguchi", destination: "/projects/ai-concierge?ref=yts", permanent: false },
+      { source: "/daicho", destination: "/projects/sheet-app?ref=yts", permanent: false },
     ];
   },
 };
