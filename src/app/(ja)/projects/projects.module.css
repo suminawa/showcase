@@ -196,6 +196,9 @@
   text-decoration: none;
   transition: color var(--rp-soak);
   animation: rp-rise 900ms var(--rp-brush) 420ms both;
+  /* 指の下限 44px。当たりだけ上下へ広げ、行の高さ（罫一本）は変えない */
+  padding-block: max(0px, calc((44px - var(--rp-pitch)) / 2));
+  margin-block: min(0px, calc((var(--rp-pitch) - 44px) / 2));
 }
 
 .back:hover,
