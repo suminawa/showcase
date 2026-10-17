@@ -94,7 +94,7 @@ export function DeadlineDemo() {
             <p className={s.postMeta}>
               <span>期限アラート</span>
               <span>8:00 ごろ</span>
-              <span>Slack か Discord へ</span>
+              <span>Slack やメールなど選んだ先へ</span>
             </p>
             {alert.text === null ? (
               <p className={s.empty}>この日に知らせるものはありません。キットは何も送りません。</p>

@@ -80,7 +80,7 @@ export const KIT_DEMOS_I18N: Record<ForeignLang, Record<KitDemoSlug, KitDemoBase
         },
       ],
       fits: [
-        { who: "You want overdue items, today’s items, and items due in N days gathered into one morning message on Slack or Discord" },
+        { who: "You want overdue items, today’s items, and items due in N days gathered into one morning message on Slack, Discord, email, or Google Chat" },
         { who: "You want completed rows skipped, and no second alert on the same day" },
         {
           who: "You want to keep the code yourself, with no monthly fee. Check Sheet Notifications is billed monthly from the second check",

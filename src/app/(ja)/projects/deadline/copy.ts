@@ -3,11 +3,11 @@ import { money } from "@/i18n/ui";
 const ja = {
   meta: {
     title: "期限アラート GAS キット",
-    description: "スプレッドシートに書いた期限を、毎朝 1 通にまとめて Slack か Discord へ知らせる Apps Script のキットの見本です。表を書き換えて、届く 1 通をその場で確かめられます。",
+    description: "スプレッドシートに書いた期限を、毎朝 1 通にまとめて Slack・Discord・メール・Google Chat のうち選んだ先へ知らせる Apps Script のキットの見本です。表を書き換えて、届く 1 通をその場で確かめられます。",
   },
   title: "期限アラート GAS キット",
-  lede: "契約の更新・車検・支払いなど、スプレッドシートに書いた期限を、毎朝 8 時台に 1 通にまとめて Slack か Discord へお知らせします。期限を過ぎたものが先頭に並びます。",
-  made: "上の 1 通と「設定を確かめる」の文は、キットに入っている src/ の関数をこのページの中でそのまま動かして作っています。文面をまねて書いたものではありません。キットでは、同じ関数が毎朝 8 時台にスプレッドシートを読み、Slack か Discord へ送ります。",
+  lede: "契約の更新・車検・支払いなど、スプレッドシートに書いた期限を、毎朝 8 時台に 1 通にまとめて、Slack・Discord・メール・Google Chat のうち選んだ先へお知らせします。期限を過ぎたものが先頭に並びます。",
+  made: "上の 1 通と「設定を確かめる」の文は、キットに入っている src/ の関数をこのページの中でそのまま動かして作っています。文面をまねて書いたものではありません。キットでは、同じ関数が毎朝 8 時台にスプレッドシートを読み、選んだ通知先（Slack・Discord・メール・Google Chat）へ送ります。",
   service: {
     before: "いまお使いの表の列に合わせて作ってほしい方は、ココナラの「",
     after: "」（3,000 円から・3 日）をご利用ください。スクリプトと手順書をお送りし、貼り付けと Google の承認はお客さまに行っていただきます。貼り付けと設定まで任せたい方は、上の「設置まで頼む」からご相談ください。",
@@ -23,11 +23,11 @@ export const copy: Record<"ja" | "en" | "fr", typeof ja> = {
   en: {
     meta: {
       title: "Deadline Alert GAS Kit",
-      description: "Demo of an Apps Script kit that gathers the deadlines in a spreadsheet into one message every morning on Slack or Discord. Edit the table and see the resulting message right away.",
+      description: "Demo of an Apps Script kit that gathers the deadlines in a spreadsheet into one message every morning on Slack, Discord, email, or Google Chat. Edit the table and see the resulting message right away.",
     },
     title: "Deadline Alert GAS Kit",
     lede: "Gathers the deadlines in your spreadsheet into one message at 8 a.m. every morning, with overdue items listed first.",
-    made: "The message above and the settings-check text are produced by running the kit’s own src/ functions right on this page. They aren’t mock-ups written to look similar. In the kit, the same functions read the spreadsheet at 8 a.m. every morning and send to Slack or Discord.",
+    made: "The message above and the settings-check text are produced by running the kit’s own src/ functions right on this page. They aren’t mock-ups written to look similar. In the kit, the same functions read the spreadsheet at 8 a.m. every morning and send to Slack, Discord, email, or Google Chat.",
     service: {
       before: "If you’d like a script written for your own sheet, with a step-by-step setup guide, our Coconala service “",
       after: `” covers one deadline notification (from ${money("en", 3000)}; the service page is in Japanese). You paste the script and approve Google’s permission prompt yourself, following the guide.`,
