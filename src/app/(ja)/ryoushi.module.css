@@ -1587,6 +1587,9 @@
   display: inline-block;
   padding-block: 0.7em;
   margin-block: -0.7em;
+  /* 一字の行き先（X）も指で押せる幅にする（当たり 24px 以上）。見た目の字の位置は変えない */
+  padding-inline: 0.5em;
+  margin-inline: -0.5em;
 }
 
 .mailLink:hover,
@@ -1869,6 +1872,9 @@
   color: var(--hi-sumi-4);
   text-decoration: none;
   transition: color var(--hi-soak);
+  /* 指の下限 44px。当たりだけ上下へ広げ、行の高さ（罫一本）は変えない */
+  padding-block: max(0px, calc((44px - var(--hi-kei-pitch)) / 2));
+  margin-block: min(0px, calc((var(--hi-kei-pitch) - 44px) / 2));
 }
 
 .back:hover,
@@ -2102,6 +2108,25 @@
   }
   .shelf {
     padding-left: 9vw;
+  }
+  /* 分類のページは格子も筆脈も持たないので、斜行の 9vw も持ち込まない ──
+     紙の左端から字の欄までを一枚で使う（DESIGN.md「分類のページは格子を敷かない」）。
+     390px の紙で 35px 痩せ、品名と値段が一行に並ばず折れていた */
+  .sheet .shelf {
+    padding-left: 0;
+  }
+
+  /* 案内記事は狭い紙では一本ずつ一行に置く。題が二行に折れる幅では
+     区切りの「／」だけが行に取り残され、字の無い罫が一本増えていた */
+  /* 縦の flex にするのは、行き先の上下の負の margin（当たりを 44px に広げた分の相殺）を
+     隣どうしで潰し合わせないため。block で積むと margin が相殺し合い、一本ごとに罫から 6px ずれた */
+  .rowGuides {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .rowGuidesSep {
+    display: none;
   }
 
   /*
