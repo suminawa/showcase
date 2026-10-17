@@ -1,0 +1,193 @@
+/* キットの一覧。頭（題・一行・棚の目次）と三つの棚、更新の記録、設置の相談 */
+
+.page {
+  display: block;
+}
+
+.head {
+  display: grid;
+  gap: 14px;
+  padding-top: 32px;
+  padding-bottom: 8px;
+}
+
+@media (min-width: 1024px) {
+  .head {
+    padding-top: 56px;
+  }
+}
+
+.title {
+  margin: 0;
+  font-family: var(--m-mincho);
+  font-weight: 600;
+  font-size: clamp(1.75rem, 1.3rem + 1.8vw, 2.75rem);
+  line-height: 1.35;
+  letter-spacing: 0.04em;
+  font-feature-settings: "palt" 1;
+}
+
+/* 棚の目次。スプレッドシートのシートの見出しのように、セルを横に並べる */
+.toc {
+  margin-top: 10px;
+}
+
+.tocList {
+  display: flex;
+  flex-wrap: wrap;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  border-top: 1px solid var(--m-grid);
+  border-left: 1px solid var(--m-grid);
+}
+
+.tocList > li {
+  flex: 1 1 auto;
+  border-right: 1px solid var(--m-grid);
+  border-bottom: 1px solid var(--m-grid);
+  background: var(--m-cell);
+}
+
+.tocItem {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 48px;
+  padding: 0 14px;
+  color: var(--m-sumi);
+  font-size: 0.9375rem;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.tocItem:hover {
+  background: var(--m-cell-head);
+}
+
+.tocItem:focus-visible {
+  outline: 2px solid var(--m-shu);
+  outline-offset: -2px;
+}
+
+.tocCount {
+  font-size: 0.8125rem;
+  font-weight: 400;
+  font-variant-numeric: tabular-nums;
+  color: var(--m-sumi-4);
+}
+
+.shelf {
+  scroll-margin-top: 16px;
+}
+
+.tinted {
+  background: color-mix(in srgb, var(--m-cell-head) 45%, var(--m-paper));
+  border-block: 1px solid var(--m-grid);
+}
+
+.notes {
+  display: grid;
+  gap: 0;
+  margin-top: 16px;
+  border: 1px solid var(--m-grid);
+  background: var(--m-cell);
+}
+
+.note {
+  display: grid;
+  gap: 4px 16px;
+  margin: 0;
+  padding: 12px 14px;
+  font-size: 0.875rem;
+  line-height: 1.7;
+  color: var(--m-sumi-2);
+}
+
+.note + .note {
+  border-top: 1px solid var(--m-grid);
+}
+
+@media (min-width: 768px) {
+  .note {
+    grid-template-columns: 7em minmax(0, 1fr);
+  }
+}
+
+.noteHead {
+  font-weight: 600;
+  color: var(--m-sumi);
+}
+
+.updates {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  background: var(--m-cell);
+  border: 1px solid var(--m-grid);
+}
+
+.update {
+  display: grid;
+  gap: 4px 20px;
+  padding: 14px 16px;
+}
+
+.update + .update {
+  border-top: 1px solid var(--m-grid);
+}
+
+@media (min-width: 768px) {
+  .update {
+    grid-template-columns: 7em minmax(12em, 18em) minmax(0, 1fr);
+    align-items: baseline;
+  }
+}
+
+.updateDate {
+  font-size: 0.8125rem;
+  font-variant-numeric: tabular-nums;
+  color: var(--m-sumi-4);
+}
+
+.updateKit {
+  font-weight: 600;
+  font-size: 0.9375rem;
+}
+
+.updateVer {
+  font-weight: 400;
+  font-size: 0.8125rem;
+  font-variant-numeric: tabular-nums;
+  color: var(--m-sumi-3);
+}
+
+.updateNote {
+  font-size: 0.875rem;
+  line-height: 1.7;
+  color: var(--m-sumi-2);
+}
+
+.cta {
+  padding-block: 48px 64px;
+  border-top: 1px solid var(--m-grid);
+}
+
+.ctaInner {
+  display: grid;
+  gap: 20px;
+  align-items: center;
+}
+
+.ctaInner > div {
+  display: grid;
+  gap: 10px;
+}
+
+@media (min-width: 1024px) {
+  .ctaInner {
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 48px;
+  }
+}
