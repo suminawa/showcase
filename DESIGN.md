@@ -21,6 +21,12 @@ typography:
     fontWeight: 600
     lineHeight: "var(--masu)"
     letterSpacing: "calc(0.28 * var(--masu))"
+  page-title:
+    fontFamily: "Hiragino Mincho ProN, Yu Mincho, Noto Serif CJK JP, serif"
+    fontSize: "clamp(1.75rem, 1.3rem + 1.8vw, 2.75rem)"
+    fontWeight: 600
+    lineHeight: 1.35
+    letterSpacing: "0.04em"
   headline:
     fontFamily: "Hiragino Mincho ProN, Yu Mincho, Noto Serif CJK JP, serif"
     fontSize: "clamp(1.5rem, 1.15rem + 1.2vw, 2rem)"
@@ -39,12 +45,24 @@ typography:
     fontWeight: 400
     lineHeight: 1.8
     letterSpacing: "0.02em"
+  body-sm:
+    fontFamily: "Hiragino Sans, Hiragino Kaku Gothic ProN, BIZ UDPGothic, Yu Gothic UI, Meiryo, Noto Sans JP, sans-serif"
+    fontSize: "0.9375rem"
+    fontWeight: 400
+    lineHeight: 1.8
+    letterSpacing: "0.02em"
   small:
     fontFamily: "Hiragino Sans, Hiragino Kaku Gothic ProN, BIZ UDPGothic, Yu Gothic UI, Meiryo, Noto Sans JP, sans-serif"
     fontSize: "0.875rem"
     fontWeight: 400
     lineHeight: 1.7
     letterSpacing: "0.02em"
+  caption:
+    fontFamily: "Hiragino Sans, Hiragino Kaku Gothic ProN, BIZ UDPGothic, Yu Gothic UI, Meiryo, Noto Sans JP, sans-serif"
+    fontSize: "0.8125rem"
+    fontWeight: 400
+    lineHeight: 1.7
+    letterSpacing: "0.04em"
   label:
     fontFamily: "Hiragino Sans, Hiragino Kaku Gothic ProN, BIZ UDPGothic, Yu Gothic UI, Meiryo, Noto Sans JP, sans-serif"
     fontSize: "0.75rem"
@@ -52,6 +70,36 @@ typography:
     lineHeight: 1.4
     letterSpacing: "0.06em"
     fontFeature: "\"tnum\" 1"
+  index:
+    fontFamily: "Hiragino Sans, Hiragino Kaku Gothic ProN, BIZ UDPGothic, Yu Gothic UI, Meiryo, Noto Sans JP, sans-serif"
+    fontSize: "0.6875rem"
+    fontWeight: 400
+    lineHeight: 1
+    letterSpacing: "0.06em"
+    fontFeature: "\"tnum\" 1"
+  figure:
+    fontFamily: "Hiragino Mincho ProN, Yu Mincho, Noto Serif CJK JP, serif"
+    fontSize: "clamp(1.5rem, 1.2rem + 1.2vw, 2.25rem)"
+    fontWeight: 600
+    lineHeight: 1.25
+    letterSpacing: "0.02em"
+  price-md:
+    fontFamily: "Hiragino Sans, Hiragino Kaku Gothic ProN, BIZ UDPGothic, Yu Gothic UI, Meiryo, Noto Sans JP, sans-serif"
+    fontSize: "1.375rem"
+    fontWeight: 600
+    lineHeight: 1.2
+    fontFeature: "\"tnum\" 1"
+  price-lg:
+    fontFamily: "Hiragino Sans, Hiragino Kaku Gothic ProN, BIZ UDPGothic, Yu Gothic UI, Meiryo, Noto Sans JP, sans-serif"
+    fontSize: "clamp(1.625rem, 1.3rem + 1.2vw, 2.125rem)"
+    fontWeight: 600
+    lineHeight: 1.2
+    fontFeature: "\"tnum\" 1"
+  code:
+    fontFamily: "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace"
+    fontSize: "0.8125rem"
+    fontWeight: 400
+    lineHeight: 1.7
   price:
     fontFamily: "Hiragino Sans, Hiragino Kaku Gothic ProN, BIZ UDPGothic, Yu Gothic UI, Meiryo, Noto Sans JP, sans-serif"
     fontSize: "1.0625rem"
@@ -152,12 +200,16 @@ components:
 ### Hierarchy
 
 - **名乗り** (600, 0.72 × マス、行送り 1 マス): 方眼の見出し一つだけ。一字一マス、字間でマスの幅に送る
+- **ページの題** (600, 28〜44px, 1.35): /kits・品物のページ・/contact・/about の h1
 - **見出し** (600, 24〜32px, 1.45): 段の題
 - **品名** (600, 18〜20px, 1.5): カード・行・品物のページの題の二段目
-- **本文** (400, 16px, 1.8): 最長 38 字。`line-break: strict`
-- **添え** (400, 14px, 1.7): 注記・説明の一行
-- **ラベル** (400, 12px, 等幅数字): 列の記号・行番号・帳票の項目名の一部。飾りの記号は読み上げに出さない
-- **値段** (600, 17px〜, 等幅数字): 「¥2,980」。税込・買い切りを必ず添える
+- **本文** (400, 16px, 1.8): 最長 38 字。`line-break: strict`。カードの一行・表の中は 15px（body-sm）
+- **添え** (400, 14px, 1.7): 注記・説明の一行。表の見出し・帳票の項目名・段の札は 13px（caption）
+- **ラベル** (400, 12px, 等幅数字): 値段の添え（税込・買い切り）
+- **索引** (400, 11px, 等幅数字): 列の記号（A・B・C）と行番号だけ。飾りなので読み上げに出さない
+- **数字の大きな字** (600, 24〜36px、明朝): 「買う前に確かめられること」の 0 円・3 営業日・14 日
+- **値段** (600, 17px／購入の箱では 22〜34px、等幅数字): 「¥2,980」。税込・買い切りを必ず添える
+- **等幅** (13px): 見本の中の返事の JSON だけ
 
 ### Named Rules
 
