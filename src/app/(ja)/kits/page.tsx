@@ -1,7 +1,7 @@
 /*
  * キットの一覧（日本語）。棚と更新の記録は KitsPage.tsx。英仏の /kits は前の組み方（CategorySheet）のまま。
  */
-import { categoryMetadata } from "@/components/ryoushi/CategorySheet";
+import { categoryMetadata } from "@/components/ryoushi/category-meta";
 
 import { KitsPage } from "./KitsPage";
 

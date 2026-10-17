@@ -8,10 +8,9 @@ import { Analytics } from "@vercel/analytics/next";
 
 import { JsonLd } from "@/components/JsonLd";
 import { SiteFooter } from "@/components/footer/SiteFooter";
-import { minchoFace } from "@/components/site/fonts";
 import { SiteHeader } from "@/components/site/SiteHeader";
 import { ArriveTracker } from "@/components/track/ArriveTracker";
-import { REVEAL_FLAG } from "@/components/ryoushi/fonts";
+import { REVEAL_FLAG } from "@/components/ryoushi/reveal";
 import { siteJsonLd } from "@/lib/jsonld";
 import type { Lang } from "@/i18n/routes";
 import { SITE_DESCRIPTION, SITE_NAME, siteUrl } from "@/lib/site";
@@ -46,7 +45,7 @@ export function RootDocument({ lang, children }: { lang: Lang; children: React.R
   return (
     /* 現れる演出の印（data-hi）は、本文より先に走る一行の script が付ける。
        サーバーが書いた html にはまだ無いので、その一点だけ照合を見送る */
-    <html lang={lang} className={minchoFace.variable} suppressHydrationWarning>
+    <html lang={lang} suppressHydrationWarning>
       <body className="antialiased">
         {/* 現れる演出の印（html[data-hi="on"]）。本文より先に走るので、隠す規則は最初の描画から効く。
             根のレイアウトに置く ── 面の部品に置くと、紙から紙へ移るたびに React が

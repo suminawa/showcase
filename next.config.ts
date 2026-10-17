@@ -1,6 +1,11 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  experimental: {
+    // CSS を道ごとに要るぶんだけに近づける（既定の合わせ方だと、トップに作品ページや見本の CSS と
+    // 料紙の書体の @font-face まで載り、描画を止める CSS が 270KB を超えていた。2026-10-17 に Lighthouse で実測）
+    cssChunking: "graph",
+  },
   // AI 案内窓口・AI 書類読み取りの Route Handler は設定や帳票の型を実行時に読むので、Vercel の束に入れる
   outputFileTracingIncludes: {
     "/*": [

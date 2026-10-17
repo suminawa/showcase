@@ -4,7 +4,6 @@
  * 日本語の /kits は、各行の下に結びつく案内記事への道を添える。
  */
 import { CATALOG, localGuides, localIndexPage } from "@/i18n/catalog";
-import { pageMetadata } from "@/i18n/meta";
 import { localePath, type Lang } from "@/i18n/routes";
 import { guideHref } from "@/lib/guides";
 import { MAKER_KITS, projectsByCategory, type Category, type Project } from "@/lib/projects";
@@ -12,14 +11,7 @@ import { MAKER_KITS, projectsByCategory, type Category, type Project } from "@/l
 import { Rows } from "./Rows";
 import { Sheet, SheetClose, SheetSection } from "./Sheet";
 
-export function categoryMetadata(lang: Lang, category: Category) {
-  const sheet = localIndexPage(lang, category);
-  return pageMetadata(lang, `/${category}`, {
-    title: sheet.title,
-    description: sheet.lede,
-    image: `/og/${category}.png`,
-  });
-}
+export { categoryMetadata } from "./category-meta";
 
 /** /kits の後半の段の名。前半（事業者本人向け）は題が段の名を兼ねる */
 const MAKERS_HEAD: Record<Lang, string> = {

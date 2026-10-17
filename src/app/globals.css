@@ -32,8 +32,14 @@
   /* ---- 字 ---- */
   --m-gothic: "Hiragino Sans", "Hiragino Kaku Gothic ProN", "BIZ UDPGothic", "Yu Gothic UI", "Yu Gothic", Meiryo,
     "Noto Sans JP", system-ui, sans-serif;
-  /* 明朝は見出しだけ。Apple の端末はヒラギノ明朝（読み込まない）、ほかは Shippori Mincho 600 を読む */
-  --m-mincho: "Hiragino Mincho ProN", var(--m-mincho-face), "Yu Mincho", YuMincho, "Noto Serif JP", serif;
+  /*
+   * 明朝は見出しだけ。端末の明朝を使い、web の書体は読まない（2026-10-17）。
+   * Shippori Mincho を読むと、その @font-face（120 余りの切れ）だけで描画を止める CSS が 38KB 増え、
+   * スマホの Lighthouse が 95 を割った。Apple はヒラギノ明朝 W6（BOOTH の 1 枚目と同じ字）、
+   * Windows は游明朝 Demibold、Android は Noto Serif CJK（無い端末はゴシックの太字になる）。
+   */
+  --m-mincho: "Hiragino Mincho ProN", "Hiragino Mincho Pro", "Yu Mincho", YuMincho, "Noto Serif CJK JP", "Noto Serif JP",
+    serif;
 
   /* ---- 寸法 ---- */
   --m-gutter: 16px;

@@ -35,13 +35,5 @@ export const mincho = Shippori_Mincho({
 /** <main> に載せるクラス名。`${s.paper} ${fontVars}` の形で使う */
 export const fontVars = `${display.variable} ${mincho.variable}`;
 
-/**
- * 現れる演出の印。JS が動いた紙にだけ付く。
- *
- * 土台は「本文が最初から見えていること」で、隠してから現す演出は
- * この印が付いた紙でしか走らない（ryoushi.module.css の
- * `html[data-hi="on"]` の下に、入場の animation を全部まとめてある）。
- * JS を切った紙・印刷・読み込みに失敗した紙では、隠す規則が一つも
- * 当たらないので、全部の行が最初から読める。
- */
-export const REVEAL_FLAG = 'document.documentElement.dataset.hi="on"';
+/** 現れる演出の印（宣言は reveal.ts。根の文書がこちらを読まずに済むように分けた） */
+export { REVEAL_FLAG } from "./reveal";

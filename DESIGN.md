@@ -16,19 +16,19 @@ colors:
   on-sumi-2: "#c9c4b8"
 typography:
   display:
-    fontFamily: "Shippori Mincho, Hiragino Mincho ProN, Yu Mincho, serif"
+    fontFamily: "Hiragino Mincho ProN, Yu Mincho, Noto Serif CJK JP, serif"
     fontSize: "calc(0.72 * var(--masu))"
     fontWeight: 600
     lineHeight: "var(--masu)"
     letterSpacing: "calc(0.28 * var(--masu))"
   headline:
-    fontFamily: "Shippori Mincho, Hiragino Mincho ProN, Yu Mincho, serif"
+    fontFamily: "Hiragino Mincho ProN, Yu Mincho, Noto Serif CJK JP, serif"
     fontSize: "clamp(1.5rem, 1.15rem + 1.2vw, 2rem)"
     fontWeight: 600
     lineHeight: 1.45
     letterSpacing: "0.04em"
   title:
-    fontFamily: "Shippori Mincho, Hiragino Mincho ProN, Yu Mincho, serif"
+    fontFamily: "Hiragino Mincho ProN, Yu Mincho, Noto Serif CJK JP, serif"
     fontSize: "clamp(1.125rem, 1.05rem + 0.3vw, 1.25rem)"
     fontWeight: 600
     lineHeight: 1.5
@@ -142,10 +142,12 @@ components:
 
 ## Typography
 
-**見出し:** Shippori Mincho 600（next/font、`preload: false`、一書体・一太さだけ読む）
+**見出し:** 端末の明朝の 600（ヒラギノ明朝 W6 → 游明朝 Demibold → Noto Serif CJK）
 **本文:** 端末のゴシック（ヒラギノ角ゴ → BIZ UDP ゴシック → 游ゴシック UI → メイリオ → Noto Sans JP）
 
 明朝は品のある見出しに、ゴシックはスマホの小さな字でも細らない本文に。日本語の書類と同じ役の分け方。
+
+**web の書体は読まない（2026-10-17 に実測して決めた）。** Shippori Mincho 600 を next/font で読むと、日本語の書体の @font-face（120 余りの切れ）だけで描画を止める CSS が gzip で 38KB 増え、スマホの Lighthouse の性能が 94 に落ちた。端末の明朝にすると 97〜99。Apple の端末のヒラギノ明朝 W6 は、BOOTH の 1 枚目と同じ字でもある。Android で CJK の明朝が無い端末では、見出しがゴシックの太字になる（崩れはしない）。料紙の Hina Mincho と Shippori Mincho 400/500 は、前の世界の紙（英仏のトップ・/sites・/works・案内記事）だけが読む。
 
 ### Hierarchy
 
