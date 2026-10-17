@@ -1587,6 +1587,9 @@
   display: inline-block;
   padding-block: 0.7em;
   margin-block: -0.7em;
+  /* 一字の行き先（X）も指で押せる幅にする（当たり 24px 以上）。見た目の字の位置は変えない */
+  padding-inline: 0.5em;
+  margin-inline: -0.5em;
 }
 
 .mailLink:hover,
