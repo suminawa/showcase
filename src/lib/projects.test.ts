@@ -3,9 +3,11 @@ import {
   CONTACT_PAGE,
   ELSEWHERE,
   KIT_SET,
+  PILLARS,
   PRICE_LADDER,
   kitSetListTotal,
-  kitShelves,
+  pillarKits,
+  pillarOf,
   FEATURED,
   GATES,
   INDEX_PAGES,
@@ -120,16 +122,6 @@ describe("制作のご相談", () => {
     expect(KIT_SET.price).toBeLessThan(kitSetListTotal());
   });
 
-  it("棚は三つ。キットを一度ずつ配り、間取りは制作者・開発者向け", () => {
-    const { start, office, makers } = kitShelves();
-    const all = [...start, ...office, ...makers].map((p) => p.slug);
-    expect(new Set(all).size).toBe(all.length);
-    expect(all.sort()).toEqual(projectsByCategory("kits").map((p) => p.slug).sort());
-    expect(start.map((p) => p.slug)).toEqual(["deadline", "form", "booking"]);
-    expect(makers.map((p) => p.slug)).toContain("floorplan");
-    expect(office.map((p) => p.slug)).not.toContain("floorplan");
-  });
-
   it("ほかの置き場に、止めた Instagram を載せない", () => {
     expect(ELSEWHERE.map((e) => e.name)).not.toContain("Instagram");
   });
@@ -145,6 +137,70 @@ describe("制作のご相談", () => {
   it("結びは税別の断りと宛先", () => {
     expect(SERVICES_NOTE.mail).toBe("hello@suminawa.dev");
     expect(SERVICES_NOTE.before).toContain("税別の目安");
+  });
+});
+
+describe("三つの柱（業務自動化・AI活用・Web制作）", () => {
+  it("並びは業務自動化 → AI活用 → Web制作・Webアプリ制作。名と短い名を持つ", () => {
+    expect(PILLARS.map((p) => p.id)).toEqual(["automation", "ai", "web"]);
+    expect(PILLARS.map((p) => p.name)).toEqual(["業務自動化", "AI活用", "Web制作・Webアプリ制作"]);
+    expect(PILLARS.map((p) => p.short)).toEqual(["業務自動化", "AI活用", "Web制作"]);
+  });
+
+  it("キットを一度ずつ配り、取りこぼさない（18 本 = 5 + 7 + 6）", () => {
+    const all = PILLARS.flatMap((p) => p.slugs);
+    expect(new Set(all).size).toBe(all.length);
+    expect([...all].sort()).toEqual(projectsByCategory("kits").map((p) => p.slug).sort());
+    expect(PILLARS.map((p) => p.slugs.length)).toEqual([5, 7, 6]);
+    for (const pillar of PILLARS) expect(pillarKits(pillar).map((p) => p.slug)).toEqual([...pillar.slugs]);
+  });
+
+  it("業務自動化は看板 3 本が先頭（10/15 の監査の決めを柱の中で保つ）", () => {
+    expect(PILLARS[0].slugs.slice(0, 3)).toEqual([...FEATURED]);
+    expect(PILLARS[0].picks.map((p) => p.slug)).toEqual([...FEATURED]);
+  });
+
+  it("代表は 2〜3 本で、その柱の中から選ぶ。一行は短い", () => {
+    for (const pillar of PILLARS) {
+      expect(pillar.picks.length).toBeGreaterThanOrEqual(2);
+      expect(pillar.picks.length).toBeLessThanOrEqual(3);
+      for (const pick of pillar.picks) {
+        expect(pillar.slugs, `${pillar.id} ${pick.slug}`).toContain(pick.slug);
+        expect([...pick.hook].length, pick.hook).toBeLessThanOrEqual(22);
+      }
+    }
+  });
+
+  it("一行は敬体で終わり、内向きの呼び名と「何でも AI」を書かない", () => {
+    for (const pillar of PILLARS) {
+      expect(pillar.lede).toMatch(/。$/);
+      expect(pillar.lede).not.toMatch(/鉋|棟梁|弾|何でも AI|AI に全部/);
+    }
+    // 業務自動化の一行には、前の名乗りを残す
+    expect(PILLARS[0].lede.startsWith("表に書けば、仕事が回る。")).toBe(true);
+  });
+
+  it("受託の一行の額は階段（PRICE_LADDER）と同じ。動く見本への道は柱ごとに 1 つ", () => {
+    expect(PILLARS.map((p) => p.service.price)).toEqual(["30,000 円〜", "40,000 円〜", "150,000 円〜"]);
+    for (const pillar of PILLARS) {
+      expect(PRICE_LADDER.some((row) => row.price.startsWith(pillar.service.price)), pillar.id).toBe(true);
+      expect(pillar.demo.href.length).toBeGreaterThan(0);
+    }
+    // AI の見本は書類の読み取り（鍵が無くても同梱の書類は読める）。Web は見本サイト
+    expect(PILLARS[1].demo.href).toBe("/projects/doc-reader");
+    expect(PILLARS[2].demo.href).toBe("/sites");
+  });
+
+  it("pillarOf はキットの柱を返し、見本サイトと作品には返さない", () => {
+    expect(pillarOf("doc-reader")?.id).toBe("ai");
+    expect(pillarOf("floorplan")?.id).toBe("web");
+    expect(pillarOf("deadline")?.id).toBe("automation");
+    expect(pillarOf("corporate-site")).toBeUndefined();
+    expect(pillarOf("suminagashi")).toBeUndefined();
+  });
+
+  it("/kits の一行は三つの棚の名を言う", () => {
+    expect(INDEX_PAGES.kits.lede).toContain("業務自動化・AI活用・Web制作");
   });
 });
 

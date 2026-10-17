@@ -77,14 +77,17 @@ export function Sheet({
  */
 export function SheetSection({
   name,
+  id,
   children,
 }: {
   /** 段の名。一つしか段が無い面では省く（題がその役を兼ねる） */
   name?: string;
+  /** 頭の案内から飛んで来る印（/kits の三つの棚） */
+  id?: string;
   children: React.ReactNode;
 }) {
   return (
-    <section className={s.shelf}>
+    <section className={s.shelf} id={id}>
       {name && (
         <div className={s.shelfHead}>
           <h2 className={s.shelfName}>{name}</h2>

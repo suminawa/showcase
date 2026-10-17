@@ -3,22 +3,15 @@
  * 英仏の /kits だけ、末尾に悩みから読む紙（guides、日本語のみ）の行を添える。
  * 日本語の /kits は、各行の下に結びつく案内記事への道を添える。
  */
-import { CATALOG, localGuides, localIndexPage } from "@/i18n/catalog";
+import { CATALOG, localGuides, localIndexPage, localPillarName } from "@/i18n/catalog";
 import { localePath, type Lang } from "@/i18n/routes";
 import { guideHref } from "@/lib/guides";
-import { MAKER_KITS, projectsByCategory, type Category, type Project } from "@/lib/projects";
+import { PILLARS, pillarKits, projectsByCategory, type Category, type Project } from "@/lib/projects";
 
 import { Rows } from "./Rows";
 import { Sheet, SheetClose, SheetSection } from "./Sheet";
 
 export { categoryMetadata } from "./category-meta";
-
-/** /kits の後半の段の名。前半（事業者本人向け）は題が段の名を兼ねる */
-const MAKERS_HEAD: Record<Lang, string> = {
-  ja: "制作者・開発者向け",
-  en: "For makers and developers",
-  fr: "Pour les créateurs et développeurs",
-};
 
 /** 英仏の guides の行。題は訳、二行目は結びつくキットの名、札は「日本語」 */
 function guideRows(lang: Exclude<Lang, "ja">): Project[] {
@@ -41,15 +34,20 @@ export function CategorySheet({ lang, category }: { lang: Lang; category: Catego
   return (
     <Sheet title={sheet.title} latin={sheet.latin} lede={sheet.lede} lang={lang} path={path}>
       {category === "kits" ? (
-        <>
-          {/* 前半は事業者本人向け。技術の札は出さない（2026-10-15 監査 改善 1） */}
-          <SheetSection>
-            <Rows items={items.filter((p) => !MAKER_KITS.has(p.slug))} from={from} showSale lang={lang} withGuides={lang === "ja"} showTags={false} />
+        /* 三つの棚（業務自動化・AI活用・Web制作）。頭の案内の #automation・#ai・#web はここへ飛ぶ。
+           事務の担当者向けの二つの棚には技術の札を出さない（2026-10-15 監査 改善 1） */
+        PILLARS.map((pillar) => (
+          <SheetSection key={pillar.id} id={pillar.id} name={localPillarName(lang, pillar)}>
+            <Rows
+              items={pillarKits(pillar)}
+              from={from}
+              showSale
+              lang={lang}
+              withGuides={lang === "ja"}
+              showTags={pillar.id === "web"}
+            />
           </SheetSection>
-          <SheetSection name={MAKERS_HEAD[lang]}>
-            <Rows items={items.filter((p) => MAKER_KITS.has(p.slug))} from={from} showSale lang={lang} withGuides={lang === "ja"} />
-          </SheetSection>
-        </>
+        ))
       ) : (
         <SheetSection>
           <Rows items={items} from={from} lang={lang} />

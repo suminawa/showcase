@@ -1,6 +1,6 @@
 /*
- * トップ。PC は第一画面を左右に割り（左に名乗りと看板 3 本の入口、右に動く見本）、
- * スマホは 1 列で看板 3 本の入口までを第一画面に収める。DESIGN.md の Layout。
+ * トップ。第一画面は 誰向けの一行 → 方眼の見出し（6 列 × 3 段）と二文 → 三つの柱（PC は 3 列、スマホは 1 列）。
+ * その下に動く見本（期限アラート）。DESIGN.md の Layout。
  */
 
 .page {
@@ -10,58 +10,51 @@
 /* ---- 第一画面 -------------------------------------------------------------- */
 
 .hero {
-  padding-block: 20px 40px;
+  padding-block: 20px 48px;
   border-bottom: 1px solid var(--m-grid);
 }
 
 @media (min-width: 1024px) {
   .hero {
-    padding-block: 48px 64px;
-  }
-}
-
-.heroGrid {
-  display: grid;
-  gap: 32px;
-}
-
-@media (min-width: 1024px) {
-  .heroGrid {
-    grid-template-columns: minmax(0, 5fr) minmax(0, 6fr);
-    gap: 56px;
-    align-items: start;
-  }
-}
-
-.heroText {
-  /* マス目の寸法を、この欄の幅から決める（コンテナクエリ） */
-  container-type: inline-size;
-  display: grid;
-  gap: 14px;
-  min-width: 0;
-}
-
-@media (min-width: 1024px) {
-  .heroText {
-    gap: 20px;
+    padding-block: 40px 72px;
   }
 }
 
 .kicker {
-  margin: 0;
+  margin: 0 0 14px;
   font-size: 0.875rem;
   letter-spacing: 0.04em;
   color: var(--m-sumi-3);
 }
 
+/* 見出しと二文。PC は左に方眼、右に二文と押す先（下をそろえる） */
+.heroHead {
+  /* マス目の寸法を、この欄の幅から決める（コンテナクエリ） */
+  container-type: inline-size;
+  display: grid;
+  gap: 16px;
+  min-width: 0;
+  margin-bottom: 32px;
+}
+
+@media (min-width: 1024px) {
+  .heroHead {
+    grid-template-columns: auto minmax(0, 1fr);
+    gap: 56px;
+    align-items: end;
+    margin-bottom: 40px;
+  }
+}
+
 /*
- * 一字一マスの見出し（The Masu Rule）。7 列 × 2 段。
+ * 一字一マスの見出し（The Masu Rule）。6 列 × 3 段（柱ごとに 1 段）。
  * 字は 0.72 マス、字間は 0.28 マス。全角の字は 1em なので、送りがちょうど 1 マスになる。
  * 左に半分の字間を足して、字をマスの真ん中に置く。palt は掛けない。
  */
 .masu {
-  --cols: 7;
-  --masu: min(76px, calc(100cqi / var(--cols)));
+  --cols: 6;
+  /* スマホは 1 マス 60px まで（3 段で 180px。見出しの下に二文と柱の頭が入る） */
+  --masu: min(60px, calc(100cqi / var(--cols)));
   margin: 0;
   width: calc(var(--cols) * var(--masu) + 1px);
   padding: 0 0 1px calc(0.14 * var(--masu));
@@ -82,9 +75,41 @@
   background-size: var(--masu) var(--masu);
 }
 
+/*
+ * 英字のマス。原稿用紙と同じく、2 字（AI）は 1 マス、3 字（Web）は 2 マスに入れる。
+ * 字間を 0 にして箱の真ん中に置き、箱の左右を半分の字間ぶんずらして、前後の字の送りを崩さない
+ * （inline-block のあとには字間が付かないので、右に 0.14 マスを足す）。
+ */
+.latin {
+  --n: 1;
+  display: inline-block;
+  width: calc(var(--n) * var(--masu));
+  margin-left: calc(-0.14 * var(--masu));
+  margin-right: calc(0.14 * var(--masu));
+  letter-spacing: 0;
+  text-align: center;
+  vertical-align: baseline;
+}
+
+.latin2 {
+  --n: 2;
+}
+
+.heroText {
+  display: grid;
+  gap: 16px;
+  min-width: 0;
+}
+
+@media (min-width: 1024px) {
+  .masu {
+    --masu: min(76px, calc(100cqi / var(--cols)));
+  }
+}
+
 .lede {
   margin: 0;
-  max-width: 30em;
+  max-width: 34em;
   font-size: 1rem;
   line-height: 1.8;
   letter-spacing: 0.02em;
@@ -100,12 +125,74 @@
   }
 }
 
-/* ---- 看板 3 本の入口（行番号つきのシート） ---------------------------------- */
+.ctas {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 20px;
+  margin: 0;
+}
 
-.picks {
+/* ---- 三つの柱（境目を共有するセル。PC は 3 列） --------------------------- */
+
+.pillars {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  border-top: 1px solid var(--m-grid);
+  border-left: 1px solid var(--m-grid);
+}
+
+@media (min-width: 1024px) {
+  .pillars {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+.pillar {
+  display: grid;
+  grid-template-rows: auto auto auto 1fr;
+  align-content: start;
+  min-width: 0;
+  background: var(--m-cell);
+  border-right: 1px solid var(--m-grid);
+  border-bottom: 1px solid var(--m-grid);
+}
+
+/* 柱の名と一行。列の見出しの帯（セルの見出しの色） */
+.pillarHead {
   display: grid;
   gap: 8px;
-  margin-top: 4px;
+  padding: 16px 16px 18px;
+  background: var(--m-cell-head);
+  border-bottom: 1px solid var(--m-grid);
+}
+
+@media (min-width: 1024px) {
+  .pillarHead {
+    padding: 20px 20px 22px;
+    min-height: 168px;
+    align-content: start;
+  }
+}
+
+.pillarName {
+  margin: 0;
+  font-family: var(--m-mincho);
+  font-weight: 600;
+  font-size: clamp(1.375rem, 1.2rem + 0.6vw, 1.625rem);
+  line-height: 1.35;
+  letter-spacing: 0.03em;
+  font-feature-settings: "palt" 1;
+  word-break: auto-phrase;
+}
+
+.pillarLede {
+  margin: 0;
+  font-size: 0.875rem;
+  line-height: 1.7;
+  color: var(--m-sumi-2);
+  text-wrap: pretty;
+  word-break: auto-phrase;
 }
 
 .picksHead {
@@ -114,10 +201,17 @@
   align-items: baseline;
   gap: 12px;
   margin: 0;
-  font-size: 0.8125rem;
+  padding: 10px 16px 6px;
+  font-size: 0.75rem;
   font-weight: 600;
   letter-spacing: 0.06em;
   color: var(--m-sumi-3);
+}
+
+@media (min-width: 1024px) {
+  .picksHead {
+    padding-inline: 20px;
+  }
 }
 
 .picksTax {
@@ -127,12 +221,13 @@
   color: var(--m-sumi-4);
 }
 
+/* 代表のキット（行番号つきのシート） */
 .pickList {
   margin: 0;
   padding: 0;
   list-style: none;
   background: var(--m-cell);
-  border: 1px solid var(--m-grid);
+  border-top: 1px solid var(--m-grid);
 }
 
 .pickList > li + li {
@@ -183,23 +278,12 @@
 }
 
 .pickPrice {
-  display: grid;
-  align-content: center;
-  justify-items: end;
-  gap: 2px;
-  padding: 9px 12px 9px 4px;
-}
-
-.pickYen {
+  display: flex;
+  align-items: center;
+  padding: 9px 14px 9px 4px;
   font-size: 1rem;
   font-weight: 600;
   font-variant-numeric: tabular-nums;
-}
-
-.pickFree {
-  font-size: 0.6875rem;
-  letter-spacing: 0.04em;
-  color: var(--m-sumi-3);
   white-space: nowrap;
 }
 
@@ -209,29 +293,146 @@
   text-underline-offset: 0.25em;
 }
 
+/* 柱の下の三行: 棚への道・動く見本・受託の一行。行ごと押せる（44px 以上） */
+.pillarLinks {
+  display: grid;
+  align-content: end;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  border-top: 1px solid var(--m-grid);
+}
+
+.pillarLinks > li + li {
+  border-top: 1px solid var(--m-grid);
+}
+
+.pillarLink {
+  display: grid;
+  grid-template-columns: 4.5em minmax(0, 1fr);
+  align-items: baseline;
+  gap: 0 8px;
+  min-height: 48px;
+  padding: 10px 16px;
+  color: var(--m-sumi);
+  font-size: 0.9375rem;
+  line-height: 1.5;
+  text-decoration: none;
+}
+
 @media (min-width: 1024px) {
-  .pick {
-    min-height: 64px;
-    grid-template-columns: 36px minmax(0, 1fr) auto;
-  }
-  .pickName {
-    font-size: 1.0625rem;
-  }
-  .pickHook {
-    font-size: 0.875rem;
+  .pillarLink {
+    padding-inline: 20px;
   }
 }
 
-.ctas {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 8px 20px;
-  margin: 4px 0 0;
+.pillarLink:hover {
+  background: var(--m-cell-head);
 }
 
-.heroDemo {
+.pillarLink:hover .pillarLinkText {
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.3em;
+}
+
+.pillarLink:focus-visible {
+  outline: 2px solid var(--m-shu);
+  outline-offset: -2px;
+}
+
+/* 行の頭の札（一覧・動く見本・受託）。帳票の項目名と同じ添え（墨 4） */
+.pillarLinkLabel {
+  font-size: 0.75rem;
+  letter-spacing: 0.06em;
+  color: var(--m-sumi-4);
+}
+
+.pillarLinkText {
+  display: grid;
+  gap: 2px;
   min-width: 0;
+}
+
+/* 受託の額。文の下の行に、等幅の数字で */
+.pillarPrice {
+  font-size: 0.875rem;
+  font-variant-numeric: tabular-nums;
+  color: var(--m-sumi-2);
+}
+
+/* ---- 動く見本 -------------------------------------------------------------- */
+
+.demoSec {
+  padding-block: 48px;
+  border-bottom: 1px solid var(--m-grid);
+  background: color-mix(in srgb, var(--m-cell-head) 45%, var(--m-paper));
+  scroll-margin-top: 16px;
+}
+
+@media (min-width: 1024px) {
+  .demoSec {
+    padding-block: 72px;
+  }
+}
+
+.demoGrid {
+  display: grid;
+  gap: 24px 56px;
+}
+
+@media (min-width: 1024px) {
+  .demoGrid {
+    grid-template-columns: minmax(0, 4fr) minmax(0, 7fr);
+    align-items: start;
+  }
+}
+
+.demoBox {
+  min-width: 0;
+}
+
+/* ほかの柱の見本への道 */
+.demoList {
+  margin: 4px 0 0;
+  padding: 0;
+  list-style: none;
+  border-top: 1px solid var(--m-grid);
+}
+
+.demoList > li {
+  border-bottom: 1px solid var(--m-grid);
+}
+
+.demoLink {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 48px;
+  padding: 6px 0;
+  color: var(--m-sumi);
+  font-size: 0.9375rem;
+  line-height: 1.5;
+  text-decoration: none;
+}
+
+.demoLink:hover {
+  text-decoration: underline;
+  text-underline-offset: 0.3em;
+}
+
+.demoLink:focus-visible {
+  outline: 2px solid var(--m-shu);
+  outline-offset: 2px;
+}
+
+.demoPillar {
+  flex: 0 0 auto;
+  padding: 1px 6px;
+  border: 1px solid var(--m-grid-strong);
+  font-size: 0.75rem;
+  letter-spacing: 0.04em;
+  color: var(--m-sumi-2);
 }
 
 /* ---- 買う前に確かめられること（4 マス） ------------------------------------- */
@@ -326,87 +527,15 @@
   color: var(--m-sumi-3);
 }
 
-/* ---- ほかの事務の道具（2 列のシート） ---------------------------------------- */
-
-.office {
-  background: color-mix(in srgb, var(--m-cell-head) 45%, var(--m-paper));
-  border-block: 1px solid var(--m-grid);
-}
-
-.officeList {
-  display: grid;
-  margin: 0;
-  padding: 0;
-  list-style: none;
-  border-top: 1px solid var(--m-grid);
-  border-left: 1px solid var(--m-grid);
-}
-
-@media (min-width: 768px) {
-  .officeList {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-}
-
-.officeList > li {
-  background: var(--m-cell);
-  border-right: 1px solid var(--m-grid);
-  border-bottom: 1px solid var(--m-grid);
-}
-
-/* 7 本を 2 列に並べると最後が一つ欠ける。空のマスとして閉じる */
-@media (min-width: 768px) {
-  .officeList:has(> li:nth-child(odd):last-child)::after {
-    content: "";
-    background: var(--m-cell);
-    border-right: 1px solid var(--m-grid);
-    border-bottom: 1px solid var(--m-grid);
-  }
-}
-
-.officeRow {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
-  gap: 2px 16px;
-  height: 100%;
-  padding: 14px 16px;
-  color: var(--m-sumi);
-  text-decoration: none;
-}
-
-.officeName {
-  font-family: var(--m-mincho);
-  font-weight: 600;
-  font-size: 1rem;
-  line-height: 1.5;
-  font-feature-settings: "palt" 1;
-}
-
-.officePrice {
-  grid-row: 1;
-  grid-column: 2;
-  font-weight: 600;
-  font-variant-numeric: tabular-nums;
-}
-
-.officeDesc {
-  grid-column: 1 / -1;
-  font-size: 0.875rem;
-  line-height: 1.7;
-  color: var(--m-sumi-3);
-}
-
-.officeRow:hover .officeName {
-  text-decoration: underline;
-  text-decoration-thickness: 1px;
-  text-underline-offset: 0.25em;
-}
-
 .more {
   margin: 12px 0 0;
 }
 
 /* ---- 頼み方と料金 ---------------------------------------------------------- */
+
+.ladder {
+  border-top: 1px solid var(--m-grid);
+}
 
 .ladderGrid {
   display: grid;
@@ -540,12 +669,4 @@
 .read:focus-visible {
   outline: 2px solid var(--m-shu);
   outline-offset: 2px;
-}
-
-.makers {
-  margin-top: 48px;
-  margin-bottom: 0;
-  font-size: 0.875rem;
-  line-height: 1.8;
-  color: var(--m-sumi-3);
 }

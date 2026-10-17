@@ -115,7 +115,7 @@ export const INDEX_PAGES: Record<Category, IndexPage> = {
   kits: {
     title: "キットとテンプレート",
     latin: "Kits",
-    lede: "買い切りのキットとテンプレートです。キットのお値段は税込で、月額のサービス料はかかりません。迷ったときは、期限アラート・フォーム受付・予約ページの 3 本からご覧ください。",
+    lede: "業務自動化・AI活用・Web制作の三つの棚に、買い切りのキットとテンプレートを並べています。お値段は税込で、月額のサービス料はかかりません。迷ったときは、期限アラート・フォーム受付・予約ページの 3 本からご覧ください。",
   },
   sites: {
     title: "見本サイト",
@@ -488,31 +488,94 @@ export function kitSetListTotal(): number {
 }
 
 /**
- * /kits の後半に「制作者・開発者向け」の見出しを立ててまとめるキット（2026-10-15 監査 改善 1）。
- * 前半は事業者本人向けで、そちらの行には技術の札を出さない（発注者には意味が通じない）。
+ * 三つの柱（2026-10-17、持ち主の指示）。トップの 3 列・/kits の三つの棚・頭とフッターの案内が、同じ三つを使う。
+ *
+ *   automation … 業務自動化。看板 3 本（FEATURED）を先頭に、スプレッドシートで動く事務の道具
+ *   ai         … AI活用。案内窓口・書類の読み取り・問い合わせの整理のように、役目を決めた AI の道具
+ *   web        … Web制作・Webアプリ制作。LP のテンプレート・3D の部品・会員制サービスの土台
+ *
+ * 10/15 の監査の決め（主軸は中小企業の事務担当・看板 3 本）は、業務自動化の柱の中で保つ。
+ * 「何でも AI で」とは書かない（AI の柱は仕事の決まった道具として見せる）。
+ * 受託の一行の額は PRICE_LADDER と同じ出どころで、ここで新しい額を作らない。
  */
-export const MAKER_KITS: ReadonlySet<string> = new Set([
-  "floorplan",
-  "saas-starter",
-  "lp-pack",
-  "rag-eval-harness",
-  "mcp-server",
-  "configurator",
-  "shopify-configurator",
-  "quote-simulator",
-]);
+export type PillarId = "automation" | "ai" | "web";
 
-/**
- * /kits とトップの棚。看板 3 本（FEATURED の並び）・事務の道具・制作者と開発者向けの三つに、
- * キットを一度ずつ配る（登録の順のまま）。
- */
-export function kitShelves(): { start: Project[]; office: Project[]; makers: Project[] } {
-  const kits = projects.filter((p) => p.category === "kits" && !p.unlisted);
-  return {
-    start: featuredProjects(),
-    office: kits.filter((p) => !FEATURED.includes(p.slug) && !MAKER_KITS.has(p.slug)),
-    makers: kits.filter((p) => MAKER_KITS.has(p.slug)),
-  };
+export type Pillar = {
+  id: PillarId;
+  /** 柱の名（棚の題・トップの列の題） */
+  name: string;
+  /** 頭の案内に出す短い名 */
+  short: string;
+  /** 一行の説明（敬体） */
+  lede: string;
+  /** 棚に並ぶキット。並びもここで決める（看板 3 本は先頭） */
+  slugs: readonly string[];
+  /** トップの列に出す代表 2〜3 本と、その一行 */
+  picks: readonly { slug: string; hook: string }[];
+  /** 動く見本への道（柱ごとに 1 つ）。業務自動化はトップの中の見本（#demo） */
+  demo: { label: string; href: string };
+  /** 受託の一行（税別）。額は PRICE_LADDER と同じ */
+  service: { label: string; price: string };
+};
+
+export const PILLARS: readonly Pillar[] = [
+  {
+    id: "automation",
+    name: "業務自動化",
+    short: "業務自動化",
+    lede: "表に書けば、仕事が回る。期限の通知、問い合わせの受付、予約のページを、Google スプレッドシートの中で動かします。",
+    slugs: ["deadline", "form", "booking", "sheet-app", "dashboard"],
+    picks: [
+      { slug: "deadline", hook: "期限を毎朝 1 通でお知らせします" },
+      { slug: "form", hook: "受付を記録して、自動で返信します" },
+      { slug: "booking", hook: "枠を書けば予約ページになります" },
+    ],
+    demo: { label: "期限アラートの動く見本", href: "#demo" },
+    service: { label: "設置まで頼む", price: "30,000 円〜" },
+  },
+  {
+    id: "ai",
+    name: "AI活用",
+    short: "AI活用",
+    lede: "案内窓口、書類の読み取り、問い合わせの整理など、役目を決めた AI の道具です。自社の文書だけを根拠に答えます。",
+    slugs: ["ai-concierge", "line-concierge", "doc-reader", "inbox-triage", "survey-analysis", "rag-eval-harness", "mcp-server"],
+    picks: [
+      { slug: "ai-concierge", hook: "自社の文書だけを根拠に答えます" },
+      { slug: "doc-reader", hook: "請求書や領収書を表に写します" },
+      { slug: "inbox-triage", hook: "問い合わせを分類し、返信の案を残します" },
+    ],
+    demo: { label: "書類読み取りの見本を試す", href: "/projects/doc-reader" },
+    service: { label: "AI の組み込みを頼む", price: "40,000 円〜" },
+  },
+  {
+    id: "web",
+    name: "Web制作・Webアプリ制作",
+    short: "Web制作",
+    lede: "業種別の LP テンプレート、3D の商品ページ、会員制サービスの土台。見本サイト 6 本は、その場で触れます。",
+    slugs: ["lp-pack", "saas-starter", "configurator", "shopify-configurator", "floorplan", "quote-simulator"],
+    picks: [
+      { slug: "lp-pack", hook: "見本サイト 6 本の一式です" },
+      { slug: "configurator", hook: "3D の商品を回して、色と価格を選べます" },
+      { slug: "saas-starter", hook: "ログイン・権限・課金がそろった土台です" },
+    ],
+    demo: { label: "見本サイト 6 本を見る", href: "/sites" },
+    service: { label: "LP・サイトの制作を頼む", price: "150,000 円〜" },
+  },
+];
+
+/** その柱に並ぶキット（柱の slugs の順）。登録に無い slug は落とさず、気づけるように投げる */
+export function pillarKits(pillar: Pillar): Project[] {
+  const by = new Map(projects.map((p) => [p.slug, p]));
+  return pillar.slugs.map((slug) => {
+    const project = by.get(slug);
+    if (!project) throw new Error(`柱のキットが見つからない: ${pillar.id} ${slug}`);
+    return project;
+  });
+}
+
+/** そのキットの柱。キット以外（見本サイト・作品）は undefined */
+export function pillarOf(slug: string): Pillar | undefined {
+  return PILLARS.find((p) => p.slugs.includes(slug));
 }
 
 export function featuredProjects(): Project[] {

@@ -18,6 +18,8 @@ import {
   type Category,
   type Gate,
   type IndexPage,
+  type Pillar,
+  type PillarId,
   type Project,
   type Sale,
 } from "@/lib/projects";
@@ -31,6 +33,8 @@ type Menu = { title: string; price: string }[];
 type Catalog = {
   /** トップの入口 3 行。375px の紙で英字の見出しの横に一行で収まる長さ（24 字前後まで）にする */
   gates: Record<Category, string>;
+  /** 三つの柱の名（/kits の棚の題・頭とフッターの案内）。日本語は projects.ts の PILLARS が持つ */
+  pillars: Record<PillarId, string>;
   index: Record<Category, Omit<IndexPage, "latin">>;
   contact: Omit<IndexPage, "latin">;
   services: Menu;
@@ -53,10 +57,15 @@ export const CATALOG: Record<ForeignLang, Catalog> = {
       sites: "Sample sites by industry",
       works: "Works and tools",
     },
+    pillars: {
+      automation: "Business automation",
+      ai: "AI tools",
+      web: "Web production and web apps",
+    },
     index: {
       kits: {
         title: "Kits and templates",
-        lede: "One-time-purchase kits and templates, with no monthly service fee. Sold on BOOTH or note, in Japanese and priced in yen.",
+        lede: "One-time-purchase kits and templates on three shelves: business automation, AI tools, and web production. No monthly service fee. Sold on BOOTH or note, in Japanese and priced in yen.",
       },
       sites: {
         title: "Sample sites",
@@ -242,10 +251,15 @@ export const CATALOG: Record<ForeignLang, Catalog> = {
       sites: "Sites d’exemple par secteur",
       works: "Réalisations et outils",
     },
+    pillars: {
+      automation: "Automatisation",
+      ai: "Outils IA",
+      web: "Création web et applications web",
+    },
     index: {
       kits: {
         title: "Kits et modèles",
-        lede: "Des kits et des modèles en achat unique, sans abonnement. Vendus en japonais sur BOOTH ou note, en yens.",
+        lede: "Des kits et des modèles en achat unique, sur trois rayons : automatisation, outils IA et création web. Sans abonnement. Vendus en japonais sur BOOTH ou note, en yens.",
       },
       sites: {
         title: "Sites d’exemple",
@@ -445,6 +459,11 @@ export function localGates(lang: Lang): Gate[] {
 export function localIndexPage(lang: Lang, category: Category): IndexPage {
   const ja = INDEX_PAGES[category];
   return lang === "ja" ? ja : { ...CATALOG[lang].index[category], latin: ja.latin };
+}
+
+/** 柱の名（/kits の棚の題）。日本語は PILLARS の名そのまま */
+export function localPillarName(lang: Lang, pillar: Pillar): string {
+  return lang === "ja" ? pillar.name : CATALOG[lang].pillars[pillar.id];
 }
 
 export function localContact(lang: Lang) {

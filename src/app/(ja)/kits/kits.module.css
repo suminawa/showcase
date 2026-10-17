@@ -81,10 +81,16 @@
   font-weight: 400;
   font-variant-numeric: tabular-nums;
   color: var(--m-sumi-4);
+  white-space: nowrap;
 }
 
 .shelf {
   scroll-margin-top: 16px;
+}
+
+/* 看板 3 本の大きなカードのあとに続く、同じ棚の残り（間を 1 マスぶん空ける） */
+.restGrid {
+  margin-top: 24px;
 }
 
 .tinted {
