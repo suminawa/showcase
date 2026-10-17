@@ -7,9 +7,9 @@ import type { Lang } from "@/i18n/routes";
 import sh from "./shell.module.css";
 
 const T: Record<Lang, { label: string; text: string }> = {
-  ja: { label: "動く見本", text: "書き換えたり送ったりすると、その場で結果が変わります。どこにも送らず、何も保存しません。" },
-  en: { label: "Live demo", text: "Edit or submit and the result changes on the spot. Nothing is sent or saved." },
-  fr: { label: "Démo en direct", text: "Modifiez ou envoyez : le résultat change aussitôt. Rien n’est envoyé ni enregistré." },
+  ja: { label: "動く見本", text: "触ると、その場で結果が変わります。入力した内容はこの画面の中だけで扱い、外へ送ったり保存したりしません。" },
+  en: { label: "Live demo", text: "Try it and the result changes on the spot. What you enter stays on this page; nothing is sent or saved." },
+  fr: { label: "Démo en direct", text: "Essayez : le résultat change aussitôt. Ce que vous saisissez reste sur cette page ; rien n’est envoyé ni enregistré." },
 };
 
 export function DemoLabel({ lang }: { lang: Lang }) {

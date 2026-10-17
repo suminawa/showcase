@@ -28,7 +28,7 @@ const T: Record<
     services: "頼めること",
     steps: "進め方",
     elsewhere: "ほかの場所",
-    elsewhereNote: "suminawa の名義で置いている場所です。",
+    elsewhereNote: "suminawa の名義のアカウントです。",
   },
   en: {
     mailHead: "Write to me",

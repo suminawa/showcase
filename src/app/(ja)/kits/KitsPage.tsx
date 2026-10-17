@@ -56,7 +56,7 @@ export function KitsPage() {
             <h2 id="start-title" className={u.h2}>
               はじめての方におすすめの 3 本
             </h2>
-            <p className={u.lede}>迷ったら、この 3 本から。どれも Google スプレッドシートで動き、月額の費用はかかりません。</p>
+            <p className={u.lede}>どれも Google スプレッドシートで動き、手順書どおりに 15〜20 分ほどで置けます。月額の費用はかかりません。</p>
           </div>
           <KitGrid count={start.length} large label="はじめての方におすすめの 3 本">
             {start.map((project, i) => (

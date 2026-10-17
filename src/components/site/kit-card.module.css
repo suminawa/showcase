@@ -201,6 +201,17 @@
   font-size: 0.875rem;
 }
 
+/* スマホの看板のカードは、写真を少し低く（台紙の余白だけを切る）・帳票を詰めて、一枚を短くする */
+@media (max-width: 639px) {
+  .large .shot {
+    aspect-ratio: 16 / 10;
+  }
+  .facts dt,
+  .facts dd {
+    padding-block: 6px;
+  }
+}
+
 /* dl の中の組（dt と dd）を一行に。spec の二列の格子をそのまま使う */
 .fact {
   display: contents;
