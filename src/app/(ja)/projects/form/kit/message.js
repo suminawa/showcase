@@ -17,6 +17,9 @@ const LINE_LIMIT = 5000;
 /** 自動返信を送れなかったときに、通知の末尾へ足す 1 行 */
 export const QUOTA_NOTICE = "※ 自動返信は本日の上限に達したため送っていません。";
 
+/** 自動返信の送信そのものが失敗したとき（宛先の書式を Gmail が受け付けないなど）に、通知の末尾に足す 1 文 */
+export const REPLY_FAILED_NOTICE = "※ 自動返信を送れませんでした。宛先のメールアドレスを確かめ、必要ならこちらからご連絡ください。";
+
 function truncate_(text, limit) {
   if (text.length <= limit) return text;
   // Slack の文字参照（&amp; など）を途中で切らない
@@ -65,7 +68,31 @@ export function renderTemplate(template, context) {
 /** 1 件届いたことを知らせる本文 */
 export function buildNotificationText(config, context) {
   const text = renderTemplate(config.notifyTemplate, context);
+  if (context.replyFailed === true) return text + "\n\n" + REPLY_FAILED_NOTICE;
   return context.quotaExhausted === true ? text + "\n\n" + QUOTA_NOTICE : text;
+}
+
+const TARGET_LABELS = { slack: "Slack", discord: "Discord", line: "LINE" };
+
+/**
+ * テスト送信で失敗した通知先ごとの 1 行。返ってきた番号から、設定シートのどこを直すかを添える。
+ * failure = { target, message }（message は gas_notify.js の「404 が返りました: …」）
+ */
+export function failureLine(failure) {
+  const label = TARGET_LABELS[failure.target] || failure.target;
+  const matched = String(failure.message).match(/^(\d{3}) /);
+  const status = matched ? Number(matched[1]) : 0;
+  let hint = "設定シートの値と、実行ログの文をご確認ください。";
+  if (failure.target === "line" && status === 401) {
+    hint = "「LINE チャネルアクセストークン」が違います。長期のトークンを発行し直して貼ってください。";
+  } else if (failure.target === "line" && status === 400) {
+    hint = "「LINE 送信先 ID」が U で始まる自分のユーザー ID か、そのチャネルを友だちに追加しているかをご確認ください。";
+  } else if (failure.target === "line" && status === 429) {
+    hint = "LINE の月の送信数の上限に達しています。翌月には戻ります。";
+  } else if (status === 400 || status === 401 || status === 403 || status === 404 || status === 410) {
+    hint = "「" + label + " Webhook URL」が違うか、Webhook が消されています。URL を作り直して貼ってください。";
+  }
+  return "・" + label + ": 送れませんでした（" + String(failure.message).slice(0, 80) + "）。" + hint;
 }
 
 /** 失敗したときに、同じ通知先へ流す本文 */

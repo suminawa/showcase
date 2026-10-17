@@ -42,6 +42,17 @@ export function toDateKey(value, offsetMinutes) {
   return year + "-" + pad2_(month) + "-" + pad2_(day);
 }
 
+/**
+ * 時刻だけのセル（「10:00」と打つと Sheets は時刻に変える。値は 1899-12-30 10:00 の Date）を
+ * 見たままの "10:00" / "9:30" にする。Date でなければ null
+ */
+export function timeText(value, offsetMinutes) {
+  if (Object.prototype.toString.call(value) !== "[object Date]") return null;
+  const at = shifted_(new Date(value.getTime()), offsetMinutes);
+  if (at === null) return null;
+  return at.getUTCHours() + ":" + pad2_(at.getUTCMinutes());
+}
+
 /** 受付シートに書く受付日時。"2026-09-14 10:32:05"（Asia/Tokyo） */
 export function formatStamp(value, offsetMinutes) {
   const at = shifted_(value, offsetMinutes);

@@ -16,10 +16,15 @@ function cellText_(value) {
   return String(value).trim();
 }
 
-/** Sheets が数式として解釈する先頭文字を無力化する（見た目は変わらない） */
+/**
+ * Sheets が数式として解釈する先頭文字を無力化する（見た目は変わらない）。
+ * 先頭が 0 の数字だけ（電話 09012345678・郵便番号 0600001）と 16 桁以上の数字だけも ' を付けて字のまま置く。
+ * 付けないと数として読まれ、先頭の 0 や 16 桁目から先が消える
+ */
 function safeCell_(value) {
   const text = value === undefined || value === null ? "" : String(value);
-  return /^[=+\-@\t\r]/.test(text) ? "'" + text : text;
+  const numberLike = /^0\d+$/.test(text) || /^\d{16,}$/.test(text);
+  return /^[=+\-@\t\r]/.test(text) || numberLike ? "'" + text : text;
 }
 
 /** 列に並べる項目名。「項目の並び」があればその順、無ければ送られてきた順 */
