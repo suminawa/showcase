@@ -235,3 +235,19 @@
   letter-spacing: 0.06em;
   color: var(--m-sumi);
 }
+
+/* ---- 本文の段落（看板 3 本のページの、見本の前後の説明） ------------------------ */
+
+.body {
+  margin: 0;
+  max-width: 44em;
+  font-size: 0.9375rem;
+  line-height: 1.85;
+  color: var(--m-sumi-2);
+}
+
+.prose {
+  display: grid;
+  gap: 12px;
+  margin-top: 16px;
+}

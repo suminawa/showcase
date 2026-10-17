@@ -11,12 +11,8 @@ import { KitBuy, KitClose, KitFacts } from "@/components/kit-demo/KitClose";
 import type { Lang } from "@/i18n/routes";
 
 import { DemoLabel } from "../demo-label";
-import {
-  AFTER_TOOL,
-  ProjectShell,
-  projectMetadata,
-} from "../shell";
-import s from "../projects.module.css";
+import { ProjectShell, projectMetadata } from "../shell";
+import sh from "../shell.module.css";
 import f from "./booking.module.css";
 import { copy } from "./copy";
 import { Tool } from "./Tool";
@@ -37,16 +33,16 @@ export function Content({ lang }: { lang: Lang }) {
       head={<KitFacts slug="booking" lang={lang} />}
     >
       <DemoLabel lang={lang} />
-      <p className={s.lede}>{t.intro}</p>
+      <p className={sh.body}>{t.intro}</p>
       {/* 道具の中だけは自前の色と字を持つ。その根がこの一枚 */}
       <div className={f.tool}>
         <Tool />
       </div>
-      <p className={s.lede} style={AFTER_TOOL}>
-        {t.flow}
-      </p>
-      <p className={s.lede}>{t.options}</p>
-      <p className={s.lede}>{t.setup}</p>
+      <div className={sh.prose}>
+        <p className={sh.body}>{t.flow}</p>
+        <p className={sh.body}>{t.options}</p>
+        <p className={sh.body}>{t.setup}</p>
+      </div>
       <KitClose slug="booking" lang={lang} />
     </ProjectShell>
   );

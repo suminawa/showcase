@@ -209,7 +209,7 @@ export function TopPage() {
               </Link>
             </p>
             <p className={u.small}>
-              メールでも受け付けています: <ContactMail className={u.link} />
+              メールでのご相談は <ContactMail className={u.link} /> へ。
             </p>
           </div>
           <div className={s.tableWrap}>
@@ -281,7 +281,7 @@ export function TopPage() {
           </div>
         </div>
         <p className={`${u.wrap} ${s.makers}`}>
-          Web 制作者・開発者の方へ: SaaS の土台・MCP サーバー・RAG の評価・3D の部品・LP のテンプレートは、
+          Web 制作者・開発者の方へ。SaaS の土台・MCP サーバー・RAG の評価・3D の部品・LP のテンプレートは、
           <Link href="/kits#makers" className={u.link}>
             キットの一覧の後半
           </Link>
