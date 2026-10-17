@@ -15,7 +15,7 @@ import Link from "next/link";
 import u from "@/components/site/ui.module.css";
 import { NoteEmbed } from "@/components/note/NoteEmbed";
 import links from "@/data/links.json";
-import { projectPriceNow } from "@/i18n/catalog";
+import { localProject, projectPriceNow } from "@/i18n/catalog";
 import { localKitDemo } from "@/i18n/kit-demos";
 import { hrefFor, localePath, type Lang } from "@/i18n/routes";
 import { PURCHASE_NOTE, dateLabel, money } from "@/i18n/ui";
@@ -121,9 +121,9 @@ function setLine(slug: string, lang: Lang): string | null {
   const names = KIT_SET.slugs
     .map((s) => {
       const project = projects.find((p) => p.slug === s);
-      return project ? project.title : s;
+      return project ? localProject(lang, project).title : s;
     })
-    .join("・");
+    .join(lang === "ja" ? "・" : ", ");
   return T[lang].set(names, money(lang, KIT_SET.price), money(lang, kitSetListTotal()));
 }
 

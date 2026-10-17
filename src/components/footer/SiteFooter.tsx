@@ -19,7 +19,7 @@ const T: Record<Lang, { line: string; reply: string; label: string; elsewhere: s
   ja: {
     line: "Google スプレッドシートで動く、買い切りの事務の道具。",
     reply: "3 営業日以内に返信します。",
-    label: "サイトの案内",
+    label: "フッターの案内",
     elsewhere: "ほかの場所",
     langs: "言語",
     columns: [
@@ -53,7 +53,7 @@ const T: Record<Lang, { line: string; reply: string; label: string; elsewhere: s
   en: {
     line: "One-time-purchase office tools that run in Google Sheets.",
     reply: "Replies within 3 business days.",
-    label: "Site",
+    label: "Footer",
     elsewhere: "Elsewhere",
     langs: "Language",
     columns: [
@@ -81,7 +81,7 @@ const T: Record<Lang, { line: string; reply: string; label: string; elsewhere: s
   fr: {
     line: "Des outils de bureau en achat unique, qui fonctionnent dans Google Sheets.",
     reply: "Réponse sous 3 jours ouvrés.",
-    label: "Site",
+    label: "Pied de page",
     elsewhere: "Ailleurs",
     langs: "Langue",
     columns: [
