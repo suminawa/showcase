@@ -1,35 +1,52 @@
 /*
- * 制作のご相談。トップの結びから来る紙で、頼めることと料金の目安、進め方、宛先だけ。
+ * 頼み方と料金（/contact）。頭（題・一行・宛先）→ 頼み方と目安 → 進め方 → よくあるご質問 → フォーム → ほかの場所。
+ * 宛先は頭のすぐ下に置く（スマホで最後まで読まないと送り先が分からなかった。2026-10-17 デザインの見直し 2）。
  *
- * 数字の出どころは公開済みの受託メニュー（concierge/content/services.md）ひとつで、
- * そこに書いていない額は足さない。肩書き・経歴・実績の数は書かない ──
- * ここに置くのは品書きだけで、語るのは分類のページに並ぶ実物のほうである。
- * 日本語の紙にだけ、頼み方と目安の階段とよくあるご質問を置く（2026-10-15 監査 改善 4）。
- * 問い合わせのフォームはまだ置かない（自社のフォーム受付キットを持ち主のアカウントで公開してから。下の印の場所）。
- * FORM: 料紙（分類のページ）— 文法は DESIGN.md
+ * 数字の出どころは公開済みの受託メニュー（concierge/content/services.md）と PRICE_LADDER ひとつで、
+ * そこに書いていない額は足さない。日本語の紙にだけ、頼み方の階段とよくあるご質問を置く。
+ * 問い合わせのフォームは、自社のフォーム受付キットを持ち主のアカウントで公開してから（NEXT_PUBLIC_CONTACT_ENDPOINT）。
+ * FORM: 方眼（DESIGN.md）
  */
-import Link from "next/link";
-
-import { Sheet, SheetSection } from "@/components/ryoushi";
+import { PriceLadder } from "@/components/site/PriceLadder";
+import u from "@/components/site/ui.module.css";
 import { ContactMail } from "@/components/track/ContactMail";
 import { localContact } from "@/i18n/catalog";
 import { pageMetadata } from "@/i18n/meta";
-import { hrefFor, type Lang } from "@/i18n/routes";
-import { CONTACT_FAQ, ELSEWHERE, PRICE_LADDER } from "@/lib/projects";
-import { UI } from "@/i18n/ui";
+import type { Lang } from "@/i18n/routes";
+import { CONTACT_FAQ, ELSEWHERE, EMBED_SERVICE } from "@/lib/projects";
 
-import s from "../ryoushi.module.css";
 import { ContactForm } from "./ContactForm";
+import c from "./contact.module.css";
 
-/** 段の名。品書きと進め方の数字・文は src/i18n/catalog.ts（日本語は projects.ts） */
-const HEADS: Record<Lang, { services: string; steps: string }> = {
-  ja: { services: "頼めること", steps: "進め方" },
-  en: { services: "Services", steps: "How it works" },
-  fr: { services: "Prestations", steps: "Déroulement" },
+const T: Record<
+  Lang,
+  { mailHead: string; mailNote: string; services: string; steps: string; elsewhere: string; elsewhereNote: string }
+> = {
+  ja: {
+    mailHead: "メールで相談する",
+    mailNote: "3 営業日以内に返信します。ココナラ・ランサーズを通してのご依頼もお受けします。",
+    services: "頼めること",
+    steps: "進め方",
+    elsewhere: "ほかの場所",
+    elsewhereNote: "suminawa の名義で置いている場所です。",
+  },
+  en: {
+    mailHead: "Write to me",
+    mailNote: "Replies within 3 business days.",
+    services: "Services",
+    steps: "How it works",
+    elsewhere: "Elsewhere",
+    elsewhereNote: "Other places under the suminawa name.",
+  },
+  fr: {
+    mailHead: "Écrire",
+    mailNote: "Réponse sous 3 jours ouvrés.",
+    services: "Prestations",
+    steps: "Déroulement",
+    elsewhere: "Ailleurs",
+    elsewhereNote: "Les autres lieux sous le nom suminawa.",
+  },
 };
-
-/** ほかの置き場の行の頭（サービス名は訳さない） */
-const ELSEWHERE_HEAD: Record<Lang, string> = { ja: "ほかの場所: ", en: "Elsewhere: ", fr: "Ailleurs : " };
 
 export function contactMetadata(lang: Lang) {
   const { page } = localContact(lang);
@@ -38,107 +55,120 @@ export function contactMetadata(lang: Lang) {
 
 export function ContactPage({ lang }: { lang: Lang }) {
   const endpoint = process.env.NEXT_PUBLIC_CONTACT_ENDPOINT;
-  const { page, services, steps, note } = localContact(lang);
+  const { page, services, steps } = localContact(lang);
+  const t = T[lang];
   return (
-    <Sheet title={page.title} latin={page.latin} lede={page.lede} lang={lang} path="/contact">
-      {/* 品書き。題と目安が同じ罫に並ぶ ── 献立表と同じ組み方で、
-          行そのものは何処へも飛ばない（触れても濡れない） */}
-      {/*
-        頼めることと進め方を【一つの段】に組む。
-        段を二つに割ると、あいだに罫 6 本（版面の張り出しの和）が要る ──
-        中身が 4 行と 3 行しかない紙では、その空白のほうが字より長くなり、
-        書きかけの紙に見えた。一つの段なら小見出しを罫 2 本で継げる。
-      */}
-      {lang === "ja" && (
-        <SheetSection name="頼み方と目安">
-          <table className={s.ladder}>
-            <thead>
-              <tr>
-                <th scope="col">頼み方</th>
-                <th scope="col">目安</th>
-                <th scope="col">向く方</th>
-              </tr>
-            </thead>
-            <tbody>
-              {PRICE_LADDER.map((row) => (
-                <tr key={row.how}>
-                  <th scope="row">{row.how}</th>
-                  <td>{row.price}</td>
-                  <td>{row.who}</td>
-                </tr>
+    <main id="main" className={c.page}>
+      <div className={u.wrap}>
+        <header className={c.head}>
+          <div className={c.headMain}>
+            <h1 className={c.title}>{page.title}</h1>
+            <p className={u.lede}>{page.lede}</p>
+          </div>
+          <div className={c.mailBox}>
+            <p className={c.mailHead}>{t.mailHead}</p>
+            <p className={c.mail}>
+              <ContactMail className={c.mailLink} />
+            </p>
+            <p className={u.small}>{t.mailNote}</p>
+            {lang === "ja" && endpoint && (
+              <p className={u.small}>
+                <a href="#form" className={u.link}>
+                  フォームでも送れます
+                </a>
+              </p>
+            )}
+          </div>
+        </header>
+
+        {lang === "ja" ? (
+          <section className={c.section} id="ladder" aria-labelledby="ladder-title">
+            <h2 id="ladder-title" className={u.h2}>
+              頼み方と目安
+            </h2>
+            <PriceLadder />
+            <p className={c.after}>
+              {EMBED_SERVICE.title}は、{EMBED_SERVICE.price}です。料金は税別の目安で、キットの値段だけは税込です。
+            </p>
+          </section>
+        ) : (
+          <section className={c.section} aria-labelledby="services-title">
+            <h2 id="services-title" className={u.h2}>
+              {t.services}
+            </h2>
+            <ul className={c.menu}>
+              {services.map((item) => (
+                <li key={item.title} className={c.menuItem}>
+                  <span className={c.menuName}>{item.title}</span>
+                  <span className={c.menuPrice}>{item.price}</span>
+                </li>
               ))}
-            </tbody>
-          </table>
-        </SheetSection>
-      )}
+            </ul>
+          </section>
+        )}
 
-      <SheetSection name={HEADS[lang].services}>
-        <ul className={s.menu}>
-          {services.map((item) => (
-            <li key={item.title} className={s.menuItem}>
-              <span className={s.menuName}>{item.title}</span>
-              <span className={s.menuPrice}>{item.price}</span>
-            </li>
-          ))}
-        </ul>
-
-        <h2 className={`${s.shelfName} ${s.subHead}`}>{HEADS[lang].steps}</h2>
-        <ol className={s.steps}>
-          {steps.map((step) => (
-            <li key={step.title} className={s.step}>
-              <span className={s.stepName}>{step.title}</span>
-              <span className={s.stepDetail}>{step.detail}</span>
-            </li>
-          ))}
-        </ol>
-      </SheetSection>
-
-      {lang === "ja" && (
-        <SheetSection name="よくあるご質問">
-          <dl className={s.faq}>
-            {CONTACT_FAQ.map((item) => (
-              <div key={item.q}>
-                <dt>{item.q}</dt>
-                <dd>{item.a}</dd>
-              </div>
+        <section className={c.section} aria-labelledby="steps-title">
+          <h2 id="steps-title" className={u.h2}>
+            {t.steps}
+          </h2>
+          <ol className={c.steps}>
+            {steps.map((step, i) => (
+              <li key={step.title} className={c.step}>
+                <span className={c.stepNo} aria-hidden="true">
+                  {i + 1}
+                </span>
+                <span className={c.stepName}>{step.title}</span>
+                <span className={c.stepDetail}>{step.detail}</span>
+              </li>
             ))}
-          </dl>
-        </SheetSection>
-      )}
+          </ol>
+        </section>
 
-      {/* 問い合わせのフォーム（自社の「フォーム受付 GAS キット」）。送信先の URL は持ち主のアカウントで公開した
-          ウェブアプリで、環境変数 NEXT_PUBLIC_CONTACT_ENDPOINT に入る。無いあいだはこの節を出さず、下の mailto だけ */}
-      {lang === "ja" && endpoint && (
-        <SheetSection name="フォームで送る">
-          <ContactForm endpoint={endpoint} />
-        </SheetSection>
-      )}
-      <footer className={s.close}>
-        <p className={s.menuNote}>
-          {note.before}
-          <ContactMail className={s.mailLink}>{note.mail}</ContactMail>
-          {note.after}
-        </p>
-        {/* ほかの置き場。宛先と同じ小さな字で一行だけ ── 品書きより前に出さない */}
-        <p className={s.menuNote} style={{ marginTop: 0 }}>
-          {ELSEWHERE_HEAD[lang]}
-          {ELSEWHERE.map((e, i) => (
-            <span key={e.name}>
-              {i > 0 ? " ・ " : ""}
-              <a className={s.mailLink} href={e.href} rel="me noopener">
-                {e.name}
-              </a>
-            </span>
-          ))}
-        </p>
-        {/* 入口へ帰る一行。頭の戻りと同じ行き先だが、下まで読んだ人が
-            巻き戻さずに済むように置く。落款は頭に一つだけで、ここには捺さない */}
-        <p className={s.closeLinks}>
-          <Link href={hrefFor(lang, "/")} className={s.contact}>
-            {UI[lang].back}
-          </Link>
-        </p>
-      </footer>
-    </Sheet>
+        {lang === "ja" && (
+          <section className={c.section} id="faq" aria-labelledby="faq-title">
+            <h2 id="faq-title" className={u.h2}>
+              よくあるご質問
+            </h2>
+            <dl className={c.faq}>
+              {CONTACT_FAQ.map((item) => (
+                <div key={item.q} className={c.qa}>
+                  <dt>{item.q}</dt>
+                  <dd>{item.a}</dd>
+                </div>
+              ))}
+            </dl>
+          </section>
+        )}
+
+        {/* 問い合わせのフォーム（自社の「フォーム受付 GAS キット」）。送信先の URL は持ち主のアカウントで公開した
+            ウェブアプリで、環境変数 NEXT_PUBLIC_CONTACT_ENDPOINT に入る。無いあいだはこの節を出さず、上の宛先だけ */}
+        {lang === "ja" && endpoint && (
+          <section className={c.section} id="form" aria-labelledby="form-title">
+            <h2 id="form-title" className={u.h2}>
+              フォームで送る
+            </h2>
+            <div className={c.formBox}>
+              <ContactForm endpoint={endpoint} />
+            </div>
+          </section>
+        )}
+
+        <section className={c.section} aria-labelledby="elsewhere-title">
+          <h2 id="elsewhere-title" className={u.h2}>
+            {t.elsewhere}
+          </h2>
+          <p className={u.small}>{t.elsewhereNote}</p>
+          <ul className={c.elsewhere}>
+            {ELSEWHERE.map((e) => (
+              <li key={e.name}>
+                <a className={c.elsewhereLink} href={e.href} rel="me noopener">
+                  {e.name}
+                </a>
+              </li>
+            ))}
+          </ul>
+        </section>
+      </div>
+    </main>
   );
 }
