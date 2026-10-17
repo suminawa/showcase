@@ -203,9 +203,16 @@ select.input {
 }
 
 @media (max-width: 639px) {
-  /* iOS が欄の拡大をしない大きさ */
+  /* iOS が欄の拡大をしない大きさ。字が大きくなるぶん、期限の列を広げ、欄の左右の空きを詰める */
   .input {
     font-size: 1rem;
+    padding: 0 4px;
+  }
+  .colDue {
+    width: 108px;
+  }
+  .colWho {
+    width: 42px;
   }
 }
 

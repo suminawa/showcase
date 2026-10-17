@@ -156,12 +156,11 @@ export function FormDemo() {
           </div>
         </section>
 
-        <section className={s.section} aria-labelledby={`${id}-answer`}>
-          <h3 id={`${id}-answer`} className={s.head}>
-            フォームが受け取る返事
-          </h3>
+        {/* 制作者向けの中身（返事の JSON）は、開いたときだけ見せる */}
+        <details className={s.details}>
+          <summary>制作者の方へ: フォームが受け取る返事（JSON）</summary>
           <pre className={s.json}>{answer}</pre>
-        </section>
+        </details>
       </div>
 
       {/* ---- フォーム ---- */}

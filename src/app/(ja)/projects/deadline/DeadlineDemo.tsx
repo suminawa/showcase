@@ -88,7 +88,7 @@ export function DeadlineDemo() {
         {/* ---- 届く 1 通 ---- */}
         <section className={`${s.section} ${s.sticky}`} aria-labelledby={`${id}-result`}>
           <h2 id={`${id}-result`} ref={resultHead} tabIndex={-1} className={s.head}>
-            {displayDate(built.today)} の朝に届く 1 通
+            {displayDate(built.today)}の朝に届く 1 通
           </h2>
           <div className={s.post}>
             <p className={s.postMeta}>

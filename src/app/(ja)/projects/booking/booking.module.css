@@ -10,5 +10,6 @@
   --bk-radius: 8px;
   border: 1px solid var(--m-grid);
   background: var(--m-cell);
-  min-height: 480px;
+  /* 見本が描かれるまでの高さ（最初の画面はサービスを選ぶ段で、カレンダーは選んでから開く） */
+  min-height: 300px;
 }

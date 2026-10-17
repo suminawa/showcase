@@ -60,6 +60,8 @@
   line-height: 1.6;
   letter-spacing: 0.04em;
   font-feature-settings: "palt" 1;
+  word-break: auto-phrase;
+  text-wrap: balance;
 }
 
 .mail {

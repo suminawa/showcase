@@ -181,6 +181,9 @@
   letter-spacing: 0.02em;
   color: var(--m-sumi-2);
   max-width: 38em;
+  /* 文節で折り、最後の行に一字だけ残さない（効く端末だけ。iOS は通常の折り返し） */
+  word-break: auto-phrase;
+  text-wrap: pretty;
 }
 
 .small {

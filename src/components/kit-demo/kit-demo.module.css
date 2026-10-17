@@ -317,8 +317,14 @@ select.input {
   max-width: 100%;
   overflow-x: auto;
   overscroll-behavior-x: contain;
-  background: var(--m-cell);
   border: 1px solid var(--m-grid);
+  /* 横に送れる表の端に、薄い影を出す（送り切ると消える）。見えていない列があることを示す */
+  background:
+    linear-gradient(to right, var(--m-cell) 30%, transparent) left / 28px 100% no-repeat local,
+    linear-gradient(to left, var(--m-cell) 30%, transparent) right / 28px 100% no-repeat local,
+    radial-gradient(farthest-side at 0 50%, rgb(28 26 21 / 0.2), transparent) left / 12px 100% no-repeat scroll,
+    radial-gradient(farthest-side at 100% 50%, rgb(28 26 21 / 0.2), transparent) right / 12px 100% no-repeat scroll,
+    var(--m-cell);
 }
 
 .scroll:focus-visible {
@@ -388,7 +394,7 @@ select.input {
 
 /* 表の中の書ける欄は、セルいっぱいの欄にする。書ける印は点線の下線（マス目の線だけでは見分けられない） */
 .table .input {
-  min-height: 40px;
+  min-height: 44px;
   border: 0;
   background: transparent;
   padding: 6px 4px;
@@ -421,7 +427,7 @@ select.input {
 
 /* 表の中の書ける欄（件名）。長い件名は欄の中で折り返す */
 textarea.input.cellText {
-  min-height: 40px;
+  min-height: 44px;
   resize: none;
   field-sizing: content;
   line-height: 1.6;
@@ -483,6 +489,11 @@ textarea.input.cellText {
   color: var(--m-sumi-2);
   white-space: pre-wrap;
   overflow-wrap: anywhere;
+}
+
+.details > .json {
+  border: 0;
+  border-top: 1px solid var(--m-grid);
 }
 
 /* 返事の JSON。等幅の字で、白いセルに置く */

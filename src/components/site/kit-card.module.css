@@ -40,14 +40,9 @@
   padding: 14px;
 }
 
+/* 空のセル。無地の白（品物より目立たせない） */
 .blank {
   display: none;
-  /* 空のセル。セルの見出しより薄い斜線で「まだ何も無い」ことを示す */
-  background-image: repeating-linear-gradient(
-    135deg,
-    transparent 0 9px,
-    color-mix(in srgb, var(--m-grid) 55%, transparent) 9px 10px
-  );
 }
 
 @media (min-width: 640px) and (max-width: 1023px) {
