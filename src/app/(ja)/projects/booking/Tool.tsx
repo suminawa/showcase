@@ -16,9 +16,25 @@ export function Tool() {
   const mounted = useRef(false);
 
   useEffect(() => {
-    if (!ready || mounted.current || !root.current || !window.Booking) return;
-    mounted.current = true;
-    window.Booking.mount(root.current);
+    const el = root.current;
+    if (!ready || !el || !window.Booking) return;
+    if (!mounted.current) {
+      mounted.current = true;
+      window.Booking.mount(el);
+    }
+    // 見本の画面は自前の <main> を描く（キットのお客さま向けの画面そのもの）。このページの中では
+    // 主の領域が二つになるので、描き直すたびに「見本の領域」として名乗り直す（画面の見た目は変えない）
+    const rename = () => {
+      const main = el.querySelector("main.bk-main");
+      if (main && main.getAttribute("role") !== "region") {
+        main.setAttribute("role", "region");
+        main.setAttribute("aria-label", "予約ページの見本");
+      }
+    };
+    rename();
+    const observer = new MutationObserver(rename);
+    observer.observe(el, { childList: true, subtree: true });
+    return () => observer.disconnect();
   }, [ready]);
 
   return (
