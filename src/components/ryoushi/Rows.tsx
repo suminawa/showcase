@@ -158,7 +158,7 @@ function RowGuides({ slug, show }: { slug: string; show: boolean }) {
       案内記事:{" "}
       {related.map((g, i) => (
         <Fragment key={g.slug}>
-          {i > 0 && "／"}
+          {i > 0 && <span className={s.rowGuidesSep}>／</span>}
           <Link href={guideHref(g)} className={s.contact}>
             {g.title}
           </Link>
