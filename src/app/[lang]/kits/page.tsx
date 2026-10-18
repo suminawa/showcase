@@ -1,5 +1,5 @@
 import { KitsPage } from "@/app/(ja)/kits/KitsPage";
-import { categoryMetadata } from "@/components/ryoushi/category-meta";
+import { categoryMetadata } from "@/i18n/category-meta";
 import { foreignLang, type LangParams } from "@/i18n/params";
 
 /** 札の値段は日付で変わる（日本語の /kits と同じ）。要求のたびに組む */

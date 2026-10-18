@@ -1,7 +1,4 @@
-/*
- * 分類のページ（/kits・/sites・/works）の metadata。CategorySheet（料紙の CSS と書体を読む）から分けた ──
- * 日本語の /kits は新しい組み方なので、metadata のためだけに料紙の CSS を読ませない。
- */
+/* 分類のページ（/kits・/sites・/works）の metadata。日本語と英仏のページが同じものを読む */
 import { localIndexPage } from "@/i18n/catalog";
 import { pageMetadata } from "@/i18n/meta";
 import type { Lang } from "@/i18n/routes";

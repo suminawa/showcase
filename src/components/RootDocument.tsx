@@ -10,7 +10,6 @@ import { JsonLd } from "@/components/JsonLd";
 import { SiteFooter } from "@/components/footer/SiteFooter";
 import { SiteHeader } from "@/components/site/SiteHeader";
 import { ArriveTracker } from "@/components/track/ArriveTracker";
-import { REVEAL_FLAG } from "@/components/ryoushi/reveal";
 import { siteJsonLd } from "@/lib/jsonld";
 import type { Lang } from "@/i18n/routes";
 import { SITE_DESCRIPTION, SITE_NAME, siteUrl } from "@/lib/site";
@@ -43,8 +42,7 @@ export const rootMetadata: Metadata = {
 
 export function RootDocument({ lang, children }: { lang: Lang; children: React.ReactNode }) {
   return (
-    /* 現れる演出の印（data-hi）は、本文より先に走る一行の script が付ける。
-       サーバーが書いた html にはまだ無いので、その一点だけ照合を見送る */
+    /* 書体の CSS を足す script が head を触るので、その一点だけ照合を見送る */
     <html lang={lang} suppressHydrationWarning>
       <head>
         {/* 見出しの明朝（Shippori Mincho 600）。端末の明朝が無い Android でも同じ字にするため、Google Fonts から一書体・一太さだけ読む */}
@@ -59,10 +57,6 @@ export function RootDocument({ lang, children }: { lang: Lang; children: React.R
         />
       </head>
       <body className="antialiased">
-        {/* 現れる演出の印（html[data-hi="on"]）。本文より先に走るので、隠す規則は最初の描画から効く。
-            根のレイアウトに置く ── 面の部品に置くと、紙から紙へ移るたびに React が
-            「script は描画されない」と叱る（2026-10-07）。根は移動で描き直されない */}
-        <script dangerouslySetInnerHTML={{ __html: REVEAL_FLAG }} />
         <JsonLd data={siteJsonLd()} />
         {/* 共通の頭（落款と名乗り・キット・頼み方と料金・運営者）。見本サイトでは globals.css が隠す */}
         <SiteHeader lang={lang} />

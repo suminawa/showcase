@@ -1,5 +1,5 @@
 import { SitesPage } from "@/app/(ja)/sites/content";
-import { categoryMetadata } from "@/components/ryoushi/category-meta";
+import { categoryMetadata } from "@/i18n/category-meta";
 import { foreignLang, type LangParams } from "@/i18n/params";
 
 export async function generateMetadata({ params }: LangParams) {

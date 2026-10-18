@@ -1,4 +1,4 @@
-import { categoryMetadata } from "@/components/ryoushi/category-meta";
+import { categoryMetadata } from "@/i18n/category-meta";
 
 import { SitesPage } from "./content";
 
