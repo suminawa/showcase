@@ -5,6 +5,8 @@
  *   - 道そのもの（/contact など）は、いまの道と同じなら選ばれている
  *   - 節への道（/kits#ai）は、/kits にいて、しかも節の印（hash）が同じときだけ。印は読み込みのあとに見るので、
  *     サーバーの出力と最初の描画は同じ（印の分だけあとで下線が付く。位置は動かない）
+ *   - /kits で棚を見ながら送ると、見えている棚（main の中の id つきの節）に下線が追従する（IntersectionObserver。
+ *     窓の上から 20〜30% の帯に入った節を「いま見ている」とみなす。案内に無い節に入ったら下線は消える）
  *   - matches に書かれた道（その柱の品物のページ）にいるあいだも選ばれている
  *   - /kits（スマホの「キット」）は、品物のページ（/projects/…）にいるあいだも選ばれている
  *
@@ -50,6 +52,22 @@ export function HeaderNav({ label, items }: { label: string; items: NavItem[] })
     window.addEventListener("hashchange", read);
     return () => window.removeEventListener("hashchange", read);
   }, [pathname]);
+
+  // 節への道を持つページ（/kits）でだけ、見えている節を追う。最初の描画は上の hash のまま（描画のあとに動く）
+  const fragPaths = items.filter((item) => split(item.href).frag).map((item) => split(item.href).path).join("|");
+  useEffect(() => {
+    if (!fragPaths.split("|").includes(pathname) || typeof IntersectionObserver === "undefined") return;
+    const sections = document.querySelectorAll<HTMLElement>("main section[id]");
+    if (sections.length === 0) return;
+    const observer = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) if (entry.isIntersecting) setHash(`#${entry.target.id}`);
+      },
+      { rootMargin: "-20% 0px -70% 0px" },
+    );
+    sections.forEach((section) => observer.observe(section));
+    return () => observer.disconnect();
+  }, [pathname, fragPaths]);
 
   return (
     <nav className={s.nav} aria-label={label}>
