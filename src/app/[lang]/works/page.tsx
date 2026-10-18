@@ -1,4 +1,5 @@
-import { CategorySheet, categoryMetadata } from "@/components/ryoushi/CategorySheet";
+import { WorksPage } from "@/app/(ja)/works/content";
+import { categoryMetadata } from "@/components/ryoushi/category-meta";
 import { foreignLang, type LangParams } from "@/i18n/params";
 
 export async function generateMetadata({ params }: LangParams) {
@@ -6,5 +7,5 @@ export async function generateMetadata({ params }: LangParams) {
 }
 
 export default async function Page({ params }: LangParams) {
-  return <CategorySheet lang={foreignLang((await params).lang)} category="works" />;
+  return <WorksPage lang={foreignLang((await params).lang)} />;
 }

@@ -1,0 +1,140 @@
+/* 一覧のページ。頭（題・一行）・並び・結び。帳票の行は行番号のマスつき（トップの代表のキットと同じ文法） */
+
+.page {
+  display: block;
+}
+
+.head {
+  display: grid;
+  gap: 14px;
+  padding-top: 32px;
+  padding-bottom: 28px;
+  max-width: calc(48rem + 2 * var(--m-gutter));
+}
+
+@media (min-width: 1024px) {
+  .head {
+    padding-top: 56px;
+    padding-bottom: 36px;
+  }
+}
+
+.title {
+  margin: 0;
+  font-family: var(--m-mincho);
+  font-weight: 600;
+  font-size: clamp(1.75rem, 1.3rem + 1.8vw, 2.75rem);
+  line-height: 1.35;
+  letter-spacing: 0.04em;
+  font-feature-settings: "palt" 1;
+}
+
+.body {
+  display: grid;
+  gap: 16px;
+  padding-bottom: 56px;
+}
+
+@media (min-width: 1024px) {
+  .body {
+    padding-bottom: 80px;
+  }
+}
+
+/* ---- 帳票の並び ---------------------------------------------------------- */
+
+.rows {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  background: var(--m-cell);
+  border: 1px solid var(--m-grid);
+}
+
+.rows > li + li {
+  border-top: 1px solid var(--m-grid);
+}
+
+.row {
+  display: grid;
+  grid-template-columns: 40px minmax(0, 1fr);
+  align-items: stretch;
+  min-height: 64px;
+  color: var(--m-sumi);
+  text-decoration: none;
+}
+
+.rowNo {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--m-cell-head);
+  border-right: 1px solid var(--m-grid);
+  font-size: 0.6875rem;
+  font-variant-numeric: tabular-nums;
+  color: var(--m-sumi-4);
+}
+
+.rowBody {
+  display: grid;
+  align-content: center;
+  gap: 4px;
+  padding: 14px 16px;
+  min-width: 0;
+}
+
+@media (min-width: 1024px) {
+  .rowBody {
+    padding: 16px 20px;
+  }
+}
+
+.rowTitle {
+  font-family: var(--m-mincho);
+  font-weight: 600;
+  font-size: 1.0625rem;
+  line-height: 1.5;
+  letter-spacing: 0.02em;
+  font-feature-settings: "palt" 1;
+  word-break: auto-phrase;
+}
+
+.row:hover .rowTitle {
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.25em;
+}
+
+.rowDesc {
+  font-size: 0.875rem;
+  line-height: 1.7;
+  color: var(--m-sumi-3);
+  max-width: 44em;
+}
+
+.rowTags {
+  margin-top: 2px;
+  font-size: 0.75rem;
+  letter-spacing: 0.04em;
+  color: var(--m-sumi-4);
+}
+
+/* ---- 結び ---------------------------------------------------------------- */
+
+.close {
+  padding-block: 48px 64px;
+  border-top: 1px solid var(--m-grid);
+}
+
+.closeInner {
+  display: grid;
+  gap: 20px;
+  align-items: center;
+}
+
+@media (min-width: 1024px) {
+  .closeInner {
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 48px;
+  }
+}
