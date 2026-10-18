@@ -42,7 +42,7 @@ export function SitesPage({ lang }: { lang: Lang }) {
     >
       <KitGrid count={sites.length} label={page.title}>
         {sites.map((site, i) => (
-          <KitCard key={site.slug} project={site} lang={lang} showTags shot={`/sites/${site.slug}`} eager={i < 3} />
+          <KitCard key={site.slug} project={site} lang={lang} showTags shot={`/sites/${site.slug}`} eager={i < 3} heading="h2" />
         ))}
       </KitGrid>
     </CatalogPage>

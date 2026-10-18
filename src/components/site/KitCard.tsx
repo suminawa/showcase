@@ -66,6 +66,7 @@ export function KitCard({
   showTags = false,
   eager = false,
   shot = `/kits/${source.slug}`,
+  heading: Heading = "h3",
 }: {
   project: Project;
   lang?: Lang;
@@ -76,6 +77,8 @@ export function KitCard({
   eager?: boolean;
   /** 写真の道の頭（-480.webp・-960.webp を足す）。既定はキットの写真。見本サイトは /sites/<slug> */
   shot?: string;
+  /** 品名の見出しの段。棚（h2）の下では h3、題（h1）の直下に並ぶ /sites では h2 */
+  heading?: "h2" | "h3";
 }) {
   // 題・一行・札はその言語で（日本語はそのまま）。値段と道はレジストリのまま
   const project = localProject(lang, source);
@@ -98,14 +101,14 @@ export function KitCard({
         />
       </div>
       <div className={c.body}>
-        <h3 className={c.name}>
+        <Heading className={c.name}>
           <Link href={hrefFor(lang, projectHref(project))} className={c.stretch}>
             {/* 品名が、品物のページの題へ伸びる（ProjectShell の h1 と同じ名） */}
             <ViewTransition name={`t-${project.slug}`} share="morph" default="none">
               <span>{project.title}</span>
             </ViewTransition>
           </Link>
-        </h3>
+        </Heading>
         <p className={c.desc}>{project.description}</p>
         {facts && (
           <dl className={`${u.spec} ${c.facts}`}>
