@@ -1,7 +1,7 @@
 /*
  * 悩みの言葉「問い合わせのメールが埋もれて、返信が遅れたり漏れたりする」の着地の紙。
  * 困ること → 見本で何が変わるか → 自分で組む手順（記事）→ キット → 導入代行、の順に読ませる。
- * FORM: 料紙（作品ページ）— 文法は DESIGN.md。朱は戻りの落款だけ。
+ * FORM: 方眼（DESIGN.md）。枠は ../parts の GuideArticle。
  */
 import type { Metadata } from "next";
 import Image from "next/image";
@@ -11,16 +11,8 @@ import { NoteEmbed } from "@/components/note/NoteEmbed";
 import { goHref } from "@/lib/go";
 import { guideBySlug } from "@/lib/guides";
 
-import { fontVars } from "../../projects/fonts";
-import s from "../../projects/projects.module.css";
 import g from "../guides.module.css";
-import {
-  GuideAnswer,
-  GuideByline,
-  GuideJsonLd,
-  GuideLinks,
-  guideMetadata,
-} from "../parts";
+import { GuideArticle, GuideLinks, guideMetadata } from "../parts";
 import { ContactMail } from "@/components/track/ContactMail";
 
 const guide = guideBySlug("inbox-triage");
@@ -34,30 +26,7 @@ export const metadata: Metadata = guideMetadata(guide, SHOT);
 
 export default function InboxTriageGuide() {
   return (
-    <main className={`${s.paper} ${fontVars}`}>
-      <GuideJsonLd guide={guide} image={SHOT} />
-      <div className={s.stroke} aria-hidden="true">
-        <span className={`${s.ink} ${s.inkKasure}`} />
-        <span className={`${s.ink} ${s.inkCore}`} />
-      </div>
-
-      <header className={s.head}>
-        <Link href="/guides" className={s.back}>
-          <span className={s.seal} aria-hidden="true">
-            墨
-          </span>
-          悩みから読む へ戻る
-        </Link>
-        <h1 className={s.title}>
-          {guide.title}
-          <span className={s.latin}>Inbox Triage</span>
-        </h1>
-        <GuideAnswer guide={guide} />
-        <p className={s.lede}>{guide.lede}</p>
-        <GuideByline guide={guide} />
-      </header>
-
-      <div className={s.work}>
+    <GuideArticle guide={guide} image={SHOT}>
         <section className={g.section}>
           <h2 className={g.heading}>
             問い合わせのメールは、なぜ埋もれるのですか
@@ -99,7 +68,7 @@ export default function InboxTriageGuide() {
             </Link>
             <figcaption className={g.caption}>
               整理した回に届く通知と、1 通ずつの下書きを読めます ──{" "}
-              <Link href="/projects/inbox-triage" className={s.textLink}>
+              <Link href="/projects/inbox-triage" className={g.link}>
                 問い合わせ整理の見本を開く
               </Link>
             </figcaption>
@@ -128,7 +97,7 @@ export default function InboxTriageGuide() {
           </ul>
           <p className={g.text}>
             詳しい手順は note の記事{" "}
-            <a href={NOTE_ARTICLE} className={s.textLink}>
+            <a href={NOTE_ARTICLE} className={g.link}>
               「{guide.title}」
             </a>
             に書きました。
@@ -147,7 +116,7 @@ export default function InboxTriageGuide() {
             <a
               href={goHref("inbox-triage", "booth", "/guides/inbox-triage")}
               rel="nofollow"
-              className={s.textLink}
+              className={g.link}
             >
               BOOTH
             </a>
@@ -155,7 +124,7 @@ export default function InboxTriageGuide() {
             <a
               href={goHref("inbox-triage", "note", "/guides/inbox-triage")}
               rel="nofollow"
-              className={s.textLink}
+              className={g.link}
             >
               note
             </a>
@@ -167,22 +136,21 @@ export default function InboxTriageGuide() {
           <p className={g.text}>
             分類の設計、返信の方針と署名の作り込み、通知先とラベルの設定、トリガーの導入まで、こちらで行うこともできます。実際の問い合わせ（内容を伏せたもので構いません）を
             10 通ほどお預かりし、分類と返信案の言い回しを合わせます。 ──{" "}
-            <a href={COCONALA} className={s.textLink}>
+            <a href={COCONALA} className={g.link}>
               ココナラ
             </a>
             {" / "}
-            <a href={LANCERS} className={s.textLink}>
+            <a href={LANCERS} className={g.link}>
               ランサーズ
             </a>
           </p>
           <p className={g.text}>
             ご相談は{" "}
-            <ContactMail className={s.textLink} />{" "}
+            <ContactMail className={g.link} />{" "}
             へ。3 営業日以内に返信します。
           </p>
         </section>
         <GuideLinks guide={guide} />
-      </div>
-    </main>
+    </GuideArticle>
   );
 }

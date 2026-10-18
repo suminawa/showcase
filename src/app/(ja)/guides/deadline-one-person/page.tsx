@@ -1,7 +1,7 @@
 /*
  * 悩みの言葉「期限を覚えているのが総務の 1 人だけ、という会社で起きること」の着地の紙。
  * 困ること → 見本で何が変わるか → 自分で組む手順（記事）→ キット → 設定・設置のご依頼、の順に読ませる。
- * FORM: 料紙（作品ページ）— 文法は DESIGN.md。朱は戻りの落款だけ。
+ * FORM: 方眼（DESIGN.md）。枠は ../parts の GuideArticle。
  */
 import type { Metadata } from "next";
 import Image from "next/image";
@@ -11,16 +11,8 @@ import { NoteEmbed } from "@/components/note/NoteEmbed";
 import { goHref } from "@/lib/go";
 import { guideBySlug } from "@/lib/guides";
 
-import { fontVars } from "../../projects/fonts";
-import s from "../../projects/projects.module.css";
 import g from "../guides.module.css";
-import {
-  GuideAnswer,
-  GuideByline,
-  GuideJsonLd,
-  GuideLinks,
-  guideMetadata,
-} from "../parts";
+import { GuideArticle, GuideLinks, guideMetadata } from "../parts";
 import { ContactMail } from "@/components/track/ContactMail";
 
 const guide = guideBySlug("deadline-one-person");
@@ -35,30 +27,7 @@ export const metadata: Metadata = guideMetadata(guide, SHOT);
 
 export default function DeadlineOnePersonGuide() {
   return (
-    <main className={`${s.paper} ${fontVars}`}>
-      <GuideJsonLd guide={guide} image={SHOT} />
-      <div className={s.stroke} aria-hidden="true">
-        <span className={`${s.ink} ${s.inkKasure}`} />
-        <span className={`${s.ink} ${s.inkCore}`} />
-      </div>
-
-      <header className={s.head}>
-        <Link href="/guides" className={s.back}>
-          <span className={s.seal} aria-hidden="true">
-            墨
-          </span>
-          悩みから読む へ戻る
-        </Link>
-        <h1 className={s.title}>
-          {guide.title}
-          <span className={s.latin}>Deadlines Kept by One Person</span>
-        </h1>
-        <GuideAnswer guide={guide} />
-        <p className={s.lede}>{guide.lede}</p>
-        <GuideByline guide={guide} />
-      </header>
-
-      <div className={s.work}>
+    <GuideArticle guide={guide} image={SHOT}>
         <section className={g.section}>
           <h2 className={g.heading}>
             期限を 1 人が覚えていると、何が困りますか
@@ -92,7 +61,7 @@ export default function DeadlineOnePersonGuide() {
             </Link>
             <figcaption className={g.caption}>
               期限や状態を書き換えて、届く 1 通がどう変わるかを試せます ──{" "}
-              <Link href="/projects/deadline" className={s.textLink}>
+              <Link href="/projects/deadline" className={g.link}>
                 期限アラートの見本を開く
               </Link>
             </figcaption>
@@ -122,11 +91,11 @@ export default function DeadlineOnePersonGuide() {
           </ul>
           <p className={g.text}>
             手順と落とし穴は、note の記事{" "}
-            <a href={NOTE_ARTICLE} className={s.textLink}>
+            <a href={NOTE_ARTICLE} className={g.link}>
               「{guide.title}」
             </a>
             に書きました。期限シートの作り方と色分けは{" "}
-            <Link href={SHEET_GUIDE} className={s.textLink}>
+            <Link href={SHEET_GUIDE} className={g.link}>
               「契約の更新や点検の期限を、スプレッドシートに書いたまま見落とす」
             </Link>
             をご覧ください。
@@ -145,7 +114,7 @@ export default function DeadlineOnePersonGuide() {
             <a
               href={goHref("s2", "booth", "/guides/deadline-one-person")}
               rel="nofollow"
-              className={s.textLink}
+              className={g.link}
             >
               BOOTH
             </a>
@@ -153,7 +122,7 @@ export default function DeadlineOnePersonGuide() {
             <a
               href={goHref("s2", "note", "/guides/deadline-one-person")}
               rel="nofollow"
-              className={s.textLink}
+              className={g.link}
             >
               note
             </a>
@@ -166,22 +135,21 @@ export default function DeadlineOnePersonGuide() {
             お使いのスプレッドシートに期限の通知を 1
             本つなぐところから、複数のシートや独自の条件での設定まで、こちらで行うこともできます。
             ──{" "}
-            <a href={COCONALA} className={s.textLink}>
+            <a href={COCONALA} className={g.link}>
               ココナラ
             </a>
             {" / "}
-            <a href={LANCERS} className={s.textLink}>
+            <a href={LANCERS} className={g.link}>
               ランサーズ
             </a>
           </p>
           <p className={g.text}>
             ご相談は{" "}
-            <ContactMail className={s.textLink} />{" "}
+            <ContactMail className={g.link} />{" "}
             へ。3 営業日以内に返信します。
           </p>
         </section>
         <GuideLinks guide={guide} />
-      </div>
-    </main>
+    </GuideArticle>
   );
 }

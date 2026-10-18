@@ -1,104 +1,306 @@
 /*
- * 悩みから読む紙の本文。料紙（projects.module.css）の上に、段の見出しと箇条だけを足す。
- * 字は料紙と同じ「小」の一段。行送りはすべて --rp-pitch の整数倍。
+ * 悩みから読む紙（方眼。DESIGN.md）。頭（現在地・題・答え・一行・署名）、段の見出し、本文（最長 40em）、
+ * 図版と短いコードは白いセル、結びは帳票の行（見本・キット・ご相談）。本文の文は各ページが持つ。
  */
 
-.section {
+.page {
+  display: block;
+  padding-bottom: 72px;
+}
+
+/* ---- 現在地 ------------------------------------------------------------------ */
+
+.crumbs {
+  padding-top: 16px;
+}
+
+.crumbs ol {
   display: flex;
-  flex-direction: column;
-  gap: calc(0.5 * var(--rp-pitch));
+  flex-wrap: wrap;
+  align-items: center;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: 0.8125rem;
+  color: var(--m-sumi-3);
+}
+
+.crumbs li + li::before {
+  content: "›";
+  margin: 0 8px;
+  color: var(--m-sumi-4);
+}
+
+.crumbLink {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  color: var(--m-sumi-2);
+  text-decoration: underline;
+  text-underline-offset: 0.3em;
+  text-decoration-color: color-mix(in srgb, var(--m-sumi) 40%, transparent);
+}
+
+.crumbLink:focus-visible {
+  outline: 2px solid var(--m-shu);
+  outline-offset: 2px;
+}
+
+/* ---- 頭 ---------------------------------------------------------------------- */
+
+.head {
+  display: grid;
+  gap: 16px;
+  padding: 8px 0 32px;
+  max-width: 44rem;
+}
+
+@media (min-width: 1024px) {
+  .head {
+    padding: 16px 0 40px;
+  }
+}
+
+.title {
+  margin: 0;
+  font-family: var(--m-mincho);
+  font-weight: 600;
+  font-size: clamp(1.625rem, 1.2rem + 1.6vw, 2.5rem);
+  line-height: 1.4;
+  letter-spacing: 0.03em;
+  font-feature-settings: "palt" 1;
+  word-break: auto-phrase;
+  text-wrap: balance;
+}
+
+/* 題のすぐ下の答え。白いセルに置き、前後を読まなくても通じる一段落 */
+.answer {
+  margin: 0;
+  padding: 16px 20px;
+  background: var(--m-cell);
+  border: 1px solid var(--m-grid);
+  border-left: 3px solid var(--m-sumi);
+  font-size: 1rem;
+  line-height: 1.85;
+  color: var(--m-sumi);
+  text-wrap: pretty;
+  word-break: auto-phrase;
+}
+
+.lede {
+  margin: 0;
+  font-size: 0.9375rem;
+  line-height: 1.8;
+  color: var(--m-sumi-3);
+  text-wrap: pretty;
+  word-break: auto-phrase;
+}
+
+/* 公開日・更新日・書いた人 */
+.byline {
+  margin: 0;
+  font-size: 0.8125rem;
+  line-height: 1.7;
+  letter-spacing: 0.02em;
+  color: var(--m-sumi-4);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---- 本文 -------------------------------------------------------------------- */
+
+.body {
+  display: grid;
+  gap: 40px;
   max-width: 40em;
-  margin-top: var(--rp-pitch);
+}
+
+@media (min-width: 1024px) {
+  .body {
+    gap: 48px;
+  }
+}
+
+.section {
+  display: grid;
+  gap: 14px;
+  min-width: 0;
 }
 
 .heading {
-  font-family: var(--rp-serif-display);
-  font-weight: 400;
-  font-size: var(--rp-tiny);
-  line-height: var(--rp-pitch);
-  letter-spacing: 0.24em;
-  color: var(--rp-sumi);
-}
-
-/* 題のすぐ下の答え。一行の説明（lede）より一段濃く */
-.answer {
-  color: var(--rp-sumi-3);
-  /* 頭の格子の間（0.5 pitch）を一つ増やす分を、ここで 0.5 pitch 足して整数に戻す ──
-     答えの段が入ることで lede が罫から半行ずれ、取り消し線に見えていた（2026-10-07） */
-  margin-bottom: calc(0.5 * var(--rp-pitch));
+  margin: 0;
+  padding-top: 12px;
+  border-top: 1px solid var(--m-grid);
+  font-family: var(--m-mincho);
+  font-weight: 600;
+  font-size: clamp(1.25rem, 1.1rem + 0.5vw, 1.5rem);
+  line-height: 1.5;
+  letter-spacing: 0.03em;
+  color: var(--m-sumi);
+  font-feature-settings: "palt" 1;
+  word-break: auto-phrase;
+  text-wrap: pretty;
 }
 
 .text {
-  font-size: var(--rp-tiny);
-  line-height: 2.3;
-  letter-spacing: 0.06em;
-  color: var(--rp-sumi-3);
+  margin: 0;
+  font-size: 1rem;
+  line-height: 1.9;
+  letter-spacing: 0.02em;
+  color: var(--m-sumi-2);
+  text-wrap: pretty;
 }
 
 .list {
   margin: 0;
   padding-left: 1.4em;
-  font-size: var(--rp-tiny);
-  line-height: 2.3;
-  letter-spacing: 0.06em;
-  color: var(--rp-sumi-3);
+  font-size: 1rem;
+  line-height: 1.9;
+  letter-spacing: 0.02em;
+  color: var(--m-sumi-2);
 }
 
-/* 短いコードの実例。横に長い行は枠の中だけで送る */
+.list li + li {
+  margin-top: 4px;
+}
+
+.list li::marker {
+  color: var(--m-sumi-4);
+}
+
+/* 文中のリンク（前の版の textLink と同じ役）。当たりだけ上下へ広げる */
+.link {
+  color: var(--m-sumi-2);
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.3em;
+  text-decoration-color: color-mix(in srgb, var(--m-sumi) 45%, transparent);
+  display: inline-block;
+  padding-block: 0.6em;
+  margin-block: -0.6em;
+}
+
+.link:hover {
+  color: var(--m-sumi);
+  text-decoration-color: var(--m-sumi);
+}
+
+.link:focus-visible {
+  outline: 2px solid var(--m-shu);
+  outline-offset: 2px;
+}
+
+/* 短いコードの実例。白いセル。横に長い行はセルの中だけで送る */
 .code {
   margin: 0;
-  max-width: 40em;
-  padding: calc(0.5 * var(--rp-pitch)) 1em;
+  padding: 14px 16px;
   overflow-x: auto;
+  background: var(--m-cell);
+  border: 1px solid var(--m-grid);
   font-family: ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
-  font-size: var(--rp-tiny);
-  line-height: 1.8;
+  font-size: 0.8125rem;
+  line-height: 1.7;
   letter-spacing: 0;
-  color: var(--rp-sumi-2);
-  border: 1px solid color-mix(in srgb, var(--rp-sumi) 12%, transparent);
+  color: var(--m-sumi-2);
 }
 
+/* 図版。白いセルに置き、写真には台紙の色を敷く */
 .figure {
+  display: grid;
+  gap: 10px;
   margin: 0;
-  max-width: 40em;
 }
 
 .figure img {
   display: block;
   width: 100%;
   height: auto;
-  border: 1px solid color-mix(in srgb, var(--rp-sumi) 12%, transparent);
+  background: var(--m-plate);
+  border: 1px solid var(--m-grid);
+}
+
+.figure a:focus-visible {
+  outline: 2px solid var(--m-shu);
+  outline-offset: 2px;
 }
 
 .caption {
-  /* 0.25 → 0.5 pitch（2026-10-07）。半端だと署名の行が罫から 0.25 行ずれる */
-  margin-top: calc(0.5 * var(--rp-pitch));
-  font-size: var(--rp-tiny);
-  line-height: var(--rp-pitch);
-  color: var(--rp-sumi-4);
+  margin: 0;
+  font-size: 0.8125rem;
+  line-height: 1.7;
+  color: var(--m-sumi-3);
 }
 
-/* 一覧の行: 題（リンク）と一行の説明 */
-.rows {
-  list-style: none;
+/* ---- 結び（見本・キット・ご相談）。帳票の行。行ごと押せる ------------------- */
+
+.close {
+  display: grid;
+  gap: 14px;
+  margin-top: 8px;
+}
+
+.closeHead {
+  margin: 0;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  color: var(--m-sumi-3);
+}
+
+.links {
   margin: 0;
   padding: 0;
-  display: flex;
-  flex-direction: column;
-  gap: var(--rp-pitch);
-  max-width: 40em;
+  list-style: none;
+  background: var(--m-cell);
+  border: 1px solid var(--m-grid);
 }
 
-.rowTitle {
-  font-size: var(--rp-tiny);
-  line-height: var(--rp-pitch);
-  letter-spacing: 0.06em;
-  color: var(--rp-sumi);
+.links > li + li {
+  border-top: 1px solid var(--m-grid);
 }
 
-.rowLede {
-  font-size: var(--rp-tiny);
-  line-height: 2.3;
+.rowLink {
+  display: grid;
+  grid-template-columns: 5.5em minmax(0, 1fr);
+  align-items: baseline;
+  gap: 0 8px;
+  min-height: 52px;
+  padding: 12px 16px;
+  color: var(--m-sumi);
+  font-size: 0.9375rem;
+  line-height: 1.6;
+  text-decoration: none;
+}
+
+.rowLink:hover {
+  background: var(--m-cell-head);
+}
+
+.rowLink:hover .rowText {
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.3em;
+}
+
+.rowLink:focus-visible {
+  outline: 2px solid var(--m-shu);
+  outline-offset: -2px;
+}
+
+.rowLabel {
+  font-size: 0.75rem;
   letter-spacing: 0.06em;
-  color: var(--rp-sumi-4);
+  color: var(--m-sumi-4);
+}
+
+.rowText {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+  font-weight: 600;
+}
+
+.rowNote {
+  font-weight: 400;
+  font-size: 0.8125rem;
+  color: var(--m-sumi-3);
 }

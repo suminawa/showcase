@@ -1,29 +1,25 @@
-/* 日本語だけの紙の頭に置く一行。見本サイトそれぞれの意匠に寄せず、料紙の墨と紙の二色だけで置く */
+/* 日本語だけの紙の頭に置く一行。見本サイトでは墨の帯、悩みから読む紙では紙の上の一行（方眼の色だけで置く） */
 .note {
   position: relative;
   z-index: 1000;
   padding: 8px 16px;
-  background: var(--ryoushi-sumi, #1c1a15);
-  color: var(--ryoushi-paper, #f6f3eb);
+  background: var(--m-sumi, #1c1a15);
+  color: var(--m-on-sumi, #f6f3eb);
   font-family: system-ui, sans-serif;
   font-size: 13px;
   line-height: 1.6;
   text-align: center;
 }
 
-/*
- * 悩みから読む紙（料紙）では、墨の帯ではなく紙の上の一行にする（2026-10-07）。
- * 帯（背景色の切り替え・ゴシック）は料紙の文法を破っていた。見本サイトの頭は帯のまま
- * （見本はそれぞれ別の意匠なので、外からの断り書きだと分かる帯でよい）。
- */
+/* 悩みから読む紙では帯にせず、頭の下の一行（マス目の線で区切る） */
 .paperNote {
-  background: var(--ryoushi-paper, #f6f3eb);
-  color: var(--ryoushi-sumi-3, #55514a);
-  font-family: "Hiragino Mincho ProN", "Yu Mincho", YuMincho, serif;
+  background: var(--m-paper, #f6f3eb);
+  color: var(--m-sumi-3, #55514a);
+  font-family: var(--m-gothic, system-ui, sans-serif);
   font-size: 14px;
-  letter-spacing: 0.06em;
-  padding: 12px 16px 10px;
-  border-bottom: 1px solid color-mix(in srgb, var(--ryoushi-sumi, #1c1a15) 18%, transparent);
+  letter-spacing: 0.02em;
+  padding: 10px 16px;
+  border-bottom: 1px solid var(--m-grid, #d7d4cb);
 }
 
 .link {

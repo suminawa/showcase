@@ -1,7 +1,7 @@
 /*
  * 悩みの言葉「会議や取材の録音を、外部に出さずに文字起こしする」の着地の紙。
  * なぜ外に出したくないか → 手元で動かす道具 → 段取り（機械 → 人 → 書式）→ 頼む道、の順。
- * FORM: 料紙（作品ページ）— 文法は DESIGN.md。朱は戻りの落款だけ。
+ * FORM: 方眼（DESIGN.md）。枠は ../parts の GuideArticle。
  */
 import type { Metadata } from "next";
 import Image from "next/image";
@@ -9,11 +9,9 @@ import Link from "next/link";
 
 import { guideBySlug } from "@/lib/guides";
 
-import { fontVars } from "../../projects/fonts";
-import s from "../../projects/projects.module.css";
 import g from "../guides.module.css";
 import { NoteEmbed } from "@/components/note/NoteEmbed";
-import { GuideAnswer, GuideByline, GuideJsonLd, GuideLinks, guideMetadata } from "../parts";
+import { GuideArticle, GuideLinks, guideMetadata } from "../parts";
 import { ContactMail } from "@/components/track/ContactMail";
 
 const PRODUCT_NOTE = "https://note.com/suminawa/n/n7b540f1733e1";
@@ -27,30 +25,7 @@ export const metadata: Metadata = guideMetadata(guide, IMAGE);
 
 export default function LocalTranscriptionGuide() {
   return (
-    <main className={`${s.paper} ${fontVars}`}>
-      <GuideJsonLd guide={guide} image={IMAGE} />
-      <div className={s.stroke} aria-hidden="true">
-        <span className={`${s.ink} ${s.inkKasure}`} />
-        <span className={`${s.ink} ${s.inkCore}`} />
-      </div>
-
-      <header className={s.head}>
-        <Link href="/guides" className={s.back}>
-          <span className={s.seal} aria-hidden="true">
-            墨
-          </span>
-          悩みから読む へ戻る
-        </Link>
-        <h1 className={s.title}>
-          {guide.title}
-          <span className={s.latin}>Local Transcription</span>
-        </h1>
-        <GuideAnswer guide={guide} />
-        <p className={s.lede}>{guide.lede}</p>
-        <GuideByline guide={guide} />
-      </header>
-
-      <div className={s.work}>
+    <GuideArticle guide={guide} image={IMAGE}>
         <section className={g.section}>
           <h2 className={g.heading}>録音を外部のサービスに上げたくないのは、どんなときですか</h2>
           <ul className={g.list}>
@@ -102,7 +77,7 @@ export default function LocalTranscriptionGuide() {
             </Link>
             <figcaption className={g.caption}>
               書類の読み取りも同じ考え方（機械で読む → 人が確かめる）です ──{" "}
-              <Link href="/projects/doc-reader" className={s.textLink}>
+              <Link href="/projects/doc-reader" className={g.link}>
                 AI 書類読み取りの見本を開く
               </Link>
             </figcaption>
@@ -114,22 +89,21 @@ export default function LocalTranscriptionGuide() {
           <h2 className={g.heading}>文字起こしを頼めますか</h2>
           <p className={g.text}>
             録音を外部に送らず、手元で起こして、時刻つきの Excel と Word、字幕用の SRT でお納めします。固有名詞と話者は聞きながら直します。60 分 6,000 円から ──{" "}
-            <a href={COCONALA} className={s.textLink}>
+            <a href={COCONALA} className={g.link}>
               ココナラ
             </a>
           </p>
           <p className={g.text}>
             会議の録音から決定事項と宿題を分けた議事録まで作る形は、
-            <Link href="/guides/inbox-triage" className={s.textLink}>
+            <Link href="/guides/inbox-triage" className={g.link}>
               問い合わせメールの仕分け
             </Link>
             と同じ「機械で読んで人が確かめる」組み方です。ご相談は{" "}
-            <ContactMail className={s.textLink} />{" "}
+            <ContactMail className={g.link} />{" "}
             へ。3 営業日以内に返信します。
           </p>
         </section>
         <GuideLinks guide={guide} />
-      </div>
-    </main>
+    </GuideArticle>
   );
 }

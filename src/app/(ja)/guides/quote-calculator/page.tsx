@@ -2,7 +2,7 @@
  * 検索の言葉「見積もり シミュレーター 作り方」「料金シミュレーター 作り方」「見積もり フォーム 自動 計算」の着地の紙。
  * 何が変わるか → 料金の決まりを書き出す → 手で置ける電卓（コード 1 つ）→ 端数・源泉・見積書 → 3 つの道、の順に読ませる。
  * 事実はキットの販売ページ（s1-quote-calculator）と /projects/quote-simulator の見本だけから取る。
- * FORM: 料紙（作品ページ）— 文法は DESIGN.md。朱は戻りの落款だけ。
+ * FORM: 方眼（DESIGN.md）。枠は ../parts の GuideArticle。
  */
 import type { Metadata } from "next";
 import Link from "next/link";
@@ -10,17 +10,9 @@ import Link from "next/link";
 import { goHref } from "@/lib/go";
 import { guideBySlug } from "@/lib/guides";
 
-import { fontVars } from "../../projects/fonts";
-import s from "../../projects/projects.module.css";
 import g from "../guides.module.css";
 import { NoteEmbed } from "@/components/note/NoteEmbed";
-import {
-  GuideAnswer,
-  GuideByline,
-  GuideJsonLd,
-  GuideLinks,
-  guideMetadata,
-} from "../parts";
+import { GuideArticle, GuideLinks, guideMetadata } from "../parts";
 import { ShopEmbed } from "../../projects/shell";
 
 const PRODUCT_NOTE = "https://note.com/suminawa/n/n9ead42f0701d";
@@ -54,30 +46,7 @@ export const metadata: Metadata = guideMetadata(guide, IMAGE);
 
 export default function QuoteCalculatorGuide() {
   return (
-    <main className={`${s.paper} ${fontVars}`}>
-      <GuideJsonLd guide={guide} image={IMAGE} />
-      <div className={s.stroke} aria-hidden="true">
-        <span className={`${s.ink} ${s.inkKasure}`} />
-        <span className={`${s.ink} ${s.inkCore}`} />
-      </div>
-
-      <header className={s.head}>
-        <Link href="/guides" className={s.back}>
-          <span className={s.seal} aria-hidden="true">
-            墨
-          </span>
-          悩みから読む へ戻る
-        </Link>
-        <h1 className={s.title}>
-          {guide.title}
-          <span className={s.latin}>Quote Calculator</span>
-        </h1>
-        <GuideAnswer guide={guide} />
-        <p className={s.lede}>{guide.lede}</p>
-        <GuideByline guide={guide} />
-      </header>
-
-      <div className={s.work}>
+    <GuideArticle guide={guide} image={IMAGE}>
         <section className={g.section}>
           <h2 className={g.heading}>
             ホームページに見積もりシミュレーターを置くと、何が変わりますか
@@ -95,7 +64,7 @@ export default function QuoteCalculatorGuide() {
           </ul>
           <p className={g.text}>
             どう見えるかは、
-            <Link href="/projects/quote-simulator" className={s.textLink}>
+            <Link href="/projects/quote-simulator" className={g.link}>
               見積もりシミュレーターの見本
             </Link>
             で試せます。時間単価・一式・オプション・消費税だけの、基本の計算をする版です。
@@ -200,7 +169,7 @@ export default function QuoteCalculatorGuide() {
               <a
                 href={goHref("s1", "booth", "/guides/quote-calculator")}
                 rel="nofollow"
-                className={s.textLink}
+                className={g.link}
               >
                 BOOTH
               </a>
@@ -208,7 +177,7 @@ export default function QuoteCalculatorGuide() {
               <a
                 href={goHref("s1", "note", "/guides/quote-calculator")}
                 rel="nofollow"
-                className={s.textLink}
+                className={g.link}
               >
                 note
               </a>
@@ -217,7 +186,7 @@ export default function QuoteCalculatorGuide() {
             <li>
               設定ごと頼む:
               お使いの料金表に合わせた設定と、サイトへの設置までお受けします ──{" "}
-              <Link href="/contact" className={s.textLink}>
+              <Link href="/contact" className={g.link}>
                 制作のご相談
               </Link>
             </li>
@@ -225,7 +194,6 @@ export default function QuoteCalculatorGuide() {
           <NoteEmbed url={PRODUCT_NOTE} />
         </section>
         <GuideLinks guide={guide} />
-      </div>
-    </main>
+    </GuideArticle>
   );
 }

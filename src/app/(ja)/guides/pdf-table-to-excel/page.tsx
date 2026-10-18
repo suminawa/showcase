@@ -1,7 +1,7 @@
 /*
  * 悩みの言葉「PDF の表を Excel やスプレッドシートに移すと、列が崩れる」の着地の紙。
  * 困ること → 見本で何が変わるか → 自分で組む手順（記事）→ キット → 導入代行、の順に読ませる。
- * FORM: 料紙（作品ページ）— 文法は DESIGN.md。朱は戻りの落款だけ。
+ * FORM: 方眼（DESIGN.md）。枠は ../parts の GuideArticle。
  */
 import type { Metadata } from "next";
 import Image from "next/image";
@@ -11,16 +11,8 @@ import { NoteEmbed } from "@/components/note/NoteEmbed";
 import { goHref } from "@/lib/go";
 import { guideBySlug } from "@/lib/guides";
 
-import { fontVars } from "../../projects/fonts";
-import s from "../../projects/projects.module.css";
 import g from "../guides.module.css";
-import {
-  GuideAnswer,
-  GuideByline,
-  GuideJsonLd,
-  GuideLinks,
-  guideMetadata,
-} from "../parts";
+import { GuideArticle, GuideLinks, guideMetadata } from "../parts";
 import { ContactMail } from "@/components/track/ContactMail";
 
 const IMAGE = "/og/doc-reader.png";
@@ -35,30 +27,7 @@ export const metadata: Metadata = guideMetadata(guide, IMAGE);
 
 export default function PdfTableToExcelGuide() {
   return (
-    <main className={`${s.paper} ${fontVars}`}>
-      <GuideJsonLd guide={guide} image={IMAGE} />
-      <div className={s.stroke} aria-hidden="true">
-        <span className={`${s.ink} ${s.inkKasure}`} />
-        <span className={`${s.ink} ${s.inkCore}`} />
-      </div>
-
-      <header className={s.head}>
-        <Link href="/guides" className={s.back}>
-          <span className={s.seal} aria-hidden="true">
-            墨
-          </span>
-          悩みから読む へ戻る
-        </Link>
-        <h1 className={s.title}>
-          {guide.title}
-          <span className={s.latin}>PDF Table to Excel</span>
-        </h1>
-        <GuideAnswer guide={guide} />
-        <p className={s.lede}>{guide.lede}</p>
-        <GuideByline guide={guide} />
-      </header>
-
-      <div className={s.work}>
+    <GuideArticle guide={guide} image={IMAGE}>
         <section className={g.section}>
           <h2 className={g.heading}>
             PDF の表をコピーして貼ると、どう崩れますか
@@ -92,7 +61,7 @@ export default function PdfTableToExcelGuide() {
             </Link>
             <figcaption className={g.caption}>
               見本はその場で試せます ──{" "}
-              <Link href="/projects/doc-reader" className={s.textLink}>
+              <Link href="/projects/doc-reader" className={g.link}>
                 AI 書類読み取りの見本を開く
               </Link>
             </figcaption>
@@ -121,11 +90,11 @@ export default function PdfTableToExcelGuide() {
           </ul>
           <p className={g.text}>
             詳しい手順は note の記事{" "}
-            <a href={NOTE_ARTICLE} className={s.textLink}>
+            <a href={NOTE_ARTICLE} className={g.link}>
               「{guide.title}」
             </a>
             に書きました。書類 1 枚ずつから請求元や金額を拾う場合は{" "}
-            <Link href={INVOICE_GUIDE} className={s.textLink}>
+            <Link href={INVOICE_GUIDE} className={g.link}>
               「PDF の請求書をスプレッドシートに手で書き写す作業を減らす」
             </Link>
             をご覧ください。
@@ -146,7 +115,7 @@ export default function PdfTableToExcelGuide() {
             <a
               href={goHref("doc-reader", "booth", "/guides/pdf-table-to-excel")}
               rel="nofollow"
-              className={s.textLink}
+              className={g.link}
             >
               BOOTH
             </a>
@@ -154,7 +123,7 @@ export default function PdfTableToExcelGuide() {
             <a
               href={goHref("doc-reader", "note", "/guides/pdf-table-to-excel")}
               rel="nofollow"
-              className={s.textLink}
+              className={g.link}
             >
               note
             </a>
@@ -166,22 +135,21 @@ export default function PdfTableToExcelGuide() {
           <p className={g.text}>
             帳票の型の作り込み・スプレッドシート連携・配置まで、こちらで行うこともできます。
             ──{" "}
-            <a href={COCONALA} className={s.textLink}>
+            <a href={COCONALA} className={g.link}>
               ココナラ
             </a>
             {" / "}
-            <a href={LANCERS} className={s.textLink}>
+            <a href={LANCERS} className={g.link}>
               ランサーズ
             </a>
           </p>
           <p className={g.text}>
             ご相談は{" "}
-            <ContactMail className={s.textLink} />{" "}
+            <ContactMail className={g.link} />{" "}
             へ。3 営業日以内に返信します。
           </p>
         </section>
         <GuideLinks guide={guide} />
-      </div>
-    </main>
+    </GuideArticle>
   );
 }

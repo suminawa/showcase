@@ -2,25 +2,16 @@
  * 検索の言葉「スプレッドシート アプリ化」「gas webアプリ サンプル」の着地の紙。
  * 何が変わるか → 表を整える → Web アプリを手で公開する（コード 2 つ）→ 同時の更新と数式 → 3 つの道、の順に読ませる。
  * 事実はキットの販売ページ（sheet-app-gas）と /projects/sheet-app の見本だけから取る。
- * FORM: 料紙（作品ページ）— 文法は DESIGN.md。朱は戻りの落款だけ。
+ * FORM: 方眼（DESIGN.md）。枠は ../parts の GuideArticle。
  */
 import type { Metadata } from "next";
-import Link from "next/link";
 
 import { goHref } from "@/lib/go";
 import { guideBySlug } from "@/lib/guides";
 
-import { fontVars } from "../../projects/fonts";
-import s from "../../projects/projects.module.css";
 import g from "../guides.module.css";
 import { NoteEmbed } from "@/components/note/NoteEmbed";
-import {
-  GuideAnswer,
-  GuideByline,
-  GuideJsonLd,
-  GuideLinks,
-  guideMetadata,
-} from "../parts";
+import { GuideArticle, GuideLinks, guideMetadata } from "../parts";
 import { ShopEmbed } from "../../projects/shell";
 
 const PRODUCT_NOTE = "https://note.com/suminawa/n/n206d0f5b8324";
@@ -61,30 +52,7 @@ export const metadata: Metadata = guideMetadata(guide, IMAGE);
 
 export default function SpreadsheetAppGuide() {
   return (
-    <main className={`${s.paper} ${fontVars}`}>
-      <GuideJsonLd guide={guide} image={IMAGE} />
-      <div className={s.stroke} aria-hidden="true">
-        <span className={`${s.ink} ${s.inkKasure}`} />
-        <span className={`${s.ink} ${s.inkCore}`} />
-      </div>
-
-      <header className={s.head}>
-        <Link href="/guides" className={s.back}>
-          <span className={s.seal} aria-hidden="true">
-            墨
-          </span>
-          悩みから読む へ戻る
-        </Link>
-        <h1 className={s.title}>
-          {guide.title}
-          <span className={s.latin}>Spreadsheet App</span>
-        </h1>
-        <GuideAnswer guide={guide} />
-        <p className={s.lede}>{guide.lede}</p>
-        <GuideByline guide={guide} />
-      </header>
-
-      <div className={s.work}>
+    <GuideArticle guide={guide} image={IMAGE}>
         <section className={g.section}>
           <h2 className={g.heading}>
             スプレッドシートをアプリ化すると、何が変わりますか
@@ -202,7 +170,7 @@ export default function SpreadsheetAppGuide() {
               <a
                 href={goHref("sheet-app", "booth", "/guides/spreadsheet-app")}
                 rel="nofollow"
-                className={s.textLink}
+                className={g.link}
               >
                 BOOTH
               </a>
@@ -210,7 +178,7 @@ export default function SpreadsheetAppGuide() {
               <a
                 href={goHref("sheet-app", "note", "/guides/spreadsheet-app")}
                 rel="nofollow"
-                className={s.textLink}
+                className={g.link}
               >
                 note
               </a>
@@ -220,11 +188,11 @@ export default function SpreadsheetAppGuide() {
               設定ごと頼む:
               お使いの表に合わせた定義づくりと権限の設定、スマートフォンでの確認まで、こちらでお受けします
               ──{" "}
-              <a href={COCONALA} className={s.textLink}>
+              <a href={COCONALA} className={g.link}>
                 ココナラ
               </a>
               {" / "}
-              <a href={LANCERS} className={s.textLink}>
+              <a href={LANCERS} className={g.link}>
                 ランサーズ
               </a>
             </li>
@@ -232,7 +200,6 @@ export default function SpreadsheetAppGuide() {
           <NoteEmbed url={PRODUCT_NOTE} />
         </section>
         <GuideLinks guide={guide} />
-      </div>
-    </main>
+    </GuideArticle>
   );
 }

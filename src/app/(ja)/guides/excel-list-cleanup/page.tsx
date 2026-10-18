@@ -1,7 +1,7 @@
 /*
  * 悩みの言葉「Excel の名簿の重複と表記ゆれを整理する」の着地の紙。
  * 何が起きているか → 先に決める規則 → 手でやる手順 → 仕組みでやるとき → 頼む道、の順。
- * FORM: 料紙（作品ページ）— 文法は DESIGN.md。朱は戻りの落款だけ。
+ * FORM: 方眼（DESIGN.md）。枠は ../parts の GuideArticle。
  */
 import type { Metadata } from "next";
 import Image from "next/image";
@@ -10,17 +10,9 @@ import Link from "next/link";
 import { goHref } from "@/lib/go";
 import { guideBySlug } from "@/lib/guides";
 
-import { fontVars } from "../../projects/fonts";
-import s from "../../projects/projects.module.css";
 import g from "../guides.module.css";
 import { NoteEmbed } from "@/components/note/NoteEmbed";
-import {
-  GuideAnswer,
-  GuideByline,
-  GuideJsonLd,
-  GuideLinks,
-  guideMetadata,
-} from "../parts";
+import { GuideArticle, GuideLinks, guideMetadata } from "../parts";
 import { ShopEmbed } from "../../projects/shell";
 import { ContactMail } from "@/components/track/ContactMail";
 
@@ -35,30 +27,7 @@ export const metadata: Metadata = guideMetadata(guide, IMAGE);
 
 export default function ExcelListCleanupGuide() {
   return (
-    <main className={`${s.paper} ${fontVars}`}>
-      <GuideJsonLd guide={guide} image={IMAGE} />
-      <div className={s.stroke} aria-hidden="true">
-        <span className={`${s.ink} ${s.inkKasure}`} />
-        <span className={`${s.ink} ${s.inkCore}`} />
-      </div>
-
-      <header className={s.head}>
-        <Link href="/guides" className={s.back}>
-          <span className={s.seal} aria-hidden="true">
-            墨
-          </span>
-          悩みから読む へ戻る
-        </Link>
-        <h1 className={s.title}>
-          {guide.title}
-          <span className={s.latin}>Excel List Cleanup</span>
-        </h1>
-        <GuideAnswer guide={guide} />
-        <p className={s.lede}>{guide.lede}</p>
-        <GuideByline guide={guide} />
-      </header>
-
-      <div className={s.work}>
+    <GuideArticle guide={guide} image={IMAGE}>
         <section className={g.section}>
           <h2 className={g.heading}>
             名簿が「同じ人なのに別の行」になるのは、なぜですか
@@ -167,7 +136,7 @@ export default function ExcelListCleanupGuide() {
             </Link>
             <figcaption className={g.caption}>
               整理したあとの台帳を崩さずに使い続ける形は、こちらの見本で ──{" "}
-              <Link href="/projects/sheet-app" className={s.textLink}>
+              <Link href="/projects/sheet-app" className={g.link}>
                 スプレッドシート業務アプリの見本を開く
               </Link>
             </figcaption>
@@ -179,18 +148,18 @@ export default function ExcelListCleanupGuide() {
           <p className={g.text}>
             名簿や顧客表の整理は、上の規則を先に文章でお見せしてから、変更ログつきの
             3 シートでお納めします。100 件 3,000 円から ──{" "}
-            <a href={COCONALA} className={s.textLink}>
+            <a href={COCONALA} className={g.link}>
               ココナラ
             </a>
             。数千件や、整理したあとに崩れない台帳まで組む場合は、
-            <Link href="/guides/customer-sheet" className={s.textLink}>
+            <Link href="/guides/customer-sheet" className={g.link}>
               顧客管理のスプレッドシートが、いつの間にか崩れていく
             </Link>
             の形でご相談ください。
           </p>
           <p className={g.text}>
             ご相談は{" "}
-            <ContactMail className={s.textLink} />{" "}
+            <ContactMail className={g.link} />{" "}
             へ。3 営業日以内に返信します。
           </p>
           <p className={g.text}>
@@ -198,7 +167,7 @@ export default function ExcelListCleanupGuide() {
             <a
               href={goHref("sheet-app", "booth", "/guides/excel-list-cleanup")}
               rel="nofollow"
-              className={s.textLink}
+              className={g.link}
             >
               BOOTH
             </a>
@@ -206,7 +175,7 @@ export default function ExcelListCleanupGuide() {
             <a
               href={goHref("sheet-app", "note", "/guides/excel-list-cleanup")}
               rel="nofollow"
-              className={s.textLink}
+              className={g.link}
             >
               note
             </a>
@@ -215,7 +184,6 @@ export default function ExcelListCleanupGuide() {
           <NoteEmbed url={PRODUCT_NOTE} />
         </section>
         <GuideLinks guide={guide} />
-      </div>
-    </main>
+    </GuideArticle>
   );
 }

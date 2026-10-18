@@ -1,7 +1,7 @@
 /*
  * 悩みの言葉「ホームページに、自社の資料だけで答える AI の窓口を置く」の着地の紙。
  * 困ること → 答え方の決まり（根拠・分からないときの道）→ 自分で組む手順 → キット → 設置代行、の順。
- * FORM: 料紙（作品ページ）— 文法は DESIGN.md。朱は戻りの落款だけ。
+ * FORM: 方眼（DESIGN.md）。枠は ../parts の GuideArticle。
  */
 import type { Metadata } from "next";
 import Image from "next/image";
@@ -10,17 +10,9 @@ import Link from "next/link";
 import { goHref } from "@/lib/go";
 import { guideBySlug } from "@/lib/guides";
 
-import { fontVars } from "../../projects/fonts";
-import s from "../../projects/projects.module.css";
 import g from "../guides.module.css";
 import { NoteEmbed } from "@/components/note/NoteEmbed";
-import {
-  GuideAnswer,
-  GuideByline,
-  GuideJsonLd,
-  GuideLinks,
-  guideMetadata,
-} from "../parts";
+import { GuideArticle, GuideLinks, guideMetadata } from "../parts";
 import { ShopEmbed } from "../../projects/shell";
 import { ContactMail } from "@/components/track/ContactMail";
 
@@ -36,30 +28,7 @@ export const metadata: Metadata = guideMetadata(guide, IMAGE);
 
 export default function SiteAiFaqGuide() {
   return (
-    <main className={`${s.paper} ${fontVars}`}>
-      <GuideJsonLd guide={guide} image={IMAGE} />
-      <div className={s.stroke} aria-hidden="true">
-        <span className={`${s.ink} ${s.inkKasure}`} />
-        <span className={`${s.ink} ${s.inkCore}`} />
-      </div>
-
-      <header className={s.head}>
-        <Link href="/guides" className={s.back}>
-          <span className={s.seal} aria-hidden="true">
-            墨
-          </span>
-          悩みから読む へ戻る
-        </Link>
-        <h1 className={s.title}>
-          {guide.title}
-          <span className={s.latin}>Site AI FAQ</span>
-        </h1>
-        <GuideAnswer guide={guide} />
-        <p className={s.lede}>{guide.lede}</p>
-        <GuideByline guide={guide} />
-      </header>
-
-      <div className={s.work}>
+    <GuideArticle guide={guide} image={IMAGE}>
         <section className={g.section}>
           <h2 className={g.heading}>
             よくあるご質問のページがあるのに、なぜ同じ質問が届くのですか
@@ -118,7 +87,7 @@ export default function SiteAiFaqGuide() {
             </Link>
             <figcaption className={g.caption}>
               根拠つきの答え方は、その場で試せます ──{" "}
-              <Link href="/projects/ai-concierge" className={s.textLink}>
+              <Link href="/projects/ai-concierge" className={g.link}>
                 AI 案内窓口の見本を開く
               </Link>
             </figcaption>
@@ -184,7 +153,7 @@ export default function SiteAiFaqGuide() {
             <a
               href={goHref("ai-concierge", "booth", "/guides/site-ai-faq")}
               rel="nofollow"
-              className={s.textLink}
+              className={g.link}
             >
               BOOTH
             </a>
@@ -192,7 +161,7 @@ export default function SiteAiFaqGuide() {
             <a
               href={goHref("ai-concierge", "note", "/guides/site-ai-faq")}
               rel="nofollow"
-              className={s.textLink}
+              className={g.link}
             >
               note
             </a>
@@ -200,7 +169,7 @@ export default function SiteAiFaqGuide() {
           <ShopEmbed linkKey="ai-concierge" />
           <p className={g.text}>
             LINE 公式アカウントの中で同じ答え方をさせたい場合は、
-            <Link href="/guides/line-auto-reply" className={s.textLink}>
+            <Link href="/guides/line-auto-reply" className={g.link}>
               LINE 公式アカウントの問い合わせに、自社の資料だけで答えさせる
             </Link>
             をご覧ください。
@@ -214,22 +183,21 @@ export default function SiteAiFaqGuide() {
             文書の整理と索引づくり、Vercel
             への設置、サイトへの窓の埋め込み、問い合わせ先と質問の候補の作り込みまで、こちらで行うこともできます。
             ──{" "}
-            <a href={COCONALA} className={s.textLink}>
+            <a href={COCONALA} className={g.link}>
               ココナラ
             </a>
             {" / "}
-            <a href={LANCERS} className={s.textLink}>
+            <a href={LANCERS} className={g.link}>
               ランサーズ
             </a>
           </p>
           <p className={g.text}>
             ご相談は{" "}
-            <ContactMail className={s.textLink} />{" "}
+            <ContactMail className={g.link} />{" "}
             へ。3 営業日以内に返信します。
           </p>
         </section>
         <GuideLinks guide={guide} />
-      </div>
-    </main>
+    </GuideArticle>
   );
 }

@@ -2,7 +2,7 @@
  * 検索の言葉「問い合わせフォーム 自動返信 GAS」「Googleフォーム 自動返信メール 設定」の着地の紙。
  * なぜ要るか → Google フォームの手順（コード 1 つ）→ 自前のフォーム → 迷惑投稿と二重送信 → 通知 → 3 つの道、の順に読ませる。
  * コードの実例はキットと同じく MailApp で送り、1 日の上限を先に確かめる（packages/form-intake-gas/src/gas_mail.js）。
- * FORM: 料紙（作品ページ）— 文法は DESIGN.md。朱は戻りの落款だけ。
+ * FORM: 方眼（DESIGN.md）。枠は ../parts の GuideArticle。
  */
 import type { Metadata } from "next";
 import Image from "next/image";
@@ -11,17 +11,9 @@ import Link from "next/link";
 import { goHref } from "@/lib/go";
 import { guideBySlug } from "@/lib/guides";
 
-import { fontVars } from "../../projects/fonts";
-import s from "../../projects/projects.module.css";
 import g from "../guides.module.css";
 import { NoteEmbed } from "@/components/note/NoteEmbed";
-import {
-  GuideAnswer,
-  GuideByline,
-  GuideJsonLd,
-  GuideLinks,
-  guideMetadata,
-} from "../parts";
+import { GuideArticle, GuideLinks, guideMetadata } from "../parts";
 import { ShopEmbed } from "../../projects/shell";
 
 const PRODUCT_NOTE = "https://note.com/suminawa/n/n5cb1589b56b5";
@@ -56,30 +48,7 @@ export const metadata: Metadata = guideMetadata(guide, SHOT);
 
 export default function FormAutoReplyGuide() {
   return (
-    <main className={`${s.paper} ${fontVars}`}>
-      <GuideJsonLd guide={guide} image={SHOT} />
-      <div className={s.stroke} aria-hidden="true">
-        <span className={`${s.ink} ${s.inkKasure}`} />
-        <span className={`${s.ink} ${s.inkCore}`} />
-      </div>
-
-      <header className={s.head}>
-        <Link href="/guides" className={s.back}>
-          <span className={s.seal} aria-hidden="true">
-            墨
-          </span>
-          悩みから読む へ戻る
-        </Link>
-        <h1 className={s.title}>
-          {guide.title}
-          <span className={s.latin}>Form Auto Reply</span>
-        </h1>
-        <GuideAnswer guide={guide} />
-        <p className={s.lede}>{guide.lede}</p>
-        <GuideByline guide={guide} />
-      </header>
-
-      <div className={s.work}>
+    <GuideArticle guide={guide} image={SHOT}>
         <section className={g.section}>
           <h2 className={g.heading}>
             なぜ問い合わせフォームに自動返信が要るのですか
@@ -212,7 +181,7 @@ export default function FormAutoReplyGuide() {
             </Link>
             <figcaption className={g.caption}>
               キットの自動返信には、受付番号と送られた内容が入ります ──{" "}
-              <Link href="/projects/form" className={s.textLink}>
+              <Link href="/projects/form" className={g.link}>
                 フォーム受付の見本を開く
               </Link>
             </figcaption>
@@ -286,7 +255,7 @@ export default function FormAutoReplyGuide() {
               <a
                 href={goHref("s3", "booth", "/guides/form-auto-reply")}
                 rel="nofollow"
-                className={s.textLink}
+                className={g.link}
               >
                 BOOTH
               </a>
@@ -294,7 +263,7 @@ export default function FormAutoReplyGuide() {
               <a
                 href={goHref("s3", "note", "/guides/form-auto-reply")}
                 rel="nofollow"
-                className={s.textLink}
+                className={g.link}
               >
                 note
               </a>
@@ -302,7 +271,7 @@ export default function FormAutoReplyGuide() {
             </li>
             <li>
               設定ごと頼む: ココナラの「
-              <a href={SETUP.href} className={s.textLink}>
+              <a href={SETUP.href} className={g.link}>
                 {SETUP.name}
               </a>
               」（30,000 円・7
@@ -312,7 +281,6 @@ export default function FormAutoReplyGuide() {
           <NoteEmbed url={PRODUCT_NOTE} />
         </section>
         <GuideLinks guide={guide} />
-      </div>
-    </main>
+    </GuideArticle>
   );
 }

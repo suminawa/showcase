@@ -2,7 +2,7 @@
  * 悩みの言葉「LINE 公式アカウントの問い合わせに、自社の資料だけで答えさせる」の着地の紙。
  * 困ること → 見本で何が変わるか → 自分で組む手順（記事）→ キット → 導入代行、の順に読ませる。
  * LINE 案内窓口キットは LINE の中で動くので、同じ答える部品の案内窓口の見本へ渡す。
- * FORM: 料紙（作品ページ）— 文法は DESIGN.md。朱は戻りの落款だけ。
+ * FORM: 方眼（DESIGN.md）。枠は ../parts の GuideArticle。
  */
 import type { Metadata } from "next";
 import Image from "next/image";
@@ -12,16 +12,8 @@ import { NoteEmbed } from "@/components/note/NoteEmbed";
 import { goHref } from "@/lib/go";
 import { guideBySlug } from "@/lib/guides";
 
-import { fontVars } from "../../projects/fonts";
-import s from "../../projects/projects.module.css";
 import g from "../guides.module.css";
-import {
-  GuideAnswer,
-  GuideByline,
-  GuideJsonLd,
-  GuideLinks,
-  guideMetadata,
-} from "../parts";
+import { GuideArticle, GuideLinks, guideMetadata } from "../parts";
 import { ContactMail } from "@/components/track/ContactMail";
 
 const IMAGE = "/og/ai-concierge.png";
@@ -36,30 +28,7 @@ export const metadata: Metadata = guideMetadata(guide, IMAGE);
 
 export default function LineAutoReplyGuide() {
   return (
-    <main className={`${s.paper} ${fontVars}`}>
-      <GuideJsonLd guide={guide} image={IMAGE} />
-      <div className={s.stroke} aria-hidden="true">
-        <span className={`${s.ink} ${s.inkKasure}`} />
-        <span className={`${s.ink} ${s.inkCore}`} />
-      </div>
-
-      <header className={s.head}>
-        <Link href="/guides" className={s.back}>
-          <span className={s.seal} aria-hidden="true">
-            墨
-          </span>
-          悩みから読む へ戻る
-        </Link>
-        <h1 className={s.title}>
-          {guide.title}
-          <span className={s.latin}>LINE Auto Reply</span>
-        </h1>
-        <GuideAnswer guide={guide} />
-        <p className={s.lede}>{guide.lede}</p>
-        <GuideByline guide={guide} />
-      </header>
-
-      <div className={s.work}>
+    <GuideArticle guide={guide} image={IMAGE}>
         <section className={g.section}>
           <h2 className={g.heading}>LINE の問い合わせ対応で、何が困りますか</h2>
           <ul className={g.list}>
@@ -97,7 +66,7 @@ export default function LineAutoReplyGuide() {
             </Link>
             <figcaption className={g.caption}>
               答え方はその場で試せます ──{" "}
-              <Link href="/projects/ai-concierge" className={s.textLink}>
+              <Link href="/projects/ai-concierge" className={g.link}>
                 AI 案内窓口の見本を開く
               </Link>
             </figcaption>
@@ -127,11 +96,11 @@ export default function LineAutoReplyGuide() {
           </ul>
           <p className={g.text}>
             詳しい手順は note の記事{" "}
-            <a href={NOTE_ARTICLE} className={s.textLink}>
+            <a href={NOTE_ARTICLE} className={g.link}>
               「{guide.title}」
             </a>
             に、Messaging API と Claude での実装は Zenn の記事{" "}
-            <a href={ZENN_ARTICLE} className={s.textLink}>
+            <a href={ZENN_ARTICLE} className={g.link}>
               「LINE の Webhook に Claude で答える」
             </a>
             に書きました。
@@ -155,7 +124,7 @@ export default function LineAutoReplyGuide() {
                 "/guides/line-auto-reply",
               )}
               rel="nofollow"
-              className={s.textLink}
+              className={g.link}
             >
               BOOTH
             </a>
@@ -163,7 +132,7 @@ export default function LineAutoReplyGuide() {
             <a
               href={goHref("line-concierge", "note", "/guides/line-auto-reply")}
               rel="nofollow"
-              className={s.textLink}
+              className={g.link}
             >
               note
             </a>
@@ -176,22 +145,21 @@ export default function LineAutoReplyGuide() {
             文書の整理と索引づくり、Vercel への設置、LINE
             公式アカウントの設定、引き継ぎ先と質問の候補の作り込みまで、こちらで行うこともできます。
             ──{" "}
-            <a href={COCONALA} className={s.textLink}>
+            <a href={COCONALA} className={g.link}>
               ココナラ
             </a>
             {" / "}
-            <a href={LANCERS} className={s.textLink}>
+            <a href={LANCERS} className={g.link}>
               ランサーズ
             </a>
           </p>
           <p className={g.text}>
             ご相談は{" "}
-            <ContactMail className={s.textLink} />{" "}
+            <ContactMail className={g.link} />{" "}
             へ。3 営業日以内に返信します。
           </p>
         </section>
         <GuideLinks guide={guide} />
-      </div>
-    </main>
+    </GuideArticle>
   );
 }
