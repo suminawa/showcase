@@ -28,6 +28,16 @@ import type { ForeignLang, Lang } from "./routes";
 import { UI, dateLabel, money } from "./ui";
 
 type Line = { title: string; description: string };
+export type PillarCopy = {
+  short: string;
+  lede: string;
+  /** 代表のキットの一行（slug → 文） */
+  hooks: Record<string, string>;
+  demo: string;
+  service: { label: string; price: string };
+  /** 棚の一行に添える二文目 */
+  note: string;
+};
 type Menu = { title: string; price: string }[];
 
 type Catalog = {
@@ -35,6 +45,8 @@ type Catalog = {
   gates: Record<Category, string>;
   /** 三つの柱の名（/kits の棚の題・頭とフッターの案内）。日本語は projects.ts の PILLARS が持つ */
   pillars: Record<PillarId, string>;
+  /** 柱の短い名・一行・代表の一行・動く見本・受託・棚の二文目（トップの 3 列と /kits の棚）。日本語は PILLARS と KitsPage の SHELF_NOTE */
+  pillarCopy: Record<PillarId, PillarCopy>;
   index: Record<Category, Omit<IndexPage, "latin">>;
   contact: Omit<IndexPage, "latin">;
   services: Menu;
@@ -61,6 +73,44 @@ export const CATALOG: Record<ForeignLang, Catalog> = {
       automation: "Business automation",
       ai: "AI tools",
       web: "Web production and web apps",
+    },
+    pillarCopy: {
+      automation: {
+        short: "Automation",
+        lede: "Write it in a sheet, and the work runs. Deadline notices, inquiry intake and booking pages, all running inside Google Sheets.",
+        hooks: {
+          deadline: "One message every morning with the deadlines that matter",
+          form: "Logs each inquiry and sends an auto-reply",
+          booking: "Write your time slots, and the sheet becomes a booking page",
+        },
+        demo: "Live demo: Deadline Alert",
+        service: { label: "Setup, done for you", price: "From ¥30,000" },
+        note: "Everything runs on Google Sheets and takes about 15–20 minutes to set up by following the guide. No monthly fee.",
+      },
+      ai: {
+        short: "AI",
+        lede: "AI tools with a defined job: a help desk, a document reader, inquiry triage. Each answers only from your own documents.",
+        hooks: {
+          "ai-concierge": "Answers only from your own documents",
+          "doc-reader": "Copies invoices and receipts into a table",
+          "inbox-triage": "Sorts inquiries and drafts replies",
+        },
+        demo: "Try the document reader demo",
+        service: { label: "AI integration", price: "From ¥40,000" },
+        note: "AI kits use your own API key, billed by the provider. There is no monthly service fee.",
+      },
+      web: {
+        short: "Web",
+        lede: "Landing page templates by industry, 3D product pages, and a foundation for membership services. The six sample sites run live.",
+        hooks: {
+          "lp-pack": "All six sample sites in one pack",
+          configurator: "Rotate a 3D product and pick colors and prices",
+          "saas-starter": "Login, permissions and billing, ready to build on",
+        },
+        demo: "See the six sample sites",
+        service: { label: "Landing pages and websites", price: "From ¥150,000" },
+        note: "Templates and components for people building sites and services. The technology used is listed on each card.",
+      },
     },
     index: {
       kits: {
@@ -255,6 +305,44 @@ export const CATALOG: Record<ForeignLang, Catalog> = {
       automation: "Automatisation",
       ai: "Outils IA",
       web: "Création web et applications web",
+    },
+    pillarCopy: {
+      automation: {
+        short: "Automatisation",
+        lede: "Écrivez-le dans un tableur, et le travail se fait. Rappels d’échéances, réception des demandes et pages de réservation, le tout dans Google Sheets.",
+        hooks: {
+          deadline: "Chaque matin, un seul message avec les échéances à surveiller",
+          form: "Enregistre chaque demande et envoie une réponse automatique",
+          booking: "Notez vos créneaux : le tableur devient une page de réservation",
+        },
+        demo: "Démo en direct : Alerte d’échéances",
+        service: { label: "Installation clés en main", price: "Dès 30 000 ¥" },
+        note: "Tout fonctionne dans Google Sheets et s’installe en 15 à 20 minutes environ en suivant le guide. Aucun abonnement mensuel.",
+      },
+      ai: {
+        short: "IA",
+        lede: "Des outils IA au rôle bien défini : guichet d’accueil, lecteur de documents, tri des demandes. Chacun répond uniquement à partir de vos documents.",
+        hooks: {
+          "ai-concierge": "Répond uniquement à partir de vos documents",
+          "doc-reader": "Recopie factures et reçus dans un tableau",
+          "inbox-triage": "Classe les demandes et prépare des brouillons de réponse",
+        },
+        demo: "Essayer la démo du lecteur de documents",
+        service: { label: "Intégration d’IA", price: "Dès 40 000 ¥" },
+        note: "Les kits IA utilisent votre propre clé API, facturée par le fournisseur. Aucun abonnement mensuel.",
+      },
+      web: {
+        short: "Web",
+        lede: "Modèles de landing pages par secteur, pages produit en 3D et socle pour services par abonnement. Les six sites d’exemple fonctionnent en direct.",
+        hooks: {
+          "lp-pack": "Les six sites d’exemple en un seul pack",
+          configurator: "Faites tourner un produit en 3D et choisissez couleurs et prix",
+          "saas-starter": "Connexion, droits et facturation, prêts à être étendus",
+        },
+        demo: "Voir les six sites d’exemple",
+        service: { label: "Landing pages et sites web", price: "Dès 150 000 ¥" },
+        note: "Des modèles et composants pour celles et ceux qui créent des sites et des services. La technologie utilisée est indiquée sur chaque carte.",
+      },
     },
     index: {
       kits: {
@@ -464,6 +552,21 @@ export function localIndexPage(lang: Lang, category: Category): IndexPage {
 /** 柱の名（/kits の棚の題）。日本語は PILLARS の名そのまま */
 export function localPillarName(lang: Lang, pillar: Pillar): string {
   return lang === "ja" ? pillar.name : CATALOG[lang].pillars[pillar.id];
+}
+
+/** 柱をその言語で（名・短い名・一行・代表の一行・動く見本の名・受託）。道（href・slugs）は日本語のまま */
+export function localPillar(lang: Lang, pillar: Pillar): Pillar {
+  if (lang === "ja") return pillar;
+  const c = CATALOG[lang].pillarCopy[pillar.id];
+  return {
+    ...pillar,
+    name: CATALOG[lang].pillars[pillar.id],
+    short: c.short,
+    lede: c.lede,
+    picks: pillar.picks.map((pick) => ({ ...pick, hook: c.hooks[pick.slug] ?? pick.hook })),
+    demo: { ...pillar.demo, label: c.demo },
+    service: c.service,
+  };
 }
 
 export function localContact(lang: Lang) {

@@ -180,6 +180,54 @@
   color: var(--m-sumi-2);
 }
 
+/* 英仏の /kits の、悩みから読む（日本語の紙）の行。題と結びつくキットの名 */
+.guideList {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  background: var(--m-cell);
+  border: 1px solid var(--m-grid);
+}
+
+.guide + .guide {
+  border-top: 1px solid var(--m-grid);
+}
+
+.guideLink {
+  display: grid;
+  gap: 2px;
+  min-height: 56px;
+  padding: 12px 16px;
+  color: var(--m-sumi);
+  text-decoration: none;
+}
+
+.guideLink:hover {
+  background: var(--m-cell-head);
+}
+
+.guideLink:hover .guideTitle {
+  text-decoration: underline;
+  text-underline-offset: 0.25em;
+}
+
+.guideLink:focus-visible {
+  outline: 2px solid var(--m-shu);
+  outline-offset: -2px;
+}
+
+.guideTitle {
+  font-weight: 600;
+  font-size: 0.9375rem;
+  line-height: 1.5;
+}
+
+.guideKit {
+  font-size: 0.8125rem;
+  line-height: 1.5;
+  color: var(--m-sumi-3);
+}
+
 .cta {
   padding-block: 48px 64px;
   border-top: 1px solid var(--m-grid);

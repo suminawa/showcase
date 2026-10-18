@@ -1,4 +1,5 @@
-import { CategorySheet, categoryMetadata } from "@/components/ryoushi/CategorySheet";
+import { KitsPage } from "@/app/(ja)/kits/KitsPage";
+import { categoryMetadata } from "@/components/ryoushi/category-meta";
 import { foreignLang, type LangParams } from "@/i18n/params";
 
 /** 札の値段は日付で変わる（日本語の /kits と同じ）。要求のたびに組む */
@@ -9,5 +10,5 @@ export async function generateMetadata({ params }: LangParams) {
 }
 
 export default async function Page({ params }: LangParams) {
-  return <CategorySheet lang={foreignLang((await params).lang)} category="kits" />;
+  return <KitsPage lang={foreignLang((await params).lang)} />;
 }

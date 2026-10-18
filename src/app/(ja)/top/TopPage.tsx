@@ -8,16 +8,22 @@
  * FIRST VIEWPORT: PC は、誰向けの一行 → 6×3 マスの見出しと二文 → 三つの柱の 3 列（柱の名・一行・代表のキットの頭）。
  *   スマホは 1 列で、見出しと二文のすぐ下に業務自動化の柱が入る。
  * FORM: 方眼（自前の候補の 7 番目「原稿用紙・方眼」を、スプレッドシートの文法と合わせた。seed a9babaf7）
+ * LANG: 日本語・英語・仏語が同じ組み方（英仏は src/app/[lang]/page.tsx から lang を受ける）。
+ *   英仏の見出しは一字一マスにできないので、同じ方眼の上に柱ごとの 1 行を置く。更新の記録は日本語だけ。
  */
+import { Fragment } from "react";
 import Link from "next/link";
 
 import { ContactMail } from "@/components/track/ContactMail";
 import { KitCard, KitGrid } from "@/components/site/KitCard";
 import { PriceLadder } from "@/components/site/PriceLadder";
 import u from "@/components/site/ui.module.css";
+import { localContact, localGuides, localPillar, localProject } from "@/i18n/catalog";
+import { hrefFor, type Lang } from "@/i18n/routes";
+import { PURCHASE_NOTE, UI, money } from "@/i18n/ui";
 import { guideHref, guides } from "@/lib/guides";
 import { KIT_FACTS, type FlagshipSlug } from "@/lib/kit-facts";
-import { priceNow, yen } from "@/lib/prices";
+import { priceNow } from "@/lib/prices";
 import {
   KIT_SET,
   PILLARS,
@@ -35,46 +41,65 @@ import { copy } from "../copy";
 import { HeroSheet } from "./HeroSheet";
 import s from "./top.module.css";
 
-function listPrice(project: Project): string {
+function listPrice(lang: Lang, project: Project): string {
   const sale = project.sale;
-  if (sale?.status === "free") return "無料";
+  if (sale?.status === "free") return UI[lang].free;
   if (sale?.status !== "onsale" || sale.price == null) return "";
-  return yen(priceNow(project.slug, sale.price).price);
+  return money(lang, priceNow(project.slug, sale.price).price);
 }
 
 const bySlug = new Map(projects.map((p) => [p.slug, p]));
 const titleOf = (slug: string) => bySlug.get(slug)?.title ?? slug;
 
-export function TopPage() {
+export function TopPage({ lang = "ja" }: { lang?: Lang }) {
+  const t = copy[lang];
+  const ja = lang === "ja";
   const start = featuredProjects();
   const kitCount = categoryCount("kits").total;
   const latest = UPDATES.slice(0, 4);
-  const newestGuides = guides.slice(-3).reverse();
+  const newestGuides = (ja ? guides.map((g) => ({ ...g, localTitle: g.title })) : localGuides(lang)).slice(-3).reverse();
+  const href = (path: string) => hrefFor(lang, path);
+  // 3 本セットの名。日本語は決まった字、英仏は 3 本の題を並べる
+  const setLabel = ja
+    ? KIT_SET.label
+    : KIT_SET.slugs.map((slug) => localProject(lang, bySlug.get(slug)!).title).join(lang === "fr" ? ", " : ", ");
 
   return (
     <main id="main" className={s.page}>
       {/* ---- 第一画面: 名乗りと三つの柱 ------------------------------------ */}
       <section className={s.hero} aria-labelledby="hero-title">
         <div className={u.wrap}>
-          <p className={s.kicker}>従業員 1〜30 人の会社・事務所・教室に</p>
+          <p className={s.kicker}>{t.kicker}</p>
           <div className={s.heroHead}>
-            {/* 一字一マス（6 列 × 3 段、柱ごとに 1 段）。字を span に割らず、字間で送りをマスの幅にそろえる（DESIGN.md の The Masu Rule）。
-                英字は原稿用紙と同じ扱いで、2 字は 1 マス（AI）、3 字は 2 マス（Web）に置く */}
-            <h1 id="hero-title" className={s.masu}>
-              業務自動化、
-              <br />
-              <span className={s.latin}>AI</span>活用、
-              <br />
-              <span className={`${s.latin} ${s.latin2}`}>Web</span>制作。
-            </h1>
+            {ja ? (
+              /* 一字一マス（6 列 × 3 段、柱ごとに 1 段）。字を span に割らず、字間で送りをマスの幅にそろえる（DESIGN.md の The Masu Rule）。
+                 英字は原稿用紙と同じ扱いで、2 字は 1 マス（AI）、3 字は 2 マス（Web）に置く */
+              <h1 id="hero-title" className={s.masu}>
+                業務自動化、
+                <br />
+                <span className={s.latin}>AI</span>活用、
+                <br />
+                <span className={`${s.latin} ${s.latin2}`}>Web</span>制作。
+              </h1>
+            ) : (
+              /* 英仏: 同じ方眼の上に、柱ごとの 1 行（3 段）。欧文は一字一マスにならないので、行の送りだけをマスにそろえる */
+              <h1 id="hero-title" className={`${s.masu} ${s.masuLatin}`}>
+                {t.taglineLines.map((line, i) => (
+                  <Fragment key={line}>
+                    {i > 0 && <br />}
+                    {line}
+                  </Fragment>
+                ))}
+              </h1>
+            )}
             <div className={s.heroText}>
-              <p className={s.lede}>{copy.ja.pitchText}</p>
+              <p className={s.lede}>{t.pitchText}</p>
               <p className={s.ctas}>
-                <Link href="/kits" className={u.btn}>
-                  {kitCount} 本のキットを見る
+                <Link href={href("/kits")} className={u.btn}>
+                  {t.seeKits(kitCount)}
                 </Link>
-                <Link href="/contact" className={u.linkLine}>
-                  頼み方と料金
+                <Link href={href("/contact")} className={u.linkLine}>
+                  {t.pricing}
                 </Link>
               </p>
             </div>
@@ -82,8 +107,9 @@ export function TopPage() {
 
           {/* 三つの柱。PC は 3 列、スマホは 1 列。柱ごとに 名・一行・代表のキット（値段つき）・棚への道・動く見本・受託の一行 */}
           <div className={s.pillars}>
-            {PILLARS.map((pillar) => {
-              const picks = pillar.picks.map((pick) => ({ ...pick, project: bySlug.get(pick.slug)! }));
+            {PILLARS.map((source) => {
+              const pillar = localPillar(lang, source);
+              const picks = pillar.picks.map((pick) => ({ ...pick, project: localProject(lang, bySlug.get(pick.slug)!) }));
               return (
                 <section key={pillar.id} className={s.pillar} aria-labelledby={`pillar-${pillar.id}`}>
                   <div className={s.pillarHead}>
@@ -93,12 +119,13 @@ export function TopPage() {
                     <p className={s.pillarLede}>{pillar.lede}</p>
                   </div>
                   <p className={s.picksHead}>
-                    代表のキット<span className={s.picksTax}>税込・買い切り</span>
+                    {t.picksHead}
+                    <span className={s.picksTax}>{t.picksTax}</span>
                   </p>
                   <ol className={s.pickList}>
                     {picks.map((pick, i) => (
                       <li key={pick.slug} className={u.select}>
-                        <Link href={projectHref(pick.project)} className={s.pick}>
+                        <Link href={href(projectHref(pick.project))} className={s.pick}>
                           <span className={s.pickNo} aria-hidden="true">
                             {i + 1}
                           </span>
@@ -106,7 +133,7 @@ export function TopPage() {
                             <span className={s.pickName}>{pick.project.title}</span>
                             <span className={s.pickHook}>{pick.hook}</span>
                           </span>
-                          <span className={s.pickPrice}>{listPrice(pick.project)}</span>
+                          <span className={s.pickPrice}>{listPrice(lang, pick.project)}</span>
                         </Link>
                       </li>
                     ))}
@@ -114,23 +141,26 @@ export function TopPage() {
                   {/* 柱の下の三行（帳票の体）: 一覧 → 棚、動く見本 → 見本、受託 → 頼み方と料金。行ごと押せる */}
                   <ul className={s.pillarLinks}>
                     <li>
-                      <Link href={`/kits#${pillar.id}`} className={s.pillarLink}>
-                        <span className={s.pillarLinkLabel}>一覧</span>
-                        <span className={s.pillarLinkText}>{pillarKits(pillar).length} 本をすべて見る</span>
+                      <Link href={href(`/kits#${pillar.id}`)} className={s.pillarLink}>
+                        <span className={s.pillarLinkLabel}>{t.linkAll}</span>
+                        <span className={s.pillarLinkText}>{t.linkAllText(pillarKits(pillar).length)}</span>
                       </Link>
                     </li>
                     <li>
-                      <Link href={pillar.demo.href} className={s.pillarLink}>
-                        <span className={s.pillarLinkLabel}>動く見本</span>
+                      <Link href={href(pillar.demo.href)} className={s.pillarLink}>
+                        <span className={s.pillarLinkLabel}>{t.linkDemo}</span>
                         <span className={s.pillarLinkText}>{pillar.demo.label}</span>
                       </Link>
                     </li>
                     <li>
-                      <Link href="/contact#ladder" className={s.pillarLink}>
-                        <span className={s.pillarLinkLabel}>受託</span>
+                      <Link href={href("/contact#ladder")} className={s.pillarLink}>
+                        <span className={s.pillarLinkLabel}>{t.linkService}</span>
                         <span className={s.pillarLinkText}>
                           {pillar.service.label}
-                          <span className={s.pillarPrice}>{pillar.service.price}（税別）</span>
+                          <span className={s.pillarPrice}>
+                            {pillar.service.price}
+                            {t.taxExcluded}
+                          </span>
                         </span>
                       </Link>
                     </li>
@@ -147,20 +177,21 @@ export function TopPage() {
         <div className={`${u.wrap} ${s.demoGrid}`}>
           <div className={u.sectionHead}>
             <h2 id="demo-title" className={u.h2}>
-              動く見本
+              {t.demoHead}
             </h2>
-            <p className={u.lede}>
-              見本は実物で動きます。期限アラートの見本は、キットの関数がこの画面の中で毎朝の 1 通を作ります。日付を進めたり、期限や状態を書き換えたりすると、届く 1 通が変わります。
-            </p>
+            <p className={u.lede}>{t.demoLede}</p>
             <ul className={s.demoList}>
-              {PILLARS.filter((p) => p.id !== "automation").map((pillar) => (
+              {PILLARS.filter((p) => p.id !== "automation").map((source) => {
+                const pillar = localPillar(lang, source);
+                return (
                 <li key={pillar.id}>
-                  <Link href={pillar.demo.href} className={s.demoLink}>
+                  <Link href={href(pillar.demo.href)} className={s.demoLink}>
                     <span className={s.demoPillar}>{pillar.short}</span>
                     {pillar.demo.label}
                   </Link>
                 </li>
-              ))}
+                );
+              })}
             </ul>
           </div>
           <div className={s.demoBox}>
@@ -173,31 +204,16 @@ export function TopPage() {
       <section className={s.facts} aria-labelledby="facts-title">
         <div className={u.wrap}>
           <h2 id="facts-title" className={s.factsTitle}>
-            買う前に確かめられること
+            {t.factsHead}
           </h2>
           <ul className={s.factGrid}>
-            <li className={s.fact}>
-              <span className={s.factFig}>0 円</span>
-              <span className={s.factLabel}>月額のサービス料</span>
-              <span className={s.factText}>キットは買い切りです。AI を使うキットは、ご自身の API キーの利用料がかかります。</span>
-            </li>
-            <li className={s.fact}>
-              <span className={s.factFig}>実物</span>
-              <span className={s.factLabel}>見本の中身</span>
-              <span className={s.factText}>
-                期限アラートとフォーム受付の見本は、キットの関数をこのサイトの中で動かしています。予約ページは、キットの見本の画面そのものです。
-              </span>
-            </li>
-            <li className={s.fact}>
-              <span className={s.factFig}>3 営業日</span>
-              <span className={s.factLabel}>ご相談への返信</span>
-              <span className={s.factText}>ご相談とご質問には、3 営業日以内にお返事します。</span>
-            </li>
-            <li className={s.fact}>
-              <span className={s.factFig}>14 日</span>
-              <span className={s.factLabel}>ご購入後のサポート</span>
-              <span className={s.factText}>ご購入から 14 日は、手順書どおりに動かないとき、メールで設置まで一緒に確かめます。</span>
-            </li>
+            {t.facts.map((fact) => (
+              <li key={fact.label} className={s.fact}>
+                <span className={s.factFig}>{fact.fig}</span>
+                <span className={s.factLabel}>{fact.label}</span>
+                <span className={s.factText}>{fact.text}</span>
+              </li>
+            ))}
           </ul>
         </div>
       </section>
@@ -207,23 +223,20 @@ export function TopPage() {
         <div className={u.wrap}>
           <div className={u.sectionHead}>
             <h2 id="three-title" className={u.h2}>
-              はじめての方におすすめの 3 本
+              {t.threeHead}
             </h2>
-            <p className={u.lede}>
-              業務自動化の柱の先頭の 3 本です。どれも Google スプレッドシートで動きます。手順書どおりに 15〜20 分ほどで使い始められ、月額の費用はかかりません。
-            </p>
+            <p className={u.lede}>{t.threeLede}</p>
+            {!ja && <p className={u.small}>{PURCHASE_NOTE[lang]}</p>}
           </div>
-          <KitGrid count={start.length} large label="はじめての方におすすめの 3 本">
+          <KitGrid count={start.length} large label={t.threeHead}>
             {start.map((project) => (
-              <KitCard key={project.slug} project={project} large facts={KIT_FACTS[project.slug as FlagshipSlug].ja} />
+              <KitCard key={project.slug} project={project} lang={lang} large facts={KIT_FACTS[project.slug as FlagshipSlug][lang]} />
             ))}
           </KitGrid>
-          <p className={s.setLine}>
-            {KIT_SET.label}の 3 本は、まとめて {yen(KIT_SET.price)}（税込。単品の合計 {yen(kitSetListTotal())}）でもお求めいただけます。セットは、BOOTH の各キットのページで選べます。
-          </p>
+          <p className={s.setLine}>{t.setLine(setLabel, money(lang, KIT_SET.price), money(lang, kitSetListTotal()))}</p>
           <p className={s.more}>
-            <Link href="/kits" className={u.linkLine}>
-              {kitCount} 本すべてを、写真つきで見る
+            <Link href={href("/kits")} className={u.linkLine}>
+              {t.moreKits(kitCount)}
             </Link>
           </p>
         </div>
@@ -234,25 +247,40 @@ export function TopPage() {
         <div className={`${u.wrap} ${s.ladderGrid}`}>
           <div className={u.sectionHead}>
             <h2 id="ladder-title" className={u.h2}>
-              頼み方と料金
+              {t.ladderHead}
             </h2>
-            <p className={u.lede}>キットをご自身で入れることも、設置・AI の組み込み・LP やサイトの制作をお任せいただくこともできます。1 か所の修正からお受けします。</p>
+            <p className={u.lede}>{t.ladderLede}</p>
             <p className={s.ladderCta}>
-              <Link href="/contact" className={u.btn}>
-                相談する（3 営業日以内に返信）
+              <Link href={href("/contact")} className={u.btn}>
+                {t.ladderCta}
               </Link>
             </p>
             <p className={u.small}>
-              メールでのご相談は <ContactMail className={u.link} /> へ。
+              {t.mailBefore}
+              <ContactMail className={u.link} />
+              {t.mailAfter}
             </p>
           </div>
           <div className={s.tableWrap}>
-            <PriceLadder />
+            {ja ? (
+              <PriceLadder />
+            ) : (
+              /* 英仏は頼めることと目安の帳票（/contact と同じ出どころ）。階段の表は日本語だけ */
+              <dl className={`${u.spec} ${s.services}`}>
+                {localContact(lang).services.map((row) => (
+                  <Fragment key={row.title}>
+                    <dt>{row.title}</dt>
+                    <dd>{row.price}</dd>
+                  </Fragment>
+                ))}
+              </dl>
+            )}
           </div>
         </div>
       </section>
 
-      {/* ---- 更新の記録 ---------------------------------------------------- */}
+      {/* ---- 更新の記録（日本語だけ。文は CHANGELOG の日本語） --------------- */}
+      {ja && (
       <section className={u.section} aria-labelledby="updates-title">
         <div className={u.wrap}>
           <div className={u.sectionHead}>
@@ -279,37 +307,38 @@ export function TopPage() {
           </p>
         </div>
       </section>
+      )}
 
       {/* ---- 作っている人・悩みから読む ------------------------------------- */}
-      <section className={`${u.section} ${s.closing}`} aria-label="作っている人と読みもの">
+      <section className={`${u.section} ${s.closing}`} aria-labelledby="maker-title">
         <div className={`${u.wrap} ${s.closingGrid}`}>
           <div className={s.maker}>
-            <h2 className={u.h2}>作っている人</h2>
-            <p className={u.lede}>
-              キットとサイトは、suminawa（墨縄）が個人で作っています。仕事では、Web システムの開発・保守、発注者側の SE、受託システムの品質保証、業務の自動化ツールの開発を、あわせて
-              3 年以上担当してきました。
-            </p>
-            <p className={u.lede}>作るときは AI エージェントを使い、動作は自分で確かめてから出しています。</p>
+            <h2 id="maker-title" className={u.h2}>
+              {t.makerHead}
+            </h2>
+            <p className={u.lede}>{t.maker1}</p>
+            <p className={u.lede}>{t.maker2}</p>
             <p>
-              <Link href="/about" className={u.linkLine}>
-                運営者について（お取引の決まり・プライバシー方針）
+              <Link href="/about" className={u.linkLine} hrefLang={ja ? undefined : "ja"}>
+                {t.aboutLink}
               </Link>
             </p>
           </div>
+          {/* 悩みから読む（日本語だけの紙）。英仏は訳した題で、日本語の紙へ渡す */}
           <div className={s.reads}>
-            <h2 className={u.h2}>悩みから読む</h2>
+            <h2 className={u.h2}>{t.readsHead}</h2>
             <ul className={s.readList}>
               {newestGuides.map((g) => (
                 <li key={g.slug}>
-                  <Link href={guideHref(g)} className={s.read}>
-                    {g.title}
+                  <Link href={guideHref(g)} className={s.read} hrefLang={ja ? undefined : "ja"}>
+                    {g.localTitle}
                   </Link>
                 </li>
               ))}
             </ul>
             <p>
-              <Link href="/guides" className={u.linkLine}>
-                悩みから読むの一覧へ
+              <Link href="/guides" className={u.linkLine} hrefLang={ja ? undefined : "ja"}>
+                {t.readsAll}
               </Link>
             </p>
           </div>

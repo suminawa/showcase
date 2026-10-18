@@ -95,6 +95,18 @@
   --n: 2;
 }
 
+/*
+ * 英仏の見出し。欧文は一字一マスにならないので、同じ方眼（6 列）の上に柱ごとの 1 行（3 段）を置く。
+ * 行の送りはマスのまま、字は 0.42 マス、左の空きは 0.3 マス。長い行はマスの幅に収まるまで字を縮める。
+ */
+.masuLatin {
+  padding-left: calc(0.3 * var(--masu));
+  font-size: calc(0.4 * var(--masu));
+  letter-spacing: 0.01em;
+  font-kerning: normal;
+  text-spacing-trim: normal;
+}
+
 .heroText {
   display: grid;
   gap: 16px;
@@ -555,6 +567,25 @@
 
 .tableWrap {
   min-width: 0;
+}
+
+/* 英仏の頼めることと目安（帳票）。白いセルに置く */
+.services {
+  grid-template-columns: minmax(0, 1fr) auto;
+  padding: 4px 16px 8px;
+  background: var(--m-cell);
+  border: 1px solid var(--m-grid);
+  border-top-width: 1px;
+}
+
+.services dt {
+  padding-right: 24px;
+}
+
+.services dd {
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  text-align: right;
 }
 
 /* ---- 更新の記録 ------------------------------------------------------------ */

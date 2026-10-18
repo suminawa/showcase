@@ -9,37 +9,63 @@
 import Link from "next/link";
 import { ViewTransition } from "react";
 
+import { localProject } from "@/i18n/catalog";
 import { hrefFor, type Lang } from "@/i18n/routes";
+import { UI, dateLabel, money } from "@/i18n/ui";
 import type { KitFact } from "@/lib/kit-facts";
 import { FREE_EDITION } from "@/lib/kit-facts";
-import { priceNow, shortDate, yen } from "@/lib/prices";
+import { priceNow } from "@/lib/prices";
 import { projectHref, type Project } from "@/lib/projects";
 
 import c from "./kit-card.module.css";
 import u from "./ui.module.css";
 
+/** カードの短い言葉（値段の添え・無料版の札）。値札の本体は UI（i18n/ui.ts）と同じ出どころ */
+const T: Record<Lang, { freeNote: string; tax: string; intro: (until: string, list: string) => string; freeEdition: string }> = {
+  ja: {
+    freeNote: "BOOTH でお配りしています",
+    tax: "税込・買い切り",
+    intro: (until, list) => `発売記念（${until} まで・定価 ${list}）`,
+    freeEdition: "無料版あり",
+  },
+  en: {
+    freeNote: "Free on BOOTH",
+    tax: "Tax included · one-time purchase",
+    intro: (until, list) => `Launch price (until ${until}, then ${list})`,
+    freeEdition: "Free version available",
+  },
+  fr: {
+    freeNote: "Gratuit sur BOOTH",
+    tax: "TTC · achat unique",
+    intro: (until, list) => `Prix de lancement (jusqu’au ${until}, puis ${list})`,
+    freeEdition: "Version gratuite disponible",
+  },
+};
+
 /** 値段の大きな字と、その下の添え。記念価格の期間中は最終日と定価を添える */
-function priceParts(project: Project, now?: Date): { big: string; small: string } | null {
+function priceParts(lang: Lang, project: Project, now?: Date): { big: string; small: string } | null {
   const sale = project.sale;
   if (!sale) return null;
-  if (sale.status === "free") return { big: "無料", small: "BOOTH でお配りしています" };
+  const t = T[lang];
+  if (sale.status === "free") return { big: UI[lang].free, small: t.freeNote };
   if (sale.status === "onsale" && sale.price != null) {
     const p = priceNow(project.slug, sale.price, now);
     return {
-      big: yen(p.price),
-      small: p.intro ? `発売記念（${shortDate(p.intro.until)} まで・定価 ${yen(p.intro.list)}）` : "税込・買い切り",
+      big: money(lang, p.price),
+      small: p.intro ? t.intro(dateLabel(lang, p.intro.until), money(lang, p.intro.list)) : t.tax,
     };
   }
-  return { big: "発売前", small: "" };
+  return { big: UI[lang].upcoming, small: "" };
 }
 
 export function KitCard({
-  project,
+  project: source,
   lang = "ja",
   large = false,
   facts,
   showTags = false,
   eager = false,
+  shot = `/kits/${source.slug}`,
 }: {
   project: Project;
   lang?: Lang;
@@ -48,10 +74,13 @@ export function KitCard({
   showTags?: boolean;
   /** 第一画面に入るカードだけ、写真を先に読む */
   eager?: boolean;
+  /** 写真の道の頭（-480.webp・-960.webp を足す）。既定はキットの写真。見本サイトは /sites/<slug> */
+  shot?: string;
 }) {
-  const price = priceParts(project);
+  // 題・一行・札はその言語で（日本語はそのまま）。値段と道はレジストリのまま
+  const project = localProject(lang, source);
+  const price = priceParts(lang, project);
   const free = FREE_EDITION[project.slug];
-  const shot = `/kits/${project.slug}`;
   return (
     <li className={`${c.card} ${large ? c.large : ""} ${u.select}`}>
       <div className={c.shot}>
@@ -65,7 +94,7 @@ export function KitCard({
           height={720}
           loading={eager ? "eager" : "lazy"}
           decoding="async"
-          alt={`${project.title}の画面`}
+          alt={UI[lang].figureAlt(project.title)}
         />
       </div>
       <div className={c.body}>
@@ -93,7 +122,7 @@ export function KitCard({
           <p className={c.price}>
             <span className={c.yen}>{price.big}</span>
             {price.small && <span className={c.tax}>{price.small}</span>}
-            {free && !facts && <span className={c.free}>無料版あり</span>}
+            {free && !facts && <span className={c.free}>{T[lang].freeEdition}</span>}
           </p>
         )}
       </div>

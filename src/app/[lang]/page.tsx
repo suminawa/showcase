@@ -1,4 +1,4 @@
-import { Home } from "@/app/(ja)/content";
+import { TopPage } from "@/app/(ja)/top/TopPage";
 import { copy } from "@/app/(ja)/copy";
 import { pageMetadata } from "@/i18n/meta";
 import { SITE_NAME } from "@/lib/site";
@@ -13,5 +13,5 @@ export async function generateMetadata({ params }: LangParams) {
 }
 
 export default async function Page({ params }: LangParams) {
-  return <Home lang={foreignLang((await params).lang)} />;
+  return <TopPage lang={foreignLang((await params).lang)} />;
 }
