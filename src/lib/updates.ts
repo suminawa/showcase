@@ -33,6 +33,12 @@ export const UPDATES: readonly KitUpdate[] = [
     note: "前日のリマインドを送れなかったご予約があったとき、受付番号を Slack・Discord・LINE と連絡先メールにお知らせするようにしました。",
   },
   {
+    date: "2026-10-18",
+    slug: "sheet-app",
+    version: "1.1.3",
+    note: "LINE の中継を拒否したときは実行ログに理由を残し、接続情報が空のまま通知しようとしたときは「接続情報が未設定です」と通知ログに残します。通知の設定の直すところは画面の上にも出ます。",
+  },
+  {
     date: "2026-10-10",
     slug: "sheet-app",
     version: "1.1.2",
