@@ -32,7 +32,7 @@ const T = {
   ja: {
     note: "note で中身を詳しく読む",
     booth: "BOOTH で購入する",
-    install: (price: string) => `設置まで頼む（${price}〜・税込）`,
+    install: (price: string) => `設置まで頼む（${price}〜・税別）`,
     free: "無料版を受け取る（BOOTH）",
     tax: "税込・買い切り",
     intro: (until: string, list: string) => `${until} までの発売記念の値です（定価 ${list}）。`,
@@ -55,7 +55,7 @@ const T = {
   en: {
     note: "Read the details on note",
     booth: "Buy on BOOTH",
-    install: (price: string) => `Have it set up for you (from ${price}, tax incl.)`,
+    install: (price: string) => `Have it set up for you (from ${price} before tax)`,
     free: "Get the free version (BOOTH)",
     tax: "tax included, one-time purchase",
     intro: (until: string, list: string) => `Launch price until ${until} (regular price ${list}).`,
@@ -78,7 +78,7 @@ const T = {
   fr: {
     note: "Lire le détail sur note",
     booth: "Acheter sur BOOTH",
-    install: (price: string) => `Faire installer (dès ${price} TTC)`,
+    install: (price: string) => `Faire installer (dès ${price} HT)`,
     free: "Obtenir la version gratuite (BOOTH)",
     tax: "TTC, achat unique",
     intro: (until: string, list: string) => `Prix de lancement jusqu’au ${until} (prix normal ${list}).`,
@@ -116,7 +116,7 @@ function priceOf(slug: KitDemoSlug, lang: Lang): { yen: string; note?: string } 
 }
 
 /**
- * 設置代行の一行の額。projects.ts の sale.service.price（税込。/contact の品書きと同じ額）を正にし、
+ * 設置代行の一行の額。projects.ts の sale.service.price（税別。/contact の品書きと同じ額）を正にし、
  * まだ持たない品物はキットの設置の 30,000 円（/contact の「キットの設置をお任せ」）
  */
 function installLabel(slug: KitDemoSlug, lang: Lang): string {
