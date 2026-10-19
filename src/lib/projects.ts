@@ -294,7 +294,7 @@ export const projects: Project[] = [
     description: "請求書や領収書を読み取り、確かめてから表に出せます。",
     tags: ["Claude API", "Next.js"],
     category: "kits",
-    sale: { status: "onsale", price: 16800 },
+    sale: { status: "onsale", price: 16800, service: { price: 30000 } },
   },
   {
     slug: "sheet-app",
@@ -319,7 +319,7 @@ export const projects: Project[] = [
     tags: ["Google Apps Script", "Claude"],
     category: "kits",
     // 定価。発売記念の値と最終日は src/lib/prices.ts の表が持ち、一覧・トップ・作品ページの札はそこから出す
-    sale: { status: "onsale", price: 5980 },
+    sale: { status: "onsale", price: 5980, service: { price: 30000 } },
   },
   {
     slug: "line-concierge",
@@ -371,7 +371,7 @@ export const projects: Project[] = [
     tags: ["GAS", "Google Forms", "Claude"],
     category: "kits",
     // 2026-10-01 発売。1 つの値段（記念価格なし）。スプレッドシートの中で動くので、作品ページに動く見本は置かない
-    sale: { status: "onsale", price: 7980 },
+    sale: { status: "onsale", price: 7980, service: { price: 30000 } },
   },
   {
     slug: "rag-eval-harness",

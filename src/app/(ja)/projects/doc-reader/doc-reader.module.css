@@ -18,6 +18,8 @@
 
 .layout {
   display: grid;
+  /* 列は器の幅まで。auto のままだと中身の最小幅で 375px の画面からはみ出す */
+  grid-template-columns: minmax(0, 1fr);
   gap: calc(2 * var(--rp-pitch));
   align-items: start;
 }
@@ -32,6 +34,7 @@
 .left,
 .right {
   display: grid;
+  grid-template-columns: minmax(0, 1fr);
   gap: calc(1.25 * var(--rp-pitch));
   min-width: 0;
 }
@@ -104,6 +107,8 @@
   letter-spacing: 0.08em;
   color: var(--dr-fg);
   cursor: pointer;
+  /* 押せる当たりは 44px（DESIGN.md）。見た目の下線の位置は変えない */
+  min-height: 44px;
   transition:
     border-color var(--rp-soak),
     color var(--rp-soak);
@@ -142,9 +147,15 @@
   color: var(--dr-muted);
 }
 
+.fileField {
+  max-width: 100%;
+}
+
 .fileField input {
   font: inherit;
   color: var(--dr-fg);
+  max-width: 100%;
+  min-height: 44px;
 }
 
 .notice {
