@@ -338,7 +338,8 @@ export const projects: Project[] = [
     description: "表や CSV の数字を、設定だけで KPI とグラフの画面にできます。",
     tags: ["JavaScript", "SVG", "Google Apps Script"],
     category: "kits",
-    sale: { status: "onsale", price: 9800 },
+    // 設置代行は /contact の品書きの「キットの設置をお任せ」（業務自動化の柱の受託の一行）と同じ額
+    sale: { status: "onsale", price: 9800, service: { price: 30000 } },
   },
   {
     slug: "configurator",
