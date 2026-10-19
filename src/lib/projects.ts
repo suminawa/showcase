@@ -380,7 +380,8 @@ export const projects: Project[] = [
     tags: ["Node.js", "Claude", "CSV"],
     category: "kits",
     // 2026-10-04 発売。1 つの値段（記念価格なし）。手元の端末で動くので、作品ページは記録の再生の写しを置く
-    sale: { status: "onsale", price: 5980 },
+    // 設置代行は /contact の品書き「キットの設置をお任せ 30,000 円から」（2026-10-20）
+    sale: { status: "onsale", price: 5980, service: { price: 30000 } },
   },
   {
     slug: "mcp-server",
