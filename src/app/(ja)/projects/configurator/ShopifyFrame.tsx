@@ -17,8 +17,13 @@ import { useEffect, useRef } from "react";
 
 import s from "./configurator.module.css";
 
-/** src は紙（page.tsx）から渡す。"use client" の束から文字列を書き出すと、サーバー側では値でなく参照になる */
-export function ShopifyFrame({ src }: { src: string }) {
+/**
+ * src は紙（page.tsx）から渡す。"use client" の束から文字列を書き出すと、サーバー側では値でなく参照になる。
+ * crop: 見本の店の頭（断りの帯・店の名・パンくず・題）を枠の上に隠し、3D から見せる（Shopify 版のページの 1 画面目）。
+ *   中の紙は 1 字も変えず、枠を負の余白で上へずらすだけ。隠す高さは中の紙で section の上端を測って決める（幅で変わるため）。
+ *   見本であることの断りは、紙の側で枠の上に一行置く
+ */
+export function ShopifyFrame({ src, crop = false }: { src: string; crop?: boolean }) {
   const ref = useRef<HTMLIFrameElement>(null);
 
   useEffect(() => {
@@ -44,6 +49,10 @@ export function ShopifyFrame({ src }: { src: string }) {
         // 紙は border-box で組んであるので、枠の線の分を足さないと 1px の縦スクロールが残る
         const edge = frame.offsetHeight - frame.clientHeight;
         if (h > 0) frame.style.height = `${h + edge}px`;
+        if (crop) {
+          const top = doc.querySelector("[data-suminawa-configurator]")?.getBoundingClientRect().top ?? 0;
+          frame.style.marginTop = top > 0 ? `${-Math.floor(top)}px` : "";
+        }
       };
       apply();
       // 見張りは中の紙の側で作る（外の側で作ると、中の紙の描き直しで知らせが来ないことがあった）
@@ -59,9 +68,9 @@ export function ShopifyFrame({ src }: { src: string }) {
       frame.removeEventListener("load", fit);
       observer?.disconnect();
     };
-  }, []);
+  }, [crop]);
 
-  return (
+  const iframe = (
     <iframe
       ref={ref}
       className={s.shopifyFrame}
@@ -72,4 +81,5 @@ export function ShopifyFrame({ src }: { src: string }) {
       allow="clipboard-write"
     />
   );
+  return crop ? <div className={s.crop}>{iframe}</div> : iframe;
 }

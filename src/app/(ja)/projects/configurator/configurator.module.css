@@ -101,3 +101,9 @@
     height: 2080px;
   }
 }
+
+/* 店の頭を隠して 3D から見せる枠（ShopifyFrame の crop）。枠は上へずれるので、上の線はここで引く */
+.crop {
+  overflow: hidden;
+  border-top: 1px solid rgba(28, 26, 21, 0.14);
+}

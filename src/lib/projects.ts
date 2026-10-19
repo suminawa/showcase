@@ -368,7 +368,9 @@ export const projects: Project[] = [
     category: "kits",
     // 2026-09-30 発売。1 つの値段（記念価格なし）
     // 作品ページの見本は、3D 商品コンフィギュレーターの紙の「Shopify 版」の節と同じもの
-    sale: { status: "onsale", price: 16800 },
+    // 設置代行は公開中の導入代行（ココナラ・ランサーズ。商品 3 点・14 日・テスト注文まで）と同じ額。
+    // /contact の「埋め込み部品の設置」（60,000 円から）より範囲が広い（バリエーションの対応づけとテスト注文まで）
+    sale: { status: "onsale", price: 16800, service: { price: 100000 } },
   },
   {
     slug: "survey-analysis",
