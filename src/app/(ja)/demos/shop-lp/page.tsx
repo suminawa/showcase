@@ -4,7 +4,6 @@
  * フォームはどこにも送らない。住所・電話番号・実在の地名は書かない。
  */
 import type { Metadata } from "next";
-import { Shippori_Mincho } from "next/font/google";
 
 import { DemoFooter } from "@/components/demos/DemoFooter";
 import { DemoForm, type DemoField } from "@/components/demos/DemoForm";
@@ -24,15 +23,6 @@ import { OpenNow } from "@/components/demos/OpenNow";
 
 import s from "./shop.module.css";
 import { SITE_NAME } from "@/lib/site";
-
-/** 見出しの明朝。本文は layout.tsx が読んでいる Noto Sans JP（var(--font-sans)）のまま */
-const mincho = Shippori_Mincho({
-  subsets: ["latin"],
-  weight: ["500", "600"],
-  display: "swap",
-  variable: "--d-mincho",
-  preload: false,
-});
 
 const BRAND = "粉とゆげ";
 
@@ -113,7 +103,7 @@ const RESERVE_FIELDS: DemoField[] = [
 
 export default function ShopLpPage() {
   return (
-    <div className={`${s.page} ${mincho.variable}`}>
+    <div className={s.page}>
       <main>
         <section className={s.hero}>
           <div className={s.wash} aria-hidden="true" />
