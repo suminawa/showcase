@@ -310,7 +310,7 @@ export const projects: Project[] = [
     description: "シートに枠を書くと、その URL が予約ページになります。",
     tags: ["Google Apps Script"],
     category: "kits",
-    sale: { status: "onsale", price: 7980 },
+    sale: { status: "onsale", price: 7980, service: { price: 30000 } },
   },
   {
     slug: "inbox-triage",
