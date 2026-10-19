@@ -412,3 +412,39 @@
   color: var(--m-sumi-3);
   overflow-wrap: anywhere;
 }
+
+/* ---- (a) 2 つのライセンス（個人・社内用／制作会社用。あるキットだけ。値段の大きな字の代わり） ------- */
+
+.licenses {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: baseline;
+  margin: 0;
+  font-size: 0.9375rem;
+}
+
+.licenses dt,
+.licenses dd {
+  margin: 0;
+  padding: 6px 0;
+}
+
+.licenses dt:nth-of-type(2),
+.licenses dd:nth-of-type(2) {
+  border-top: 1px solid var(--m-grid);
+}
+
+.licenses dd {
+  padding-left: 12px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+  color: var(--m-sumi);
+}
+
+.licenseNote {
+  display: block;
+  font-size: 0.75rem;
+  line-height: 1.5;
+  color: var(--m-sumi-3);
+}

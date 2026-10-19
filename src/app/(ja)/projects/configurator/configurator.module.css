@@ -17,6 +17,42 @@
   line-height: 1.8;
 }
 
+/*
+ * スマホでは購入の帯（kit-parts.tsx の KitBuyBar）が画面の下に留まる。
+ * 見本の価格の行（部品が狭い画面で下に留める .pc-price）は、帯に隠れないよう帯の高さの分だけ上に留める。
+ * 帯の高さ = 押す先の 44px ＋ 上下の 8px ＋ 線の 1px（kit-parts.module.css の .bar）
+ */
+@media (max-width: 1023px) {
+  .tool :global(.pc-price) {
+    bottom: calc(61px + env(safe-area-inset-bottom));
+  }
+}
+
+/* 2 択の一行（Shopify に置く方は Shopify 版へ）。PC は頭の題の下、スマホは見本の下（content.tsx の Choice） */
+.choiceHead,
+.choiceAfter {
+  margin: 0;
+  font-size: 0.9375rem;
+  line-height: 1.8;
+  color: var(--m-sumi-2);
+}
+
+.choiceAfter {
+  margin-top: 16px;
+}
+
+@media (max-width: 1023px) {
+  .choiceHead {
+    display: none;
+  }
+}
+
+@media (min-width: 1024px) {
+  .choiceAfter {
+    display: none;
+  }
+}
+
 .loading {
   margin: 0;
   min-height: 20rem;
@@ -64,4 +100,10 @@
   .shopifyFrame {
     height: 2080px;
   }
+}
+
+/* 店の頭を隠して 3D から見せる枠（ShopifyFrame の crop）。枠は上へずれるので、上の線はここで引く */
+.crop {
+  overflow: hidden;
+  border-top: 1px solid rgba(28, 26, 21, 0.14);
 }

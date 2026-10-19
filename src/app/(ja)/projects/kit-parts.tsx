@@ -3,6 +3,7 @@
  * 使い方と KitCopy の書き方は kit-sheet.tsx の頭のコメントにある。ここは部品だけ。
  *
  *   KitOffer    (a) 頭の右の購入の箱: 値段 → 「BOOTH で買う」「note で読む」→ 設置込みの総額への一行 → 無料版
+ *               制作会社用のライセンス（projects.ts の sale.agency）があるキットは、値段の下に 2 つのライセンスの表
  *   KitBuyBar   (a) スマホで画面の下に留める帯: 値段と 2 つの押す先（ProjectShell の bar に渡す）
  *   KitAudience (b) 向いている方／向いていない方の 2 列
  *   KitCompare  (c) 4 行の比較表（無料・標準の機能・似たサービス・このキット）と「無料をおすすめ」の一行
@@ -92,6 +93,10 @@ const T = {
     receipt: "領収書・インボイス",
     receiptText: "宛名入りの領収書は BOOTH の購入履歴から発行できます。適格請求書発行事業者ではありません（消費税の仕入税額控除の対象になりません）。",
     steps: "つまずきやすいところ",
+    personal: "個人・社内用",
+    agency: "制作会社用",
+    agencyNote: "複数人で共有・案件数の上限なし。BOOTH の同じページで選べます",
+    agencyShort: "複数人で共有・案件数の上限なし",
   },
   en: {
     buy: "Buy on BOOTH",
@@ -123,6 +128,10 @@ const T = {
     receipt: "Receipts and invoices",
     receiptText: "A receipt with your company name can be issued from your BOOTH purchase history. We are not a registered qualified invoice issuer under Japan’s invoice system, so the purchase does not qualify for a consumption tax input credit.",
     steps: "Where people usually get stuck",
+    personal: "Personal / in-house",
+    agency: "Agency",
+    agencyNote: "Shared by a team, no limit on projects. Choose it on the same BOOTH page",
+    agencyShort: "Shared by a team, unlimited projects",
   },
   fr: {
     buy: "Acheter sur BOOTH",
@@ -154,6 +163,10 @@ const T = {
     receipt: "Reçus et factures",
     receiptText: "Un reçu à votre nom peut être émis depuis votre historique d’achats BOOTH. Nous ne sommes pas émetteur de factures qualifiées au sens du système japonais : l’achat n’ouvre pas droit à la déduction de la taxe à la consommation.",
     steps: "Là où l’on bloque le plus souvent",
+    personal: "Personnelle / interne",
+    agency: "Agence",
+    agencyNote: "Partagée par une équipe, sans limite de projets. À choisir sur la même page BOOTH",
+    agencyShort: "Équipe, projets illimités",
   },
 } satisfies Record<Lang, unknown>;
 
@@ -168,9 +181,12 @@ const withTax = (price: number) => Math.round((price * 110) / 100);
  */
 export function kitTotals(slug: string, now?: Date) {
   const kit = projectPriceNow(slug, now).price;
-  const service = projects.find((x) => x.slug === slug)?.sale?.service?.price;
-  if (service == null) return { kit };
-  return { kit, service, serviceInTax: withTax(service), total: kit + withTax(service) };
+  const sale = projects.find((x) => x.slug === slug)?.sale;
+  // 制作会社用のライセンス（BOOTH の 2 つめの選択肢。あるキットだけ）
+  const agency = sale?.agency?.price;
+  const service = sale?.service?.price;
+  if (service == null) return { kit, agency };
+  return { kit, agency, service, serviceInTax: withTax(service), total: kit + withTax(service) };
 }
 
 const from = (lang: Lang, slug: string) => localePath(lang, `/projects/${slug}`);
@@ -184,10 +200,14 @@ export function KitOffer({ lang, slug, linkKey }: { lang: Lang; slug: string; li
   const intro = projectPriceNow(slug).intro;
   return (
     <div className={p.offer}>
-      <p className={p.price}>
-        <span className={p.yen}>{money(lang, v.kit)}</span>
-        <span className={p.tax}>{t.tax}</span>
-      </p>
+      {v.agency == null ? (
+        <p className={p.price}>
+          <span className={p.yen}>{money(lang, v.kit)}</span>
+          <span className={p.tax}>{t.tax}</span>
+        </p>
+      ) : (
+        <Licenses lang={lang} kit={v.kit} agency={v.agency} />
+      )}
       {intro && <p className={p.small}>{t.intro(dateLabel(lang, intro.until), money(lang, intro.list))}</p>}
       <div className={p.buttons}>
         <a href={goHref(linkKey, "booth", from(lang, slug))} rel="nofollow" className={u.btn}>
@@ -215,6 +235,25 @@ export function KitOffer({ lang, slug, linkKey }: { lang: Lang; slug: string; li
       </ul>
       {lang !== "ja" && <p className={p.small}>{PURCHASE_NOTE[lang]}</p>}
     </div>
+  );
+}
+
+/** 個人・社内用と制作会社用の 2 つのライセンスの値段（BOOTH の 2 つの選択肢）。購入の箱で、値段の大きな字の代わりに出す */
+function Licenses({ lang, kit, agency }: { lang: Lang; kit: number; agency: number }) {
+  const t = T[lang];
+  return (
+    <dl className={p.licenses}>
+      <dt>
+        {t.personal}
+        <span className={p.licenseNote}>{t.tax}</span>
+      </dt>
+      <dd className={p.yen}>{money(lang, kit)}</dd>
+      <dt>
+        {t.agency}
+        <span className={p.licenseNote}>{t.agencyShort}</span>
+      </dt>
+      <dd>{money(lang, agency)}</dd>
+    </dl>
   );
 }
 
@@ -338,6 +377,15 @@ export function KitPricing({ lang, slug, linkKey }: { lang: Lang; slug: string; 
             {t.buy}
           </a>
         </dd>
+        {v.agency != null && (
+          <>
+            <dt>{t.agency}</dt>
+            <dd>
+              <span className={p.figure}>{money(lang, v.agency)}</span>（{t.tax}）
+              <span className={p.breakdown}>{t.agencyNote}</span>
+            </dd>
+          </>
+        )}
         {v.total != null && (
           <>
             <dt>{t.withSetup}</dt>
