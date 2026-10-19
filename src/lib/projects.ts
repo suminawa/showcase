@@ -43,7 +43,8 @@ export type Sale = {
    * これとキットの値段から総額を組む。媒体（BOOTH・note・ココナラ）の設置代行の値段はこれに寄せる（2026-10-20）。
    * 額は /contact の品書き（SERVICES）と同じ出どころで、ここで新しい額を作らない。
    */
-  service?: { price: number };
+  /** standalone: 設置ではなく「制作を頼む」で、頼む方はキットを買わなくてよい（LP パック）。総額はキットを足さない */
+  service?: { price: number; standalone?: boolean };
   /**
    * 制作会社用のライセンス（BOOTH の 2 つめの選択肢「制作会社用（複数人で共有・案件数の上限なし）」）の**税込**の値段（円）。
    * BOOTH に 2 つの選択肢を持つキットだけが持つ。品物のページの購入の箱と「お値段」が、個人・社内用（price）と並べて出す（kit-parts.tsx）。
@@ -285,7 +286,7 @@ export const projects: Project[] = [
     tags: ["Next.js", "TypeScript"],
     category: "kits",
     // 中身は見本サイトそのもの。作品ページから 6 本と /sites へ渡す。制作の代行は /contact の「サイト・LP の制作」と同じ額
-    sale: { status: "onsale", price: 6980, service: { price: 150000 } },
+    sale: { status: "onsale", price: 6980, service: { price: 150000, standalone: true } },
   },
   {
     slug: "ai-concierge",

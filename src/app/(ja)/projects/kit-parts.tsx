@@ -71,6 +71,7 @@ const T = {
     tax: "税込・買い切り",
     intro: (until: string, list: string) => `${until} までの発売記念の値です（定価 ${list}）。`,
     toTotal: (total: string) => `設置まで頼むと、合計 ${total}〜（税込）`,
+    toTotalAlone: (total: string) => `制作ごと頼むと ${total}〜（税込。テンプレの購入は不要）`,
     free: "無料版を受け取る（BOOTH）",
     bar: "購入",
     audience: "向いている方・向いていない方",
@@ -87,6 +88,7 @@ const T = {
     withSetup: "設置まで頼む",
     total: (total: string) => `合計 ${total}〜（税込）`,
     breakdown: (kit: string, svcIn: string, svc: string) => `キット ${kit} ＋ 設置代行 ${svcIn}〜（税別 ${svc}〜）`,
+    breakdownAlone: (svcIn: string, svc: string) => `制作 ${svcIn}〜（税別 ${svc}〜）。テンプレをお求めいただく必要はありません`,
     ask: "設置を頼む（ご相談の窓口へ）",
     freeRow: "無料版",
     freeValue: "0 円",
@@ -106,6 +108,7 @@ const T = {
     tax: "tax included, one-time purchase",
     intro: (until: string, list: string) => `Launch price until ${until} (regular price ${list}).`,
     toTotal: (total: string) => `With setup done for you: from ${total} in total (tax incl.)`,
+    toTotalAlone: (total: string) => `Have it built for you: from ${total} (tax incl.; no template purchase needed)`,
     free: "Get the free version (BOOTH)",
     bar: "Purchase",
     audience: "Who it’s for, and who it isn’t",
@@ -122,6 +125,7 @@ const T = {
     withSetup: "Setup done for you",
     total: (total: string) => `From ${total} in total (tax incl.)`,
     breakdown: (kit: string, svcIn: string, svc: string) => `Kit ${kit} + setup from ${svcIn} (${svc} before tax)`,
+    breakdownAlone: (svcIn: string, svc: string) => `Build from ${svcIn} (${svc} before tax). You do not need to buy the template`,
     ask: "Request setup (contact page)",
     freeRow: "Free version",
     freeValue: "¥0",
@@ -141,6 +145,7 @@ const T = {
     tax: "TTC, achat unique",
     intro: (until: string, list: string) => `Prix de lancement jusqu’au ${until} (prix normal ${list}).`,
     toTotal: (total: string) => `Avec installation : à partir de ${total} au total (TTC)`,
+    toTotalAlone: (total: string) => `Réalisation complète : à partir de ${total} (TTC, sans acheter le modèle)`,
     free: "Obtenir la version gratuite (BOOTH)",
     bar: "Achat",
     audience: "À qui il s’adresse, et à qui non",
@@ -157,6 +162,7 @@ const T = {
     withSetup: "Installation comprise",
     total: (total: string) => `À partir de ${total} au total (TTC)`,
     breakdown: (kit: string, svcIn: string, svc: string) => `Kit ${kit} + installation à partir de ${svcIn} (${svc} HT)`,
+    breakdownAlone: (svcIn: string, svc: string) => `Réalisation à partir de ${svcIn} (${svc} HT). Pas besoin d’acheter le modèle`,
     ask: "Demander l’installation (page de contact)",
     freeRow: "Version gratuite",
     freeValue: "0 ¥",
@@ -186,7 +192,9 @@ export function kitTotals(slug: string, now?: Date) {
   const agency = sale?.agency?.price;
   const service = sale?.service?.price;
   if (service == null) return { kit, agency };
-  return { kit, agency, service, serviceInTax: withTax(service), total: kit + withTax(service) };
+  // standalone（制作を頼む）はキットを買わなくてよいので、総額にキットを足さない
+  const standalone = sale?.service?.standalone === true;
+  return { kit, agency, service, standalone, serviceInTax: withTax(service), total: (standalone ? 0 : kit) + withTax(service) };
 }
 
 const from = (lang: Lang, slug: string) => localePath(lang, `/projects/${slug}`);
@@ -221,7 +229,7 @@ export function KitOffer({ lang, slug, linkKey }: { lang: Lang; slug: string; li
         {v.total != null && (
           <li>
             <a href="#price" className={u.linkLine}>
-              {t.toTotal(money(lang, v.total))}
+              {v.standalone ? t.toTotalAlone(money(lang, v.total)) : t.toTotal(money(lang, v.total))}
             </a>
           </li>
         )}
@@ -391,7 +399,7 @@ export function KitPricing({ lang, slug, linkKey }: { lang: Lang; slug: string; 
             <dt>{t.withSetup}</dt>
             <dd>
               <span className={p.figure}>{t.total(money(lang, v.total))}</span>
-              <span className={p.breakdown}>{t.breakdown(money(lang, v.kit), money(lang, v.serviceInTax), money(lang, v.service))}</span>
+              <span className={p.breakdown}>{v.standalone ? t.breakdownAlone(money(lang, v.serviceInTax), money(lang, v.service)) : t.breakdown(money(lang, v.kit), money(lang, v.serviceInTax), money(lang, v.service))}</span>
               <Link href={hrefFor(lang, "/contact")} className={u.linkLine}>
                 {t.ask}
               </Link>
