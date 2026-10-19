@@ -8,10 +8,14 @@
      --pc-muted: #6a665d;     薄い文字
      --pc-brand: #4a6b7d;     選んだ状態・主ボタン
      --pc-on-brand: #ffffff;  主ボタンの文字
-     --pc-line: rgba(28, 26, 21, 0.18);  枠線
+     --pc-line: rgba(28, 26, 21, 0.18);  枠線（区切り）
+     --pc-control-line: rgba(28, 26, 21, 0.55);  選んでいないチップ・ボタンの枠（背景との対比 3:1 以上）
      --pc-surface: #ffffff;   操作列の下地
      --pc-radius: 1rem;       角の丸み
      --pc-font: inherit;
+     --pc-touch-action: pan-y;  3D の枠の上での指の動き。pan-y は縦のスクロールを通し、横になぞると回る。
+                                none にすると 1 本指の縦の動きも 3D が受ける（ページはスクロールしない）
+     --pc-sticky-top: 1rem;     広い画面で 3D の枠を上に留める位置（固定ヘッダーがあるときは、その高さ）
 
    3D の中の色（背景・床）は CSS ではなく設定（scene）で渡します。 */
 
@@ -39,7 +43,14 @@
   overflow: hidden;
   border: 1px solid var(--pc-line, rgba(28, 26, 21, 0.18));
 }
-.pc-stage canvas { display: block; width: 100% !important; height: 100% !important; touch-action: none; }
+/* 広い画面では、操作列を下まで選んでも 3D が見えるよう枠を上に留める（.pc-stage の position より後に書く） */
+@media (min-width: 60rem) {
+  .pc-stage { position: sticky; top: var(--pc-sticky-top, 1rem); }
+}
+.pc-stage canvas { display: block; width: 100% !important; height: 100% !important; }
+/* 3D の部品（OrbitControls）は枠の touch-action を none に直に書き換え、スマホで縦のスクロールを飲み込む。
+   ここで上書きして縦のスクロールを通す（横になぞると回り、2 本指で拡大縮小と回転） */
+.pc-canvas, .pc-canvas * { touch-action: var(--pc-touch-action, pan-y) !important; }
 .pc-stage-message {
   position: absolute;
   inset: 0;
@@ -51,6 +62,7 @@
   color: var(--pc-muted, #6a665d);
   pointer-events: none;
 }
+.pc-retry { pointer-events: auto; margin-top: 0.75rem; }
 .pc-missing {
   position: absolute;
   left: 0.75rem;
@@ -87,11 +99,12 @@
 .pc-group-title { padding: 0; margin-bottom: 0.5rem; font-size: 0.875rem; font-weight: 700; }
 .pc-options { display: flex; flex-wrap: wrap; gap: 0.5rem; }
 
-.pc-chip, .pc-swatch, .pc-button {
+.pc-chip, .pc-swatch, .pc-button, .pc-file-button {
+  min-height: 2.75rem;
   font: inherit;
   color: inherit;
   cursor: pointer;
-  border: 1px solid var(--pc-line, rgba(28, 26, 21, 0.18));
+  border: 1px solid var(--pc-control-line, rgba(28, 26, 21, 0.55));
   border-radius: 999px;
   background: transparent;
   padding: 0.375rem 0.875rem;
@@ -112,7 +125,7 @@
   background: var(--pc-swatch, #888888);
   border: 1px solid rgba(28, 26, 21, 0.25);
 }
-.pc-option-price { font-size: 0.75rem; color: var(--pc-muted, #6a665d); white-space: nowrap; }
+.pc-option-price { font-size: 0.875rem; color: var(--pc-muted, #6a665d); white-space: nowrap; }
 
 .pc-field { display: flex; align-items: center; gap: 0.5rem; }
 .pc-input {
@@ -121,14 +134,26 @@
   font: inherit;
   color: inherit;
   padding: 0.5rem 0.75rem;
-  border: 1px solid var(--pc-line, rgba(28, 26, 21, 0.18));
+  border: 1px solid var(--pc-control-line, rgba(28, 26, 21, 0.55));
   border-radius: 0.5rem;
   background: var(--pc-surface, #ffffff);
 }
 .pc-input[aria-invalid="true"] { border-color: #8a2f2f; }
 .pc-count { font-size: 0.75rem; color: var(--pc-muted, #6a665d); }
-.pc-file { display: flex; align-items: center; gap: 0.5rem; font-size: 0.875rem; }
-.pc-file input { font: inherit; max-width: 100%; }
+.pc-file { display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem; font-size: 0.875rem; }
+.pc-file-button:focus-within { outline: 2px solid var(--pc-brand, #4a6b7d); outline-offset: 2px; }
+.pc-file-name { color: var(--pc-muted, #6a665d); }
+.pc-visually-hidden {
+  position: absolute !important;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
 .pc-preview { margin: 0.25rem 0 0; font-size: 0.8125rem; color: var(--pc-muted, #6a665d); }
 .pc-link {
   font: inherit;
@@ -153,11 +178,26 @@
 }
 .pc-price-label { font-size: 0.875rem; color: var(--pc-muted, #6a665d); }
 .pc-price-total { font-size: 1.5rem; }
+/* 価格が変わった瞬間に、色を一拍だけ変える */
+.pc-price-flash { animation: pc-price-flash 0.6s ease-out; }
+@keyframes pc-price-flash { from { color: var(--pc-brand, #4a6b7d); } }
+@media (prefers-reduced-motion: reduce) { .pc-price-flash { animation: none; } }
+/* 狭い画面では、選びながら価格が見えるよう画面の下に留める */
+@media (max-width: 59.99rem) {
+  .pc-price {
+    position: sticky;
+    bottom: 0;
+    z-index: 1;
+    margin-inline: -1.25rem;
+    padding: 0.75rem 1.25rem;
+    background: var(--pc-surface, #ffffff);
+  }
+}
 .pc-price-delta, .pc-price-note { font-size: 0.8125rem; color: var(--pc-muted, #6a665d); }
 .pc-actions { display: flex; flex-wrap: wrap; gap: 0.5rem; }
 .pc-button { background: var(--pc-brand, #4a6b7d); color: var(--pc-on-brand, #ffffff); border-color: transparent; }
 .pc-button:disabled { opacity: 0.5; cursor: not-allowed; }
-.pc-button-quiet { background: transparent; color: inherit; border-color: var(--pc-line, rgba(28, 26, 21, 0.18)); }
+.pc-button-quiet { background: transparent; color: inherit; border-color: var(--pc-control-line, rgba(28, 26, 21, 0.55)); }
 .pc-notice { margin: 0; min-height: 1.5em; font-size: 0.8125rem; color: var(--pc-muted, #6a665d); }
 
 .pc :focus-visible { outline: 2px solid var(--pc-brand, #4a6b7d); outline-offset: 2px; }

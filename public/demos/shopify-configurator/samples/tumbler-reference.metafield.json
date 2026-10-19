@@ -51,7 +51,6 @@
       "type": "text",
       "target": ["label"],
       "maxChars": 12,
-      "pattern": "[A-Za-z0-9 .&-]*",
       "placeholder": { "ja": "例: MINATO 2026", "en": "e.g. MINATO 2026" },
       "font": "serif",
       "background": "#f4efe6",

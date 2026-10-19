@@ -44,8 +44,7 @@
       "type": "text",
       "target": ["label"],
       "maxChars": 12,
-      "pattern": "[A-Za-z0-9 .&-]*",
-      "placeholder": { "ja": "例: MINATO", "en": "e.g. MINATO" },
+      "placeholder": { "ja": "例: 山田太郎", "en": "e.g. MINATO" },
       "font": "serif",
       "background": "#f4efe6"
     }
