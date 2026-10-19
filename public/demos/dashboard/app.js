@@ -164,6 +164,7 @@ function ymd_(year, month, day) {
 /**
  * 値を日付キー "YYYY-MM-DD" にする。読めなければ ""。
  * 受け付ける形: "2026-09-19"・"2026/9/19"・"2026.9.19"・"2026年9月19日"・ISO の日時の先頭 10 字・Date。
+ * 後ろに時刻（"12:41"・"12:41:05"）が付いた形も読む（Google フォームのタイムスタンプ "2026/09/12 12:41:05" など）。
  * "9/19/2026" のような月が先の形は読まない（年の 4 桁で始まる形だけを受け付けるので、自然に弾かれる）。
  * Date は GAS がスクリプトの時間帯で渡すので、UTC ではなく getFullYear/getMonth/getDate を使う。
  */
@@ -178,7 +179,7 @@ function toDateKey(value) {
   // ISO の日時（"2026-09-19T10:00:00Z"・"2026-09-19 10:00" など）は先頭 10 字だけを日付として読む
   const isoHead = raw.match(/^(\d{4})-(\d{2})-(\d{2})(?=[T ])/);
   if (isoHead) return ymd_(Number(isoHead[1]), Number(isoHead[2]), Number(isoHead[3]));
-  const matched = raw.match(/^(\d{4})[-/年.](\d{1,2})[-/月.](\d{1,2})日?$/);
+  const matched = raw.match(/^(\d{4})[-/年.](\d{1,2})[-/月.](\d{1,2})日?(?:[ T](?:[01]?\d|2[0-3]):[0-5]\d(?::[0-5]\d)?)?$/);
   if (!matched) return "";
   return ymd_(Number(matched[1]), Number(matched[2]), Number(matched[3]));
 }
@@ -852,6 +853,67 @@ function limitRows(rows, max = TABLE_ROW_LIMIT_) {
   return { rows: list.slice(0, max), truncated: true };
 }
 
+/** 数として集計する集計の名前（count・distinct は値を数として読まない） */
+const TABLE_NUMERIC_AGGS_ = ["sum", "avg", "min", "max"];
+
+/**
+ * 設定（parseConfig の config）から、データセット name の列の型を決める。
+ * 合計・平均・最小・最大に使う列は number、期間の絞り込みと折れ線に使う日付の列は date にする。
+ * 推論（90% の決まり）に任せると、金額の列に「-」や空が 1 割あるだけで列ぜんたいが文字になり、
+ * 合計が黙って 0 になってしまうため。設定の types に書いた列は、書いたとおりにする（いちばん強い）
+ */
+function configColumnTypes(config, name) {
+  const source = config && typeof config === "object" ? config : {};
+  const datasets = source.datasets && typeof source.datasets === "object" ? source.datasets : {};
+  const result = {};
+  if (!hasOwn(datasets, name)) return result;
+  const dataset = datasets[name] || {};
+  const put = (column, type) => {
+    if (textOf(column) !== "") setOwn(result, textOf(column), type);
+  };
+  const putValue = (column, agg) => {
+    if (TABLE_NUMERIC_AGGS_.indexOf(agg) !== -1) put(column, "number");
+  };
+
+  put(dataset.dateColumn, "date");
+  for (const widget of Array.isArray(source.widgets) ? source.widgets : []) {
+    if (!widget || widget.type === "error") continue;
+    const target = widget.target;
+    if (target && typeof target === "object" && target.dataset === name) putValue(target.value, target.agg);
+    if (widget.dataset !== name) continue;
+    put(widget.dateColumn, "date");
+    putValue(widget.value, widget.agg);
+    if (widget.type === "table" && Array.isArray(widget.columns)) {
+      for (const column of widget.columns) if (column && typeof column === "object") putValue(column.value, column.agg);
+    }
+  }
+
+  const written = dataset.types && typeof dataset.types === "object" ? dataset.types : {};
+  for (const column of Object.keys(written)) {
+    const type = written[column];
+    if (type === "number" || type === "date" || type === "text") setOwn(result, column, type);
+  }
+  return result;
+}
+
+/**
+ * column を type（"number"|"date"）として読めなかった値の数と、最初の 1 つ（画面の例に使う）。
+ * 空の値は「読めない」に数えない
+ */
+function countUnreadable(rows, column, type) {
+  let count = 0;
+  let example = "";
+  for (const row of Array.isArray(rows) ? rows : []) {
+    const raw = row && typeof row === "object" && hasOwn(row, column) ? row[column] : undefined;
+    if (raw === null || raw === undefined || textOf(raw) === "") continue;
+    const readable = type === "date" ? toDateKey(raw) !== "" : parseNumber(raw) !== null;
+    if (readable) continue;
+    if (count === 0) example = textOf(raw);
+    count += 1;
+  }
+  return { count, example };
+}
+
 // ===== i18n.js =====
 /**
  * 画面に出す固定の文をここに 1 か所にまとめる。ja（既定）と en の 2 つ。
@@ -887,6 +949,7 @@ const MESSAGES = {
     "state.configIssues": "設定をご確認ください（{count} 件）",
     "state.loading": "読み込んでいます…",
     "state.unavailable": "ただいま表示できません。しばらくしてからお試しください。",
+    "state.deployedAsOwner": "公開の設定が違うため、表示を止めています。持ち主の方は、Apps Script の「デプロイ」→「デプロイを管理」で、次のユーザーとして実行を「ウェブアプリにアクセスしているユーザー」に直してください。",
     "state.truncated": "20,000 行までを表示しています",
     "state.bucketCapped": "期間が長いため、新しいほうから {count} 個の区切りだけを表示しています",
     "state.skippedValues": "数として読めない値を {count} 件のぞきました",
@@ -906,6 +969,12 @@ const MESSAGES = {
     "table.delta": "差",
 
     "error.datasetMissing": "データ「{name}」が見つかりません。設定をご確認ください。",
+    "error.datasetFailed": "データ「{name}」を取り込めませんでした（{reason}）。",
+    "failure.status": "サーバーの返事が {status} でした。置き場所の URL と、公開の設定をご確認ください",
+    "failure.unreachable": "サーバーから返事が届きませんでした。ネットワークか、ほかのサイトからの読み込みの許可（CORS）をご確認ください",
+    "failure.format": "中身を行として読めませんでした。CSV か、行の並び（配列）の JSON をお渡しください",
+    "failure.url": "置き場所（url）が無いか、使えない形です。https で始まる URL か、同じサイトの中の道すじをお書きください",
+    "state.unreadableDates": "データ「{name}」の日付の列「{column}」に、日付として読めない値が {count} 件あります（例: {example}）。その行は期間の絞り込みに入りません。日付は 2026-09-19 や 2026/09/19 12:00 の形でお書きください。",
     "error.columnMissing": "データ「{dataset}」に列「{column}」が見つかりません。設定をご確認ください。",
     "error.goalMissing": "{month} の目標が見つかりません。目標のデータをご確認ください。",
     "error.goalNotPositive": "目標が 0 以下のため、達成率を計算できません。目標のデータをご確認ください。",
@@ -950,6 +1019,7 @@ const MESSAGES = {
     "state.configIssues": "Check the settings ({count} issues)",
     "state.loading": "Loading…",
     "state.unavailable": "This dashboard is unavailable right now. Please try again later.",
+    "state.deployedAsOwner": "This dashboard is stopped because of its deployment settings. Owner: in Apps Script, open Deploy → Manage deployments and set Execute as to \"User accessing the web app\".",
     "state.truncated": "Showing the first 20,000 rows",
     "state.bucketCapped": "This period is long, so only the most recent {count} buckets are shown",
     "state.skippedValues": "Skipped {count} values that are not numbers",
@@ -969,6 +1039,12 @@ const MESSAGES = {
     "table.delta": "Change",
 
     "error.datasetMissing": 'The dataset "{name}" was not found. Please check the settings.',
+    "error.datasetFailed": 'The dataset "{name}" could not be loaded ({reason}).',
+    "failure.status": "the server answered {status}. Please check the URL and its sharing settings",
+    "failure.unreachable": "the server could not be reached. Please check the network and whether the site allows loading from other sites (CORS)",
+    "failure.format": "its contents could not be read as rows. Please provide a CSV file or a JSON array of rows",
+    "failure.url": "its url is missing or not allowed. Please use a URL that starts with https, or a path on the same site",
+    "state.unreadableDates": 'The date column "{column}" of the dataset "{name}" has {count} values that cannot be read as dates (for example: {example}). Those rows are left out of the period filter. Please write dates like 2026-09-19 or 2026/09/19 12:00.',
     "error.columnMissing": 'The column "{column}" was not found in the dataset "{dataset}". Please check the settings.',
     "error.goalMissing": "No goal was found for {month}. Please check the goal data.",
     "error.goalNotPositive": "Progress cannot be calculated because the goal is zero or less. Please check the goal data.",
@@ -1119,6 +1195,55 @@ function configWidgetError_(lang, position, title, ja, en) {
   return "dashboard: " + position + " 番目の部品" + label + "の " + ja;
 }
 
+/** 設定に書ける項目名。ここに無い名前は、打ち間違いとして知らせる（黙って捨てると「効かない」だけが残るため） */
+const CONFIG_TOP_KEYS_ = ["title", "lang", "theme", "cacheMinutes", "datasets", "filters", "widgets", "source"];
+const CONFIG_DATASET_KEYS_ = ["url", "dateColumn", "types"];
+const CONFIG_FILTER_KEYS_ = ["period", "from", "to", "dimensions"];
+const CONFIG_WIDGET_KEYS_ = [
+  "type", "title", "dataset", "size", "format", "note", "value", "agg", "compare", "goodWhen", "sparkline",
+  "dateColumn", "splitBy", "bucket", "category", "top", "sort", "horizontal", "target", "rows", "columns", "groupBy", "order",
+];
+
+/** 2 つの名前が何字ちがうか（大文字・小文字は同じと見なす。打ち間違いの見当に使う） */
+function configDistance_(a, b) {
+  const x = a.toLowerCase();
+  const y = b.toLowerCase();
+  let previous = Array.from({ length: y.length + 1 }, (_, j) => j);
+  for (let i = 1; i <= x.length; i += 1) {
+    const current = [i];
+    for (let j = 1; j <= y.length; j += 1) {
+      current[j] = Math.min(previous[j] + 1, current[j - 1] + 1, previous[j - 1] + (x[i - 1] === y[j - 1] ? 0 : 1));
+    }
+    previous = current;
+  }
+  return previous[y.length];
+}
+
+/**
+ * obj の項目名のうち known に無いものを知らせる。2 字ちがいまでの近い名前があれば添える。
+ * where は「どこの項目か」（ja・en。全体のときは空）。
+ * "_" "$" "/" で始まる名前は、メモ（"_comment" など）として黙って通す
+ */
+function configUnknownKeys_(obj, known, lang, where, errors) {
+  for (const key of Object.keys(obj)) {
+    if (known.indexOf(key) !== -1 || /^[_$/]/.test(key)) continue;
+    let near = "";
+    let best = 3;
+    for (const name of known) {
+      const distance = configDistance_(key, name);
+      if (distance < best) {
+        best = distance;
+        near = name;
+      }
+    }
+    if (lang === "en") {
+      errors.push("dashboard: " + (where.en ? where.en + ": " : "") + '"' + key + '" is not a known setting.' + (near ? ' Did you mean "' + near + '"?' : ""));
+    } else {
+      errors.push("dashboard: " + (where.ja ? where.ja + "の" : "") + "「" + key + "」は知らない項目です" + (near ? "。「" + near + "」のことですか" : ""));
+    }
+  }
+}
+
 /** raw[field] が知られた値の並びに含まれるか。無ければ既定値を、あれば誤りとして知らせる印を返す */
 function configPickEnum_(raw, field, allowed, fallback) {
   const value = raw[field];
@@ -1219,6 +1344,7 @@ function configBuildDatasets_(raw, lang, errors) {
     }
     const entry = raw.datasets[rawName];
     const src = configIsPlainObject_(entry) ? entry : {};
+    configUnknownKeys_(src, CONFIG_DATASET_KEYS_, lang, { ja: "datasets." + name + " ", en: "datasets." + name }, errors);
     const dateColumn = textOf(src.dateColumn);
     const url = configCheckUrl_(name, src.url, lang, errors);
     const types = configIsPlainObject_(src.types) ? src.types : {};
@@ -1236,6 +1362,7 @@ function configDatasetExists_(name, datasetsCtx) {
 
 function configBuildFilters_(raw, lang, errors) {
   const filters = configIsPlainObject_(raw.filters) ? raw.filters : {};
+  configUnknownKeys_(filters, CONFIG_FILTER_KEYS_, lang, { ja: "filters ", en: "filters" }, errors);
 
   const periodPick = configPickEnum_(filters, "period", CONFIG_PERIODS_, "thisMonth");
   if (periodPick.invalid) {
@@ -1498,6 +1625,13 @@ function configBuildWidget_(item, index, ctx, lang, errors) {
   const raw = configIsPlainObject_(item) ? item : {};
   const title = textOf(raw.title);
   const id = "w" + position;
+  configUnknownKeys_(
+    raw,
+    CONFIG_WIDGET_KEYS_,
+    lang,
+    { ja: position + " 番目の部品" + (title ? "「" + title + "」" : ""), en: "widget " + position + (title ? ' "' + title + '"' : "") },
+    errors
+  );
 
   const fail = (jaEn, extraJa, extraEn) => {
     const text = jaEn === "notFoundDataset"
@@ -1564,6 +1698,7 @@ function parseConfig(raw) {
   const errors = [];
   const config = configDefault_();
   config.title = textOf(raw.title);
+  configUnknownKeys_(raw, CONFIG_TOP_KEYS_, lang, { ja: "", en: "" }, errors);
 
   const langPick = configPickEnum_(raw, "lang", CONFIG_LANGS_, "ja");
   if (langPick.invalid) errors.push(configTopError_(lang, "lang（言語）の値が正しくありません", "lang is not valid."));
@@ -1669,12 +1804,20 @@ const CONFIG_DEFINITION_COLUMNS_ = [
   "明細",
 ];
 
+/**
+ * シートの項目名・見出し・決まった言葉をくらべるための形。全角の英数字を半角にし、
+ * 空白（全角も）をすべて除く（「開始 日」「値の列　」「直近 7 日」も、書き方どおりの名前と見なす）
+ */
+function configSheetKey_(value) {
+  return toHalfWidth(textOf(value)).replace(/\s+/g, "");
+}
+
 /** 見出し行から、知っている列名の位置を調べる（見出しの並びは問わない。知らない列は無視する） */
 function configSheetHeaderIndex_(headerRow, names) {
   const row = Array.isArray(headerRow) ? headerRow : [];
   const index = {};
   for (const name of names) {
-    const at = row.findIndex((cell) => textOf(cell) === name);
+    const at = row.findIndex((cell) => configSheetKey_(cell) === name);
     if (at !== -1) index[name] = at;
   }
   return index;
@@ -1688,7 +1831,9 @@ function configSheetCell_(row, index, name) {
 /** 日本語・英語どちらでも受ける、辞書引きの読み替え（辞書に無ければそのまま返し、parseConfig に判断させる） */
 function configSheetMap_(text, dict) {
   if (text === "") return undefined;
-  return Object.prototype.hasOwnProperty.call(dict, text) ? dict[text] : text;
+  if (Object.prototype.hasOwnProperty.call(dict, text)) return dict[text];
+  const key = configSheetKey_(text);
+  return Object.prototype.hasOwnProperty.call(dict, key) ? dict[key] : text;
 }
 
 /**
@@ -1749,7 +1894,7 @@ function configFromSheets(settingsRows, definitionRows) {
   const settings = Array.isArray(settingsRows) ? settingsRows.slice(1) : [];
   for (const row of settings) {
     const cells = Array.isArray(row) ? row : [];
-    const item = textOf(cells[0]);
+    const item = configSheetKey_(cells[0]);
     const value = textOf(cells[1]);
     if (item === "") continue;
     if (item === "題名") raw.title = value;
@@ -1859,7 +2004,7 @@ function configSheetNotesLang_(settingsRows) {
   const settings = Array.isArray(settingsRows) ? settingsRows.slice(1) : [];
   for (const row of settings) {
     const cells = Array.isArray(row) ? row : [];
-    if (textOf(cells[0]) === "言語") return configSheetMap_(textOf(cells[1]), CONFIG_SHEET_LANGS_) === "en" ? "en" : "ja";
+    if (configSheetKey_(cells[0]) === "言語") return configSheetMap_(textOf(cells[1]), CONFIG_SHEET_LANGS_) === "en" ? "en" : "ja";
   }
   return "ja";
 }
@@ -2349,6 +2494,8 @@ const MODEL_BAR_WIDE_COUNT_ = 8;
 const MODEL_LABEL_GAP_ = 12;
 /** 横棒の auto: 縦に並べた区分名が収まる、図の横幅の目安 */
 const MODEL_LABEL_ROOM_ = 560;
+/** KPI の札で、縮めずにそのまま出す字数の上限（「¥10,226」「¥109.8万」がどちらも 7 字） */
+const MODEL_KPI_FULL_MAX_ = 7;
 /** 区分の色は 8 個まで（9 個目は作らず、灰の 0 にまとめる） */
 const MODEL_COLOR_MAX_ = 8;
 
@@ -2401,6 +2548,25 @@ function modelBase_(widget, extra) {
     limitNote: "",
   };
   return Object.assign(base, extra);
+}
+
+/**
+ * データが無いときの札の文。読み口が取り込めなかった理由を知らせてきていれば、それを添える
+ * （404 も CORS も同じ「見つかりません」では、どこを直せばよいか分からないため）
+ */
+function modelMissingDataset_(ctx, name) {
+  const failure = modelOwn_(ctx.failures, name);
+  if (!failure || typeof failure !== "object") return t(ctx.lang, "error.datasetMissing", { name });
+  const reason = Number.isInteger(failure.status)
+    ? t(ctx.lang, "failure.status", { status: failure.status })
+    : failure.unreachable === true
+    ? t(ctx.lang, "failure.unreachable")
+    : failure.format === true
+    ? t(ctx.lang, "failure.format")
+    : failure.url === true
+    ? t(ctx.lang, "failure.url")
+    : "";
+  return reason === "" ? t(ctx.lang, "error.datasetMissing", { name }) : t(ctx.lang, "error.datasetFailed", { name, reason });
 }
 
 /** 部品 1 つを誤りの札にする */
@@ -2571,7 +2737,8 @@ function modelKpi_(widget, ctx, dataset, rows) {
 
   const valueFull = modelFull_(main.value, widget.format, lang);
   return modelBase_(widget, {
-    valueText: modelShort_(main.value, widget.format, lang),
+    // 縮めない書式が短いうちはそのまま出す（¥10,226 を「¥1万」に丸めると、数の意味が消えるため）
+    valueText: valueFull.length <= MODEL_KPI_FULL_MAX_ ? valueFull : modelShort_(main.value, widget.format, lang),
     valueFull,
     delta,
     spark: modelSpark_(widget, ctx, rows, dateColumn),
@@ -2883,7 +3050,7 @@ function modelTarget_(widget, ctx, actualRows) {
   if (typeof target === "number") return { value: target, month: "", monthLabel: "" };
 
   const dataset = modelOwn_(ctx.datasets, target.dataset);
-  if (!dataset) return { message: t(ctx.lang, "error.datasetMissing", { name: target.dataset }) };
+  if (!dataset) return { message: modelMissingDataset_(ctx, target.dataset) };
   modelMarkTruncated_(dataset, ctx);
   // 目標のデータの日付の列も、設定されていれば他の列より先に確かめる（絞り込みには使わないが、部品の種類と決まりをそろえる）
   const missing = modelMissingColumn_(dataset, [modelDateColumn_(ctx, target.dataset), target.agg === "count" ? "" : target.value, target.matchMonth]);
@@ -3056,7 +3223,7 @@ function modelWidget_(widget, ctx) {
   if (!widget || widget.type === "error") return widget;
 
   const dataset = modelOwn_(ctx.datasets, widget.dataset);
-  if (!dataset) return modelErrorOf_(widget, t(ctx.lang, "error.datasetMissing", { name: widget.dataset }));
+  if (!dataset) return modelErrorOf_(widget, modelMissingDataset_(ctx, widget.dataset));
   modelMarkTruncated_(dataset, ctx);
 
   // 列の書き間違いは、そのままだと「それらしいグラフ」になって気づけないので、描く前にここで止める
@@ -3074,7 +3241,9 @@ function modelWidget_(widget, ctx) {
 /**
  * そろった設定（parseConfig の config）・データセット・絞り込み・today・言語から、
  * 画面に描く形をひととおり作る。datasets は { 名前: { columns, rows（型をそろえた行）, types, truncated } }。
- * 戻り値は { title, range, previous, widgets, notes }
+ * failures は読み口が知らせてきた、取り込めなかったデータの理由（{ 名前: { status } など }）。
+ * 戻り値は { title, range, previous, widgets, notes, warnings }。warnings は直していただきたい知らせ
+ * （日付の列の読めない値など。黙って 0 件にしないために、画面では目立つ帯で出す）
  */
 function buildDashboard(input) {
   const options = input && typeof input === "object" ? input : {};
@@ -3087,13 +3256,21 @@ function buildDashboard(input) {
   const datasets = options.datasets && typeof options.datasets === "object" ? options.datasets : {};
   const previous = previousRange(range);
   // dimensionCache は、同じデータセットに効く絞り込みを部品ごとに作り直さないための覚え書き
-  const ctx = { config: { datasets: config.datasets || {} }, datasets, filters, range, previous, today, lang, truncated: false, dimensionCache: new Map() };
+  const failures = options.failures && typeof options.failures === "object" ? options.failures : {};
+  const ctx = { config: { datasets: config.datasets || {} }, datasets, failures, filters, range, previous, today, lang, truncated: false, dimensionCache: new Map() };
 
   const widgets = (Array.isArray(config.widgets) ? config.widgets : []).map((widget) => modelWidget_(widget, ctx));
   const notes = [];
   if (ctx.truncated) notes.push(t(lang, "state.truncated"));
 
-  return { title: textOf(config.title), range, previous: ctx.previous, widgets, notes };
+  const warnings = [];
+  for (const name of Object.keys(datasets)) {
+    const bad = datasets[name] ? datasets[name].unreadableDates : null;
+    if (!bad || !(bad.count > 0)) continue;
+    warnings.push(t(lang, "state.unreadableDates", { name, column: bad.column, count: formatNumber(bad.count, "number", lang), example: bad.example }));
+  }
+
+  return { title: textOf(config.title), range, previous: ctx.previous, widgets, notes, warnings };
 }
 
 // ===== samples.js =====
@@ -4286,6 +4463,10 @@ function renderDashboard(view) {
   } else {
     parts.push(renderErrorList_(source.errors, lang));
     parts.push(renderFilters(source));
+    // 直していただきたい知らせ（日付の列の読めない値など）は、部品の上に目立つ帯で出す
+    for (const warning of Array.isArray(model.warnings) ? model.warnings : []) {
+      parts.push('<p class="db-warning">' + escapeHtml(warning) + "</p>");
+    }
     const widgets = (Array.isArray(model.widgets) ? model.widgets : []).map((widget) => renderWidget_(widget, state, lang));
     parts.push('<div class="db-grid">' + widgets.join("") + "</div>");
     for (const note of Array.isArray(model.notes) ? model.notes : []) {
@@ -5010,6 +5191,15 @@ function tableHead_(head, widgetId, sort) {
 }
 
 /**
+ * 表の包みの始まり。狭い画面では表が横にはみ出すので、キーボードでも横に送れるよう
+ * focus を受け取れる場所にして、読み上げには部品の題で名前を付ける
+ */
+function tableWrapOpen_(model) {
+  const title = model && typeof model.title === "string" ? model.title : "";
+  return '<div class="db-table-wrap" tabindex="0" role="region" aria-label="' + escapeAttr(title) + '"><table class="db-table">';
+}
+
+/**
  * 区分ごとの集計表・明細の表。見出しを押すと並べ替わる（state.sort が向きを持つ）。
  * lang は読み上げの文の区切りに使う
  */
@@ -5019,7 +5209,7 @@ function renderTable(model, state, lang) {
   const sort = (hasOwn(state && state.sort, model.id) ? state.sort[model.id] : null) || null;
   const rows = sort && sort.column >= 0 && sort.column < model.head.length ? tableSorted_(model.rows, sort.column, sort.order) : model.rows;
   return (
-    '<div class="db-table-wrap"><table class="db-table">' +
+    tableWrapOpen_(model) +
     tableHead_(model.head, model.id, sort) +
     tableBody_(rows, model.head) +
     "</table></div>"
@@ -5039,7 +5229,7 @@ function renderDataTable(model, state, lang) {
   const head = source.head.map((label, index) => ({ label, numeric: index > 0 }));
   const rows = source.rows.map((cells) => cells.map((text) => ({ text, value: text })));
   return (
-    '<div class="db-table-wrap"><table class="db-table">' +
+    tableWrapOpen_(model) +
     tableHead_(head, "", null) +
     tableBody_(rows, head) +
     "</table></div>"
@@ -5128,12 +5318,15 @@ function sourceWebCacheWrite_(env, url, got, minutes) {
   }
 }
 
-/** 1 か所を取りに行く。返事が 200 でなければ ok: false にする */
+/** 1 か所を取りに行く。返事が 200 番台でなければ ok: false にして、返事の番号（status）を添える */
 function sourceWebFetch_(env, url) {
   const get = env && typeof env.fetch === "function" ? env.fetch : null;
   if (!get) return Promise.reject(new Error("dashboard: データを取りに行けません"));
   return Promise.resolve(get(url, { credentials: "same-origin" })).then((response) => {
-    if (!response || response.ok !== true) return { ok: false, text: "", contentType: "" };
+    if (!response || response.ok !== true) {
+      const status = response && Number.isInteger(response.status) && response.status > 0 ? response.status : 0;
+      return { ok: false, text: "", contentType: "", status };
+    }
     const headers = response.headers;
     const contentType = headers && typeof headers.get === "function" ? textOf(headers.get("content-type")) : "";
     return Promise.resolve(response.text()).then((text) => ({ ok: true, text: typeof text === "string" ? text : "", contentType }));
@@ -5151,7 +5344,9 @@ function sourceWebRead_(env, url, minutes, fresh) {
       if (got.ok) sourceWebCacheWrite_(env, url, got, minutes);
       return got;
     },
-    () => ({ ok: false, text: "", contentType: "" })
+    // 返事が届かない（ネットワーク・よそのサイトからの読み込みを断られた CORS など）。
+    // ブラウザは理由を JS に教えないので、「届かなかった」ことだけを控える
+    () => ({ ok: false, text: "", contentType: "", unreachable: true })
   );
 }
 
@@ -5186,7 +5381,8 @@ function sourceWebRawConfig_(env, config, fresh) {
  * 取りに行く読み口を作る。options は { config, data, env }。
  * config はそろっていないままの設定（オブジェクト）か、その置き場所（文字）。
  * data に渡した行は取りに行かずにそのまま使う。
- * load() は { config（そのままの設定）, datasets, missing } を返す
+ * load() は { config（そのままの設定）, datasets, missing, failures } を返す。
+ * failures は取り込めなかった理由（{ 名前: { url: true } | { status: 404 } | { unreachable: true } | { format: true } }）
  */
 function sourceWebCreate_(options) {
   const opts = options && typeof options === "object" ? options : {};
@@ -5201,6 +5397,7 @@ function sourceWebCreate_(options) {
         const minutes = Number(parsed.config.cacheMinutes);
         const datasets = Object.create(null);
         const missing = [];
+        const failures = Object.create(null);
 
         const jobs = Object.keys(parsed.config.datasets).map((name) => {
           if (inline !== null && hasOwn(inline, name)) {
@@ -5213,16 +5410,23 @@ function sourceWebCreate_(options) {
           // 空の url は「指定なし」なので、同じくここでは取りに行かない
           if (!isAllowedDataUrl(url)) {
             missing.push(name);
+            failures[name] = { url: true };
             return Promise.resolve();
           }
           return sourceWebRead_(env, url, minutes, fresh).then((got) => {
             const rows = got.ok ? sourceWebRows_(got, url) : null;
-            if (rows === null) missing.push(name);
-            else datasets[name] = rows;
+            if (rows !== null) {
+              datasets[name] = rows;
+              return;
+            }
+            missing.push(name);
+            if (got.ok) failures[name] = { format: true };
+            else if (got.status > 0) failures[name] = { status: got.status };
+            else if (got.unreachable === true) failures[name] = { unreachable: true };
           });
         });
 
-        return Promise.all(jobs).then(() => ({ config: raw, datasets, missing }));
+        return Promise.all(jobs).then(() => ({ config: raw, datasets, missing, failures }));
       });
     },
   };
@@ -5566,9 +5770,11 @@ function mainCutRaw_(list, matrix, max) {
 /**
  * 取り込んだ行を、描く側が使える形にそろえる。
  * 見出し行つきの行列はオブジェクトの並びに直し、列の型を決め、値をその型に合わせる。
- * 行数の上限は、型をそろえる前（行列・配列のまま）で切ってある
+ * 行数の上限は、型をそろえる前（行列・配列のまま）で切ってある。
+ * 日付の列（dateColumn）に日付として読めない値があれば、その数と例を unreadableDates に控える
+ * （その行は期間の絞り込みに入らないので、黙って「0 件」にしないよう画面で知らせるため）
  */
-function mainDataset_(raw, types) {
+function mainDataset_(raw, types, dateColumn) {
   const list = Array.isArray(raw) ? raw : [];
   const matrix = list.length > 0 && Array.isArray(list[0]);
   const cut = mainCutRaw_(list, matrix, TABLE_ROW_LIMIT_);
@@ -5576,7 +5782,15 @@ function mainDataset_(raw, types) {
 
   const kinds = inferTypes(shaped.columns, shaped.rows, types);
   const limited = limitRows(shaped.rows, TABLE_ROW_LIMIT_);
-  return { columns: shaped.columns, rows: coerceRows(limited.rows, kinds), types: kinds, truncated: limited.truncated };
+  const column = textOf(dateColumn);
+  const bad = column !== "" && hasOwn(kinds, column) && kinds[column] === "date" ? countUnreadable(limited.rows, column, "date") : { count: 0 };
+  return {
+    columns: shaped.columns,
+    rows: coerceRows(limited.rows, kinds),
+    types: kinds,
+    truncated: limited.truncated,
+    unreadableDates: bad.count > 0 ? { column, count: bad.count, example: bad.example } : null,
+  };
 }
 
 /**
@@ -5596,7 +5810,8 @@ function mainBuildDatasets_(config, loaded, inline, missing, capped) {
   const cut = new Set(Array.isArray(capped) ? capped.map((name) => textOf(name)) : []);
   const datasets = Object.create(null);
   const put = (name, rows) => {
-    const made = mainDataset_(rows, config.datasets[name] ? config.datasets[name].types : {});
+    const dataset = config.datasets[name];
+    const made = mainDataset_(rows, configColumnTypes(config, name), dataset ? dataset.dateColumn : "");
     if (cut.has(name)) made.truncated = true;
     datasets[name] = made;
   };
@@ -5743,6 +5958,7 @@ function mainBuildModel_(ctx) {
     filters: ctx.state.filters,
     today: ctx.today,
     lang: ctx.lang,
+    failures: ctx.failures,
   });
 }
 
@@ -6191,6 +6407,22 @@ function mainBlankState_() {
   return { status: "loading", filters, initial: filters, tableView: {}, sort: {}, message: "" };
 }
 
+/**
+ * 読み口が知らせてきた「取り込めなかった理由」のうち、結局そろわなかったデータのぶんだけを残す
+ * （mount に直に渡した行で埋まったものは外す）。残ったものは console にも 1 行ずつ控える
+ */
+function mainFailures_(ctx, given) {
+  const failures = Object.create(null);
+  if (given === null || typeof given !== "object") return failures;
+  const log = ctx.env.console;
+  for (const name of Object.keys(given)) {
+    if (name in ctx.datasets) continue;
+    failures[name] = given[name];
+    if (log && typeof log.warn === "function") log.warn("dashboard: データ「" + name + "」を取り込めませんでした", given[name]);
+  }
+  return failures;
+}
+
 /** 届いた設定とデータを画面の形にそろえて、描く */
 function mainApply_(ctx, result) {
   const loaded = result !== null && typeof result === "object" ? result : {};
@@ -6203,6 +6435,7 @@ function mainApply_(ctx, result) {
   ctx.errors = parsed.errors;
   ctx.lang = config.lang === "en" ? "en" : "ja";
   ctx.datasets = mainBuildDatasets_(config, loaded.datasets, ctx.inline, loaded.missing, loaded.truncated);
+  ctx.failures = mainFailures_(ctx, loaded.failures);
   ctx.options = mainDimensionOptions_(config, ctx.datasets);
 
   const fresh = initialState(config, ctx.today);
@@ -6327,6 +6560,7 @@ function mountDashboard(root, options) {
     config: mainBlankConfig_(langOverride === "" ? "ja" : langOverride, themeOverride === "" ? "auto" : themeOverride),
     errors: [],
     datasets: Object.create(null),
+    failures: Object.create(null),
     options: {},
     model: {},
     state: mainBlankState_(),
@@ -6374,5 +6608,5 @@ function mountDashboard(root, options) {
   return view;
 }
 
-window.Dashboard = { mount: mountDashboard, version: "1.0.0" };
+window.Dashboard = { mount: mountDashboard, version: "1.0.1" };
 })();

@@ -28,7 +28,8 @@
   --db-accent: var(--db-series-1);
 
   /* 良い・悪い（差と目標だけに使う。系列には使わない） */
-  --db-good: #0ca30c;
+  /* ▲▼ は 13px の字なので、地に対して 4.5:1 を保つ */
+  --db-good: #087a08;
   --db-bad: #d03b3b;
   /* 「達成」の札のように、色の面に字をのせるときの組み合わせ（字と面で 4.5:1 を保つ） */
   --db-good-strong: #087a08;
@@ -78,6 +79,8 @@
     --db-series-8: #e66767;
     --db-series-0: #6f6e68;
 
+    --db-good: #0ca30c;
+    --db-bad: #ec6b6b;
     --db-good-strong: #4ec94e;
     --db-good-strong-text: #0b1f0b;
   }
@@ -102,6 +105,8 @@
   --db-series-8: #e66767;
   --db-series-0: #6f6e68;
 
+  --db-good: #0ca30c;
+  --db-bad: #ec6b6b;
   --db-good-strong: #4ec94e;
   --db-good-strong-text: #0b1f0b;
 }
@@ -131,6 +136,19 @@
   margin: 12px 0 0;
   color: var(--db-text-3);
   font-size: 0.8125rem;
+}
+
+/* 直していただきたい知らせ（日付の列の読めない値など）。黙って 0 件に見せないよう、赤の帯で出す */
+.db-warning {
+  margin: 0 0 var(--db-gap);
+  padding: 10px 12px;
+  border: 1px solid var(--db-bad);
+  border-left-width: 4px;
+  border-radius: 10px;
+  background: var(--db-card);
+  color: var(--db-text);
+  font-size: 0.8125rem;
+  line-height: 1.6;
 }
 
 .db-status {
@@ -297,7 +315,7 @@
 .db-error {
   margin: 0;
   padding: 10px 0 14px;
-  color: var(--db-text-2);
+  color: var(--db-bad);
   font-size: 0.8125rem;
   line-height: 1.6;
 }
@@ -525,6 +543,12 @@
      （見出しは貼り付いたまま残るので、送っても何の列か分かる） */
   max-height: 440px;
   overflow: auto;
+  /* 横に続きがあるときだけ、端に薄い影を出す（地の色の覆いが、端まで送ると影を隠す） */
+  background:
+    linear-gradient(to right, var(--db-card) 30%, transparent) left / 24px 100% no-repeat local,
+    linear-gradient(to left, var(--db-card) 30%, transparent) right / 24px 100% no-repeat local,
+    linear-gradient(to right, rgba(0, 0, 0, 0.12), transparent) left / 10px 100% no-repeat scroll,
+    linear-gradient(to left, rgba(0, 0, 0, 0.12), transparent) right / 10px 100% no-repeat scroll;
 }
 
 .db-table {
@@ -677,6 +701,25 @@
   }
   .db-field {
     flex: 1 1 140px;
+  }
+  /* 小さな札は幅が狭いので、「表で見る」を題の行から外して札のいちばん下に置く
+     （題の横に置いたままだと、題が 1〜2 字ずつ折れてしまうため） */
+  .db-size-s .db-card-head {
+    display: contents;
+  }
+  .db-size-s .db-card-title {
+    margin-bottom: 10px;
+  }
+  .db-size-s .db-card-head > .db-toggle,
+  .db-size-s .db-card-head > .db-action {
+    order: 1;
+    align-self: flex-start;
+    margin-top: 12px;
+  }
+  /* 数は 1 行に収める（画面の幅に合わせて字を小さくする） */
+  .db-kpi-value {
+    white-space: nowrap;
+    font-size: clamp(1.25rem, 6.2vw, 1.625rem);
   }
   /* 狭い画面では図が小さくなるので、図の中の札だけ少し大きくして読めるようにする */
   .db-x-label,
