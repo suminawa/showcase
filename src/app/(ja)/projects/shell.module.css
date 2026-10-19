@@ -153,6 +153,30 @@
   min-width: 0;
 }
 
+/* 購入の帯（bar）があるページは、スマホでは頭の右の箱を出さない（値段と押す先は帯が持つ） */
+@media (max-width: 1023px) {
+  .asideWide {
+    display: none;
+  }
+  /* 空いた段の分の隙間を残さない（題のすぐ下に見本が来るように） */
+  .headSplit:has(> .asideWide) {
+    grid-template-areas:
+      "main"
+      "extra";
+  }
+  .headSplit:has(> .asideWide):not(:has(> .headExtra)) {
+    grid-template-areas: "main";
+  }
+}
+
+/* 題を検索語にしたページの、品物の名（題の下に小さく） */
+.name {
+  margin: -6px 0 0;
+  font-size: 0.875rem;
+  letter-spacing: 0.04em;
+  color: var(--m-sumi-3);
+}
+
 /* ---- 本文 -------------------------------------------------------------------- */
 
 .work {

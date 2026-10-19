@@ -47,14 +47,21 @@ export function ProjectShell({
   lang,
   slug,
   title,
+  name,
   lede,
   head,
   aside,
+  bar,
   children,
 }: {
   lang: Lang;
   slug: string;
   title: string;
+  /**
+   * 品物の名（「期限アラート GAS キット」）。題を検索語にしたページだけが持つ（kit-parts.tsx）。
+   * あれば題の下に小さく添え、現在地・構造化データ・一覧のカードから伸びる名にはこちらを使う
+   */
+  name?: string;
   /** 題に添える英字（前の版の名残。いまの頭には出さない） */
   latin: string;
   lede: React.ReactNode;
@@ -62,14 +69,20 @@ export function ProjectShell({
   head?: React.ReactNode;
   /** 頭の右に置く箱（購入の箱）。あるページだけ、PC で頭を左右に割る */
   aside?: React.ReactNode;
+  /**
+   * スマホ（1024px 未満）で画面の下に留める購入の帯（kit-parts.tsx の KitBuyBar）。
+   * 渡すと、スマホでは頭の右の箱を出さない（結果の画面を題のすぐ下に出すため。値段と押す先は帯が持つ）
+   */
+  bar?: React.ReactNode;
   children: React.ReactNode;
 }) {
+  const label = name ?? title;
   const project = projects.find((p) => p.slug === slug);
   const shelf = project ? localIndexPage(lang, project.category) : null;
   return (
     <ViewTransition default="paper">
       <main id="main" className={`${sh.page} ${sh.compat}`}>
-        <ProjectJsonLd lang={lang} slug={slug} title={title} />
+        <ProjectJsonLd lang={lang} slug={slug} title={label} />
         <div className={u.wrap}>
           {project && shelf && (
             <nav className={sh.crumbs} aria-label={CRUMBS[lang]}>
@@ -79,7 +92,7 @@ export function ProjectShell({
                     {shelf.title}
                   </Link>
                 </li>
-                <li aria-current="page">{title}</li>
+                <li aria-current="page">{label}</li>
               </ol>
             </nav>
           )}
@@ -88,13 +101,22 @@ export function ProjectShell({
           <header className={`${sh.head} ${aside ? sh.headSplit : ""}`}>
             <div className={sh.headMain}>
               {/* 一覧のカードの品名（KitCard）と同じ名。押したカードの名がこの題へ伸びる */}
-              <ViewTransition name={`t-${slug}`} share="morph" default="none">
-                <h1 className={sh.title}>{title}</h1>
-              </ViewTransition>
+              {name ? (
+                <>
+                  <h1 className={sh.title}>{title}</h1>
+                  <ViewTransition name={`t-${slug}`} share="morph" default="none">
+                    <p className={sh.name}>{name}</p>
+                  </ViewTransition>
+                </>
+              ) : (
+                <ViewTransition name={`t-${slug}`} share="morph" default="none">
+                  <h1 className={sh.title}>{title}</h1>
+                </ViewTransition>
+              )}
               <p className={sh.lede}>{lede}</p>
             </div>
             {aside && (
-              <aside className={sh.aside} aria-label={BUY[lang]}>
+              <aside className={`${sh.aside} ${bar ? sh.asideWide : ""}`} aria-label={BUY[lang]}>
                 {aside}
               </aside>
             )}
@@ -105,6 +127,7 @@ export function ProjectShell({
           <ReturnNote lang={lang} slug={slug} />
           {/* 関連する案内記事は作品の【あと】に。頭に置くと、動く実物が初画面の下へ押し出される */}
           {lang === "ja" && <RelatedGuides slug={slug} />}
+          {bar}
         </div>
       </main>
     </ViewTransition>

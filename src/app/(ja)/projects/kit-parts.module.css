@@ -1,0 +1,414 @@
+/*
+ * 売り物のキットのページの部品（kit-parts.tsx）。方眼の文法: 白いセル・マス目の線・帳票。
+ * 押す先は墨（BOOTH）と白（note）。朱は使わない（選択の枠とフォーカスだけ）。角 0・影なし。
+ */
+
+/* ---- 節の共通 ----------------------------------------------------------------- */
+
+.section {
+  display: grid;
+  gap: 16px;
+  margin-top: 40px;
+  min-width: 0;
+}
+
+@media (min-width: 1024px) {
+  .section {
+    margin-top: 56px;
+  }
+}
+
+.h2 {
+  margin: 0;
+  font-family: var(--m-mincho);
+  font-weight: 600;
+  font-size: clamp(1.375rem, 1.1rem + 1vw, 1.75rem);
+  line-height: 1.5;
+  letter-spacing: 0.03em;
+  font-feature-settings: "palt" 1;
+  word-break: auto-phrase;
+}
+
+.h3 {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 600;
+  line-height: 1.6;
+  color: var(--m-sumi);
+}
+
+.body {
+  margin: 0;
+  max-width: 44em;
+  font-size: 0.9375rem;
+  line-height: 1.85;
+  color: var(--m-sumi-2);
+  overflow-wrap: anywhere;
+}
+
+.small {
+  margin: 0;
+  font-size: 0.8125rem;
+  line-height: 1.7;
+  color: var(--m-sumi-3);
+}
+
+/* 2 つのセルを縁を共有して並べる（スマホは縦、768px から横） */
+.pair {
+  display: grid;
+  gap: 1px;
+  background: var(--m-grid);
+  border: 1px solid var(--m-grid);
+}
+
+@media (min-width: 768px) {
+  .pair {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+.cell {
+  display: grid;
+  gap: 12px;
+  align-content: start;
+  padding: 20px;
+  background: var(--m-cell);
+  min-width: 0;
+}
+
+@media (min-width: 1024px) {
+  .cell {
+    padding: 24px;
+  }
+}
+
+.list,
+.steps {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+  padding-left: 1.25em;
+  font-size: 0.9375rem;
+  line-height: 1.75;
+  color: var(--m-sumi-2);
+  overflow-wrap: anywhere;
+}
+
+.list {
+  list-style: disc;
+}
+
+.steps {
+  list-style: decimal;
+}
+
+.list li::marker,
+.steps li::marker {
+  font-variant-numeric: tabular-nums;
+  color: var(--m-sumi-4);
+}
+
+/* ---- (a) 購入の箱 ------------------------------------------------------------ */
+
+.offer {
+  display: grid;
+  gap: 14px;
+  padding: 20px;
+  background: var(--m-cell);
+  border: 1px solid var(--m-grid);
+}
+
+@media (min-width: 1024px) {
+  .offer {
+    padding: 24px;
+  }
+}
+
+.price {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 4px 12px;
+  margin: 0;
+}
+
+.yen {
+  font-size: clamp(1.625rem, 1.3rem + 1.2vw, 2.125rem);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.01em;
+  line-height: 1.2;
+  color: var(--m-sumi);
+}
+
+.tax {
+  font-size: 0.8125rem;
+  letter-spacing: 0.04em;
+  color: var(--m-sumi-3);
+}
+
+.buttons {
+  display: grid;
+  gap: 8px;
+}
+
+.buttons > * {
+  width: 100%;
+}
+
+.more {
+  display: grid;
+  margin: -6px 0 0;
+  padding: 0;
+  list-style: none;
+  font-size: 0.9375rem;
+}
+
+/* ---- (a) スマホの帯（画面の下に留める。PC では出さない） --------------------------- */
+
+.bar {
+  position: sticky;
+  bottom: 0;
+  z-index: 20;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) minmax(0, 1fr);
+  align-items: center;
+  gap: 8px;
+  margin: 32px calc(-1 * var(--m-gutter)) 0;
+  padding: 8px var(--m-gutter) calc(8px + env(safe-area-inset-bottom));
+  background: var(--m-cell);
+  border-top: 1px solid var(--m-grid-strong);
+}
+
+.bar a {
+  min-height: 44px;
+  padding: 0 8px;
+  font-size: 0.875rem;
+  letter-spacing: 0.02em;
+  line-height: 1.25;
+  text-align: center;
+}
+
+.barPrice {
+  display: grid;
+  margin: 0;
+  font-size: 1.0625rem;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.2;
+  color: var(--m-sumi);
+}
+
+.barTax {
+  font-size: 0.6875rem;
+  font-weight: 400;
+  letter-spacing: 0.02em;
+  color: var(--m-sumi-3);
+}
+
+@media (min-width: 1024px) {
+  .bar {
+    display: none;
+  }
+}
+
+/* ---- (c) 比較表 --------------------------------------------------------------- */
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  background: var(--m-cell);
+  border: 1px solid var(--m-grid);
+  font-size: 0.9375rem;
+  line-height: 1.7;
+}
+
+.table th,
+.table td {
+  padding: 12px 16px;
+  border: 1px solid var(--m-grid);
+  text-align: left;
+  vertical-align: top;
+  color: var(--m-sumi-2);
+  overflow-wrap: anywhere;
+}
+
+.table thead th {
+  background: var(--m-cell-head);
+  font-size: 0.8125rem;
+  font-weight: 400;
+  letter-spacing: 0.04em;
+  color: var(--m-sumi-4);
+}
+
+.table tbody th {
+  font-weight: 600;
+  color: var(--m-sumi);
+  white-space: nowrap;
+}
+
+/* このキットの行だけ、墨の濃さで分ける（朱は使わない） */
+.mine th,
+.mine td {
+  color: var(--m-sumi);
+  border-top: 2px solid var(--m-sumi);
+}
+
+/* スマホでは 1 行を 1 枚のセルにし、項目名を値の前に小さく出す */
+@media (max-width: 767px) {
+  .table,
+  .table tbody,
+  .table tr,
+  .table th,
+  .table td {
+    display: block;
+  }
+  .table {
+    border: 0;
+    background: none;
+  }
+  .table thead {
+    display: none;
+  }
+  .table tr {
+    margin-bottom: -1px;
+    background: var(--m-cell);
+    border: 1px solid var(--m-grid);
+  }
+  .table th,
+  .table td {
+    border: 0;
+    padding: 4px 16px;
+  }
+  .table tbody th {
+    padding-top: 14px;
+    white-space: normal;
+  }
+  .table td:last-child {
+    padding-bottom: 14px;
+  }
+  .table td::before {
+    content: attr(data-label);
+    display: block;
+    font-size: 0.75rem;
+    letter-spacing: 0.06em;
+    color: var(--m-sumi-4);
+  }
+  .table tr.mine {
+    border: 2px solid var(--m-sumi);
+    margin-top: 8px;
+  }
+  .mine th,
+  .mine td {
+    border-top: 0;
+  }
+}
+
+.recommend {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 600;
+  line-height: 1.7;
+  color: var(--m-sumi);
+}
+
+/* ---- (d) 値段 ・(e) 領収書 ------------------------------------------------------ */
+
+.spec {
+  max-width: 48rem;
+}
+
+@media (max-width: 639px) {
+  .spec {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .spec dt {
+    padding-bottom: 0;
+    border-bottom: 0;
+  }
+}
+
+.spec dd {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0 8px;
+}
+
+.figure {
+  font-size: 1.125rem;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  color: var(--m-sumi);
+}
+
+.breakdown {
+  flex-basis: 100%;
+  font-size: 0.875rem;
+  color: var(--m-sumi-3);
+  font-variant-numeric: tabular-nums;
+}
+
+.receipt {
+  display: grid;
+  gap: 6px;
+  max-width: 48rem;
+  padding: 16px 20px;
+  background: var(--m-cell);
+  border: 1px solid var(--m-grid);
+}
+
+/* ---- (f) 証拠の帯 ------------------------------------------------------------- */
+
+.proof {
+  margin-top: 32px;
+}
+
+.proofList {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  background: var(--m-grid);
+  border: 1px solid var(--m-grid);
+}
+
+@media (min-width: 768px) {
+  .proofList {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+.proofCell {
+  display: grid;
+  gap: 6px;
+  align-content: start;
+  padding: 16px;
+  background: var(--m-cell);
+  min-width: 0;
+}
+
+@media (min-width: 1024px) {
+  .proofCell {
+    padding: 20px 24px;
+  }
+}
+
+.proofFigure {
+  font-family: var(--m-mincho);
+  font-weight: 600;
+  font-size: clamp(1.5rem, 1.2rem + 1.2vw, 2.25rem);
+  line-height: 1.25;
+  letter-spacing: 0.02em;
+  font-variant-numeric: tabular-nums;
+  color: var(--m-sumi);
+}
+
+.proofLabel {
+  font-size: 0.8125rem;
+  line-height: 1.6;
+  color: var(--m-sumi-3);
+  overflow-wrap: anywhere;
+}

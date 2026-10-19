@@ -23,13 +23,13 @@ export const KIT_FACTS: Record<FlagshipSlug, Record<Lang, KitFact[]>> = {
     en: [
       { label: "Monthly fee", value: "¥0 (one-time purchase)" },
       { label: "Setup", value: "About 15–20 minutes" },
-      { label: "Sends to", value: "Slack or Discord" },
+      { label: "Sends to", value: "Slack, Discord, email, Google Chat" },
       { label: "Free version", value: "Yes (3 days before and same day only)" },
     ],
     fr: [
       { label: "Abonnement", value: "0 ¥ (achat unique)" },
       { label: "Installation", value: "15 à 20 minutes environ" },
-      { label: "Envoi vers", value: "Slack ou Discord" },
+      { label: "Envoi vers", value: "Slack, Discord, e-mail, Google Chat" },
       { label: "Version gratuite", value: "Oui (J-3 et jour même seulement)" },
     ],
   },

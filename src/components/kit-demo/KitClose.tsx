@@ -248,6 +248,7 @@ export function KitClose({
   setup,
   service,
   free,
+  compare = true,
   lang = "ja",
 }: {
   slug: KitDemoSlug;
@@ -258,6 +259,8 @@ export function KitClose({
   service?: KitService;
   /** 無料版への案内（あるキットだけ）。行き先は /go/ の道 */
   free?: KitService;
+  /** 「比べてから選ぶ」を出すか。ページが kit-parts.tsx の比較表（KitCompare）を持つときは false */
+  compare?: boolean;
   lang?: Lang;
 }) {
   const demo = localKitDemo(lang, slug);
@@ -298,7 +301,7 @@ export function KitClose({
         </section>
       </div>
 
-      <section className={k.compare} aria-labelledby="kit-compare">
+      {compare && <section className={k.compare} aria-labelledby="kit-compare">
         <h3 id="kit-compare" className={k.h3}>
           {t.compare}
         </h3>
@@ -343,7 +346,7 @@ export function KitClose({
           </div>
         </div>
         <p className={k.small}>{t.checked(checked)}</p>
-      </section>
+      </section>}
 
       {updates.length > 0 && (
         <section className={k.block} aria-labelledby="kit-updates">

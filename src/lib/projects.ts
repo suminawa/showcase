@@ -38,6 +38,12 @@ export type Sale = {
    * saleLabel(sale, { detail: true }) が「10/2 発売予定 ¥9,800」と書く。
    */
   launch?: string;
+  /**
+   * 設置代行の値段（**税別**・円・「から」）。品物のページの「設置込みの値段」（kit-parts.tsx の KitPricing）は
+   * これとキットの値段から総額を組む。媒体（BOOTH・note・ココナラ）の設置代行の値段はこれに寄せる（2026-10-20）。
+   * 額は /contact の品書き（SERVICES）と同じ出どころで、ここで新しい額を作らない。
+   */
+  service?: { price: number };
 };
 
 export type Project = {
@@ -247,7 +253,7 @@ export const projects: Project[] = [
     description: "シートに書いた期限を、毎朝 1 通にまとめてお知らせします。",
     tags: ["Google Apps Script"],
     category: "kits",
-    sale: { status: "onsale", price: 2980 },
+    sale: { status: "onsale", price: 2980, service: { price: 30000 } },
   },
   {
     slug: "form",
