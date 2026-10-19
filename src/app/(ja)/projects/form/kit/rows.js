@@ -35,6 +35,16 @@ function safeCell_(value) {
   return /^[=+\-@\t\r]/.test(text) || numberLike ? "'" + text : text;
 }
 
+/** 受付シートの最後の行の受付番号。見出しに「受付番号」が無いか、行が無ければ "" */
+export function lastReceiptOf(values) {
+  const rows = Array.isArray(values) ? values : [];
+  if (rows.length < 2) return "";
+  const header = Array.isArray(rows[0]) ? rows[0].map(cellText_) : [];
+  const at = header.indexOf(RECEIPT_HEADER);
+  const last = rows[rows.length - 1];
+  return at < 0 || !Array.isArray(last) ? "" : cellText_(last[at]);
+}
+
 /** 列に並べる項目名。「項目の並び」があればその順、無ければ送られてきた順 */
 export function fieldNamesOf(config, order) {
   const source = config.fieldOrder.length > 0 ? config.fieldOrder : Array.isArray(order) ? order : [];

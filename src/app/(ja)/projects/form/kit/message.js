@@ -31,6 +31,13 @@ function escapeSlack_(text) {
   return String(text).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 }
 
+/** limit 字（見た目どおりに数える）を超えたら切って「…（以下省略）」を付ける。limit が無ければそのまま */
+function clip_(text, limit) {
+  if (!(limit > 0)) return text;
+  const chars = Array.from(text);
+  return chars.length <= limit ? text : chars.slice(0, limit).join("") + "…（以下省略）";
+}
+
 /** 「項目名: 値」を改行で並べたもの。値が空の項目は出さない */
 export function buildFieldList(fields, order) {
   const names = Array.isArray(order) ? order : Object.keys(fields);
@@ -49,13 +56,13 @@ export function buildFieldList(fields, order) {
  * {受付番号} {項目一覧} {送信元} と、項目名そのもの（{email} など）が使える。
  * 知らない差し込みは、そのままの字で残す（書き間違いに気づけるように）。
  * 値の中に {…} があっても、それは置き換えない。
- * context = { receipt, fields, order, source }
+ * context = { receipt, fields, order, source, listLimit }（listLimit は {項目一覧} の字数の上限。自動返信で使う）
  */
 export function renderTemplate(template, context) {
   const fields = context.fields === undefined || context.fields === null ? {} : context.fields;
   const reserved = {
     "受付番号": context.receipt === undefined ? "" : String(context.receipt),
-    "項目一覧": buildFieldList(fields, context.order),
+    "項目一覧": clip_(buildFieldList(fields, context.order), context.listLimit),
     "送信元": context.source === undefined ? "" : String(context.source),
   };
   return String(template).replace(/\{([^{}\n]{1,60})\}/g, function (whole, key) {
@@ -72,7 +79,7 @@ export function buildNotificationText(config, context) {
   return context.quotaExhausted === true ? text + "\n\n" + QUOTA_NOTICE : text;
 }
 
-const TARGET_LABELS = { slack: "Slack", discord: "Discord", line: "LINE" };
+const TARGET_LABELS = { mail: "メール", slack: "Slack", discord: "Discord", line: "LINE" };
 
 /**
  * テスト送信で失敗した通知先ごとの 1 行。返ってきた番号から、設定シートのどこを直すかを添える。
@@ -83,7 +90,11 @@ export function failureLine(failure) {
   const matched = String(failure.message).match(/^(\d{3}) /);
   const status = matched ? Number(matched[1]) : 0;
   let hint = "設定シートの値と、実行ログの文をご確認ください。";
-  if (failure.target === "line" && status === 401) {
+  if (failure.target === "mail") {
+    hint = /上限/.test(String(failure.message))
+      ? "今日送れるメールの数の上限に達しています。明日には戻ります。"
+      : "「連絡先メール」（空なら「返信先」）のアドレスをご確認ください。";
+  } else if (failure.target === "line" && status === 401) {
     hint = "「LINE チャネルアクセストークン」が違います。長期のトークンを発行し直して貼ってください。";
   } else if (failure.target === "line" && status === 400) {
     hint = "「LINE 送信先 ID」が U で始まる自分のユーザー ID か、そのチャネルを友だちに追加しているかをご確認ください。";

@@ -30,6 +30,19 @@ export function nextReceipt(lastReceipt, dateKey) {
 }
 
 /**
+ * 2 つの受付番号のうち新しい方（日付、同じ日なら連番の大きい方）。読めない方は捨て、どちらも読めなければ ""。
+ * 覚えた番号（スクリプトのプロパティ）と受付シートの最後の番号を突き合わせ、片方が消えても番号が重ならないようにする
+ */
+export function laterReceipt(first, second) {
+  const a = parseReceipt(first);
+  const b = parseReceipt(second);
+  if (a === null) return b === null ? "" : String(second).trim();
+  if (b === null) return String(first).trim();
+  const aFirst = a.dateKey > b.dateKey || (a.dateKey === b.dateKey && a.sequence >= b.sequence);
+  return aFirst ? String(first).trim() : String(second).trim();
+}
+
+/**
  * 二重送信を見分けるもとの文字列。
  * 項目名で並べ替えてつなぐので、送られてきた順が違っても、中身が同じなら同じ字になる。
  */

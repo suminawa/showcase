@@ -3,11 +3,13 @@
 /**
  * 初期化（何を足すか）と「設定を確かめる」（何を直すか・これから何が起きるか）を決める。純粋な処理。
  * 受け取るのはシートの値をそのまま写した snapshot（gas_sheets.js の readSetupSnapshot_ が作る）:
- *   { timeZone, today: "YYYY-MM-DD", sheets: { シート名: 2 次元配列 }, hasTrigger }
+ *   { timeZone, today: "YYYY-MM-DD", sheets: { シート名: 2 次元配列 }, hasTrigger, secrets }
+ * secrets は「鍵を保存」でスクリプト プロパティに移した URL（{ 鍵の名前: 値 }。無ければ省いてよい）。
  * 無いシートは sheets に載せない。空のシート（1 行も無い）は []。hasTrigger は「設定を確かめる」のときだけ使う。
  */
-import { collectSections, OVERDUE } from "./buckets.js";
-import { CHAT_URL_PREFIX, ConfigError, DEFAULT_ROWS, TARGETS, configKeyOf, mailListOf, parseConfig, targetNamesOf } from "./config.js";
+import { collectSections, OVERDUE, overdueLimitOf } from "./buckets.js";
+import { diffDays } from "./dates.js";
+import { CHAT_URL_PREFIX, ConfigError, DEFAULT_ROWS, NO_DESTINATION_TEXT, TARGETS, configKeyOf, mailListOf, parseConfig, secretsInSheet, targetNamesOf, withSecrets } from "./config.js";
 import { parseItems } from "./items.js";
 import { missingHeaders, missingSettingRows } from "./setup.js";
 
@@ -21,7 +23,22 @@ const TEMPLATE_KEYS = ["件名", "期限", "担当", "残日数"];
 const SAMPLE_URL_MARK = "XXXXXXXXX/YYYYYYYYY";
 
 /** parseConfig が投げうる項目。「設定を確かめる」はここを 1 つずつ確かめる */
-const STRICT_KEYS = ["通知先", "Webhook URL", "メールの宛先", "Google Chat の Webhook URL", "しきい値", "超過も通知する"];
+const STRICT_KEYS = [
+  "通知先",
+  "Webhook URL",
+  "Discord の Webhook URL",
+  "メールの宛先",
+  "Google Chat の Webhook URL",
+  "しきい値",
+  "超過も通知する",
+  "超過を知らせる上限日数",
+];
+
+/** 設定シートの行に、スクリプト プロパティに移した鍵を入れたもの（無ければ undefined のまま） */
+function settingsOf_(snapshot) {
+  const values = snapshot.sheets[SETTINGS_TAB];
+  return values === undefined ? undefined : withSecrets(values, snapshot.secrets);
+}
 
 function checkText_(value) {
   if (value === null || value === undefined) return "";
@@ -92,7 +109,7 @@ function readableConfig_(rows) {
 
 /** 初期化のあとの設定シートの行（無ければ既定の全行、あれば足りない行を足したもの） */
 function effectiveSettings_(snapshot) {
-  const values = snapshot.sheets[SETTINGS_TAB];
+  const values = settingsOf_(snapshot);
   if (values === undefined || values.length === 0) return [["項目", "値"]].concat(DEFAULT_ROWS);
   return values.concat(missingRowsOf_(values));
 }
@@ -170,15 +187,32 @@ function chosenTargets_(raw) {
   return names.filter((name) => TARGETS.indexOf(name) >= 0);
 }
 
-/** 通知先ごとの、送り先を書く設定の行 */
-const DESTINATION_KEYS = { slack: "Webhook URL", discord: "Webhook URL", gmail: "メールの宛先", googlechat: "Google Chat の Webhook URL" };
+/** 通知先ごとの、送り先を書く設定の行（discord は「Discord の Webhook URL」が空なら 1.2.0 までの「Webhook URL」） */
+const DESTINATION_KEYS = { slack: "Webhook URL", discord: "Discord の Webhook URL", gmail: "メールの宛先", googlechat: "Google Chat の Webhook URL" };
+
+function destinationOf_(raw, target, targets) {
+  const value = checkText_(rawOf_(raw, DESTINATION_KEYS[target]));
+  if (target === "discord" && value === "" && targets.indexOf("slack") < 0) return checkText_(rawOf_(raw, "Webhook URL"));
+  return value;
+}
 
 /** 選んだ通知先の送り先（宛先・URL）が、どれも空でないか。形までは見ない（それは「設定を確かめる」） */
 function destinationsReady_(raw) {
   const targets = chosenTargets_(raw);
   if (targets.length === 0) return false;
   for (let i = 0; i < targets.length; i += 1) {
-    if (checkText_(rawOf_(raw, DESTINATION_KEYS[targets[i]])) === "") return false;
+    if (destinationOf_(raw, targets[i], targets) === "") return false;
+  }
+  return true;
+}
+
+/** 送り先の行（URL 3 つとメールの宛先）が全部空で、通知先も既定の slack のまま（初期化しただけ）か */
+function noDestination_(raw) {
+  const targets = chosenTargets_(raw);
+  if (targets.length !== 1 || targets[0] !== "slack") return false;
+  if (mailListOf(rawOf_(raw, "メールの宛先")).addresses.length > 0) return false;
+  for (const key of ["Webhook URL", "Discord の Webhook URL", "Google Chat の Webhook URL"]) {
+    if (checkText_(rawOf_(raw, key)) !== "") return false;
   }
   return true;
 }
@@ -196,13 +230,15 @@ export function collectConfigProblems(rows) {
   const targets = chosenTargets_(raw);
   const slack = targets.indexOf("slack") >= 0;
   const discord = targets.indexOf("discord") >= 0;
-  if (slack && discord) {
-    problems.push("「設定」シートの「通知先」に slack と discord は同時に書けません（「Webhook URL」の行が 1 つのため）。どちらか一方にしてください。");
-  }
+  // discord は「Discord の Webhook URL」が空で slack も選んでいなければ、1.2.0 までどおり「Webhook URL」を使う
+  const discordRow = checkText_(rawOf_(raw, "Discord の Webhook URL"));
+  const legacyDiscord = discord && !slack && discordRow === "";
+  const unset = noDestination_(raw);
+  if (unset) problems.push(NO_DESTINATION_TEXT);
 
-  // Webhook URL は slack か discord を選んだときだけ確かめる（通知先が読めないときも、これまでどおり確かめる）。
+  // Webhook URL は slack か（1.2.0 までの書き方の）discord を選んだときだけ確かめる（通知先が読めないときも、これまでどおり確かめる）。
   // URL は人に見せない鍵なので、文には出さない
-  if (slack || discord || targets.length === 0) {
+  if (!unset && (slack || legacyDiscord || targets.length === 0)) {
     const url = checkText_(rawOf_(raw, "Webhook URL"));
     if (url === "") {
       problems.push("「設定」シートの「Webhook URL」が空です。README の手順 2 で作った URL を貼ってください。");
@@ -214,8 +250,18 @@ export function collectConfigProblems(rows) {
       problems.push("「設定」シートの「Webhook URL」は Google Chat の URL です。Google Chat に送るときは、「通知先」を googlechat にし、URL は「Google Chat の Webhook URL」の行に貼ってください。");
     } else if (slack && !discord && /discord(app)?\.com\/api\/webhooks/.test(url)) {
       problems.push("「通知先」が slack ですが、「Webhook URL」は Discord の URL です。「通知先」を discord にしてください。");
-    } else if (discord && !slack && url.indexOf("hooks.slack.com") >= 0) {
+    } else if (legacyDiscord && url.indexOf("hooks.slack.com") >= 0) {
       problems.push("「通知先」が discord ですが、「Webhook URL」は Slack の URL です。「通知先」を slack にしてください。");
+    }
+  }
+
+  if (discord && !legacyDiscord) {
+    if (discordRow === "") {
+      problems.push("「設定」シートの「Discord の Webhook URL」が空です。README の手順 2 の「Discord の場合」で作った URL を貼ってください。");
+    } else if (discordRow.indexOf("https://") !== 0) {
+      problems.push("「設定」シートの「Discord の Webhook URL」は https:// で始まる URL です。前後に余分な字が入っていないかも確かめてください。");
+    } else if (discordRow.indexOf("hooks.slack.com") >= 0) {
+      problems.push("「通知先」が discord ですが、「Discord の Webhook URL」は Slack の URL です。Slack の URL は「Webhook URL」の行に貼ってください。");
     }
   }
 
@@ -255,6 +301,10 @@ export function collectConfigProblems(rows) {
   if (overdue !== undefined && failsAlone_("超過も通知する", overdue)) {
     problems.push("「設定」シートの「超過も通知する」は TRUE か FALSE にしてください（いまは「" + checkText_(overdue) + "」）。");
   }
+  const limit = rawOf_(raw, "超過を知らせる上限日数");
+  if (limit !== undefined && failsAlone_("超過を知らせる上限日数", limit)) {
+    problems.push("「設定」シートの「超過を知らせる上限日数」は 1 以上の整数で書いてください（いまは「" + checkText_(limit) + "」）。例: 30");
+  }
 
   const template = checkText_(rawOf_(raw, "文面テンプレ"));
   const seen = [];
@@ -274,7 +324,7 @@ export function collectConfigProblems(rows) {
 export function findProblems(snapshot) {
   const problems = [];
   if (snapshot.timeZone !== "Asia/Tokyo") problems.push(timeZoneNote_(snapshot.timeZone));
-  const settings = snapshot.sheets[SETTINGS_TAB];
+  const settings = settingsOf_(snapshot);
   if (settings === undefined) {
     problems.push("「設定」シートがありません。メニュー「期限アラート」→「初期化」を実行してください。");
     return problems;
@@ -317,8 +367,9 @@ export function findProblems(snapshot) {
 /** 誤りではないが知っておくとよいこと（「ご参考:」の下に並べる） */
 export function checkNotes(snapshot) {
   const notes = [];
-  const settings = snapshot.sheets[SETTINGS_TAB];
-  if (settings === undefined) return notes;
+  const sheetRows = snapshot.sheets[SETTINGS_TAB];
+  if (sheetRows === undefined) return notes;
+  const settings = settingsOf_(snapshot);
   // 既定値が空の行（送り先）は、選んだ通知先で要るときに「直すところ」で出す
   const missing = missingRowsOf_(settings).filter((row) => row[1] !== "");
   if (missing.length > 0) {
@@ -333,10 +384,26 @@ export function checkNotes(snapshot) {
   if (checkText_(rawOf_(raw, "Google Chat の Webhook URL")) !== "" && chosenTargets_(raw).indexOf("googlechat") < 0) {
     notes.push("「Google Chat の Webhook URL」が書いてありますが、「通知先」に googlechat が無いため、Google Chat には送りません。Google Chat でも受け取るときは「通知先」に googlechat を足してください（例: gmail,googlechat）。");
   }
+  // 見本の形だけの URL は鍵ではないので数えない
+  const plain = secretsInSheet(sheetRows).filter((found) => found.value.indexOf(SAMPLE_URL_MARK) < 0);
+  if (plain.length > 0) {
+    notes.push(
+      plain.map((found) => "「" + found.key + "」").join("") + "の URL がシートにそのまま書いてあります。シートを見られる人は誰でもそこへ投稿できます。メニュー「鍵を保存」で、URL をスクリプト プロパティに移せます。",
+    );
+  }
   const config = readableConfig_(settings);
   const values = snapshot.sheets[config.sheetName];
   if (values !== undefined && values.length > 0 && missingHeaders(values[0], [config.columns.status]).length > 0) {
     notes.push("「" + config.sheetName + "」シートに「" + config.columns.status + "」の列がないため、完了した予定も知らせます。");
+  }
+  if (config.notifyOverdue && values !== undefined && values.length > 0 && missingHeaders(values[0], [config.columns.subject, config.columns.due]).length === 0) {
+    const limit = overdueLimitOf(config);
+    const stale = parseItems(values, config).items.filter((item) => diffDays(snapshot.today, item.dueKey) < -limit).length;
+    if (stale > 0) {
+      notes.push(
+        "「" + config.sheetName + "」シートに、期限を " + limit + " 日より前に過ぎた予定が " + stale + " 件あります。毎朝の通知には出しません。済んでいれば「" + config.columns.status + "」を「" + config.doneValues[0] + "」に、まだなら期限を書き直してください。",
+      );
+    }
   }
   if (snapshot.hasTrigger === false) notes.push("毎朝 8 時の実行はまだ作っていません。メニュー「毎朝 8 時に動かす」を押してください。");
   return notes;
@@ -350,12 +417,12 @@ function dayLabel_(bucket) {
 
 /** 直すところが無いときの「これから起きること」。findProblems が 0 件のときだけ呼ぶ */
 export function summaryLines(snapshot) {
-  const config = parseConfig(snapshot.sheets[SETTINGS_TAB]);
+  const config = parseConfig(settingsOf_(snapshot));
   const values = snapshot.sheets[config.sheetName];
   const parsed = parseItems(values, config);
 
   const days = [];
-  if (config.notifyOverdue) days.push("期限を過ぎたもの");
+  if (config.notifyOverdue) days.push("期限を過ぎたもの（" + config.overdueLimit + " 日まで）");
   for (let i = 0; i < config.thresholds.length; i += 1) days.push(config.thresholds[i] === 0 ? "当日" : config.thresholds[i] + " 日前");
 
   const header = values[0].map(checkText_);

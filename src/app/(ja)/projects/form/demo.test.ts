@@ -24,7 +24,8 @@ import {
 
 /** README の「届くもの」（見本 太郎 さんの 1 件）を、写しの関数で作り直せること */
 describe("フォーム受付の写し（キットの README どおりに動く）", () => {
-  const config = parseConfig([["項目", "値"], ...DEFAULT_ROWS.map(([k, v]) => [k, k === "Slack Webhook URL" ? "https://hooks.slack.com/services/T0/B0/x" : v])]);
+  // 1.1.3 で既定の通知先が mail になったので、宛先（連絡先メール）も見本の値で埋める
+  const config = parseConfig([["項目", "値"], ...DEFAULT_ROWS.map(([k, v]) => [k, k === "Slack Webhook URL" ? "https://hooks.slack.com/services/T0/B0/x" : k === "連絡先メール" ? "shop@example.com" : v])]);
   const fields = { name: "見本 太郎", email: "taro@example.com", message: "料金と納期を知りたいです。" };
   const order = ["name", "email", "message"];
   const context = { receipt: "20260914-001", fields, order, source: "https://example.com/contact" };

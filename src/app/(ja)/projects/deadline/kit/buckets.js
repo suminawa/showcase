@@ -15,6 +15,11 @@ export function headingOf(bucket) {
   return days === 0 ? "■ 今日が期限" : "■ " + days + " 日後が期限";
 }
 
+/** 超過を知らせる上限日数。設定に無ければ 30（parseConfig を通さない呼び出しでも同じ既定にする） */
+export function overdueLimitOf(config) {
+  return typeof config.overdueLimit === "number" ? config.overdueLimit : 30;
+}
+
 /** items: parseItems の items。todayKeyValue は "YYYY-MM-DD"。返り値は空の節を含まない */
 export function collectSections(items, config, todayKeyValue) {
   const order = [];
@@ -31,6 +36,8 @@ export function collectSections(items, config, todayKeyValue) {
   for (let i = 0; i < source.length; i += 1) {
     const item = source[i];
     const daysLeft = diffDays(todayKeyValue, item.dueKey);
+    // 上限日数より前に過ぎたものは知らせない（放っておいた超過で 1 通が膨らまないように。「設定を確かめる」が件数を出す）
+    if (daysLeft < -overdueLimitOf(config)) continue;
     const bucket = daysLeft < 0 ? OVERDUE : "d" + daysLeft;
     // しきい値に無い日数、または超過を通知しない設定のときは捨てる
     if (!Object.prototype.hasOwnProperty.call(collected, bucket)) continue;

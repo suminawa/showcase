@@ -5,6 +5,7 @@
  * 突き合わせて、満席かどうかを決める。枠シートに無い日付・時間帯は「枠なし」として受け付けない。
  */
 import { timeText, toDateKey } from "./dates.js";
+import { NOTIFY_HEADER, NOTIFY_LIMITED } from "./rows.js";
 
 export const DATE_HEADER = "日付";
 export const SLOT_HEADER = "時間帯";
@@ -75,7 +76,10 @@ export function parseSlots(values) {
   return slots;
 }
 
-/** 受付シートの 2 次元配列から、日付 × 時間帯ごとの受付数を数える */
+/**
+ * 受付シートの 2 次元配列から、日付 × 時間帯ごとの受付数を数える。
+ * 回数の上限で止めた行（「通知」が NOTIFY_LIMITED）は数えない。機械による送信で枠を埋められないように
+ */
 export function countReservations(values, config) {
   const counts = {};
   const rows = Array.isArray(values) ? values : [];
@@ -85,9 +89,11 @@ export function countReservations(values, config) {
   const dateAt = headerIndexOf_(header, config.dateField);
   const slotAt = headerIndexOf_(header, config.slotField);
   if (dateAt < 0 || slotAt < 0) return counts;
+  const notifyAt = headerIndexOf_(header, NOTIFY_HEADER);
 
   for (let i = 1; i < rows.length; i += 1) {
     const row = Array.isArray(rows[i]) ? rows[i] : [];
+    if (notifyAt >= 0 && slotText_(row[notifyAt]) === NOTIFY_LIMITED) continue;
     const dateKey = toDateKey(row[dateAt]);
     const slot = normalizeSlot(row[slotAt]);
     if (dateKey === null || slot === "") continue;
