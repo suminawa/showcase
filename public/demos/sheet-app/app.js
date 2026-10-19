@@ -103,6 +103,21 @@ function formatStamp(value) {
   );
 }
 
+/** 旧版の秒表記を読み、同じ時計値でも前回より大きい更新日時を返す。比較と保存はロック内で行う。 */
+function nextUpdateStamp(now, previous) {
+  const current = now.getTime();
+  if (!Number.isFinite(current)) throw new Error("更新日時を読めません");
+  const match = String(previous || "").match(/^(\d{4})-(\d{2})-(\d{2}) (\d{2}):(\d{2}):(\d{2})(?:\.(\d{3}))?$/);
+  let before = -Infinity;
+  if (match) {
+    const candidate = Date.UTC(Number(match[1]), Number(match[2]) - 1, Number(match[3]), Number(match[4]), Number(match[5]), Number(match[6]), Number(match[7] || 0)) - JST_OFFSET_MINUTES * 60000;
+    const stamp = new Date(candidate);
+    if (Number.isFinite(candidate) && formatStamp(stamp) === String(previous).slice(0, 19)) before = candidate;
+  }
+  const next = new Date(Math.max(current, before + 1));
+  return formatStamp(next) + "." + String(next.getUTCMilliseconds()).padStart(3, "0");
+}
+
 /** "2026-09-16" → "20260916"。ID の前半に使う */
 function compactDate(dateKey) {
   return String(dateKey).replace(/-/g, "");
@@ -344,8 +359,9 @@ function isLineUserId(value) {
 }
 
 /**
- * LINE の webhook の本文から、友だち追加（follow）とブロック（unfollow）だけを取り出す。
- * ほかの出来事（message など）・グループ・形の違う ID は捨てる。本文が JSON のオブジェクトでなければ error に文
+ * LINE の webhook の本文から、友だち追加（follow）・ブロック（unfollow）・その人からのメッセージ（message。webhook を
+ * 設定する前から友だちだった人を台帳に入れるため、follow と同じに扱う。同じ人が続けて送っても 1 つにまとめる）を取り出す。
+ * ほかの出来事・グループ・形の違う ID は捨てる。本文が JSON のオブジェクトでなければ error に文
  */
 function parseWebhook(body) {
   const broken = { events: [], error: "LINE からの本文を JSON として読めませんでした" };
@@ -361,10 +377,13 @@ function parseWebhook(body) {
   for (let i = 0; i < list.length; i += 1) {
     const event = list[i];
     if (event === null || typeof event !== "object") continue;
-    if (event.type !== "follow" && event.type !== "unfollow") continue;
+    if (event.type !== "follow" && event.type !== "unfollow" && event.type !== "message") continue;
     const source = event.source && typeof event.source === "object" ? event.source : {};
     if (source.type !== "user" || !isLineUserId(source.userId)) continue;
-    events.push({ type: event.type, userId: String(source.userId).trim() });
+    const type = event.type === "message" ? "follow" : event.type;
+    const userId = String(source.userId).trim();
+    if (type === "follow" && events.some((e) => e.type === "follow" && e.userId === userId)) continue;
+    events.push({ type: type, userId: userId });
   }
   return { events: events, error: "" };
 }
@@ -1251,6 +1270,11 @@ function normalizeKey_(value) {
   return String(value === null || value === undefined ? "" : value).replace(/\s+/g, "").toLowerCase();
 }
 
+/** 設定の項目名を parseSettings と同じそろえ方（空白を落とし、小文字にする）にする。初期化が足りない行を探すのに使う */
+function settingKeyOf(value) {
+  return normalizeKey_(value);
+}
+
 function integer_(value, min, max) {
   // 全角で打たれた「１００」も数として読む
   const n = Number(toHalfWidth(textOf(value)));
@@ -1261,13 +1285,14 @@ function integer_(value, min, max) {
 /** 通知先に書いた宛先の行が空なら、どの行を埋めればよいかを言う（フォーム受付キットの ConfigError と同じ文） */
 function requireFor_(errors, targets, target, value, label) {
   if (targets.indexOf(target) < 0 || value !== "") return;
-  errors.push("「通知先」に " + target + " がありますが、「" + label + "」が空です。設定シートのその行を埋めてください。");
+  const location = label === "LINE 送信先 ID" ? "設定シートのその行を埋めてください。" : "Apps Scriptのスクリプトプロパティへ接続情報を設定してください。";
+  errors.push("「通知先」に " + target + " がありますが、「" + label + "」が空です。" + location);
 }
 
 /** Webhook の URL は https:// から。URL は鍵なので、誤りの文には出さない */
 function requireHttps_(errors, targets, target, value, label) {
   if (targets.indexOf(target) < 0 || value === "" || value.indexOf("https://") === 0) return;
-  errors.push("「" + label + "」は https:// で始まる URL です。設定シートのその行を確かめてください。");
+  errors.push("「" + label + "」は https:// で始まる URL です。Apps Scriptのスクリプトプロパティを確かめてください。");
 }
 
 /** rows は「設定」シートの 2 次元配列（1 行目の見出しはあってもなくてもよい） */
@@ -1405,7 +1430,7 @@ function settingsSummary(settings, tables) {
   if (withLine.length === 0) {
     lines.push("お客さまへの LINE 送信: 定義に LINE の列がないため使っていません");
   } else if (settings.lineToken === "") {
-    lines.push("お客さまへの LINE 送信: 定義に LINE の列がありますが、設定「LINE チャネルアクセストークン」が空のため使えません。使うときは設定シートのその行を埋めてください");
+    lines.push("お客さまへの LINE 送信: 定義に LINE の列がありますが、設定「LINE チャネルアクセストークン」が空のため使えません。Apps Scriptのスクリプトプロパティへ接続情報を設定してください");
   } else {
     lines.push("お客さまへの LINE 送信: 使えます（" + withLine.map((table) => table.name + "「" + lineColumn(table).name + "」").join("、") + "）");
   }
@@ -2005,13 +2030,16 @@ function csvBox_(state) {
 
 function renderApp(state) {
   if (!state.ready) return '<div class="sa-shell"><p class="sa-empty">読み込んでいます…</p></div>';
+  // 版はお問い合わせのときに確かめられるよう、画面の下に小さく出す（見本は版を持たないので出さない）
+  const foot = state.version ? '<footer class="sa-foot">v' + escapeHtml(state.version) + "</footer>" : "";
   const head = '<header class="sa-head"><h1>' + escapeHtml(state.appName) + '</h1><div class="sa-user">' + escapeHtml(state.user.email || "") + (state.user.canEdit ? "" : ' <span class="sa-badge">閲覧のみ</span>') + "</div></header>";
   if (state.bootErrors.length > 0) {
-    return '<div class="sa-shell">' + head + '<div class="sa-boot-errors" role="alert"><p>設定に直すところがあります。スプレッドシートの「定義」と「設定」を直してから、この画面を読み込み直してください。</p><ul>' + state.bootErrors.map((e) => "<li>" + escapeHtml(e) + "</li>").join("") + "</ul></div></div>";
+    return '<div class="sa-shell">' + head + '<div class="sa-boot-errors" role="alert"><p>設定に直すところがあります。スプレッドシートの「定義」と「設定」を直してから、この画面を読み込み直してください。</p><ul>' + state.bootErrors.map((e) => "<li>" + escapeHtml(e) + "</li>").join("") + "</ul></div>" + foot + "</div>";
   }
   const error = state.error ? '<div class="sa-alert" role="alert">' + escapeHtml(state.error) + ' <button type="button" class="sa-chip-x" data-action="dismiss-error" aria-label="閉じる">×</button></div>' : "";
   const notice = state.notice ? '<div class="sa-notice" role="status">' + escapeHtml(state.notice) + "</div>" : "";
-  return '<div class="sa-shell">' + head + renderTabs(state.tables, state.current) + renderToolbar(state) + error + notice + '<main class="sa-main">' + renderList(state) + "</main>" + csvBox_(state) + renderDrawer(state) + "</div>";
+  const notices = Array.isArray(state.notices) && state.notices.length > 0 ? '<div class="sa-notices" role="status"><p>通知の設定に直すところがあります（画面の操作はそのまま使えます）。</p><ul>' + state.notices.map((e) => "<li>" + escapeHtml(e) + "</li>").join("") + "</ul></div>" : "";
+  return '<div class="sa-shell">' + head + renderTabs(state.tables, state.current) + renderToolbar(state) + error + notice + notices + '<main class="sa-main">' + renderList(state) + "</main>" + csvBox_(state) + renderDrawer(state) + foot + "</div>";
 }
 
 // ===== state.js =====
@@ -2035,6 +2063,7 @@ function initialState() {
   return {
     ready: false,
     appName: "",
+    version: "",
     tables: [],
     user: { email: "", canEdit: false },
     ai: false,
@@ -2042,6 +2071,7 @@ function initialState() {
     dateFormat: "yyyy-MM-dd",
     today: "",
     bootErrors: [],
+    notices: [],
     current: "",
     q: "",
     filters: [],
@@ -2103,6 +2133,7 @@ function reduce(state, action) {
     return assign_(state, {
       ready: true,
       appName: data.appName || "業務アプリ",
+      version: typeof data.version === "string" ? data.version : "",
       tables: tables,
       user: data.user || { email: "", canEdit: false },
       ai: data.ai === true,
@@ -2110,6 +2141,7 @@ function reduce(state, action) {
       dateFormat: data.dateFormat || "yyyy-MM-dd",
       today: data.today || "",
       bootErrors: Array.isArray(data.errors) ? data.errors : [],
+      notices: Array.isArray(data.notices) ? data.notices : [],
       current: tables.length > 0 ? tables[0].name : "",
       line: normalizeLine_(data.line),
     });
@@ -2285,6 +2317,7 @@ function memoryApi(templateName) {
       appName: "見本: " + name,
       tables: tables,
       errors: [],
+      notices: [],
       user: { email: DEMO_EMAIL, canEdit: true },
       ai: true,
       pageSize: DEMO_PAGE_SIZE,
@@ -2336,13 +2369,14 @@ function memoryApi(templateName) {
       checkRefs(table, checked.values);
       const found = find(table, id);
       if (textOf(found.row.更新日時) !== textOf(seenUpdatedAt)) throw new Error("ほかの方が先に更新しました。いちど閉じて、読み直してください");
-      const stamp = formatStamp(new Date(Date.now() + 1000));
+      const stamp = nextUpdateStamp(new Date(), found.row.更新日時);
       store[table.name][found.index] = Object.assign({}, found.row, checked.values, { 更新日時: stamp, 更新者: DEMO_EMAIL });
       return { updatedAt: stamp };
     }),
-    remove: wrap((tableName, id) => {
+    remove: wrap((tableName, id, seenUpdatedAt) => {
       const table = tableOf(tableName);
       const found = find(table, id);
+      if (textOf(found.row.更新日時) !== textOf(seenUpdatedAt)) throw new Error("ほかの方が先に更新しました。削除はしていません。いちど閉じて、読み直してから削除してください");
       store[table.name].splice(found.index, 1);
       return { ok: true };
     }),
@@ -2582,7 +2616,7 @@ function mountSheetApp(root, api) {
     if (!view || view.kind !== "detail") return;
     if (!window.confirm("この 1 件を削除します。よろしいですか？\n削除した行は _ごみ箱 シートに残ります")) return;
     api
-      .remove(state.current, view.id)
+      .remove(state.current, view.id, view.row ? view.row.更新日時 : "")
       .then(() => {
         closeView();
         dispatch({ type: "notice", message: "削除しました" });
