@@ -128,6 +128,7 @@
   letter-spacing: 0.03em;
   font-feature-settings: "palt" 1;
   word-break: auto-phrase;
+  overflow-wrap: anywhere; /* 1 語の題（「スプレッドシート業務アプリ」）が 375px で行をはみ出さないように */
   text-wrap: balance;
 }
 
@@ -139,6 +140,7 @@
   color: var(--m-sumi-2);
   text-wrap: pretty;
   word-break: auto-phrase;
+  overflow-wrap: anywhere;
 }
 
 @media (min-width: 1024px) {
