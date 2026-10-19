@@ -1,0 +1,126 @@
+/*
+ * RAG 評価ハーネスの紙の札（レポートの頭の写し）。地は白のセル、縁はマス目の線。
+ * 赤はレポートの「悪くなった」と同じ色（--rag-alert。キットの report/html.ts の --alert）で、札の中の写しにだけ使う。
+ */
+
+.sign {
+  --rag-alert: #b3261e;
+  display: grid;
+  gap: 1px;
+  margin: 0;
+  background: var(--m-grid);
+  border: 1px solid var(--m-grid);
+}
+
+@media (min-width: 768px) {
+  .sign {
+    grid-template-columns: minmax(0, 2fr) minmax(0, 3fr);
+  }
+}
+
+.score,
+.regressed,
+.foot {
+  display: grid;
+  gap: 6px;
+  align-content: start;
+  padding: 20px;
+  background: var(--m-cell);
+  min-width: 0;
+}
+
+.regressed {
+  /* 白のセルの内側に、レポートと同じ赤い枠 */
+  outline: 2px solid var(--rag-alert);
+  outline-offset: -2px;
+}
+
+.foot {
+  grid-column: 1 / -1;
+  gap: 4px;
+}
+
+.label {
+  font-size: 0.8125rem;
+  letter-spacing: 0.04em;
+  color: var(--m-sumi-3);
+}
+
+.big {
+  font-size: clamp(2rem, 1.5rem + 2vw, 3rem);
+  font-weight: 600;
+  line-height: 1.15;
+  font-variant-numeric: tabular-nums;
+  color: var(--m-sumi);
+}
+
+.delta {
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: var(--rag-alert);
+}
+
+.question {
+  margin: 0;
+  font-size: 1.0625rem;
+  font-weight: 600;
+  line-height: 1.6;
+  color: var(--m-sumi);
+}
+
+.qid {
+  margin-right: 0.75em;
+  font-family: ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+  font-weight: 400;
+  color: var(--m-sumi-3);
+}
+
+.verdict {
+  margin: 0;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: var(--rag-alert);
+}
+
+.open {
+  justify-self: start;
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  font-size: 0.9375rem;
+  color: var(--m-sumi);
+  text-decoration: underline;
+  text-underline-offset: 0.3em;
+}
+
+.open:focus-visible,
+.shot a:focus-visible {
+  outline: 2px solid var(--m-shu);
+  outline-offset: 2px;
+}
+
+.intro {
+  margin-top: 16px;
+}
+
+.shot {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+}
+
+.shot img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border: 1px solid var(--m-grid);
+}
+
+.request {
+  margin: 0;
+  padding: 0 0 0 16px;
+  border-left: 2px solid var(--m-grid-strong);
+  font-size: 0.9375rem;
+  line-height: 1.85;
+  color: var(--m-sumi-2);
+}
