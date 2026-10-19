@@ -250,7 +250,8 @@ export const projects: Project[] = [
     category: "kits",
     // この紙の上では誰でも無料で使えるので、道具の一覧にも並ぶ
     alsoIn: "works",
-    sale: { status: "onsale", price: 2980 },
+    // 設置の代行は /contact の「キットの設置をお任せ」と同じ額
+    sale: { status: "onsale", price: 2980, service: { price: 30000 } },
   },
   {
     slug: "deadline",
@@ -274,7 +275,8 @@ export const projects: Project[] = [
     description: "マス目を塗って間取りを描き、家具を置いて 3D で確かめられます。",
     tags: ["React Three Fiber", "TypeScript"],
     category: "kits",
-    sale: { status: "onsale", price: 9800 },
+    // 設置の代行は /contact の「埋め込み部品の設置（AI 案内窓口・間取り・3D の商品ページ）」と同じ額
+    sale: { status: "onsale", price: 9800, service: { price: 60000 } },
   },
   {
     slug: "lp-pack",
@@ -282,8 +284,8 @@ export const projects: Project[] = [
     description: "見本サイト 6 本の一式です。文言と色を差し替えて使えます。",
     tags: ["Next.js", "TypeScript"],
     category: "kits",
-    // 中身は見本サイトそのもの。作品ページから 6 本と /sites へ渡す
-    sale: { status: "onsale", price: 6980 },
+    // 中身は見本サイトそのもの。作品ページから 6 本と /sites へ渡す。制作の代行は /contact の「サイト・LP の制作」と同じ額
+    sale: { status: "onsale", price: 6980, service: { price: 150000 } },
   },
   {
     slug: "ai-concierge",

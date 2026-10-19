@@ -20,7 +20,8 @@
   --d-surface: #fffdf8; /* 入力欄・品書きの面。墨の字で 16.0:1 */
   --d-on-brand: #f7f2e8; /* 深緑の上の文字。8.6:1 */
   --d-input-line: #7d7466; /* 入力欄の枠線。地の色で 3:1 以上 */
-  --d-serif: var(--d-mincho), "Hiragino Mincho ProN", "Yu Mincho", serif;
+  /* 明朝は Shippori Mincho 600。根の文書が描画を止めない形で読む 1 書体・1 太さを使い、読み込むまでは端末の明朝で出す（LCP。2026-10-20） */
+  --d-serif: "Shippori Mincho", "Hiragino Mincho ProN", "Yu Mincho", serif;
 
   min-height: 100vh;
   background: var(--d-bg);
@@ -123,7 +124,7 @@
 .tagline {
   margin: 1.5rem 0 0;
   font-family: var(--d-serif);
-  font-weight: 500;
+  font-weight: 600; /* 読む明朝は 600 の 1 本だけ */
   font-size: clamp(1.125rem, 3.4vw, 1.5rem);
   line-height: 1.8;
 }
@@ -266,7 +267,7 @@
   display: block;
   margin-bottom: 0.75rem;
   font-family: var(--d-serif);
-  font-weight: 500;
+  font-weight: 600; /* 読む明朝は 600 の 1 本だけ */
   font-size: 1.25rem;
   letter-spacing: 0.08em;
   color: var(--d-brand);

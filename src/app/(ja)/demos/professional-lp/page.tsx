@@ -5,7 +5,6 @@
  * 住所・電話番号・人名・実在の地名は書かない（連絡先は結びの hello@suminawa.dev だけ）。
  */
 import type { Metadata } from "next";
-import { Shippori_Mincho } from "next/font/google";
 
 import { DemoFooter } from "@/components/demos/DemoFooter";
 import { DemoForm, type DemoField } from "@/components/demos/DemoForm";
@@ -14,16 +13,6 @@ import { HeroRules } from "@/components/demos/professional/HeroRules";
 
 import s from "./professional.module.css";
 import { SITE_NAME } from "@/lib/site";
-
-/** 見出しの明朝。本文は layout.tsx が読んでいる Noto Sans JP（var(--font-sans)）のまま。
-    CJK は片が多いので preload: false（先読みすると 3.7 MB になる） */
-const mincho = Shippori_Mincho({
-  subsets: ["latin"],
-  weight: ["500", "600"],
-  display: "swap",
-  variable: "--d-mincho",
-  preload: false,
-});
 
 const BRAND = "霜月会計事務所";
 
@@ -192,7 +181,7 @@ const CONTACT_FIELDS: DemoField[] = [
 
 export default function ProfessionalLpPage() {
   return (
-    <div className={`${s.page} ${mincho.variable}`}>
+    <div className={s.page}>
       <header className={s.header}>
         <div className={`${s.container} ${s.headerRow}`}>
           <a href="#top" className={s.brand}>

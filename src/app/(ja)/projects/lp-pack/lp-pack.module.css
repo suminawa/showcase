@@ -1,0 +1,74 @@
+/*
+ * 業種別 LP テンプレ パックの 1 画面目: 見本 6 本の実画面を並べる帯（方眼のセルの範囲。DESIGN.md）。
+ * スマホは 3 列 × 2 段、1024px から 6 列 × 1 段。押すとその見本（/demos/*）が開く。
+ */
+
+.samples {
+  display: grid;
+  gap: 8px;
+  min-width: 0;
+}
+
+.strip {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  background: var(--m-grid);
+  border: 1px solid var(--m-grid);
+}
+
+@media (min-width: 1024px) {
+  .strip {
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+  }
+}
+
+.item {
+  min-width: 0;
+  background: var(--m-cell);
+}
+
+.item a {
+  display: grid;
+  gap: 6px;
+  height: 100%;
+  padding: 6px 6px 8px;
+  color: var(--m-sumi);
+  text-decoration: none;
+}
+
+@media (min-width: 1024px) {
+  .item a {
+    gap: 8px;
+    padding: 10px 10px 12px;
+  }
+}
+
+.item img {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 4 / 3;
+  border: 1px solid var(--m-grid);
+}
+
+.label {
+  font-size: 0.75rem;
+  line-height: 1.45;
+  letter-spacing: 0.02em;
+  overflow-wrap: anywhere;
+}
+
+@media (min-width: 1024px) {
+  .label {
+    font-size: 0.875rem;
+  }
+}
+
+.all {
+  margin: 0;
+  font-size: 0.9375rem;
+}

@@ -19,7 +19,8 @@
   --d-surface: #ffffff; /* 入力欄・カードの面 */
   --d-on-brand: #ffffff; /* 深い緑の上の文字。7.9:1 */
   --d-input-line: #7d8a83; /* 入力欄の枠線。白地で 3.6:1（WCAG 1.4.11） */
-  --d-serif: var(--d-mincho), "Hiragino Mincho ProN", "Yu Mincho", serif;
+  /* 明朝は Shippori Mincho 600。根の文書が描画を止めない形で読む 1 書体・1 太さを使い、読み込むまでは端末の明朝で出す（LCP。2026-10-20） */
+  --d-serif: "Shippori Mincho", "Hiragino Mincho ProN", "Yu Mincho", serif;
 
   min-height: 100vh;
   background: var(--d-bg);
@@ -59,8 +60,8 @@
   top: 0;
   z-index: 10;
   border-bottom: 1px solid var(--d-line);
-  background: color-mix(in srgb, var(--d-surface) 90%, transparent);
-  backdrop-filter: blur(8px);
+  /* 地は不透明に。半透明（88〜90%）だと、下を流れる節の色でナビの字の比が変わる（2026-10-20） */
+  background: var(--d-surface);
 }
 
 .headerRow {
@@ -87,6 +88,9 @@
 }
 
 .nav a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px; /* 触れる大きさ */
   color: var(--d-muted);
   text-decoration: none;
 }

@@ -43,3 +43,15 @@
     sans-serif;
   line-height: 1.8;
 }
+
+/* お求めいただく版の写し（1 枚）。セルの中に実画面を置き、下に一行の説明 */
+.figure {
+  margin: 8px 0 0;
+}
+
+.figure img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border: 1px solid var(--m-grid);
+}
