@@ -6,7 +6,7 @@
  *   KitBuyBar   (a) スマホで画面の下に留める帯: 値段と 2 つの押す先（ProjectShell の bar に渡す）
  *   KitAudience (b) 向いている方／向いていない方の 2 列
  *   KitCompare  (c) 4 行の比較表（無料・標準の機能・似たサービス・このキット）と「無料をおすすめ」の一行
- *   KitPricing  (d) 設置込みの一本の値段（キット ＋ 設置代行 ＝ 総額）。設置代行は projects.ts の sale.service.price（税込）
+ *   KitPricing  (d) 設置込みの一本の値段（キット ＋ 設置代行 ＝ 総額）。設置代行は projects.ts の sale.service.price（税別）
  *   KitReceipt  (e) 領収書・インボイスの一節（文は全キット共通。ここにだけ書く）
  *   KitProof    (f) 証拠の帯（テストの件数・月額など、購入者がいなくても確かめられる数字）
  *   KitSteps    (g) つまずきやすいところの手順（「Google で確認されていません」の画面など。文だけ。画像は後日）
@@ -83,7 +83,7 @@ const T = {
     kitOnly: "キットだけ（ご自身で貼る）",
     withSetup: "設置まで頼む",
     total: (total: string) => `合計 ${total}〜（税込）`,
-    breakdown: (kit: string, svc: string) => `キット ${kit} ＋ 設置代行 ${svc}〜（どちらも税込）`,
+    breakdown: (kit: string, svcIn: string, svc: string) => `キット ${kit} ＋ 設置代行 ${svcIn}〜（税別 ${svc}〜）`,
     ask: "設置を頼む（ご相談の窓口へ）",
     freeRow: "無料版",
     freeValue: "0 円",
@@ -114,7 +114,7 @@ const T = {
     kitOnly: "Kit only (you install it)",
     withSetup: "Setup done for you",
     total: (total: string) => `From ${total} in total (tax incl.)`,
-    breakdown: (kit: string, svc: string) => `Kit ${kit} + setup from ${svc} (both tax included)`,
+    breakdown: (kit: string, svcIn: string, svc: string) => `Kit ${kit} + setup from ${svcIn} (${svc} before tax)`,
     ask: "Request setup (contact page)",
     freeRow: "Free version",
     freeValue: "¥0",
@@ -145,7 +145,7 @@ const T = {
     kitOnly: "Kit seul (vous l’installez)",
     withSetup: "Installation comprise",
     total: (total: string) => `À partir de ${total} au total (TTC)`,
-    breakdown: (kit: string, svc: string) => `Kit ${kit} + installation à partir de ${svc} (TTC)`,
+    breakdown: (kit: string, svcIn: string, svc: string) => `Kit ${kit} + installation à partir de ${svcIn} (${svc} HT)`,
     ask: "Demander l’installation (page de contact)",
     freeRow: "Version gratuite",
     freeValue: "0 ¥",
@@ -157,15 +157,18 @@ const T = {
 
 /* ---- 値段 --------------------------------------------------------------------- */
 
+/** 設置代行の税込（税別の 10% を足す。円未満なし） */
+const withTax = (price: number) => Math.round((price * 110) / 100);
+
 /**
  * キットのいまの値段と、設置込みの総額（設置代行の値段があるキットだけ）。
- * 総額 ＝ キット（税込）＋ 設置代行（税込 sale.service.price。/contact の品書きと同じ額で、請求書は税込の額で出す）
+ * 総額 ＝ キット（税込）＋ 設置代行（税別 sale.service.price に 10%）
  */
 export function kitTotals(slug: string, now?: Date) {
   const kit = projectPriceNow(slug, now).price;
   const service = projects.find((x) => x.slug === slug)?.sale?.service?.price;
   if (service == null) return { kit };
-  return { kit, service, total: kit + service };
+  return { kit, service, serviceInTax: withTax(service), total: kit + withTax(service) };
 }
 
 const from = (lang: Lang, slug: string) => localePath(lang, `/projects/${slug}`);
@@ -340,7 +343,7 @@ export function KitPricing({ lang, slug, linkKey }: { lang: Lang; slug: string; 
             <dt>{t.withSetup}</dt>
             <dd>
               <span className={p.figure}>{t.total(money(lang, v.total))}</span>
-              <span className={p.breakdown}>{t.breakdown(money(lang, v.kit), money(lang, v.service))}</span>
+              <span className={p.breakdown}>{t.breakdown(money(lang, v.kit), money(lang, v.serviceInTax), money(lang, v.service))}</span>
               <Link href={hrefFor(lang, "/contact")} className={u.linkLine}>
                 {t.ask}
               </Link>
