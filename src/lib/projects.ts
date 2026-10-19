@@ -277,8 +277,8 @@ export const projects: Project[] = [
     description: "見本サイト 6 本の一式です。文言と色を差し替えて使えます。",
     tags: ["Next.js", "TypeScript"],
     category: "kits",
-    // 中身は見本サイトそのもの。作品ページから 6 本と /sites へ渡す
-    sale: { status: "onsale", price: 6980 },
+    // 中身は見本サイトそのもの。作品ページから 6 本と /sites へ渡す。制作の代行は /contact の「サイト・LP の制作」と同じ額
+    sale: { status: "onsale", price: 6980, service: { price: 150000 } },
   },
   {
     slug: "ai-concierge",
