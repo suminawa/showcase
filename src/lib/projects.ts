@@ -319,7 +319,7 @@ export const projects: Project[] = [
     tags: ["Google Apps Script", "Claude"],
     category: "kits",
     // 定価。発売記念の値と最終日は src/lib/prices.ts の表が持ち、一覧・トップ・作品ページの札はそこから出す
-    sale: { status: "onsale", price: 5980 },
+    sale: { status: "onsale", price: 5980, service: { price: 30000 } },
   },
   {
     slug: "line-concierge",
