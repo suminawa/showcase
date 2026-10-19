@@ -371,7 +371,7 @@ export const projects: Project[] = [
     tags: ["GAS", "Google Forms", "Claude"],
     category: "kits",
     // 2026-10-01 発売。1 つの値段（記念価格なし）。スプレッドシートの中で動くので、作品ページに動く見本は置かない
-    sale: { status: "onsale", price: 7980 },
+    sale: { status: "onsale", price: 7980, service: { price: 30000 } },
   },
   {
     slug: "rag-eval-harness",
