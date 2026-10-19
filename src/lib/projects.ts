@@ -286,7 +286,8 @@ export const projects: Project[] = [
     description: "自社の文書だけを根拠に、サイトの上で質問に答える窓を置けます。",
     tags: ["Claude API", "Next.js"],
     category: "kits",
-    sale: { status: "onsale", price: 12800 },
+    // 設置代行は /contact の品書きの「埋め込み部品の設置（AI 案内窓口・…）」（EMBED_SERVICE）と同じ額
+    sale: { status: "onsale", price: 12800, service: { price: 60000 } },
   },
   {
     slug: "doc-reader",

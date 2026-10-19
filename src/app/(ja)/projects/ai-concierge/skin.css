@@ -72,3 +72,20 @@
   background: color-mix(in srgb, var(--ryoushi-sumi) 8%, transparent);
   color: var(--ryoushi-sumi);
 }
+
+/*
+ * 窓を紙の上の一枚の製品として見せる（2026-10-20。見直しのデザイナー役「窓が製品に見えない」）。
+ * 方眼の Two Materials Rule: 白いセルにマス目の縁。角・影は付けない
+ */
+#suminawa-concierge {
+  background: var(--m-cell);
+  border: 1px solid var(--m-grid);
+  padding: 4px 16px 8px;
+  min-width: 0;
+}
+
+@media (min-width: 1024px) {
+  #suminawa-concierge {
+    padding: 8px 24px 16px;
+  }
+}
