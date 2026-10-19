@@ -16,7 +16,7 @@ const ProductConfigurator = dynamic(
   { ssr: false, loading: () => <p className={s.loading}>読み込み中…</p> },
 );
 
-/** 見本の商品は架空の工房のステンレスタンブラー。設定は売り物に同梱の見本と同じ */
+/** 見本の商品は架空の工房のステンレスタンブラー。設定とモデル（public/models/tumbler.glb）は売り物 1.1.0 に同梱の見本と同じ */
 const CONFIG = {
   product: { name: "ステンレスタンブラー", sku: "TB-01" },
   model: { src: "/models/tumbler.glb", camera: { distance: 2.6, elevation: 16, azimuth: -28 } },
@@ -63,12 +63,11 @@ const CONFIG = {
     { id: "strap", label: "ストラップ", type: "variant", options: [{ id: "leather", label: "本革", show: ["strap"], price: 600 }] },
     {
       id: "engrave",
-      label: "刻印（英数字 12 字まで）",
+      label: "刻印（12 字まで。漢字・かなも入ります）",
       type: "text",
       target: ["label"],
       maxChars: 12,
-      pattern: "[A-Za-z0-9 .&-]*",
-      placeholder: "例: MINATO 2026",
+      placeholder: "例: 湊 MINATO",
       font: "serif",
       color: "#1c1a15",
       background: "#f4efe6",

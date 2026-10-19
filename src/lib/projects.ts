@@ -44,6 +44,11 @@ export type Sale = {
    * 額は /contact の品書き（SERVICES）と同じ出どころで、ここで新しい額を作らない。
    */
   service?: { price: number };
+  /**
+   * 制作会社用のライセンス（BOOTH の 2 つめの選択肢「制作会社用（複数人で共有・案件数の上限なし）」）の**税込**の値段（円）。
+   * BOOTH に 2 つの選択肢を持つキットだけが持つ。品物のページの購入の箱と「お値段」が、個人・社内用（price）と並べて出す（kit-parts.tsx）。
+   */
+  agency?: { price: number };
 };
 
 export type Project = {
@@ -344,7 +349,8 @@ export const projects: Project[] = [
     description: "3D の商品を回しながら色や素材を選び、価格をその場で確かめられます。",
     tags: ["React Three Fiber", "glTF"],
     category: "kits",
-    sale: { status: "onsale", price: 12800 },
+    // 設置代行は /contact の品書きの「埋め込み部品の設置（AI 案内窓口・間取り・3D の商品ページ）」と同じ額
+    sale: { status: "onsale", price: 12800, service: { price: 60000 }, agency: { price: 24800 } },
   },
   {
     slug: "saas-starter",
