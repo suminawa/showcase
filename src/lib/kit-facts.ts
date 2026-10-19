@@ -37,19 +37,19 @@ export const KIT_FACTS: Record<FlagshipSlug, Record<Lang, KitFact[]>> = {
     ja: [
       { label: "月額", value: "0 円（買い切り）" },
       { label: "使い始めるまで", value: "20 分ほど" },
-      { label: "知らせる先", value: "Slack・Discord・LINE" },
+      { label: "知らせる先", value: "メール・Slack・Discord・LINE" },
       { label: "自動返信", value: "受付番号つきのメール" },
     ],
     en: [
       { label: "Monthly fee", value: "¥0 (one-time purchase)" },
       { label: "Setup", value: "About 20 minutes" },
-      { label: "Sends to", value: "Slack, Discord, LINE" },
+      { label: "Sends to", value: "Email, Slack, Discord, LINE" },
       { label: "Auto-reply", value: "Email with a reference number" },
     ],
     fr: [
       { label: "Abonnement", value: "0 ¥ (achat unique)" },
       { label: "Installation", value: "20 minutes environ" },
-      { label: "Envoi vers", value: "Slack, Discord, LINE" },
+      { label: "Envoi vers", value: "E-mail, Slack, Discord, LINE" },
       { label: "Réponse auto", value: "E-mail avec numéro de référence" },
     ],
   },

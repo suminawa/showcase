@@ -261,7 +261,7 @@ export const projects: Project[] = [
     description: "サイトの問い合わせを表に貯め、通知と自動返信まで行います。",
     tags: ["Google Apps Script"],
     category: "kits",
-    sale: { status: "onsale", price: 3480 },
+    sale: { status: "onsale", price: 3480, service: { price: 30000 } },
   },
   {
     slug: "floorplan",
