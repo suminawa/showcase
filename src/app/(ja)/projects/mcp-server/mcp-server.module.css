@@ -5,77 +5,17 @@
  * 朱は「選んでいる」ことの印にだけ使う（問いと、サーバーの設定の切り替え）。
  */
 
-/* 頭の小の字: 「10/2 発売予定 ¥9,800」。lede と同じ段、色だけ一段濃く */
-.sale {
-  font-size: var(--rp-tiny);
-  line-height: var(--rp-pitch);
-  letter-spacing: 0.12em;
-  color: var(--rp-sumi-2);
-  /* 頭の段どうしの間は半行。ここだけ半行詰めて一行の直下に置き、字を罫の格子（1 行ごと）へ戻す ──
-     半端のままだと罫が字の真ん中を横切り、取り消し線に見える */
-  margin-top: calc(-0.5 * var(--rp-pitch));
-}
+/* ---- 頭のすぐ下の再生 ----------------------------------------------------- */
 
-/* ---- 節 ------------------------------------------------------------------ */
-
-.section {
-  display: flex;
-  flex-direction: column;
-  gap: calc(0.5 * var(--rp-pitch));
-  margin-top: var(--rp-pitch);
-  /* 節へ直に飛んで来たとき、見出しが画面の縁に貼りつかないように */
-  scroll-margin-top: var(--rp-pitch);
-}
-
-.section:first-child {
-  margin-top: 0;
-}
-
-.heading {
-  font-family: var(--rp-serif-display);
-  font-weight: 400;
-  font-size: var(--rp-tiny);
-  line-height: var(--rp-pitch);
-  letter-spacing: 0.24em;
-  color: var(--rp-sumi);
-}
-
-.text,
-.list,
-.steps {
-  font-size: var(--rp-tiny);
-  line-height: 2.3;
-  letter-spacing: 0.06em;
-  color: var(--rp-sumi-3);
-  max-width: 40em;
-}
-
-.list {
-  margin: 0;
-  padding-left: 1.4em;
-  list-style: disc;
-}
-
-.steps {
-  margin: 0;
-  padding-left: 1.6em;
-  list-style: decimal;
-  display: flex;
-  flex-direction: column;
-  gap: calc(0.25 * var(--rp-pitch));
-}
-
-.steps li::marker {
-  color: var(--rp-sumi-4);
+.replaySection {
+  display: grid;
+  gap: 8px;
+  min-width: 0;
 }
 
 .stepTitle {
   display: block;
-  color: var(--rp-sumi);
-}
-
-.stepText {
-  display: block;
+  color: var(--m-sumi);
 }
 
 .inlineCode,
@@ -83,7 +23,8 @@
 .env,
 .toolName,
 .args,
-.raw pre {
+.raw pre,
+.code {
   font-family: ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
   font-feature-settings: normal;
   letter-spacing: 0;
@@ -91,8 +32,132 @@
 
 .inlineCode {
   font-size: 0.92em;
-  color: var(--rp-sumi-2);
+  color: var(--m-sumi-2);
   overflow-wrap: anywhere;
+}
+
+/* ---- 雛形とコピーできる設定 -------------------------------------------------- */
+
+.snippet {
+  display: grid;
+  gap: 0;
+  margin: 0;
+  min-width: 0;
+  border: 1px solid var(--m-grid);
+  background: var(--m-cell);
+}
+
+.snippetHead {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px 16px;
+  padding: 8px 8px 8px 16px;
+  background: var(--m-cell-head);
+  border-bottom: 1px solid var(--m-grid);
+  font-size: 0.8125rem;
+  letter-spacing: 0.04em;
+  color: var(--m-sumi-3);
+}
+
+.copy {
+  min-height: 44px;
+  padding: 0 16px;
+  border: 1px solid var(--m-sumi);
+  border-radius: 0;
+  background: var(--m-cell);
+  color: var(--m-sumi);
+  font: inherit;
+  font-size: 0.875rem;
+  cursor: pointer;
+}
+
+.copy:hover {
+  background: var(--m-paper);
+}
+
+.copy:focus-visible,
+.sheetWrap:focus-visible,
+.code:focus-visible {
+  outline: 2px solid var(--m-shu);
+  outline-offset: 2px;
+}
+
+.code {
+  margin: 0;
+  padding: 12px 16px;
+  overflow-x: auto;
+  font-size: 0.8125rem;
+  line-height: 1.7;
+  color: var(--m-sumi);
+  white-space: pre;
+}
+
+.sheetWrap {
+  overflow-x: auto;
+}
+
+.sheet {
+  border-collapse: collapse;
+  min-width: 100%;
+  font-size: 0.8125rem;
+  line-height: 1.6;
+  white-space: nowrap;
+}
+
+.sheet th,
+.sheet td {
+  padding: 6px 12px;
+  border-right: 1px solid var(--m-grid);
+  border-bottom: 1px solid var(--m-grid);
+  text-align: left;
+  color: var(--m-sumi-2);
+}
+
+.sheet th {
+  font-weight: 600;
+  color: var(--m-sumi);
+}
+
+.caption {
+  caption-side: top;
+  padding-bottom: 8px;
+  text-align: left;
+  font-size: 0.8125rem;
+  letter-spacing: 0.04em;
+  color: var(--m-sumi-3);
+}
+
+/* ---- 有料のキット 3 枚（縁を共有して並べる。スマホは縦、1024px から横） ------------------- */
+
+.cards {
+  display: grid;
+  gap: 1px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  background: var(--m-grid);
+  border: 1px solid var(--m-grid);
+}
+
+@media (min-width: 1024px) {
+  .cards {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+.cardPrice {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 4px 12px;
+  margin: 0;
+  font-size: 1.375rem;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.3;
+  color: var(--m-sumi);
 }
 
 /* ---- 再生の帳面 ------------------------------------------------------------
@@ -301,6 +366,11 @@
   color: var(--rp-sumi);
 }
 
+/* 選んでいる問いは、□■ の印だけでなく背景の帯でも示す */
+.question[aria-pressed="true"] {
+  background: var(--mc-faint);
+}
+
 .qTopic {
   display: flex;
   flex-wrap: wrap;
@@ -436,6 +506,14 @@
   background: rgba(28, 26, 21, 0.04);
 }
 
+/* 横に動かせることの一言。せまい紙でだけ出す */
+.scrollHint {
+  display: none;
+  margin: 0;
+  font-size: 0.75rem;
+  color: var(--rp-sumi-4);
+}
+
 .tableWrap {
   margin-top: calc(0.125 * var(--rp-pitch));
   overflow-x: auto;
@@ -569,7 +647,8 @@
 
 /* フォーカスの輪は料紙と同じく細い一本。帳面の中では輪を近くに寄せる */
 .replay button:focus-visible,
-.replay summary:focus-visible {
+.replay summary:focus-visible,
+.tableWrap:focus-visible {
   outline: 1px solid var(--rp-sumi);
   outline-offset: 4px;
 }
@@ -631,9 +710,14 @@
   .stage {
     grid-template-columns: minmax(0, 1fr);
   }
+  /* せまい紙では会話を先に、問いの一覧をその下に（会話まで 1,500px 下らせない） */
   .questions {
+    order: 2;
     border-right: 0;
-    border-bottom: 1px solid var(--mc-line);
+    border-top: 1px solid var(--mc-line);
+  }
+  .scrollHint {
+    display: block;
   }
 }
 

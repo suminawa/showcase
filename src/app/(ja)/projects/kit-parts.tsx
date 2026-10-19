@@ -45,6 +45,8 @@ export type KitCompareCopy = {
   kit: string;
   /** 比べる相手のページを読んだ日（「2026-09-29」） */
   checkedOn: string;
+  /** 「このキット」の行の費用の文。値段を持たない無料の品物（mcp-server）だけが書く。無ければ値段から組む */
+  kitCost?: string;
 };
 
 /** (g) つまずきの手順 1 組。items は画面の言葉のままの手順（1 行 1 手） */
@@ -303,9 +305,7 @@ export function KitCompare({ lang, slug, name, copy }: { lang: Lang; slug: strin
               {t.kitKind}
             </th>
             <td data-label={cName}>{name}</td>
-            <td data-label={cCost}>
-              {money(lang, kitTotals(slug).kit)}（{t.tax}）
-            </td>
+            <td data-label={cCost}>{copy.kitCost ?? `${money(lang, kitTotals(slug).kit)}（${t.tax}）`}</td>
             <td data-label={cNote}>{copy.kit}</td>
           </tr>
         </tbody>

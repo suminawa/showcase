@@ -109,33 +109,39 @@ function ResultBody({ step }: { step: CallStep }) {
     const labels = (r.labels ?? {}) as Record<string, Json>;
     const columns = TABLE_COLUMNS[key === "rows" ? cell(r.table) : key] ?? Object.keys(rows[0] ?? {}).slice(0, 4);
     return (
-      <div className={m.tableWrap}>
-        <table className={m.table}>
-          <thead>
-            <tr>
-              <th scope="col">ID</th>
-              {columns.map((c) => (
-                <th key={c} scope="col">
-                  {c}
-                </th>
-              ))}
-            </tr>
-          </thead>
-          <tbody>
-            {rows.map((row, i) => (
-              <tr key={`${cell(row["ID"] ?? row["書類ID"])}-${i}`}>
-                <td className={m.mono}>{cell(row["ID"] ?? row["書類ID"])}</td>
-                {columns.map((c) => {
-                  const raw = row[c];
-                  // 参照の列は、サーバーが labels に添えた表示名で読む
-                  const label = typeof raw === "string" && labels[raw] ? cell(labels[raw]) : null;
-                  return <td key={c}>{label ?? cell(raw)}</td>;
-                })}
+      <>
+        <p className={m.scrollHint} aria-hidden="true">
+          表は横に動かせます →
+        </p>
+        {/* 狭い画面では横に動かす。キーボードでも入れるように tabIndex と名前を持たせる */}
+        <div className={m.tableWrap} tabIndex={0} role="region" aria-label="結果の表（横に動かせます）">
+          <table className={m.table}>
+            <thead>
+              <tr>
+                <th scope="col">ID</th>
+                {columns.map((c) => (
+                  <th key={c} scope="col">
+                    {c}
+                  </th>
+                ))}
               </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+            </thead>
+            <tbody>
+              {rows.map((row, i) => (
+                <tr key={`${cell(row["ID"] ?? row["書類ID"])}-${i}`}>
+                  <td className={m.mono}>{cell(row["ID"] ?? row["書類ID"])}</td>
+                  {columns.map((c) => {
+                    const raw = row[c];
+                    // 参照の列は、サーバーが labels に添えた表示名で読む
+                    const label = typeof raw === "string" && labels[raw] ? cell(labels[raw]) : null;
+                    return <td key={c}>{label ?? cell(raw)}</td>;
+                  })}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </>
     );
   }
   // 1 件の結果: 空でない値だけを並べる
@@ -248,6 +254,13 @@ export function Replay({ src }: { src: string }) {
       setPos(0);
       setDecision("pending");
     }
+  };
+
+  // 許可の確認より先へは飛ばない（まだ許可していない書き込みの結果を見せない）
+  const skip = () => {
+    if (!play) return;
+    const confirmAt = play.steps.findIndex((step, i) => i >= pos && step.kind === "confirm");
+    setPos(confirmAt >= 0 && decision === "pending" ? confirmAt + 1 : end);
   };
 
   const decide = (d: Decision) => {
@@ -389,6 +402,14 @@ export function Replay({ src }: { src: string }) {
               </li>
             )}
           </ol>
+          {!finished && !waiting && (
+            <div className={m.after}>
+              {/* 自動で進む再生を止める手段（WCAG 2.2.2）。押すと答えまで一度に出す */}
+              <button type="button" className={m.verb} onClick={skip}>
+                再生を止めて、答えまで一度に出す
+              </button>
+            </div>
+          )}
           {finished && (
             <div className={m.after}>
               <button type="button" className={m.verb} onClick={() => start(scene.id)}>
