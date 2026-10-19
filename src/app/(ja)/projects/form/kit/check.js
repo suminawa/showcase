@@ -3,11 +3,12 @@
 /**
  * 初期化（何を足すか）と「設定を確かめる」（何を直すか・これから何が起きるか）を決める。純粋な処理。
  * 受け取るのはシートの値をそのまま写した snapshot（gas_sheets.js の readSetupSnapshot_ が作る）:
- *   { timeZone, sheets: { シート名: 2 次元配列 } }
+ *   { timeZone, sheets: { シート名: 2 次元配列 }, secrets }
+ * secrets は「鍵を保存」でスクリプト プロパティに移した URL・トークン（{ 鍵の名前: 値 }。無ければ省いてよい）。
  * 無いシートは sheets に載せない。空のシート（1 行も無い）は []。
  * ウェブアプリの公開状態は読まない（このキットはトリガーも公開 URL も読まない決まり）。
  */
-import { ConfigError, DEFAULT_CONFIG, DEFAULT_ROWS, configKeyOf, limitOf, parseConfig } from "./config.js";
+import { ConfigError, DEFAULT_CONFIG, DEFAULT_ROWS, configKeyOf, limitOf, parseConfig, secretsInSheet, withSecrets } from "./config.js";
 import { toDateKey } from "./dates.js";
 import { NOTIFY_HEADER, RECEIPT_HEADER, SOURCE_HEADER, STAMP_HEADER, buildHeader, fieldNamesOf } from "./rows.js";
 import { CAPACITY_HEADER, DATE_HEADER, SLOT_HEADER, parseSlots } from "./slots.js";
@@ -31,6 +32,15 @@ const KIT_HEADERS = RESERVED_HEADERS.concat([NOTIFY_HEADER]);
 
 /** 枠シートの見出し */
 const SLOT_HEADERS = [DATE_HEADER, SLOT_HEADER, CAPACITY_HEADER];
+
+/** 「通知先」に書けるもの（config.js の TARGETS と同じ） */
+const TARGET_NAMES = ["mail", "slack", "discord", "line"];
+
+/** 設定シートの行に、スクリプト プロパティに移した鍵を入れたもの（シートが無ければ undefined のまま） */
+function settingsOf_(snapshot) {
+  const values = snapshot.sheets[SETTINGS_TAB];
+  return values === undefined ? undefined : withSecrets(values, snapshot.secrets);
+}
 
 function checkText_(value) {
   if (value === null || value === undefined) return "";
@@ -120,7 +130,7 @@ function slotMissingText_(name, exists) {
 /** 初期化で足すもの。返り値は setup.js の Plan に、次の一歩の文 nextStep を足したもの */
 export function planInit(snapshot) {
   const plan = { createSheets: [], appendHeaders: [], appendSettings: { sheet: SETTINGS_TAB, rows: [], blank: false }, notes: [], nextStep: "" };
-  const settings = snapshot.sheets[SETTINGS_TAB];
+  const settings = settingsOf_(snapshot);
   // 設定シートをこの実行で書く（無い・空だった）なら新しいブック。枠シートを作ってよいのはこのときだけ
   const freshBook = settings === undefined || settings.length === 0;
   if (freshBook) {
@@ -168,7 +178,9 @@ export function planInit(snapshot) {
   } catch (error) {
     if (!(error instanceof ConfigError)) throw error;
   }
-  plan.nextStep = ready ? "次は「設定を確かめる」を実行してください。" : "次は「設定」シートに通知先の URL かトークンを書き、「設定を確かめる」を実行してください。そのあと README の手順 3 で、ウェブアプリとして公開します。";
+  plan.nextStep = ready
+    ? "次は「設定を確かめる」を実行してください。"
+    : "次は「設定」シートの「連絡先メール」に通知を受け取るアドレスを書くか、通知先の URL・トークンを書き、「設定を確かめる」を実行してください。そのあと README の手順 3 で、ウェブアプリとして公開します。";
   return plan;
 }
 
@@ -202,8 +214,8 @@ export function collectConfigProblems(rows) {
   const names = targetRaw === undefined ? ["slack"] : String(targetRaw).split(/[,、]/).map(checkText_).filter((name) => name !== "");
   for (let i = 0; i < names.length; i += 1) {
     const name = names[i].toLowerCase();
-    if (["slack", "discord", "line"].indexOf(name) < 0) {
-      problems.push("「設定」シートの「通知先」に書けるのは slack / discord / line です（いまは「" + names[i] + "」）。");
+    if (TARGET_NAMES.indexOf(name) < 0) {
+      problems.push("「設定」シートの「通知先」に書けるのは " + TARGET_NAMES.join(" / ") + " です（いまは「" + names[i] + "」）。");
     } else if (targets.indexOf(name) < 0) targets.push(name);
   }
 
@@ -213,6 +225,9 @@ export function collectConfigProblems(rows) {
   const token = checkText_(rawOf_(raw, "LINE チャネルアクセストークン"));
   const lineTo = checkText_(rawOf_(raw, "LINE 送信先 ID"));
   const emptyText = (target, label) => "「通知先」に " + target + " がありますが、「" + label + "」が空です。設定シートのその行を埋めてください。";
+  if (targets.indexOf("mail") >= 0 && checkText_(rawOf_(raw, "連絡先メール")) === "" && checkText_(rawOf_(raw, "返信先")) === "") {
+    problems.push("「通知先」に mail がありますが、「連絡先メール」が空です。通知を受け取るお店のメールアドレスを書いてください。");
+  }
   if (targets.indexOf("slack") >= 0) {
     if (slack === "") problems.push(emptyText("slack", "Slack Webhook URL"));
     else problems.push(...webhookProblems_("Slack Webhook URL", slack, "Slack", { name: "Discord", label: "Discord Webhook URL", pattern: /discord(app)?\.com\/api\/webhooks/ }));
@@ -302,8 +317,9 @@ export function findProblems(snapshot) {
     problems.push("「設定」シートがありません。メニュー「フォーム受付」→「初期化」を実行してください。");
     return problems;
   }
-  problems.push(...collectConfigProblems(settings));
-  const config = readableConfig_(settings);
+  const resolved = settingsOf_(snapshot);
+  problems.push(...collectConfigProblems(resolved));
+  const config = readableConfig_(resolved);
   if (config.slotSheetName !== "") problems.push(...slotProblems_(config.slotSheetName, snapshot.sheets[config.slotSheetName]));
   return problems;
 }
@@ -317,23 +333,41 @@ export function checkNotes(snapshot) {
   if (missing.length > 0) {
     notes.push("「設定」シートに" + missing.map((row) => "「" + row[0] + "」").join("") + "の行がありません。行が無い項目は既定値で動きます。「初期化」を実行すると、既定値の行を足します。");
   }
-  const config = readableConfig_(settings);
+  // 見本の形だけの URL は鍵ではないので数えない
+  const plain = secretsInSheet(settings).filter((found) => found.value.indexOf(SAMPLE_URL_MARK) < 0);
+  if (plain.length > 0) {
+    notes.push(plain.map((found) => "「" + found.key + "」").join("") + "がシートにそのまま書いてあります。シートを見られる人は誰でも、この鍵で通知先に投稿できます。メニュー「鍵を保存」で、スクリプト プロパティに移せます。");
+  }
+  const config = readableConfig_(settingsOf_(snapshot));
   if (config.autoReply && config.requiredFields.indexOf(config.emailField) < 0) {
     notes.push("「メールの項目名」の " + config.emailField + " が「必須項目」に入っていないため、メールアドレスの無い送信には自動返信を送りません。");
   }
-  if (snapshot.sheets[config.intakeSheetName] === undefined) {
+  const intake = snapshot.sheets[config.intakeSheetName];
+  if (intake === undefined) {
     notes.push("「" + config.intakeSheetName + "」シートはまだありません。1 件目の受付で作ります（いま作るなら「初期化」）。");
+  }
+  // 受付シートの date / slot の見出しを書き換えると、満席の判定が黙って効かなくなる
+  const usesSlots = config.slotSheetName !== "" && config.dateField !== "" && config.slotField !== "" && parseSlots(snapshot.sheets[config.slotSheetName]).length > 0;
+  if (usesSlots && intake !== undefined && intake.length > 0 && dataRowCount_(intake) > 0) {
+    const lacking = missingHeaders(intake[0], [config.dateField, config.slotField]);
+    if (lacking.length > 0) {
+      const names = lacking.map((name) => "「" + name + "」").join("");
+      notes.push(
+        "「" + config.intakeSheetName + "」シートの 1 行目に" + names + "の列がありません。満席かどうかは、この列の行数で数えます。見出しを書き換えたときは" + names + "に戻してください（予約の受付がまだ無いときは、そのままで構いません。最初の予約で列ができます）。",
+      );
+    }
   }
   return notes;
 }
 
 /** 直すところが無いときの「これから起きること」。extra = { quota: 今日あと送れるメールの数 } */
 export function summaryLines(snapshot, extra) {
-  const config = parseConfig(snapshot.sheets[SETTINGS_TAB]);
+  const config = parseConfig(settingsOf_(snapshot));
   const intake = snapshot.sheets[config.intakeSheetName];
   const fallback = config.contactEmail !== "" ? config.contactEmail : config.replyTo;
+  const targets = config.targets.map((name) => (name === "mail" ? "mail（" + config.notifyMailTo + "）" : name));
   const lines = [
-    "通知先: " + (config.targets.length === 0 ? "（通知しない）" : config.targets.join(", ")),
+    "通知先: " + (targets.length === 0 ? "（通知しない）" : targets.join(", ")),
     "受付シート: 「" + config.intakeSheetName + "」" + (intake === undefined ? "（まだありません。1 件目の受付で作ります）" : "（いま " + dataRowCount_(intake) + " 件）"),
   ];
   if (config.slotSheetName === "") {

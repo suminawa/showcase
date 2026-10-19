@@ -38,6 +38,7 @@ export const CONFIG_KEYS = [
   "送信元の項目名",
   "同じメールの上限（1 時間）",
   "全体の上限（1 分）",
+  "Turnstile シークレット",
 ];
 
 /** 自動返信の本文の見本。{受付番号} と {項目一覧} が使える */
@@ -68,6 +69,8 @@ export const DEFAULT_CONFIG = {
   senderName: "",
   replyTo: "",
   contactEmail: "",
+  /** 通知先 mail の宛先（「連絡先メール」、空なら「返信先」） */
+  notifyMailTo: "",
   intakeSheetName: "受付",
   slotSheetName: "枠",
   dateField: "date",
@@ -78,15 +81,19 @@ export const DEFAULT_CONFIG = {
   mailLimitPerHour: 3,
   /** 全体で 1 分に何件まで、自動返信と通知を出すか（0 は上限なし） */
   totalLimitPerMinute: 10,
+  /** Cloudflare Turnstile のシークレット キー。空なら確かめない */
+  turnstileSecret: "",
 };
 
 /**
  * 初期化で足す設定の行（CONFIG_KEYS の順に [項目, 値]）。行が無いときと同じ働きになる既定値を書く。
- * 空で書くと働きを止める 8 つがあるので、空にするのは URL・トークン・差出人名・返信先・連絡先メールだけ。
- * samples/settings-sample.csv とは Slack Webhook URL 以外が同じ（docs テストが見る）。
+ * 空で書くと働きを止める 8 つがあるので、空にするのは URL・トークン・差出人名・返信先・連絡先メール・Turnstile だけ。
+ * 「通知先」は 1.1.3 から mail（Slack も LINE も使わない会社でも、連絡先メールを書くだけで届く）。
+ * 行ごと無いときの既定（DEFAULT_CONFIG.targets）は、1.1.2 までのシートを変えないよう slack のまま。
+ * samples/settings-sample.csv とは Slack Webhook URL と通知先 以外が同じ（docs テストが見る）。
  */
 export const DEFAULT_ROWS = [
-  ["通知先", "slack"],
+  ["通知先", "mail"],
   ["Slack Webhook URL", ""],
   ["Discord Webhook URL", ""],
   ["LINE チャネルアクセストークン", ""],
@@ -109,9 +116,24 @@ export const DEFAULT_ROWS = [
   ["送信元の項目名", "page"],
   ["同じメールの上限（1 時間）", "3"],
   ["全体の上限（1 分）", "10"],
+  ["Turnstile シークレット", ""],
 ];
 
-const TARGETS = ["slack", "discord", "line"];
+/** mail は「連絡先メール」（空なら「返信先」）へのメール */
+const TARGETS = ["mail", "slack", "discord", "line"];
+
+/**
+ * 人に見せない鍵（知っている人なら誰でも通知先に投稿できる URL・トークン）の行。
+ * メニュー「鍵を保存」でスクリプト プロパティに移せる。移した行には SAVED_SECRET_MARK を書く。
+ * 読むときは、空か SAVED_SECRET_MARK の欄に保存した値を入れる（withSecrets）
+ */
+export const SECRET_KEYS = ["Slack Webhook URL", "Discord Webhook URL", "LINE チャネルアクセストークン", "Turnstile シークレット"];
+export const SAVED_SECRET_MARK = "（保存済み）";
+
+/** 鍵を入れるスクリプト プロパティの名前（受付番号の lastReceipt とは別の名前にする） */
+export function secretPropertyName(key) {
+  return "secret:" + key;
+}
 
 /** 半角括弧・空白・大文字小文字の揺れを吸収して、キーを突き合わせられる形にする */
 function normalizeKey_(key) {
@@ -125,6 +147,49 @@ function normalizeKey_(key) {
 /** 設定シートの項目名を parseConfig と同じそろえ方にする（初期化と「設定を確かめる」の突き合わせに使う） */
 export function configKeyOf(key) {
   return normalizeKey_(key);
+}
+
+/** 鍵の行なら SECRET_KEYS の名前、そうでなければ null */
+function secretKeyOf_(name) {
+  const normalized = normalizeKey_(name);
+  for (let i = 0; i < SECRET_KEYS.length; i += 1) if (normalizeKey_(SECRET_KEYS[i]) === normalized) return SECRET_KEYS[i];
+  return null;
+}
+
+function cellOf_(row) {
+  return row[1] === null || row[1] === undefined ? "" : String(row[1]).trim();
+}
+
+/**
+ * 設定の行のうち、鍵の行で空か SAVED_SECRET_MARK のものに、保存した値（stored: { 鍵の名前: 値 }）を入れた写し。
+ * 保存した値が無ければ空にする。シートに書き直した値は、そちらを先に使う（貼り替えがすぐ効くように）
+ */
+export function withSecrets(rows, stored) {
+  const saved = stored || {};
+  const source = Array.isArray(rows) ? rows : [];
+  return source.map(function (row) {
+    if (!Array.isArray(row) || row.length === 0) return row;
+    const key = secretKeyOf_(row[0]);
+    const value = cellOf_(row);
+    if (key === null || (value !== "" && value !== SAVED_SECRET_MARK)) return row;
+    const copy = row.slice();
+    copy[1] = Object.prototype.hasOwnProperty.call(saved, key) ? saved[key] : "";
+    return copy;
+  });
+}
+
+/** 「鍵を保存」で移すもの: 鍵の行のうち、値が書いてあるもの（SAVED_SECRET_MARK は除く）。row はシートの 0 始まりの行 */
+export function secretsInSheet(rows) {
+  const found = [];
+  const source = Array.isArray(rows) ? rows : [];
+  for (let i = 0; i < source.length; i += 1) {
+    const row = source[i];
+    if (!Array.isArray(row) || row.length < 2) continue;
+    const key = secretKeyOf_(row[0]);
+    const value = cellOf_(row);
+    if (key !== null && value !== "" && value !== SAVED_SECRET_MARK) found.push({ row: i, key: key, value: value });
+  }
+  return found;
 }
 
 /** カンマ（半角・全角）で区切って、空の要素を落とす */
@@ -227,7 +292,7 @@ export function parseConfig(rows) {
   for (let i = 0; i < wanted.length; i += 1) {
     const name = String(wanted[i]).trim().toLowerCase();
     if (TARGETS.indexOf(name) < 0) {
-      throw new ConfigError("「通知先」に書けるのは slack / discord / line です: " + wanted[i]);
+      throw new ConfigError("「通知先」に書けるのは " + TARGETS.join(" / ") + " です: " + wanted[i]);
     }
     if (targets.indexOf(name) < 0) targets.push(name);
   }
@@ -243,6 +308,14 @@ export function parseConfig(rows) {
   requireFor_(targets, "line", lineTo, "LINE 送信先 ID");
   requireHttps_(targets, "slack", slackWebhookUrl, "Slack Webhook URL");
   requireHttps_(targets, "discord", discordWebhookUrl, "Discord Webhook URL");
+
+  // 通知先 mail の宛先は「連絡先メール」、空なら「返信先」（通知が届かなかったときのお知らせと同じ順）
+  const contactEmail = textOf("連絡先メール", "");
+  const replyTo = textOf("返信先", "");
+  const notifyMailTo = contactEmail !== "" ? contactEmail : replyTo;
+  if (targets.indexOf("mail") >= 0 && notifyMailTo === "") {
+    throw new ConfigError("「通知先」に mail がありますが、「連絡先メール」が空です。通知を受け取るお店のメールアドレスを書いてください。");
+  }
 
   const rawAutoReply = rawOf("自動返信");
   const autoReply =
@@ -264,9 +337,10 @@ export function parseConfig(rows) {
     replySubject: textOf("自動返信の件名", DEFAULT_CONFIG.replySubject),
     replyBody: textOf("自動返信の本文", DEFAULT_CONFIG.replyBody),
     senderName: textOf("差出人名", ""),
-    replyTo: textOf("返信先", ""),
+    replyTo: replyTo,
     // 形が崩れていても受付は止めない（送るときに失敗するだけ）。「設定を確かめる」が知らせる
-    contactEmail: textOf("連絡先メール", ""),
+    contactEmail: contactEmail,
+    notifyMailTo: notifyMailTo,
     intakeSheetName: textOf("受付シート名", DEFAULT_CONFIG.intakeSheetName),
     slotSheetName: textOrOff("枠シート名", DEFAULT_CONFIG.slotSheetName),
     dateField: textOrOff("日付の項目名", DEFAULT_CONFIG.dateField),
@@ -275,5 +349,6 @@ export function parseConfig(rows) {
     pageField: textOrOff("送信元の項目名", DEFAULT_CONFIG.pageField),
     mailLimitPerHour: limitOf(rawOf("同じメールの上限（1 時間）"), DEFAULT_CONFIG.mailLimitPerHour),
     totalLimitPerMinute: limitOf(rawOf("全体の上限（1 分）"), DEFAULT_CONFIG.totalLimitPerMinute),
+    turnstileSecret: textOf("Turnstile シークレット", ""),
   };
 }

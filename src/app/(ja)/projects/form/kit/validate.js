@@ -14,6 +14,23 @@ export const MAX_FIELD_COUNT = 30;
 
 export const EMAIL_PATTERN = /^[^\s@,]+@[^\s@,]+\.[^\s@,]+$/;
 
+/**
+ * Cloudflare Turnstile の部品がフォームに足す、見えない欄の名前。トークンは 2,048 字まであるので字数の上限に数えず、
+ * 受付シートと通知にも入れない
+ */
+export const TURNSTILE_FIELD = "cf-turnstile-response";
+
+/** Turnstile の siteverify の返事を読む。200 で success が true のときだけ通す（読めない返事は通さない） */
+export function turnstileVerdict(status, bodyText) {
+  if (status !== 200) return false;
+  try {
+    const parsed = JSON.parse(bodyText);
+    return parsed !== null && typeof parsed === "object" && parsed.success === true;
+  } catch (error) {
+    return false;
+  }
+}
+
 function fieldText_(fields, name) {
   const value = fields[name];
   return value === null || value === undefined ? "" : String(value);
@@ -47,6 +64,7 @@ export function validateSubmission(parsed, config) {
 
   for (let i = 0; i < names.length; i += 1) {
     const name = names[i];
+    if (name === TURNSTILE_FIELD) continue;
     if (lengthOf_(fieldText_(fields, name)) > MAX_FIELD_LENGTH) {
       return { ok: false, reason: "invalid", message: "「" + name + "」が長すぎます（2,000 字までです）。" };
     }
@@ -71,7 +89,7 @@ export function validateSubmission(parsed, config) {
 
 /**
  * 受付シートにも通知にも出さない項目を分ける。
- * ハニーポットの項目は捨て、送信元の項目は source に移す。
+ * ハニーポットと Turnstile のトークンの項目は捨て、送信元の項目は source に移す。
  * 返り値: { fields, order, source }
  */
 export function stripInternal(parsed, config) {
@@ -83,6 +101,7 @@ export function stripInternal(parsed, config) {
   for (let i = 0; i < names.length; i += 1) {
     const name = names[i];
     if (config.honeypotField !== "" && name === config.honeypotField) continue;
+    if (name === TURNSTILE_FIELD) continue;
     if (config.pageField !== "" && name === config.pageField) {
       source = fieldText_(incoming, name);
       continue;

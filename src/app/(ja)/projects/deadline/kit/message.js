@@ -151,7 +151,8 @@ export function failureLine(failure) {
       ? "今日送れるメールの数の上限に達しています。明日には戻ります。"
       : "「メールの宛先」のアドレスをご確認ください。";
   } else if ([400, 401, 403, 404, 410].indexOf(status) >= 0) {
-    hint = (failure.target === "googlechat" ? "「Google Chat の Webhook URL」" : "「Webhook URL」") + "が違うか、Webhook が消されています。URL を作り直して貼ってください。";
+    const rows = { googlechat: "「Google Chat の Webhook URL」", discord: "「Discord の Webhook URL」（1.2.0 までの書き方なら「Webhook URL」）" };
+    hint = (rows[failure.target] || "「Webhook URL」") + "が違うか、Webhook が消されています。URL を作り直して貼ってください。";
   }
   return "・" + targetLabel(failure.target) + ": 送れませんでした（" + message.slice(0, 80) + "）。" + hint;
 }

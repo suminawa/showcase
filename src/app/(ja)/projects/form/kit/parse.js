@@ -27,12 +27,20 @@ function valueText_(value) {
   return String(value);
 }
 
-/** 同じ項目名が 2 回来たら、後の値で上書きする（並びは最初に出た位置のまま） */
+/**
+ * 同じ項目名が 2 回来たら（複数選択のチェックボックスなど）、「, 」でつなぐ。空の値は足さない。
+ * 並びは最初に出た位置のまま
+ */
 function put_(fields, order, name, value) {
   const key = String(name).trim();
   if (key === "") return;
-  if (!Object.prototype.hasOwnProperty.call(fields, key)) order.push(key);
-  fields[key] = valueText_(value).trim();
+  const text = valueText_(value).trim();
+  if (!Object.prototype.hasOwnProperty.call(fields, key)) {
+    order.push(key);
+    fields[key] = text;
+  } else if (text !== "") {
+    fields[key] = fields[key] === "" ? text : fields[key] + ", " + text;
+  }
 }
 
 /** Content-Type から "; charset=utf-8" を落として小文字にする */

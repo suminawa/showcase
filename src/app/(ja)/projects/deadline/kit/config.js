@@ -16,10 +16,12 @@ export class ConfigError extends Error {
 export const CONFIG_KEYS = [
   "通知先",
   "Webhook URL",
+  "Discord の Webhook URL",
   "メールの宛先",
   "Google Chat の Webhook URL",
   "しきい値",
   "超過も通知する",
+  "超過を知らせる上限日数",
   "文面テンプレ",
   "対象シート名",
   "列名（件名）",
@@ -33,11 +35,14 @@ export const DEFAULT_CONFIG = {
   /** 「通知先」が空のとき。1.0 から slack（1.1 までのシートをそのまま動かすため、変えない） */
   targets: ["slack"],
   webhookUrl: "",
+  discordWebhookUrl: "",
   mailTo: [],
   chatWebhookUrl: "",
   /** 既定は「当日」と「3 日前」。設定シートには 3,0 と書く */
   thresholds: [0, 3],
   notifyOverdue: true,
+  /** 期限を過ぎて何日までを知らせるか。放っておいた超過で 1 通が膨らみ、送信済みの記録（8 KB）があふれないように */
+  overdueLimit: 30,
   itemTemplate: "・{件名}（{期限}・{担当}）",
   sheetName: "期限",
   columns: { subject: "件名", due: "期限", assignee: "担当", status: "状態" },
@@ -50,8 +55,64 @@ export const TARGETS = ["slack", "discord", "gmail", "googlechat"];
 /** Google Chat の Webhook の URL はここで始まる（スペースの「アプリと統合」→「Webhook を追加」で作る） */
 export const CHAT_URL_PREFIX = "https://chat.googleapis.com/";
 
-/** slack と discord は「Webhook URL」の行を分け合うので、同時には選べない */
-const WEBHOOK_TARGETS = ["slack", "discord"];
+/**
+ * 送り先が全部空で、通知先も既定の slack のまま（初期化しただけ）のときの 1 文。
+ * 「Webhook URL が空です」と出すと、メールで使いたい方には意図とずれるので、先に通知先を決めてもらう
+ */
+export const NO_DESTINATION_TEXT =
+  "「設定」シートの「通知先」と送り先がまだ空です。通知を受け取る先を決めて書いてください。いちばん手軽なのはメールで、「通知先」を gmail にし、「メールの宛先」にアドレスを書くだけです（README の手順 2）。";
+
+/**
+ * 人に見せない鍵（知っている人なら誰でも投稿できる URL）の行。メニュー「鍵を保存」でスクリプト プロパティに移せる。
+ * 移した行には SAVED_SECRET_MARK を書く。読むときは、空か SAVED_SECRET_MARK の欄に保存した値を入れる
+ */
+export const SECRET_KEYS = ["Webhook URL", "Discord の Webhook URL", "Google Chat の Webhook URL"];
+export const SAVED_SECRET_MARK = "（保存済み）";
+
+/** 鍵を入れるスクリプト プロパティの名前（送信済みの記録 sent: とは別の名前にする） */
+export function secretPropertyName(key) {
+  return "secret:" + key;
+}
+
+/** 鍵の行のそろえた名前 → SECRET_KEYS の名前。鍵の行でなければ null */
+function secretKeyOf_(name) {
+  const normalized = normalizeKey_(name);
+  for (let i = 0; i < SECRET_KEYS.length; i += 1) if (normalizeKey_(SECRET_KEYS[i]) === normalized) return SECRET_KEYS[i];
+  return null;
+}
+
+/**
+ * 設定の行のうち、鍵の行で空か SAVED_SECRET_MARK のものに、保存した値（stored: { 鍵の名前: 値 }）を入れた写し。
+ * 保存した値が無ければ空にする。シートに URL を書き直したら、そちらを先に使う（貼り替えがすぐ効くように）
+ */
+export function withSecrets(rows, stored) {
+  const saved = stored || {};
+  const source = Array.isArray(rows) ? rows : [];
+  return source.map(function (row) {
+    if (!Array.isArray(row) || row.length === 0) return row;
+    const key = secretKeyOf_(row[0]);
+    if (key === null) return row;
+    const value = row[1] === null || row[1] === undefined ? "" : String(row[1]).trim();
+    if (value !== "" && value !== SAVED_SECRET_MARK) return row;
+    const copy = row.slice();
+    copy[1] = Object.prototype.hasOwnProperty.call(saved, key) ? saved[key] : "";
+    return copy;
+  });
+}
+
+/** 「鍵を保存」で移すもの: 鍵の行のうち https:// で始まる URL が書いてあるもの。row はシートの 0 始まりの行 */
+export function secretsInSheet(rows) {
+  const found = [];
+  const source = Array.isArray(rows) ? rows : [];
+  for (let i = 0; i < source.length; i += 1) {
+    const row = source[i];
+    if (!Array.isArray(row) || row.length < 2) continue;
+    const key = secretKeyOf_(row[0]);
+    const value = row[1] === null || row[1] === undefined ? "" : String(row[1]).trim();
+    if (key !== null && value.indexOf("https://") === 0) found.push({ row: i, key: key, value: value });
+  }
+  return found;
+}
 
 const EMAIL_PATTERN = /^[^\s@,;]+@[^\s@,;]+\.[^\s@,;]+$/;
 
@@ -76,10 +137,12 @@ export function configKeyOf(key) {
 export const DEFAULT_ROWS = [
   ["通知先", "slack"],
   ["Webhook URL", ""],
+  ["Discord の Webhook URL", ""],
   ["メールの宛先", ""],
   ["Google Chat の Webhook URL", ""],
   ["しきい値", "3,0"],
   ["超過も通知する", "TRUE"],
+  ["超過を知らせる上限日数", "30"],
   ["文面テンプレ", "・{件名}（{期限}・{担当}）"],
   ["対象シート名", "期限"],
   ["列名（件名）", "件名"],
@@ -170,9 +233,6 @@ function parseTargets_(value) {
       throw new ConfigError("「通知先」は " + TARGETS.join("・") + " から選んで、カンマで区切って書いてください: " + names[i]);
     }
   }
-  if (names.indexOf("slack") >= 0 && names.indexOf("discord") >= 0) {
-    throw new ConfigError("「通知先」に slack と discord は同時に書けません（「Webhook URL」の行が 1 つのため）。どちらか一方にしてください。");
-  }
   return names;
 }
 
@@ -193,6 +253,14 @@ function parseThresholds_(value) {
   });
 }
 
+function parseOverdueLimit_(value) {
+  const text = toHalfWidthDigits_(String(value).trim());
+  if (!/^\d+$/.test(text) || Number(text) < 1) {
+    throw new ConfigError("「超過を知らせる上限日数」は 1 以上の整数で書いてください: " + String(value).trim());
+  }
+  return Number(text);
+}
+
 /** 設定の行を「そろえた項目名 → 値」にする。同じ項目が 2 行あれば後ろが勝つ */
 function rawMapOf_(rows) {
   const raw = {};
@@ -207,9 +275,13 @@ function rawMapOf_(rows) {
   return raw;
 }
 
-function usesWebhook_(targets) {
-  for (let i = 0; i < WEBHOOK_TARGETS.length; i += 1) if (targets.indexOf(WEBHOOK_TARGETS[i]) >= 0) return true;
-  return false;
+/**
+ * Discord に送る URL。「Discord の Webhook URL」が空なら、1.2.0 までの書き方（「Webhook URL」に Discord の URL）を使う。
+ * ただし slack も選んでいるときは「Webhook URL」は Slack のものなので、借りない
+ */
+function discordUrlOf_(targets, discordRow, webhookUrl) {
+  if (discordRow !== "") return discordRow;
+  return targets.indexOf("slack") >= 0 ? "" : webhookUrl;
 }
 
 /**
@@ -228,17 +300,21 @@ export function rawTargetsOf(rows) {
   const webhookUrl = valueOf("Webhook URL");
   const mailTo = mailListOf(valueOf("メールの宛先")).addresses;
   const chatWebhookUrl = valueOf("Google Chat の Webhook URL");
-  const targets = [];
   const wanted = named.length === 0 ? DEFAULT_CONFIG.targets : named;
+  const discordWebhookUrl = discordUrlOf_(wanted, valueOf("Discord の Webhook URL"), webhookUrl);
+  const targets = [];
   for (let i = 0; i < wanted.length; i += 1) {
     const name = wanted[i];
     let ready = false;
     if (name === "gmail") ready = mailTo.length > 0;
     else if (name === "googlechat") ready = chatWebhookUrl.indexOf(CHAT_URL_PREFIX) === 0;
-    else ready = webhookUrl.indexOf("https://") === 0 && !usesWebhook_(targets);
+    else if (name === "discord") ready = discordWebhookUrl.indexOf("https://") === 0;
+    else ready = webhookUrl.indexOf("https://") === 0;
     if (ready) targets.push(name);
   }
-  return targets.length === 0 ? null : { targets: targets, webhookUrl: webhookUrl, mailTo: mailTo, chatWebhookUrl: chatWebhookUrl };
+  return targets.length === 0
+    ? null
+    : { targets: targets, webhookUrl: webhookUrl, discordWebhookUrl: discordWebhookUrl, mailTo: mailTo, chatWebhookUrl: chatWebhookUrl };
 }
 
 /** rows: [[キー, 値], ...]（ヘッダー行が混ざっていてもよい） */
@@ -265,20 +341,37 @@ export function parseConfig(rows) {
 
   const targets = parseTargets_(textOf("通知先", ""));
 
-  // Webhook URL は slack か discord を選んだときだけ要る（gmail だけなら空でよい）
+  // URL は人に見せない鍵なので、誤りの文には出さない
   const webhookUrl = textOf("Webhook URL", "");
-  if (usesWebhook_(targets)) {
+  const discordRow = textOf("Discord の Webhook URL", "");
+  const discordWebhookUrl = discordUrlOf_(targets, discordRow, webhookUrl);
+  const mailRaw = rawOf("メールの宛先");
+  const chatWebhookUrl = textOf("Google Chat の Webhook URL", "");
+  const unset = webhookUrl === "" && discordRow === "" && chatWebhookUrl === "" && mailListOf(mailRaw).addresses.length === 0;
+  if (unset && targets.length === 1 && targets[0] === "slack") throw new ConfigError(NO_DESTINATION_TEXT);
+
+  // Webhook URL は slack を選んだときだけ要る（gmail だけなら空でよい）
+  if (targets.indexOf("slack") >= 0) {
     if (webhookUrl === "") {
       throw new ConfigError("「Webhook URL」が空です。README の手順 2 を見てください。");
     }
     if (webhookUrl.indexOf("https://") !== 0) {
-      throw new ConfigError("「Webhook URL」は https:// で始まる URL です: " + webhookUrl);
+      throw new ConfigError("「Webhook URL」は https:// で始まる URL です。前後に余分な字が入っていないかも確かめてください。");
+    }
+  }
+  if (targets.indexOf("discord") >= 0) {
+    const row = discordRow !== "" || targets.indexOf("slack") >= 0 ? "「Discord の Webhook URL」" : "「Webhook URL」";
+    if (discordWebhookUrl === "") {
+      throw new ConfigError(row + "が空です。README の手順 2 を見てください。");
+    }
+    if (discordWebhookUrl.indexOf("https://") !== 0) {
+      throw new ConfigError(row + "は https:// で始まる URL です。前後に余分な字が入っていないかも確かめてください。");
     }
   }
 
   let mailTo = [];
   if (targets.indexOf("gmail") >= 0) {
-    const list = mailListOf(rawOf("メールの宛先"));
+    const list = mailListOf(mailRaw);
     if (list.invalid.length > 0) {
       throw new ConfigError("「メールの宛先」の「" + list.invalid[0] + "」はメールアドレスの形ではありません。");
     }
@@ -288,8 +381,6 @@ export function parseConfig(rows) {
     mailTo = list.addresses;
   }
 
-  // URL は人に見せない鍵なので、誤りの文には出さない
-  const chatWebhookUrl = textOf("Google Chat の Webhook URL", "");
   if (targets.indexOf("googlechat") >= 0) {
     if (chatWebhookUrl === "") {
       throw new ConfigError("「Google Chat の Webhook URL」が空です。README の手順 2 を見てください。");
@@ -309,13 +400,19 @@ export function parseConfig(rows) {
   const notifyOverdue =
     rawOverdue === undefined ? DEFAULT_CONFIG.notifyOverdue : parseBoolean_(rawOverdue, DEFAULT_CONFIG.notifyOverdue);
 
+  const rawLimit = rawOf("超過を知らせる上限日数");
+  const overdueLimit =
+    rawLimit === undefined || String(rawLimit).trim() === "" ? DEFAULT_CONFIG.overdueLimit : parseOverdueLimit_(rawLimit);
+
   return {
     targets: targets,
     webhookUrl: webhookUrl,
+    discordWebhookUrl: targets.indexOf("discord") >= 0 ? discordWebhookUrl : "",
     mailTo: mailTo,
     chatWebhookUrl: chatWebhookUrl,
     thresholds: thresholds,
     notifyOverdue: notifyOverdue,
+    overdueLimit: overdueLimit,
     itemTemplate: textOf("文面テンプレ", DEFAULT_CONFIG.itemTemplate),
     sheetName: textOf("対象シート名", DEFAULT_CONFIG.sheetName),
     columns: {
