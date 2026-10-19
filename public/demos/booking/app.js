@@ -400,7 +400,19 @@ function validateReservation(input, ctx) {
  * 誤りは敬体の文で集め、誤りのあった項目だけ既定値のまま返す（他の項目はそのまま読み込む）。
  */
 
-/** 設定シートに並べるキー。README.ja.md と samples/設定.csv はこの並びと一致させる */
+/** 設定シートに並べるキー。README.ja.md と samples/settings.csv はこの並びと一致させる */
+/** 設定の項目名をそろえる: 全角空白を半角に、連続する空白を 1 つに、英字の前後の空白の抜けを補う */
+function normalizeKey_(key) {
+  const flat = key.replace(/[\u3000\s]+/g, " ").trim();
+  const found = SETTING_KEYS.find((k) => k.replace(/ /g, "") === flat.replace(/ /g, ""));
+  return found === undefined ? flat : found;
+}
+
+/** 設定の項目名を parseSettings と同じそろえ方にする（初期化と「設定を確かめる」の突き合わせに使う） */
+function settingKeyOf(key) {
+  return normalizeKey_(String(key === null || key === undefined ? "" : key));
+}
+
 const SETTING_KEYS = [
   "店名",
   "連絡先メール",
@@ -418,6 +430,7 @@ const SETTING_KEYS = [
   "リマインドの本文",
   "リマインドの時刻",
   "カレンダー ID",
+  "カレンダーに連絡先を書く",
   "Slack Webhook URL",
   "Discord Webhook URL",
   "LINE チャネルアクセストークン",
@@ -479,6 +492,7 @@ const DEFAULT_SETTINGS = {
   remindBody: DEFAULT_REMIND_BODY,
   remindHour: 18,
   calendarId: "",
+  calendarContact: true,
   slackUrl: "",
   discordUrl: "",
   lineToken: "",
@@ -503,7 +517,8 @@ function parseSettings(rows) {
 
   for (let i = 0; i < list.length; i += 1) {
     const row = Array.isArray(list[i]) ? list[i] : [];
-    const key = textOf(row[0]);
+    // 項目名は、全角の空白や空白の抜けがあっても読めるようにそろえる（「カレンダー　ID」「カレンダーID」→「カレンダー ID」）
+    const key = normalizeKey_(textOf(row[0]));
     if (i === 0 && key === "項目") continue;
     const value = row.length > 1 ? row[1] : "";
     const raw = textOf(value);
@@ -563,6 +578,8 @@ function parseSettings(rows) {
       }
     } else if (key === "カレンダー ID") {
       if (raw !== "") settings.calendarId = raw;
+    } else if (key === "カレンダーに連絡先を書く") {
+      settings.calendarContact = boolOf(value, DEFAULT_SETTINGS.calendarContact);
     } else if (key === "Slack Webhook URL") {
       if (raw !== "") settings.slackUrl = raw;
     } else if (key === "Discord Webhook URL") {
@@ -1256,15 +1273,10 @@ const RESERVATION_HEADER = [
   "ご要望", "受付日時", "キャンセル日時", "カレンダー", "リマインド", "キャンセル用",
 ];
 
+/** 設定の見本。項目は「初期化」と同じ全部の行を並べ、見本の店の値を入れる（空の項目は既定値で動く） */
 function settingsRows_() {
-  return [
-    ["項目", "値"],
-    ["店名", SHOP_NAME],
-    ["連絡先メール", ""],
-    ["電話", SAMPLE_PHONE],
-    ["住所", SAMPLE_ADDRESS],
-    ["注意書き", SAMPLE_NOTICE],
-  ];
+  const values = { 店名: SHOP_NAME, 電話: SAMPLE_PHONE, 住所: SAMPLE_ADDRESS, 注意書き: SAMPLE_NOTICE };
+  return [["項目", "値"]].concat(SETTING_KEYS.map((key) => [key, Object.prototype.hasOwnProperty.call(values, key) ? values[key] : ""]));
 }
 
 function serviceRows_() {
@@ -1647,7 +1659,10 @@ function fieldHtml_(spec, values, errors) {
   );
 }
 
-/** お客さまの情報を書く画面。website は人には見えない欄（埋まっていたら書き込まない） */
+/**
+ * お客さまの情報を書く画面。bk_hp は人には見えない欄（埋まっていたら書き込まない）。
+ * 名前は website のような意味のある語にしない（ブラウザの自動入力が埋めると、ご本人のご予約が書かれなくなる）
+ */
 function renderForm(state) {
   const shop = shopFrom_(state);
   const values = state.values || {};
@@ -1664,7 +1679,7 @@ function renderForm(state) {
     fieldHtml_({ field: "phone", label: "電話番号", type: "tel", autocomplete: "tel", max: LIMITS.phone, required: shop.phoneRequired === true }, values, errors) +
     fieldHtml_({ field: "note", label: "ご要望", type: "textarea", max: LIMITS.note, required: false }, values, errors);
   const honeypot =
-    '<input type="text" name="website" class="bk-hp" tabindex="-1" autocomplete="off" aria-hidden="true" value="' + attr_(values.website) + '">';
+    '<input type="text" name="bk_hp" class="bk-hp" tabindex="-1" autocomplete="off" aria-hidden="true" value="' + attr_(values.bk_hp) + '">';
   return (
     '<form class="bk-form" data-form="reserve" novalidate><h2 class="bk-h2">お客さまの情報をご記入ください。</h2>' + summary + notice + fields + honeypot +
     '<div class="bk-actions"><button type="submit" class="bk-btn bk-btn-primary">確認へ</button>' +
@@ -1806,7 +1821,7 @@ function initialState() {
     date: "",
     slots: null,
     slot: null,
-    values: { name: "", email: "", phone: "", note: "", website: "" },
+    values: { name: "", email: "", phone: "", note: "", bk_hp: "" },
     errors: {},
     busy: false,
     error: "",
@@ -2125,7 +2140,7 @@ function memoryApi(fixedNow) {
       const raw = input === null || input === undefined ? {} : input;
 
       // 見えない欄が埋まっていたら、成功したように見せて何も書かない（設計書 §7）
-      if (textOf(raw.website) !== "") {
+      if (textOf(raw.bk_hp) !== "") {
         return { ok: true, id: DEMO_DECOY_ID, date: textOf(raw.date), start: textOf(raw.start), end: textOf(raw.start), service: textOf(raw.service), mailSent: false };
       }
 
@@ -2223,7 +2238,7 @@ function memoryApi(fixedNow) {
  */
 
 /** 入力欄の名前（state.values と render.js の name 属性にそろえる） */
-const FIELD_NAMES = ["name", "email", "phone", "note", "website"];
+const FIELD_NAMES = ["name", "email", "phone", "note", "bk_hp"];
 
 /** キャンセルの URL で開かれたときに doGet が差し込む合い言葉。無ければ空 */
 function cancelTokenOf_() {
@@ -2322,7 +2337,7 @@ function mountBooking(root, api) {
     loadSlots(state.date);
   }
 
-  /** フォームの 5 つの欄を { name, email, phone, note, website } にする */
+  /** フォームの 5 つの欄を { name, email, phone, note, bk_hp } にする */
   function valuesOf(form) {
     const values = {};
     for (let i = 0; i < FIELD_NAMES.length; i += 1) {
@@ -2367,7 +2382,7 @@ function mountBooking(root, api) {
         email: values.email,
         phone: values.phone,
         note: values.note,
-        website: values.website,
+        bk_hp: values.bk_hp,
         date: date,
         start: slot.start,
         service: state.service,
