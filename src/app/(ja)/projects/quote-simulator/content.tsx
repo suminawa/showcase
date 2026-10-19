@@ -1,35 +1,32 @@
 /*
- * THESIS: 見積もりという実務を、料紙の上の【帳面】として扱う（Operate）。
- *   表現がタスクを曇らせてはいけないので、料紙の法のうち「紙が八割」「動くのは一つ」は
- *   持ち込まない。引き継ぐのは、字が大と小の二段しか無いこと・箱を持たないこと・
- *   線は手の線であることの三つだけ。
- * OWN-WORLD: 枠も罫も背景色の切り替えも置かない。構造は縦の余白（すべて界線の
- *   間隔の整数倍）と、字の濃さだけが作る。数字だけが「大」の帯に立つ。
- * COLOR: 朱に役を一つ与えている ── 【朱は選ばれていることの印】。
- *   単価方式の選択とオプションのチェックにだけ点く。朱入れも捺印も、もともと
- *   「決めた」ことを示す色だった。墨は書かれたもの、朱は決めたもの。
- *   ＊ 朱を強調や注意に使い始めるとこの理屈は壊れる。選択以外に使わないこと。
- * STORY: 触れた数だけ朱が点り、右の合計が追いつく。
- * FIRST VIEWPORT: 頭（戻り・名乗り・一行）、左に記入、右に内訳と合計。
- * FORM: 料紙（作品ページ）— 文法は DESIGN.md
+ * THESIS: 選ぶと、その場で金額が出る。だから 1 画面目は電卓そのもの（売り物のキットのページの型。手本は ../deadline）。
+ *   頭: 題は検索語（料金シミュレーター）、品物の名は題の下。右に購入の箱（KitOffer）。スマホは下の帯（KitBuyBar）。
+ *   1 画面目: 頭のすぐ下に無料の電卓（基本の計算だけ）。
+ *   そのあと: お求めいただく版で増えるもの（実物の画面と見積書の写し）→ 証拠 → 誰向け → 比較 → 値段（設置込み・領収書）→ つまずき → 更新とご利用の範囲
+ * COLOR: 電卓の中の朱は「選ばれていること」の印だけ（components/quote-simulator）。紙の側は方眼（DESIGN.md）。
+ * TRUTH: 「増えるもの」の画像は、お求めいただく版（1.1.1）を設定の例で動かして撮った実物。見せかけの画面を描かない。
  */
 import { QuoteSimulator } from "@/components/quote-simulator/QuoteSimulator";
 import type { Lang } from "@/i18n/routes";
 
-import {
-  AFTER_TOOL,
-  DemoNote,
-  ProjectShell,
-  PurchaseNote,
-  ShopEmbed,
-  ShopLinks,
-  projectMetadata,
-} from "../shell";
-import s from "../projects.module.css";
+import g from "../../guides/guides.module.css";
+import { DemoLabel } from "../demo-label";
+import p from "../kit-parts.module.css";
+import { KitBuyBar, KitOffer, KitSales } from "../kit-parts";
+import { DemoNote, ProjectShell, PurchaseNote, ShopEmbed, projectMetadata } from "../shell";
 import { copy } from "./copy";
+import q from "./quote.module.css";
 
-export const metadataFor = (lang: Lang) =>
-  projectMetadata(lang, "quote-simulator", copy[lang].meta);
+/** BOOTH・note の鍵（links.json） */
+const LINK = "s1";
+
+/** お求めいただく版の写し（public/projects/。scratchpad で 1.1.1 を動かして撮った） */
+const FIGURES = [
+  { src: "/projects/quote-simulator-calc", width: 960, height: 590 },
+  { src: "/projects/quote-simulator-sheet", width: 960, height: 749 },
+];
+
+export const metadataFor = (lang: Lang) => projectMetadata(lang, "quote-simulator", copy[lang].meta);
 
 export function Content({ lang }: { lang: Lang }) {
   const t = copy[lang];
@@ -38,17 +35,54 @@ export function Content({ lang }: { lang: Lang }) {
       lang={lang}
       slug="quote-simulator"
       title={t.title}
+      name={t.name}
       latin="Quote"
       lede={t.lede}
+      aside={<KitOffer lang={lang} slug="quote-simulator" linkKey={LINK} />}
+      bar={<KitBuyBar lang={lang} slug="quote-simulator" linkKey={LINK} />}
     >
+      <DemoLabel lang={lang} />
       <DemoNote lang={lang} />
       <QuoteSimulator />
-      <p className={s.lede} style={AFTER_TOOL}>
-        {t.kit}
-        <ShopLinks lang={lang} slug="quote-simulator" linkKey="s1" />
-      </p>
-      <ShopEmbed linkKey="s1" />
-      <PurchaseNote lang={lang} />
+
+      <section className={p.section} aria-labelledby="paid">
+        <h2 id="paid" className={p.h2}>
+          {t.paid.heading}
+        </h2>
+        <p className={p.body}>{t.paid.intro}</p>
+        <ul className={p.list}>
+          {t.paid.list.map((line) => (
+            <li key={line}>{line}</li>
+          ))}
+        </ul>
+        <div className={`${p.pair} ${q.figures}`}>
+          {FIGURES.map((f, i) => (
+            <figure key={f.src} className={`${p.cell} ${q.figure}`}>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={`${f.src}-960.webp`}
+                srcSet={`${f.src}-480.webp 480w, ${f.src}-960.webp 960w`}
+                sizes="(min-width: 768px) 560px, 100vw"
+                width={f.width}
+                height={f.height}
+                loading="lazy"
+                decoding="async"
+                alt={t.paid.figures[i].alt}
+              />
+              <figcaption className={p.small}>{t.paid.figures[i].caption}</figcaption>
+            </figure>
+          ))}
+        </div>
+      </section>
+
+      <KitSales lang={lang} slug="quote-simulator" name={t.name} linkKey={LINK} copy={t.sales} />
+
+      <section className={g.section}>
+        <h2 className={g.heading}>{t.closeHeading}</h2>
+        <p className={g.text}>{t.close}</p>
+        <ShopEmbed linkKey={LINK} />
+        <PurchaseNote lang={lang} className={g.text} />
+      </section>
     </ProjectShell>
   );
 }

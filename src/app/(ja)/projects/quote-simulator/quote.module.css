@@ -1,0 +1,16 @@
+/* お求めいただく版の写し（2 枚）。セルの中に実画面を置き、下に一行の説明 */
+
+.figures {
+  margin-top: 8px;
+}
+
+.figure {
+  margin: 0;
+}
+
+.figure img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border: 1px solid var(--m-grid);
+}

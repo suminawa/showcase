@@ -245,7 +245,8 @@ export const projects: Project[] = [
     category: "kits",
     // この紙の上では誰でも無料で使えるので、道具の一覧にも並ぶ
     alsoIn: "works",
-    sale: { status: "onsale", price: 2980 },
+    // 設置の代行は /contact の「キットの設置をお任せ」と同じ額
+    sale: { status: "onsale", price: 2980, service: { price: 30000 } },
   },
   {
     slug: "deadline",
