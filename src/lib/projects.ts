@@ -329,7 +329,8 @@ export const projects: Project[] = [
     tags: ["Next.js", "TypeScript", "Claude"],
     category: "kits",
     // LINE の中で動くので動く見本は置けない。作品ページは中身と置き方を節で並べる（2026-10-04）
-    sale: { status: "onsale", price: 12800 },
+    // 設置代行は /contact の品書きの「個別の自動化・AI の組み込み」（AI活用の柱の受託の一行）と同じ額
+    sale: { status: "onsale", price: 12800, service: { price: 40000 } },
   },
   {
     slug: "dashboard",
