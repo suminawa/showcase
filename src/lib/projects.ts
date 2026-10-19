@@ -294,7 +294,7 @@ export const projects: Project[] = [
     description: "請求書や領収書を読み取り、確かめてから表に出せます。",
     tags: ["Claude API", "Next.js"],
     category: "kits",
-    sale: { status: "onsale", price: 16800 },
+    sale: { status: "onsale", price: 16800, service: { price: 30000 } },
   },
   {
     slug: "sheet-app",
