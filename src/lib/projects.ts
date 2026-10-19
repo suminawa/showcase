@@ -358,7 +358,8 @@ export const projects: Project[] = [
     description: "ログイン・組織・権限・課金がそろった、会員制サービスの土台です。",
     tags: ["Next.js", "TypeScript", "Supabase", "Stripe"],
     category: "kits",
-    sale: { status: "onsale", price: 19800 },
+    // 設置代行は /contact の品書きの「キットの設置をお任せ」と同じ額
+    sale: { status: "onsale", price: 19800, service: { price: 30000 }, agency: { price: 39800 } },
   },
   {
     slug: "shopify-configurator",
