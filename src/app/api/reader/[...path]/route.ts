@@ -1,8 +1,10 @@
 /*
  * AI 書類読み取り（suminawa.dev の見本）。キット（@suminawa/doc-reader、vendor/ の tgz）の入口をそのまま使う。
- * 鍵は Vercel の ANTHROPIC_API_KEY だけから読む。鍵が無いあいだは、同梱の見本 5 枚だけ偽の答えで動く。
+ * 読み取りは案内窓口と同じ中継（syn-or の claude -p。Claude の利用枠）で行い、API の残高に頼らない。
+ * 中継の環境変数（RELAY_URL・CF_ACCESS_CLIENT_ID・CF_ACCESS_CLIENT_SECRET）が無いときだけ ANTHROPIC_API_KEY、それも無ければ同梱の見本 5 枚だけ偽の答えで動く。
  */
 import { createAnthropicClient, createFakeClient, createReader, loadConfigFile, loadFakeAnswers, loadForms, resolveConfig, type AnthropicClientLike, type Reader } from "@suminawa/doc-reader";
+import { relayReaderClient } from "@/lib/relay-client";
 
 /** API の失敗を、鍵や書類を出さずに実行ログへ（Vercel のログで原因が追えるように。キットは失敗を「読み取れません」に丸めて返す） */
 function loggingClient(apiKey: string): AnthropicClientLike {
@@ -35,7 +37,7 @@ function reader(): Promise<Reader> {
       const env = { ...process.env, TRUST_PROXY: process.env.TRUST_PROXY ?? "1" };
       const config = resolveConfig({ file: await loadConfigFile("reader/reader.config.json"), env });
       const forms = await loadForms(config.formsDir);
-      const client = config.apiKey === null ? createFakeClient(await loadFakeAnswers("reader/samples")) : loggingClient(config.apiKey);
+      const client = relayReaderClient() ?? (config.apiKey === null ? createFakeClient(await loadFakeAnswers("reader/samples")) : loggingClient(config.apiKey));
       return createReader(config, { forms, client });
     })().catch((error: unknown) => {
       // 読み込みに失敗した約束を持ち続けない（次のリクエストでやり直す）

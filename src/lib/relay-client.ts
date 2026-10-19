@@ -5,6 +5,7 @@
  *   RELAY_URL（例 https://syn-or.com）・CF_ACCESS_CLIENT_ID・CF_ACCESS_CLIENT_SECRET。3 つがそろわなければ null（キットは ANTHROPIC_API_KEY にもどる）。
  */
 import type { AnthropicClientLike } from "@suminawa/ai-concierge";
+import type { AnthropicClientLike as ReaderClientLike, MessageParams as ReaderParams } from "@suminawa/doc-reader";
 
 type Block = { type: string; text?: string; title?: string; source?: { data?: string } };
 type Params = { system: { text: string }[]; messages: { role: "user" | "assistant"; content: string | Block[] }[]; max_tokens: number; output_config?: { effort: string } };
@@ -101,4 +102,51 @@ export function createRelayClient(o: { url: string; id: string; secret: string; 
 export function relayClient(): AnthropicClientLike | null {
   const env = relayEnv();
   return env ? createRelayClient(env) : null;
+}
+
+/*
+ * AI 書類読み取り（@suminawa/doc-reader）の差し替え口。書類（PDF・画像の base64）と帳票の型の JSON Schema を同じ中継に送り、
+ * 中継は Mac の claude -p に書類を Read させて構造化出力で返す。messages.create() の形に戻す。
+ */
+type FileBlock = { type: string; title?: string; source: { media_type: string; data: string } };
+
+/** キットの params を中継の形に（書類 1 枚 + 文 + schema）。書類が無ければ null */
+export function toExtractBody(params: ReaderParams) {
+  const content = params.messages[0]?.content;
+  if (!Array.isArray(content)) return null;
+  const file = content.find((b) => b.type === "document" || b.type === "image") as FileBlock | undefined;
+  if (!file) return null;
+  const user = content.flatMap((b) => (b.type === "text" && "text" in b && typeof b.text === "string" ? [b.text] : [])).join("\n");
+  return {
+    system: params.system.map((s) => s.text).join("\n\n"), user,
+    file: { name: file.title ?? "document", mediaType: file.source.media_type, data: file.source.data },
+    schema: params.output_config?.format?.schema ?? {}, effort: params.output_config?.effort,
+  };
+}
+
+export function createRelayReaderClient(o: { url: string; id: string; secret: string; fetch?: typeof fetch; timeoutMs?: number }): ReaderClientLike {
+  const f = o.fetch ?? fetch;
+  return {
+    messages: {
+      async create(params) {
+        const body = toExtractBody(params);
+        if (!body) throw Object.assign(new Error("relay: no document"), { status: 400 });
+        const res = await f(`${o.url}/api/relay/answer`, {
+          method: "POST", signal: AbortSignal.timeout(o.timeoutMs ?? 58_000),
+          headers: { "content-type": "application/json", "CF-Access-Client-Id": o.id, "CF-Access-Client-Secret": o.secret },
+          body: JSON.stringify(body),
+        });
+        const data = (await res.json().catch(() => ({}))) as { text?: string; error?: string };
+        // 中継の状態をそのまま status に（キットは 429 → 混雑、他 → いまは読み取れません、に直す）。鍵や書類は出さない
+        if (!res.ok || typeof data.text !== "string") throw Object.assign(new Error(`relay ${res.status}: ${data.error ?? "no-text"}`), { status: res.ok ? 502 : res.status });
+        return { stop_reason: "end_turn", content: [{ type: "text", text: data.text }], usage: { input_tokens: 0, output_tokens: 0 } };
+      },
+    },
+  };
+}
+
+/** 環境変数がそろっていれば書類読み取りの中継 client、無ければ null */
+export function relayReaderClient(): ReaderClientLike | null {
+  const env = relayEnv();
+  return env ? createRelayReaderClient(env) : null;
 }

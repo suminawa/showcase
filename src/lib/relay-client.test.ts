@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { createRelayClient, toRelayBody, relayEnv } from "./relay-client";
+import { createRelayClient, createRelayReaderClient, toExtractBody, toRelayBody, relayEnv } from "./relay-client";
 
 const params = {
   system: [{ text: "敬体で。" }], max_tokens: 700, output_config: { effort: "low" },
@@ -43,5 +43,30 @@ describe("createRelayClient", () => {
   it("環境変数が 3 つそろったときだけ中継を使う", () => {
     expect(relayEnv({})).toBeNull();
     expect(relayEnv({ RELAY_URL: "https://syn-or.com/", CF_ACCESS_CLIENT_ID: "a", CF_ACCESS_CLIENT_SECRET: "b" })).toEqual({ url: "https://syn-or.com", id: "a", secret: "b" });
+  });
+});
+
+const readerParams = {
+  model: "claude-opus-5", max_tokens: 4096, system: [{ type: "text" as const, text: "写す係です。" }],
+  messages: [{ role: "user" as const, content: [{ type: "document", title: "invoice.pdf", source: { type: "base64", media_type: "application/pdf", data: "JVBERi0=" } }, { type: "text", text: "写してください。" }] }],
+  output_config: { effort: "low" as const, format: { type: "json_schema" as const, schema: { type: "object" } } },
+};
+
+describe("toExtractBody", () => {
+  it("書類 1 枚と文と schema を中継の形にする", () => {
+    expect(toExtractBody(readerParams as never)).toEqual({ system: "写す係です。", user: "写してください。", file: { name: "invoice.pdf", mediaType: "application/pdf", data: "JVBERi0=" }, schema: { type: "object" }, effort: "low" });
+    expect(toExtractBody({ ...readerParams, messages: [{ role: "user", content: "文だけ" }] } as never)).toBeNull();
+  });
+});
+
+describe("createRelayReaderClient", () => {
+  it("中継の { text } を messages.create の答えに直し、失敗は status 付きで投げる", async () => {
+    let seen: { url: string; body: unknown } | null = null;
+    const ok = (async (url: string | URL | Request, init?: RequestInit) => { seen = { url: String(url), body: JSON.parse(String(init?.body)) }; return new Response(JSON.stringify({ text: "{\"fields\":{}}" }), { status: 200 }); }) as typeof fetch;
+    const msg = await createRelayReaderClient({ url: "https://syn-or.com", id: "i", secret: "s", fetch: ok }).messages.create(readerParams as never);
+    expect(seen!.url).toBe("https://syn-or.com/api/relay/answer"); expect((seen!.body as { file: { name: string } }).file.name).toBe("invoice.pdf");
+    expect(msg).toEqual({ stop_reason: "end_turn", content: [{ type: "text", text: "{\"fields\":{}}" }], usage: { input_tokens: 0, output_tokens: 0 } });
+    const down = (async () => new Response(JSON.stringify({ error: "not-logged-in" }), { status: 503 })) as typeof fetch;
+    await expect(createRelayReaderClient({ url: "https://syn-or.com", id: "i", secret: "s", fetch: down }).messages.create(readerParams as never)).rejects.toMatchObject({ status: 503 });
   });
 });
