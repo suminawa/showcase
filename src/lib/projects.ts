@@ -270,7 +270,8 @@ export const projects: Project[] = [
     description: "マス目を塗って間取りを描き、家具を置いて 3D で確かめられます。",
     tags: ["React Three Fiber", "TypeScript"],
     category: "kits",
-    sale: { status: "onsale", price: 9800 },
+    // 設置の代行は /contact の「埋め込み部品の設置（AI 案内窓口・間取り・3D の商品ページ）」と同じ額
+    sale: { status: "onsale", price: 9800, service: { price: 60000 } },
   },
   {
     slug: "lp-pack",
