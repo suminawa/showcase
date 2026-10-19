@@ -8,12 +8,18 @@
  *   料紙には寄せない（色覚の差があっても見分けられる並びを崩さないため）。
  * STORY: 期間と区分で絞ると、数字の札・折れ線・棒・目標・表が同時に変わる。
  *   折れ線に触れると縦の線が付いてきて、その日の値がまとめて読める。
- * FIRST VIEWPORT: 頭（戻り・名乗り・一行）、見本の断りが一行、その下に道具。
+ * FIRST VIEWPORT: 頭（題・品物の名・一行。右に購入の箱）、見本の札、その下に道具。
+ * 売り物のページの型（kit-parts.tsx。手本は deadline/content.tsx。2026-10-20）:
+ *   道具のあと: 使い方の一行 → 証拠 → 誰向け → 比較 → 値段（設置込み・領収書）→ つまずき（KitSales）→ できること・置き方 → note。
+ *   スマホは右の箱を出さず、値段と 2 つの押す先を下の帯（KitBuyBar）に。
  * FORM: 料紙（作品ページ）— 文法は DESIGN.md
  * このページはサーバー部品のまま。道具（Tool）は "use client" のこの下だけに閉じる。
  */
 import type { Lang } from "@/i18n/routes";
 
+import g from "../../guides/guides.module.css";
+import { DemoLabel } from "../demo-label";
+import { KitBuyBar, KitOffer, KitSales } from "../kit-parts";
 import {
   AFTER_TOOL,
   ProjectShell,
@@ -27,6 +33,9 @@ import { copy } from "./copy";
 import f from "./dashboard.module.css";
 import { Tool } from "./Tool";
 
+/** BOOTH・note の鍵（links.json） */
+const LINK = "dashboard";
+
 export const metadataFor = (lang: Lang) =>
   projectMetadata(lang, "dashboard", copy[lang].meta);
 
@@ -37,25 +46,39 @@ export function Content({ lang }: { lang: Lang }) {
       lang={lang}
       slug="dashboard"
       title={t.title}
+      name={t.name}
       latin="Dashboard"
       lede={t.lede}
+      aside={<KitOffer lang={lang} slug="dashboard" linkKey={LINK} />}
+      bar={<KitBuyBar lang={lang} slug="dashboard" linkKey={LINK} />}
     >
-      <p className={s.lede}>{t.intro}</p>
+      <DemoLabel lang={lang} />
       {/* 道具の中だけは自前の色と字を持つ。その根がこの一枚 */}
       <div className={f.tool}>
         <Tool initialLang={lang === "ja" ? undefined : "en"} />
       </div>
       <p className={s.lede} style={AFTER_TOOL}>
-        {t.use}
+        {t.intro}
       </p>
-      <p className={s.lede}>{t.parts}</p>
-      <p className={s.lede}>{t.deploy}</p>
-      <p className={s.lede}>
-        {t.kit}
-        <ShopLinks lang={lang} slug="dashboard" linkKey="dashboard" />
-      </p>
-      <ShopEmbed linkKey="dashboard" />
-      <PurchaseNote lang={lang} />
+      <p className={s.lede}>{t.use}</p>
+      <KitSales lang={lang} slug="dashboard" name={t.name} linkKey={LINK} copy={t.sales} />
+      <section className={g.section}>
+        <h2 className={g.heading}>{t.partsHeading}</h2>
+        <p className={g.text}>{t.parts}</p>
+      </section>
+      <section className={g.section}>
+        <h2 className={g.heading}>{t.deployHeading}</h2>
+        <p className={g.text}>{t.deploy}</p>
+      </section>
+      <section className={g.section}>
+        <h2 className={g.heading}>{t.buyHeading}</h2>
+        <p className={g.text}>
+          {t.kit}
+          <ShopLinks lang={lang} slug="dashboard" linkKey={LINK} />
+        </p>
+        <ShopEmbed linkKey={LINK} />
+        <PurchaseNote lang={lang} className={g.text} />
+      </section>
     </ProjectShell>
   );
 }

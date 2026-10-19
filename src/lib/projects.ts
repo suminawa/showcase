@@ -286,7 +286,8 @@ export const projects: Project[] = [
     description: "自社の文書だけを根拠に、サイトの上で質問に答える窓を置けます。",
     tags: ["Claude API", "Next.js"],
     category: "kits",
-    sale: { status: "onsale", price: 12800 },
+    // 設置代行は /contact の品書きの「埋め込み部品の設置（AI 案内窓口・…）」（EMBED_SERVICE）と同じ額
+    sale: { status: "onsale", price: 12800, service: { price: 60000 } },
   },
   {
     slug: "doc-reader",
@@ -328,7 +329,8 @@ export const projects: Project[] = [
     tags: ["Next.js", "TypeScript", "Claude"],
     category: "kits",
     // LINE の中で動くので動く見本は置けない。作品ページは中身と置き方を節で並べる（2026-10-04）
-    sale: { status: "onsale", price: 12800 },
+    // 設置代行は /contact の品書きの「個別の自動化・AI の組み込み」（AI活用の柱の受託の一行）と同じ額
+    sale: { status: "onsale", price: 12800, service: { price: 40000 } },
   },
   {
     slug: "dashboard",
@@ -336,7 +338,8 @@ export const projects: Project[] = [
     description: "表や CSV の数字を、設定だけで KPI とグラフの画面にできます。",
     tags: ["JavaScript", "SVG", "Google Apps Script"],
     category: "kits",
-    sale: { status: "onsale", price: 9800 },
+    // 設置代行は /contact の品書きの「キットの設置をお任せ」（業務自動化の柱の受託の一行）と同じ額
+    sale: { status: "onsale", price: 9800, service: { price: 30000 } },
   },
   {
     slug: "configurator",
