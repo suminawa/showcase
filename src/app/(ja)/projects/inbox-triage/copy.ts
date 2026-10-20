@@ -1,4 +1,5 @@
 import type { KitSales } from "../kit-parts";
+import { STEP_IMAGES } from "../step-images";
 
 const SOURCES = {
   qiita: "https://qiita.com/rira__/items/c336673b3bbcaebdf3f8",
@@ -60,6 +61,7 @@ const jaSales: KitSales = {
   steps: [
     {
       heading: "「このアプリは Google で確認されていません」と出たとき",
+      image: STEP_IMAGES.gasAuth,
       intro: "メニューの「問い合わせ整理」→「設定を確かめる」を初めて押すと、Google の承認の画面が出ます。ご自身で貼ったスクリプトなので、この画面が出るのが正常です。次の順に進めてください。",
       items: [
         "「承認が必要です」の画面で「権限を確認」を押し、ご自身の Google アカウントを選びます。",
@@ -72,6 +74,7 @@ const jaSales: KitSales = {
     },
     {
       heading: "Anthropic の API キーの取得とカードの登録",
+      image: STEP_IMAGES.apiKey,
       intro: "メールを AI に読ませるための鍵です。費用は、読んだ通数に応じてご自身の鍵にかかります。Anthropic Console の画面は英語です。会社のカードで登録するときは、先に上限額と一緒に決裁を取っておくと進めやすくなります。",
       items: [
         "Anthropic Console（console.anthropic.com）でアカウントを作り、「Billing」で支払い方法（クレジットカード）を登録します。",

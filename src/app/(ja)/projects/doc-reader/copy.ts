@@ -1,4 +1,5 @@
 import type { KitSales } from "../kit-parts";
+import { STEP_IMAGES } from "../step-images";
 
 const SOURCES = {
   driveOcr: "https://support.google.com/drive/answer/176692?hl=ja",
@@ -60,6 +61,7 @@ const jaSales: KitSales = {
   steps: [
     {
       heading: "Anthropic の API キーの取得とカードの登録",
+      image: STEP_IMAGES.apiKey,
       intro: "書類を AI に読ませるための鍵です。費用は、読んだ枚数に応じてご自身の鍵にかかります。Anthropic Console の画面は英語です。",
       items: [
         "Anthropic Console（console.anthropic.com）でアカウントを作り、「Billing」で支払い方法（クレジットカード）を登録します。",

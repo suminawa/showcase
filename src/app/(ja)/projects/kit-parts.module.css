@@ -448,3 +448,17 @@
   line-height: 1.5;
   color: var(--m-sumi-3);
 }
+
+/* 手順の図。押すと原寸で開く */
+.stepImage {
+  display: block;
+  margin: 16px 0;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 0 0 1px var(--line, rgba(28, 26, 21, 0.12));
+}
+.stepImage img {
+  display: block;
+  width: 100%;
+  height: auto;
+}

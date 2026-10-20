@@ -1,4 +1,5 @@
 import type { KitSales } from "../kit-parts";
+import { STEP_IMAGES } from "../step-images";
 
 const SOURCES = {
   looker: "https://cloud.google.com/looker-studio",
@@ -60,6 +61,7 @@ const jaSales: KitSales = {
   steps: [
     {
       heading: "スプレッドシート版で「このアプリは Google で確認されていません」と出たとき",
+      image: STEP_IMAGES.gasAuth,
       intro: "はじめて実行したときと、見る方がはじめて開いたときに、Google の承認の画面が出ます。ご自身で貼ったスクリプトなので、この画面が出るのが正常です。次の順に進めてください。",
       items: [
         "「承認が必要です」の画面で「権限を確認」を押し、ご自身の Google アカウントを選びます。",

@@ -1,6 +1,7 @@
 import { money } from "@/i18n/ui";
 
 import type { KitSales } from "../kit-parts";
+import { STEP_IMAGES } from "../step-images";
 
 const SOURCES = {
   addReminders: "https://workspace.google.com/marketplace/app/add_reminders/404177452106",
@@ -62,6 +63,7 @@ const jaSales: KitSales = {
   steps: [
     {
       heading: "「このアプリは Google で確認されていません」と出たとき",
+      image: STEP_IMAGES.gasAuth,
       intro: "初めて「初期化」を押すと、Google の確認画面が出ます。ご自身で貼ったスクリプトなので、この画面が出るのが正常です。次の順に進めてください。",
       items: [
         "「承認が必要です」の画面で「権限を確認」を押します。",

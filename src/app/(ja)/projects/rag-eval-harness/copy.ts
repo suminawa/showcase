@@ -3,6 +3,7 @@
  * 札の数字（100% → 95%・q05）は、同梱の記録の再生（npm run demo:diff）のレポートと同じ。
  */
 import type { KitSales } from "../kit-parts";
+import { STEP_IMAGES } from "../step-images";
 import type { KitSection } from "../kit-sheet";
 
 const SOURCES = {
@@ -144,6 +145,7 @@ const ja: RagCopy = {
     steps: [
       {
         heading: "会社で Anthropic の API キーを用意するとき",
+        image: STEP_IMAGES.apiKey,
         intro: "採点に Anthropic の API キーが要ります。会社で契約するときは、次の順に進めます。画面の言葉は、Console の版によって少し違うことがあります。",
         items: [
           "Anthropic の Console（console.anthropic.com）でアカウントを作ります。",

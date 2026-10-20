@@ -1,6 +1,7 @@
 import { money } from "@/i18n/ui";
 
 import type { KitSales } from "../kit-parts";
+import { STEP_IMAGES } from "../step-images";
 
 const SOURCES = {
   formsNotify: "https://support.google.com/docs/answer/139706?hl=ja",
@@ -61,6 +62,7 @@ const jaSales: KitSales = {
   steps: [
     {
       heading: "「このアプリは Google で確認されていません」と出たとき",
+      image: STEP_IMAGES.gasAuth,
       intro: "この画面は 2 回出ます。初めて「初期化」を押したときと、ウェブアプリとして公開するときです。ご自身で貼ったスクリプトなので、出るのが正常です。どちらも次の順に進めてください。",
       items: [
         "「承認が必要です」の画面で「権限を確認」を押します。",

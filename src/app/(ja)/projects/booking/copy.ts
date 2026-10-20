@@ -1,4 +1,5 @@
 import type { KitSales } from "../kit-parts";
+import { STEP_IMAGES } from "../step-images";
 
 const SOURCES = {
   googleCalendar: "https://support.google.com/calendar/answer/190998?hl=ja",
@@ -71,6 +72,7 @@ const jaSales: KitSales = {
     },
     {
       heading: "承認の画面と、前日のリマインドを動かすまで",
+      image: STEP_IMAGES.gasAuth,
       intro: "初めて公開するときに、Google の承認の画面が出ます。ご自身で作ったスクリプトなので、出るのが正常です。",
       items: [
         "「承認が必要です」の画面で「権限を確認」を押し、ご自身の Google アカウントを選びます。",

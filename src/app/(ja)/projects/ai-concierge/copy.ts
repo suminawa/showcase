@@ -1,4 +1,5 @@
 import type { KitSales } from "../kit-parts";
+import { STEP_IMAGES } from "../step-images";
 
 const SOURCES = {
   tidio: "https://www.tidio.com/pricing/",
@@ -60,6 +61,7 @@ const jaSales: KitSales = {
   steps: [
     {
       heading: "Claude の API キーを作り、カードを登録するまで",
+      image: STEP_IMAGES.apiKey,
       intro: "答えを作るのは Anthropic の Claude です。鍵（API キー）はお客さまご自身で作り、利用料はお客さまの Anthropic のアカウントにかかります。次の順に進めてください。",
       items: [
         "Claude Console（platform.claude.com。以前の Anthropic Console）を開き、アカウントを作ります。",

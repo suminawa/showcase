@@ -1,4 +1,5 @@
 import type { KitSales } from "../kit-parts";
+import { STEP_IMAGES } from "../step-images";
 import type { KitCopy } from "../kit-sheet";
 
 const SOURCES = {
@@ -61,6 +62,7 @@ const jaSales: KitSales = {
   steps: [
     {
       heading: "「このアプリは Google で確認されていません」と出たとき",
+      image: STEP_IMAGES.gasAuth,
       intro: "初めてメニューの「初期化」を押すと、Google の承認の画面が出ます。ご自身で貼ったスクリプトなので、この画面が出るのが正常です。次の順に進めてください。",
       items: [
         "「承認が必要です」の画面で「権限を確認」を押し、ご自身の Google アカウントを選びます。",
@@ -73,6 +75,7 @@ const jaSales: KitSales = {
     },
     {
       heading: "Anthropic の API キーの取得とカードの登録",
+      image: STEP_IMAGES.apiKey,
       intro: "実際の回答を AI で分析するときに要る鍵です。フォームを作って回答を集めるだけなら、まだ要りません。Anthropic Console の画面は英語です。",
       items: [
         "Anthropic Console（console.anthropic.com）でアカウントを作ります。",

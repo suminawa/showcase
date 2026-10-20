@@ -1,4 +1,5 @@
 import type { KitSales } from "../kit-parts";
+import { STEP_IMAGES } from "../step-images";
 
 const SOURCES = {
   googleForms: "https://support.google.com/docs/answer/2917686?hl=ja",
@@ -60,6 +61,7 @@ const jaSales: KitSales = {
   steps: [
     {
       heading: "「このアプリは Google で確認されていません」と出たとき",
+      image: STEP_IMAGES.gasAuth,
       intro: "初めてメニューの「見本を読み込む」や「初期化」を押すと、Google の確認画面が出ます。ご自身のスプレッドシートに貼ったスクリプトなので、出るのが正常です。",
       items: [
         "「承認が必要です」の画面で「権限を確認」を押し、ご自身の Google アカウントを選びます。",

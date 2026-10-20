@@ -16,6 +16,7 @@
  * 値段はすべて projects.ts（と prices.ts の記念価格）から要求のたびに組む。文に値段を書かない。
  * 売り場への道は /go/ を通す（links.json の鍵）。
  */
+import Image from "next/image";
 import Link from "next/link";
 
 import u from "@/components/site/ui.module.css";
@@ -51,7 +52,9 @@ export type KitCompareCopy = {
 };
 
 /** (g) つまずきの手順 1 組。items は画面の言葉のままの手順（1 行 1 手） */
-export type KitStepGroup = { heading: string; intro: string; items: string[]; after: string };
+export type KitStepImage = { src: string; alt: string; width: number; height: number };
+export type KitStepGroup = { heading: string; intro: string; items: string[]; after: string; image?: KitStepImage };
+
 
 export type KitSales = {
   audience: KitAudienceCopy;
@@ -468,6 +471,11 @@ export function KitSteps({ lang, groups }: { lang: Lang; groups: KitStepGroup[] 
                 <li key={line}>{line}</li>
               ))}
             </ol>
+            {g.image ? (
+              <a className={p.stepImage} href={g.image.src} target="_blank" rel="noopener">
+                <Image src={g.image.src} alt={g.image.alt} width={g.image.width} height={g.image.height} sizes="(max-width: 768px) 100vw, 560px" />
+              </a>
+            ) : null}
             <p className={p.body}>{g.after}</p>
           </div>
         ))}

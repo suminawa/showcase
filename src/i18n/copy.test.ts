@@ -22,6 +22,8 @@ function shape(v: unknown): unknown {
   if (v && typeof v === "object") {
     return Object.fromEntries(
       Object.keys(v)
+        // 手順の図（image）は字が言語ごとに違うので、持つかどうかを言語ごとに決めてよい
+        .filter((k) => k !== "image")
         .sort()
         .map((k) => [k, shape((v as Record<string, unknown>)[k])]),
     );
