@@ -79,5 +79,5 @@ export function isFlagship(slug: string): slug is FlagshipSlug {
   return (FLAGSHIPS as readonly string[]).includes(slug);
 }
 
-/** 無料版のある品物と、その売り場への道の鍵（links.json）。いまは期限アラートだけ */
-export const FREE_EDITION: Readonly<Partial<Record<string, LinkKey>>> = { deadline: "deadline-lite" };
+/** 無料版のある品物と、その売り場への道の鍵（links.json） */
+export const FREE_EDITION: Readonly<Partial<Record<string, LinkKey>>> = { deadline: "deadline-lite", "order-report": "order-report-lite" };

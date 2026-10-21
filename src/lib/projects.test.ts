@@ -16,11 +16,11 @@ describe("入口 3 行", () => {
   });
 
   it("件数はレジストリから数える（手で書かない）", () => {
-    expect(categoryCount("kits")).toEqual({ total: 18, onsale: 17 });
+    expect(categoryCount("kits")).toEqual({ total: 19, onsale: 18 });
     expect(categoryCount("sites")).toEqual({ total: 6, onsale: 0 });
     expect(categoryCount("works")).toEqual({ total: 3, onsale: 0 });
 
-    expect(countLabel("kits")).toBe("18 件　発売中 17 件");
+    expect(countLabel("kits")).toBe("19 件　発売中 18 件");
     expect(countLabel("sites")).toBe("6 件");
     expect(countLabel("works")).toBe("3 件");
   });
@@ -133,11 +133,11 @@ describe("三つの柱（業務自動化・AI活用・Web制作）", () => {
     expect(PILLARS.map((p) => p.short)).toEqual(["業務自動化", "AI活用", "Web制作"]);
   });
 
-  it("キットを一度ずつ配り、取りこぼさない（18 本 = 5 + 7 + 6）", () => {
+  it("キットを一度ずつ配り、取りこぼさない（19 本 = 6 + 7 + 6）", () => {
     const all = PILLARS.flatMap((p) => p.slugs);
     expect(new Set(all).size).toBe(all.length);
     expect([...all].sort()).toEqual(projectsByCategory("kits").map((p) => p.slug).sort());
-    expect(PILLARS.map((p) => p.slugs.length)).toEqual([5, 7, 6]);
+    expect(PILLARS.map((p) => p.slugs.length)).toEqual([6, 7, 6]);
     for (const pillar of PILLARS) expect(pillarKits(pillar).map((p) => p.slug)).toEqual([...pillar.slugs]);
   });
 
@@ -199,7 +199,7 @@ describe("projects registry", () => {
     }
   });
 
-  it("kits は発売中 17 本（発売の順）のあとに無料の見本 1 本", () => {
+  it("kits は発売中 18 本（発売の順）のあとに無料の見本 1 本", () => {
     const kits = projectsByCategory("kits");
     expect(kits.map((p) => p.slug)).toEqual([
       "quote-simulator",
@@ -219,10 +219,11 @@ describe("projects registry", () => {
       "shopify-configurator",
       "survey-analysis",
       "rag-eval-harness",
+      "order-report",
       "mcp-server",
     ]);
     expect(kits.map((p) => p.sale?.status)).toEqual([
-      ...Array(17).fill("onsale"),
+      ...Array(18).fill("onsale"),
       "free",
     ]);
   });
@@ -257,6 +258,8 @@ describe("projects registry", () => {
       "survey-analysis": 7980,
       // 2026-10-04 に発売。1 つの値段
       "rag-eval-harness": 5980,
+      // 2026-10-21 に発売。1 つの値段
+      "order-report": 2980,
       // 発売前。定価は設計で決めてあるので持つ（一覧には出さない）
     });
   });

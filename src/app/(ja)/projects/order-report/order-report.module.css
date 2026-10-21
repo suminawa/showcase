@@ -1,0 +1,18 @@
+/* 結果の画面の写し（2560×1600）。押すと原寸で開く（スマホでは縮んで字が読めないため） */
+.shot {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+}
+
+.shot img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border: 1px solid var(--m-grid);
+}
+
+.shot a:focus-visible {
+  outline: 2px solid var(--m-shu);
+  outline-offset: 2px;
+}

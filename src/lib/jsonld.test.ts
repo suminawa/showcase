@@ -95,7 +95,7 @@ describe("jsonld", () => {
   });
 
   it("見本を紙に置けない 5 本の作品ページも、パンくず（トップ → キット → この紙）と Product・Offer（いまの値段）を持つ", () => {
-    for (const slug of ["line-concierge", "survey-analysis", "rag-eval-harness", "lp-pack", "shopify-configurator"]) {
+    for (const slug of ["line-concierge", "survey-analysis", "rag-eval-harness", "lp-pack", "shopify-configurator", "order-report"]) {
       const list = projects.find((p) => p.slug === slug)!.sale!.price!;
       for (const lang of ["ja", "en", "fr"] as const) {
         const prefix = lang === "ja" ? "" : `/${lang}`;

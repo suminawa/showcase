@@ -23,7 +23,7 @@ const titleOf = (slug: string) => projects.find((p) => p.slug === slug)?.title ?
 
 /** 棚の一行に添える二文目（柱の一行は PILLARS が持つ）。英仏は catalog.ts の pillarCopy.note */
 const SHELF_NOTE: Record<PillarId, string> = {
-  automation: "どれも Google スプレッドシートで動き、手順書どおりに 15〜20 分ほどで置けます。月額の費用はかかりません。",
+  automation: "Google スプレッドシートか Excel で動き、手順書どおりに 10〜20 分ほどで置けます。月額の費用はかかりません。",
   ai: "AI を使うキットは、ご自身の API キーの利用料がかかります。月額のサービス料はかかりません。",
   web: "サイトやサービスを作る方に向けた、テンプレートと部品です。使っている技術を添えています。",
 };

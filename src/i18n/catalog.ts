@@ -85,7 +85,7 @@ export const CATALOG: Record<ForeignLang, Catalog> = {
         },
         demo: "Live demo: Deadline Alert",
         service: { label: "Setup, done for you", price: "From ¥30,000" },
-        note: "Everything runs on Google Sheets and takes about 15–20 minutes to set up by following the guide. No monthly fee.",
+        note: "Each runs in Google Sheets or Excel and takes about 10–20 minutes to set up by following the guide. No monthly fee.",
       },
       ai: {
         short: "AI",
@@ -223,6 +223,10 @@ export const CATALOG: Record<ForeignLang, Catalog> = {
         title: "RAG Eval Harness",
         description: "After you update an AI help desk, run the same question sheet and see which answers got worse, listed first.",
       },
+      "order-report": {
+        title: "Subscription Order Report Template",
+        description: "Paste your cart’s order and subscription CSVs into Excel to get new customers, cancellations, and next month’s subscription sales by month.",
+      },
       "mcp-server": {
         title: "MCP Server Kit",
         description: "Search and add records in your business app, booking, and document sheets from a chat with Claude or ChatGPT.",
@@ -317,7 +321,7 @@ export const CATALOG: Record<ForeignLang, Catalog> = {
         },
         demo: "Démo en direct : Alerte d’échéances",
         service: { label: "Installation clés en main", price: "Dès 30 000 ¥" },
-        note: "Tout fonctionne dans Google Sheets et s’installe en 15 à 20 minutes environ en suivant le guide. Aucun abonnement mensuel.",
+        note: "Chaque kit fonctionne dans Google Sheets ou Excel et s’installe en 10 à 20 minutes environ en suivant le guide. Aucun abonnement mensuel.",
       },
       ai: {
         short: "IA",
@@ -454,6 +458,10 @@ export const CATALOG: Record<ForeignLang, Catalog> = {
       "rag-eval-harness": {
         title: "Harnais d’évaluation RAG",
         description: "Après une mise à jour de votre assistant IA, rejouez le même jeu de questions et voyez d’abord les réponses qui se sont dégradées.",
+      },
+      "order-report": {
+        title: "Modèle de rapport des commandes par abonnement",
+        description: "Collez dans Excel les CSV de commandes et d’abonnements de votre boutique : nouveaux clients, résiliations et ventes d’abonnement du mois prochain, mois par mois.",
       },
       "mcp-server": {
         title: "Kit de serveur MCP",

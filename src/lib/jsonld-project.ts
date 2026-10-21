@@ -22,6 +22,7 @@ export const NO_OG = new Set([
   "rag-eval-harness",
   "lp-pack",
   "shopify-configurator",
+  "order-report",
 ]);
 
 export function projectJsonLd(lang: Lang, slug: string, title: string): Record<string, unknown>[] | null {

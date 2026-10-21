@@ -37,8 +37,8 @@ export type KitAudienceCopy = { fits: string[]; notFor: string[] };
 /** (f) 証拠の帯の 1 マス。figure は大きな字（「158 件」）、label はその説明。4 つ（スマホ 2 列・PC 4 列で欠けない数） */
 export type KitProofItem = { figure: string; label: string };
 
-/** (c) 比べる相手 1 行。kind は「無料の道具」「標準の機能」「似たサービス」。href は内容と費用の出どころ */
-export type KitCompareRow = { kind: string; name: string; href: string; cost: string; note: string };
+/** (c) 比べる相手 1 行。kind は「無料の道具」「標準の機能」「似たサービス」。href は内容と費用の出どころ（ピボットのような一般の手立てで、出どころのページが無い行だけ省く） */
+export type KitCompareRow = { kind: string; name: string; href?: string; cost: string; note: string };
 
 /** (c) 比較表。rows は 3 行（無料・標準の機能・似たサービス）、4 行目の「このキット」は部品が値段から組む */
 export type KitCompareCopy = {
@@ -355,9 +355,13 @@ export function KitCompare({ lang, slug, name, copy }: { lang: Lang; slug: strin
                 {row.kind}
               </th>
               <td data-label={cName}>
-                <a href={row.href} className={u.link} rel="noopener noreferrer">
-                  {row.name}
-                </a>
+                {row.href ? (
+                  <a href={row.href} className={u.link} rel="noopener noreferrer">
+                    {row.name}
+                  </a>
+                ) : (
+                  row.name
+                )}
               </td>
               <td data-label={cCost}>{row.cost}</td>
               <td data-label={cNote}>{row.note}</td>

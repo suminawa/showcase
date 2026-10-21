@@ -36,6 +36,7 @@ export const TRANSLATED_PROJECTS = [
   "line-concierge",
   "lp-pack",
   "mcp-server",
+  "order-report",
   "quote-simulator",
   "rag-eval-harness",
   "saas-starter",

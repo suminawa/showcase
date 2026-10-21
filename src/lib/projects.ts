@@ -399,6 +399,16 @@ export const projects: Project[] = [
     sale: { status: "onsale", price: 5980, service: { price: 30000 } },
   },
   {
+    slug: "order-report",
+    title: "定期通販 受注集計テンプレート",
+    description: "受注 CSV と定期 CSV を貼ると、新規・解約・来月の定期売上まで月次でそろいます。",
+    tags: ["Excel", "CSV"],
+    category: "kits",
+    // 2026-10-21 発売。1 つの値段（記念価格なし）。Excel の中で動くので、作品ページは結果の画面の写しを置く
+    // 差し込み（自社の CSV に合わせる）は設計（ops 30days/research/2026-10-19-order-report-template.md）の 5,000 円（税別）
+    sale: { status: "onsale", price: 2980, service: { price: 5000 } },
+  },
+  {
     slug: "mcp-server",
     title: "MCP サーバー キット",
     description: "業務アプリ・予約・書類のシートを、Claude や ChatGPT から読み書きできます。",
@@ -574,7 +584,7 @@ export const PILLARS: readonly Pillar[] = [
     name: "業務自動化",
     short: "業務自動化",
     lede: "表に書けば、仕事が回る。期限の通知、問い合わせの受付、予約のページを、Google スプレッドシートの中で動かします。",
-    slugs: ["deadline", "form", "booking", "sheet-app", "dashboard"],
+    slugs: ["deadline", "form", "booking", "sheet-app", "dashboard", "order-report"],
     picks: [
       { slug: "deadline", hook: "期限を毎朝 1 通でお知らせします" },
       { slug: "form", hook: "受付を記録して、自動で返信します" },

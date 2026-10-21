@@ -79,5 +79,12 @@
   "rag-eval-harness": {
     "note": "https://note.com/suminawa/n/n69a5642a0a48",
     "booth": "https://suminawa.booth.pm/items/8934876"
+  },
+  "order-report": {
+    "note": "https://note.com/suminawa/n/TODO-ORDER-REPORT",
+    "booth": "https://suminawa.booth.pm/items/TODO-ORDER-REPORT"
+  },
+  "order-report-lite": {
+    "booth": "https://suminawa.booth.pm/items/TODO-ORDER-REPORT-LITE"
   }
 }
