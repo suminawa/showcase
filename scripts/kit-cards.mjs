@@ -52,6 +52,7 @@ const items = [
   { slug: "rag-eval-harness", src: "rag-eval-harness/assets/report-table.png", crop: [0, 0, 2133, 1600], frame: true },
   { slug: "mcp-server", src: "mcp-server/assets/tools.png", crop: [40, 300, 1220, 950], frame: false },
   { slug: "quote-simulator", src: "s1-quote-calculator/assets/demo.png", crop: [0, 0, 2400, 1800], frame: true },
+  { slug: "order-report", src: "order-report-template/assets/screen-split-raw.png", crop: [1130, 20, 1352, 1176], frame: false },
 ];
 
 async function place(input, frame) {
@@ -94,6 +95,7 @@ async function captureSite(base) {
 const site = SITE ? await captureSite(SITE) : {};
 
 for (const it of items) {
+  if (process.env.ONLY && it.slug !== process.env.ONLY) continue; // 1 枚だけ焼き直す
   const shot = site[it.slug];
   if (shot) {
     const { width, height } = await sharp(shot.buffer).metadata();
