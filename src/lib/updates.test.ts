@@ -15,10 +15,11 @@ describe("更新の記録", () => {
   });
 
   it("品物ごとに引ける", () => {
-    expect(updatesFor("form").map((u) => u.version)).toEqual(["1.1.2", "1.1.1", "1.1.0"]);
-    expect(updatesFor("sheet-app").map((u) => u.version)).toEqual(["1.1.3", "1.1.2", "1.1.1", "1.1.0"]);
-    expect(UPDATES.slice(0, 4).map((u) => `${u.slug} ${u.version}`)).toEqual(["sheet-app 1.1.3", "deadline 1.2.0", "form 1.1.2", "booking 1.1.1"]);
-    expect(updatesFor("quote-simulator")).toEqual([]);
+    expect(updatesFor("form").map((u) => u.version)).toEqual(["1.1.3", "1.1.2", "1.1.1", "1.1.0"]);
+    expect(updatesFor("sheet-app").map((u) => u.version)).toEqual(["1.1.4", "1.1.3", "1.1.2", "1.1.1", "1.1.0"]);
+    expect(UPDATES.slice(0, 4).map((u) => `${u.slug} ${u.version}`)).toEqual(["saas-starter 1.1.0", "lp-pack 1.0.2", "shopify-configurator 1.1.0", "form 1.1.3"]);
+    expect(updatesFor("quote-simulator").map((u) => u.version)).toEqual(["1.1.1"]);
+    expect(updatesFor("suminagashi")).toEqual([]);
   });
 
   it("日付は「2026.9.28」の形", () => {

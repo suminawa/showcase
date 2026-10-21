@@ -11,7 +11,7 @@ const CHECKED_ON = "2026-10-20";
 
 const jaSales: KitSales = {
   proof: [
-    { figure: "591 件", label: "自動テストの数です。Docker も API キーも要らず、npm test で全部通ります（1.0.2）。" },
+    { figure: "681 件", label: "自動テストの数です。Docker も API キーも要らず、npm test で全部通ります（1.1.0）。" },
     { figure: "15 分", label: "API キーなしの見本モードで、ログインから課金まで全部の画面を一周する目安です。" },
     { figure: "8 テーブル", label: "データベースのテーブルの数です。すべてに RLS（行単位の権限）を付け、その検査も同梱しています。" },
     { figure: "7 つ", label: "依存パッケージの数です（next・react・react-dom・Supabase の 2 つ・stripe・resend）。" },
@@ -27,7 +27,7 @@ const jaSales: KitSales = {
       "プログラムを書かずに会員制サイトを作りたい方（コードを直して使うキットです）",
       "英語の画面で足り、役割も 2 つで足りる方（下の比較の無料の Next.js SaaS Starter をおすすめします）",
       "Stripe 以外の決済（銀行振込・コンビニ払い）や従量課金が、最初から要る方（入っていません）",
-      "パスワードの再設定の画面や、インボイス（適格請求書）の登録番号の欄が、最初から要る方（いまは入っていません。パスワードを忘れた方は、メールのログイン用リンクで入れます）",
+      "メールアドレスを変える画面や、E2E の検査と CI の設定が、最初から要る方（次の版で入れます。パスワードの再設定・退会・監査ログ・インボイスの登録番号の欄は 1.1 で入りました）",
     ],
   },
   compare: {
@@ -118,7 +118,7 @@ export const copy: Record<"ja" | "en" | "fr", typeof ja> = {
     made: "The demo above runs the kit’s src/core and src/server/flows in your browser as they are, using the kit’s demo-mode adapters (adapters/fake) in place of Supabase and Stripe.",
     sales: {
       proof: [
-        { figure: "591", label: "Automated tests. No Docker and no API keys needed; npm test runs them all (1.0.2)." },
+        { figure: "681", label: "Automated tests. No Docker and no API keys needed; npm test runs them all (1.1.0)." },
         { figure: "15 min", label: "To go through every screen, from login to billing, in the key-free demo mode." },
         { figure: "8 tables", label: "In the database, all with RLS (row-level security), and the RLS tests are included." },
         { figure: "7", label: "Dependencies (next, react, react-dom, two Supabase packages, stripe, resend)." },
@@ -134,7 +134,7 @@ export const copy: Record<"ja" | "en" | "fr", typeof ja> = {
           "Want to build a membership site without writing code (this kit is code you modify)",
           "Are fine with English screens and two roles (we recommend the free Next.js SaaS Starter compared below)",
           "Need payments other than Stripe (bank transfer, convenience store) or usage-based billing from the start (not included)",
-          "Need a password reset screen or a field for a qualified invoice registration number from the start (not included yet; users who forget their password can sign in with an emailed login link)",
+          "Need an email-change screen or end-to-end tests and CI set up from the start (planned for the next version; password reset, account deletion, audit logs and the invoice registration number field arrived in 1.1)",
         ],
       },
       compare: {
@@ -206,7 +206,7 @@ export const copy: Record<"ja" | "en" | "fr", typeof ja> = {
     made: "La démo ci-dessus exécute dans votre navigateur src/core et src/server/flows du kit tels quels, avec les adaptateurs du mode démo du kit (adapters/fake) à la place de Supabase et Stripe.",
     sales: {
       proof: [
-        { figure: "591", label: "Tests automatisés. Sans Docker ni clé d’API ; npm test les lance tous (1.0.2)." },
+        { figure: "681", label: "Tests automatisés. Sans Docker ni clé d’API ; npm test les lance tous (1.1.0)." },
         { figure: "15 min", label: "Pour parcourir tous les écrans, de la connexion à la facturation, en mode démo sans clé." },
         { figure: "8 tables", label: "Dans la base, toutes avec RLS (droits par ligne), tests du RLS inclus." },
         { figure: "7", label: "Dépendances (next, react, react-dom, deux paquets Supabase, stripe, resend)." },
@@ -222,7 +222,7 @@ export const copy: Record<"ja" | "en" | "fr", typeof ja> = {
           "Voulez un site à abonnement sans écrire de code (ce kit est du code à modifier)",
           "Vous contentez d’écrans en anglais et de deux rôles (nous recommandons le Next.js SaaS Starter gratuit comparé ci-dessous)",
           "Avez besoin dès le départ d’autres paiements que Stripe (virement, paiement en supérette) ou de facturation à l’usage (non inclus)",
-          "Avez besoin dès le départ d’un écran de réinitialisation du mot de passe ou d’un champ pour le numéro de facture qualifiée (pas encore inclus ; en cas d’oubli, on se connecte avec un lien envoyé par e-mail)",
+          "Avez besoin dès le départ d’un écran de changement d’adresse e-mail, ou de tests de bout en bout et d’une CI (prévus pour la prochaine version ; réinitialisation du mot de passe, suppression du compte, journal d’audit et numéro de facture qualifiée sont arrivés en 1.1)",
         ],
       },
       compare: {
