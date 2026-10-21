@@ -1,28 +1,5 @@
 import { describe, expect, it } from "vitest";
-import {
-  CONTACT_PAGE,
-  ELSEWHERE,
-  KIT_SET,
-  PILLARS,
-  PRICE_LADDER,
-  kitSetListTotal,
-  pillarKits,
-  pillarOf,
-  FEATURED,
-  GATES,
-  INDEX_PAGES,
-  SERVICES,
-  SERVICES_NOTE,
-  STEPS,
-  categoryCount,
-  countLabel,
-  featuredProjects,
-  projectFigure,
-  projectHref,
-  projects,
-  projectsByCategory,
-  saleLabel,
-} from "./projects";
+import { AI_SET, categoryCount, CONTACT_PAGE, countLabel, ELSEWHERE, FEATURED, featuredProjects, GATES, INDEX_PAGES, KIT_SET, KIT_SETS, kitSetListTotal, pillarKits, pillarOf, PILLARS, PRICE_LADDER, projectFigure, projectHref, projects, projectsByCategory, saleLabel, SERVICES, SERVICES_NOTE, setsFor, STEPS } from "./projects";
 
 describe("入口 3 行", () => {
   it("Kits → Sites → Works の順で 3 本。飛び先は分類のページ", () => {
@@ -116,10 +93,19 @@ describe("制作のご相談", () => {
     }
   });
 
-  it("3 本セットは単品の合計より安く、合計はレジストリの定価から数える", () => {
-    expect(KIT_SET.slugs).toEqual(["sheet-app", "booking", "form"]);
-    expect(kitSetListTotal()).toBe(21260);
-    expect(KIT_SET.price).toBeLessThan(kitSetListTotal());
+  it("セットは単品の合計より安く、合計はレジストリの定価から数える", () => {
+    expect(KIT_SET.slugs).toEqual(["sheet-app", "booking", "form", "deadline"]);
+    expect(kitSetListTotal()).toBe(24240);
+    expect(KIT_SET.price).toBe(14800);
+    expect(kitSetListTotal(AI_SET)).toBe(31580);
+    expect(AI_SET.price).toBe(24800);
+    for (const set of KIT_SETS) expect(set.price).toBeLessThan(kitSetListTotal(set));
+  });
+
+  it("キットごとに入っているセットを引ける", () => {
+    expect(setsFor("deadline").map((s) => s.id)).toEqual(["gas-4"]);
+    expect(setsFor("line-concierge").map((s) => s.id)).toEqual(["ai-3"]);
+    expect(setsFor("dashboard")).toEqual([]);
   });
 
   it("ほかの置き場に、止めた Instagram を載せない", () => {

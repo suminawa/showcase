@@ -25,7 +25,7 @@ import { hrefFor, localePath, type Lang } from "@/i18n/routes";
 import { PURCHASE_NOTE, dateLabel, money } from "@/i18n/ui";
 import { goHref, type LinkKey } from "@/lib/go";
 import { FREE_EDITION } from "@/lib/kit-facts";
-import { projects } from "@/lib/projects";
+import { kitSetListTotal, projects, setsFor } from "@/lib/projects";
 
 import p from "./kit-parts.module.css";
 
@@ -75,6 +75,7 @@ const T = {
     intro: (until: string, list: string) => `${until} までの発売記念の値です（定価 ${list}）。`,
     toTotal: (total: string) => `設置まで頼むと、合計 ${total}〜（税込）`,
     toTotalAlone: (total: string) => `制作ごと頼むと ${total}〜（税込。テンプレの購入は不要）`,
+    inSet: (name: string, price: string, total: string) => `${name}なら ${price}（税込。単品の合計 ${total}）。BOOTH の同じページで選べます`,
     free: "無料版を受け取る（BOOTH）",
     bar: "購入",
     audience: "向いている方・向いていない方",
@@ -112,6 +113,7 @@ const T = {
     intro: (until: string, list: string) => `Launch price until ${until} (regular price ${list}).`,
     toTotal: (total: string) => `With setup done for you: from ${total} in total (tax incl.)`,
     toTotalAlone: (total: string) => `Have it built for you: from ${total} (tax incl.; no template purchase needed)`,
+    inSet: (name: string, price: string, total: string) => `${name}: ${price} (tax incl.; ${total} separately), on the same BOOTH page`,
     free: "Get the free version (BOOTH)",
     bar: "Purchase",
     audience: "Who it’s for, and who it isn’t",
@@ -149,6 +151,7 @@ const T = {
     intro: (until: string, list: string) => `Prix de lancement jusqu’au ${until} (prix normal ${list}).`,
     toTotal: (total: string) => `Avec installation : à partir de ${total} au total (TTC)`,
     toTotalAlone: (total: string) => `Réalisation complète : à partir de ${total} (TTC, sans acheter le modèle)`,
+    inSet: (name: string, price: string, total: string) => `${name} : ${price} (TTC ; ${total} séparément), sur la même page BOOTH`,
     free: "Obtenir la version gratuite (BOOTH)",
     bar: "Achat",
     audience: "À qui il s’adresse, et à qui non",
@@ -243,6 +246,13 @@ export function KitOffer({ lang, slug, linkKey }: { lang: Lang; slug: string; li
             </a>
           </li>
         )}
+        {setsFor(slug).map((set) => (
+          <li key={set.id}>
+            <a href={goHref(linkKey, "booth", from(lang, slug))} rel="nofollow" className={u.linkLine}>
+              {t.inSet(lang === "ja" ? set.name : set.names[lang], money(lang, set.price), money(lang, kitSetListTotal(set)))}
+            </a>
+          </li>
+        ))}
       </ul>
       {lang !== "ja" && <p className={p.small}>{PURCHASE_NOTE[lang]}</p>}
     </div>

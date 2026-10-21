@@ -38,7 +38,7 @@ const T = {
     intro: (until: string, list: string) => `${until} までの発売記念の値です（定価 ${list}）。`,
     buyLabel: "購入",
     set: (names: string, price: string, total: string) =>
-      `${names}は、3 本セット（${price}・単品の合計 ${total}）でもお求めいただけます。BOOTH の同じページで選べます。`,
+      `${names}は、${KIT_SET.name}（${price}・単品の合計 ${total}）でもお求めいただけます。BOOTH の同じページで選べます。`,
     title: (name: string) => `この見本は『${name}』の実物の仕組みです`,
     box: "入っているもの",
     setup: "使い始めるまでの時間",
@@ -61,7 +61,7 @@ const T = {
     intro: (until: string, list: string) => `Launch price until ${until} (regular price ${list}).`,
     buyLabel: "Purchase",
     set: (names: string, price: string, total: string) =>
-      `${names} are also sold as a 3-kit bundle (${price}; ${total} separately), selectable on the same BOOTH page.`,
+      `${names} are also sold as a 4-kit bundle (${price}; ${total} separately), selectable on the same BOOTH page.`,
     title: (name: string) => `This demo runs the actual ${name}`,
     box: "What’s included",
     setup: "Setup time",
@@ -84,7 +84,7 @@ const T = {
     intro: (until: string, list: string) => `Prix de lancement jusqu’au ${until} (prix normal ${list}).`,
     buyLabel: "Achat",
     set: (names: string, price: string, total: string) =>
-      `${names} existent aussi en lot de 3 kits (${price} ; ${total} séparément), à choisir sur la même page BOOTH.`,
+      `${names} existent aussi en lot de 4 kits (${price} ; ${total} séparément), à choisir sur la même page BOOTH.`,
     title: (name: string) => `Cette démo fait tourner le véritable ${name}`,
     box: "Contenu",
     setup: "Temps d’installation",

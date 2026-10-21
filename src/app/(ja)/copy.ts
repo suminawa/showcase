@@ -39,7 +39,7 @@ const ja = {
   threeHead: "はじめての方におすすめの 3 本",
   threeLede: "業務自動化の柱の先頭の 3 本です。どれも Google スプレッドシートで動きます。手順書どおりに 15〜20 分ほどで使い始められ、月額の費用はかかりません。",
   setLine: (label: string, price: string, total: string) =>
-    `${label}の 3 本は、まとめて ${price}（税込。単品の合計 ${total}）でもお求めいただけます。セットは、BOOTH の各キットのページで選べます。`,
+    `${label}の 4 本は、まとめて ${price}（税込。単品の合計 ${total}）でもお求めいただけます。セットは、BOOTH の各キットのページで選べます。`,
   moreKits: (n: number) => `${n} 本すべてを、写真つきで見る`,
   ladderHead: "頼み方と料金",
   ladderLede: "キットをご自身で入れることも、設置・AI の組み込み・LP やサイトの制作をお任せいただくこともできます。1 か所の修正からお受けします。",

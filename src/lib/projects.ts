@@ -487,24 +487,52 @@ export function countLabel(category: Category): string {
  */
 export const FEATURED: readonly string[] = ["deadline", "form", "booking"];
 
-/**
- * 3 本セット（BOOTH の同じページのバリエーションで選べる。2026-10-16 から常設の値段で、期限も理由も付けない）。
- * 単品の合計は sale.price から数える（手で書かない）。
- */
-export const KIT_SET = {
-  name: "3 本セット",
-  /** 一覧やトップで書くときの短い名（看板の 2 本を先に） */
-  label: "予約ページ・フォーム受付・スプレッドシート業務アプリ",
-  slugs: ["sheet-app", "booking", "form"] as const,
+/** BOOTH の同じページのバリエーションで選べるセット。期限も理由も付けない常設の値段。単品の合計は sale.price から数える（手で書かない） */
+export type KitSet = {
+  id: string;
+  /** 日本語の名 */
+  name: string;
+  /** 英仏の名 */
+  names: { en: string; fr: string };
+  /** 一覧やトップで書くときの短い名（日本語） */
+  label: string;
+  slugs: readonly string[];
   /** 税込（円） */
-  price: 12800,
+  price: number;
 };
 
-/** 3 本セットに入る単品の定価の合計（税込・円） */
-export function kitSetListTotal(): number {
-  return KIT_SET.slugs.reduce((sum, slug) => {
+/** 業務自動化の 4 本セット（2026-10-16 に 3 本で始め、10/21 に期限アラートを足して 4 本 14,800 円。棟梁の承認） */
+export const KIT_SET: KitSet = {
+  id: "gas-4",
+  name: "4 本セット",
+  names: { en: "Set of four", fr: "Lot de quatre" },
+  label: "予約ページ・フォーム受付・スプレッドシート業務アプリ・期限アラート",
+  slugs: ["sheet-app", "booking", "form", "deadline"],
+  price: 14800,
+};
+
+/** AI の窓口 3 本セット（2026-10-21。棟梁の承認） */
+export const AI_SET: KitSet = {
+  id: "ai-3",
+  name: "AI の窓口 3 本セット",
+  names: { en: "AI front-desk set of three", fr: "Lot de trois guichets IA" },
+  label: "AI 問い合わせ整理・AI 案内窓口・LINE 案内窓口",
+  slugs: ["inbox-triage", "ai-concierge", "line-concierge"],
+  price: 24800,
+};
+
+export const KIT_SETS: readonly KitSet[] = [KIT_SET, AI_SET];
+
+/** そのキットが入っているセット */
+export function setsFor(slug: string): KitSet[] {
+  return KIT_SETS.filter((set) => set.slugs.includes(slug));
+}
+
+/** セットに入る単品の定価の合計（税込・円）。引数を省くと業務自動化のセット */
+export function kitSetListTotal(set: KitSet = KIT_SET): number {
+  return set.slugs.reduce((sum, slug) => {
     const price = projects.find((p) => p.slug === slug)?.sale?.price;
-    if (price == null) throw new Error(`3 本セットの単品に定価が無い: ${slug}`);
+    if (price == null) throw new Error(`${set.name}の単品に定価が無い: ${slug}`);
     return sum + price;
   }, 0);
 }
