@@ -18,7 +18,6 @@ import { ContactMail } from "@/components/track/ContactMail";
 const guide = guideBySlug("lp-structure");
 
 const NOTE_ARTICLE = "https://note.com/suminawa/n/n10a6e8fbcbfd";
-const COCONALA = "https://coconala.com/services/4394533";
 const LANCERS = "https://www.lancers.jp/menu/detail/1342847";
 const SHOT = "/og/sites.png";
 
@@ -135,10 +134,6 @@ export default function LpStructureGuide() {
             原稿の整理から公開までを、こちらで行うこともできます。テンプレートの設定ではなく、1
             ページの LP
             を設計から作る制作のご依頼です。やり取りはメッセージで行います。 ──{" "}
-            <a href={COCONALA} className={g.link}>
-              ココナラ
-            </a>
-            {" / "}
             <a href={LANCERS} className={g.link}>
               ランサーズ
             </a>

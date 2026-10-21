@@ -150,7 +150,7 @@ const ja: KitCopy = {
   buyHeading: "価格と購入",
   buy: "1.x のアップデートは無料で受け取れます。改変と、お客さまのスプレッドシートへの組み込み納品は自由で、再配布・転売・同種の商品としての販売はできません",
   service:
-    "貼り付けと承認・API キーの登録までを任せたい方は、上の「お値段」の「設置まで頼む」からご相談ください。質問と分類の設計、初回の分析、まとめの読み方の説明まで含めた導入の代行（40,000 円・7 日・修正 1 回。キット一式を含みます）は、ココナラ・ランサーズでお受けしています。",
+    "貼り付けと承認・API キーの登録までを任せたい方は、上の「お値段」の「設置まで頼む」からご相談ください。質問と分類の設計、初回の分析、まとめの読み方の説明まで含めた導入の代行（40,000 円・7 日・修正 1 回。キット一式を含みます）は、ランサーズでお受けしています。",
   sales: jaSales,
 };
 
@@ -217,7 +217,7 @@ export const copy: Record<"ja" | "en" | "fr", KitCopy> = {
     buyHeading: "Price and purchase",
     buy: " Buyers receive 1.x updates free. Modifying it and delivering it built into a client’s spreadsheet are allowed; redistribution, resale, and selling it as a similar product are not",
     service:
-      "To have the pasting, authorization, and API key registration done for you, use “Setup done for you” under Price above. A fuller onboarding service that also covers question and category design, the first analysis, and how to read the summary (¥40,000, 7 days, 1 revision, kit included) is offered through Coconala and Lancers (in Japanese).",
+      "To have the pasting, authorization, and API key registration done for you, use “Setup done for you” under Price above. A fuller onboarding service that also covers question and category design, the first analysis, and how to read the summary (¥40,000, 7 days, 1 revision, kit included) is offered through Lancers (in Japanese).",
     sales: {
       proof: [
         { figure: "176", label: "Automated tests. Each release passes them in an environment that mimics Google, including time limits and API errors (1.0.0)." },
@@ -355,7 +355,7 @@ export const copy: Record<"ja" | "en" | "fr", KitCopy> = {
     buyHeading: "Prix et achat",
     buy: " Les acheteurs reçoivent gratuitement les mises à jour 1.x. Modification et livraison intégrée au tableur d’un client autorisées ; redistribution, revente et vente comme produit similaire interdites",
     service:
-      "Pour confier le collage, l’autorisation et l’enregistrement de la clé d’API, utilisez « Installation comprise » dans la section Prix ci-dessus. Un accompagnement plus complet, qui couvre aussi la conception des questions et des catégories, la première analyse et la lecture de la synthèse (40 000 ¥, 7 jours, 1 révision, kit inclus), est proposé via Coconala et Lancers (en japonais).",
+      "Pour confier le collage, l’autorisation et l’enregistrement de la clé d’API, utilisez « Installation comprise » dans la section Prix ci-dessus. Un accompagnement plus complet, qui couvre aussi la conception des questions et des catégories, la première analyse et la lecture de la synthèse (40 000 ¥, 7 jours, 1 révision, kit inclus), est proposé via Lancers (en japonais).",
     sales: {
       proof: [
         { figure: "176", label: "Tests automatisés. Chaque version les passe dans un environnement qui imite Google, y compris les limites de durée et les erreurs d’API (1.0.0)." },

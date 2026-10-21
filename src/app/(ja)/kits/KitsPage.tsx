@@ -38,6 +38,7 @@ const T: Record<
     setHead: string;
     freeHead: string;
     freeText: string;
+    freeOrderText: string;
     freeCta: string;
     setText: (label: string, price: string, total: string) => string;
     ctaHead: string;
@@ -53,6 +54,7 @@ const T: Record<
     setHead: KIT_SET.name,
     freeHead: "無料版",
     freeText: "期限アラートには、3 日前と当日の期限だけを毎朝 Slack にお知らせする無料版「期限アラート ライト」があります。",
+    freeOrderText: "受注集計テンプレートには、受注数・売上・送料の月次集計までの無料版があります。お手元の CSV の列が合うかを、買う前に確かめられます。",
     freeCta: "BOOTH で受け取る",
     setText: (label, price, total) => `${label}の 4 本は、まとめて ${price}（税込。単品の合計 ${total}）でもお求めいただけます。セットは、BOOTH の各キットのページで選べます。`,
     ctaHead: "設置や制作まで任せたい方へ",
@@ -67,6 +69,7 @@ const T: Record<
     setHead: "Set of four",
     freeHead: "Free version",
     freeText: "Deadline Alert has a free version, Deadline Alert Lite, which posts only the deadlines due in 3 days or today to Slack every morning.",
+    freeOrderText: "The Subscription Order Report Template has a free version that totals orders, sales and shipping by month, so you can check that your CSV columns fit before buying.",
     freeCta: "Get it on BOOTH",
     setText: (label, price, total) => `${label} are also available as a set for ${price} (tax included; ${total} bought separately). Choose the set on each kit's BOOTH page.`,
     ctaHead: "Prefer to have it installed or built for you?",
@@ -81,6 +84,7 @@ const T: Record<
     setHead: "Lot de quatre",
     freeHead: "Version gratuite",
     freeText: "Alerte d’échéances existe en version gratuite, Alerte d’échéances Lite, qui envoie chaque matin sur Slack uniquement les échéances à J-3 et du jour.",
+    freeOrderText: "Le modèle de rapport des commandes par abonnement existe aussi en version gratuite : commandes, ventes et frais de port par mois, pour vérifier que les colonnes de votre CSV correspondent avant l’achat.",
     freeCta: "Récupérer sur BOOTH",
     setText: (label, price, total) => `${label} sont aussi proposés en lot pour ${price} (TTC ; ${total} achetés séparément). Le lot se choisit sur la page BOOTH de chaque kit.`,
     ctaHead: "Vous préférez une installation ou une réalisation clés en main ?",
@@ -172,6 +176,10 @@ export function KitsPage({ lang = "ja" }: { lang?: Lang }) {
                     <span>
                       {t.freeText}{" "}
                       <a href={goHref("deadline-lite", "booth", from)} rel="nofollow" className={u.link}>
+                        {t.freeCta}
+                      </a>{" "}
+                      {t.freeOrderText}{" "}
+                      <a href={goHref("order-report-lite", "booth", from)} rel="nofollow" className={u.link}>
                         {t.freeCta}
                       </a>
                     </span>

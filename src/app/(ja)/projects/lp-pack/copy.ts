@@ -45,7 +45,7 @@ const ja: LpCopy = {
     ],
     audience: {
       fits: [
-        "お客さまの LP を、業種に合った日本語の下地から短い納期で組みたい制作会社・フリーランスの方（お客さまのサイトに組み込んで納品できます。組織でお使いの場合は、BOOTH で組織向けのライセンスをお選びください）",
+        "お客さまの LP を、業種に合った日本語の下地から短い納期で組みたい制作会社・フリーランスの方（お客さまのサイトに組み込んで納品できます。複数人で共有する場合は、BOOTH で「制作会社用」（複数人で共有・案件数の上限なし）をお選びください）",
         "社内でサイトを担当していて、npm のコマンドか、HTML の書き換えができる方",
         "写真や素材がそろう前に、まず公開しておきたい方",
         "ご自身で組むのが難しい方（文言と構成からの制作をお任せいただけます。下の「お値段」をご覧ください）",
@@ -185,7 +185,7 @@ export const copy: Record<"ja" | "en" | "fr", LpCopy> = {
       ],
       audience: {
         fits: [
-          "Are an agency or freelancer building client landing pages on a short deadline from industry-ready Japanese copy (you may build them into client sites; for organizations, choose the organization license on BOOTH)",
+          "Are an agency or freelancer building client landing pages on a short deadline from industry-ready Japanese copy (you may build them into client sites; to share it across a team, choose the agency license on BOOTH (shared use, unlimited projects))",
           "Look after your company’s site and can run npm commands or edit HTML",
           "Want to go live before photos and other assets are ready",
           "Would rather not build it yourself (production from copy and structure can be done for you; see Price below)",
@@ -322,7 +322,7 @@ export const copy: Record<"ja" | "en" | "fr", LpCopy> = {
       ],
       audience: {
         fits: [
-          "Êtes une agence ou un indépendant qui monte des landing pages clients dans des délais courts, à partir de textes japonais adaptés au secteur (intégration dans les sites clients permise ; pour une organisation, choisissez la licence organisation sur BOOTH)",
+          "Êtes une agence ou un indépendant qui monte des landing pages clients dans des délais courts, à partir de textes japonais adaptés au secteur (intégration dans les sites clients permise ; pour un usage partagé en équipe, choisissez la licence agence sur BOOTH (usage partagé, projets illimités))",
           "Gérez le site de votre entreprise et savez lancer des commandes npm ou modifier du HTML",
           "Voulez publier avant que les photos et autres visuels soient prêts",
           "Préférez ne pas le monter vous-même (la réalisation à partir des textes et de la structure peut être faite pour vous ; voir Prix ci-dessous)",

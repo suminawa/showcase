@@ -22,7 +22,7 @@ import { FormDemo } from "./FormDemo";
 const LINK = "s3";
 
 /** ココナラの出品。名は日本語のまま出す（出品のページが日本語のため） */
-const SERVICE = { name: "フォームの不具合を直します", href: "https://coconala.com/services/4427445" };
+const SERVICE = { name: "Googleフォームの不具合を直します", href: "https://coconala.com/services/4427445" };
 /** 設定ごと頼める出品（ココナラ ③）。名は公開中の題と同じ字にする */
 const SETUP = { name: "問い合わせフォームに台帳・通知・自動返信をつけます", href: "https://coconala.com/services/4394572" };
 

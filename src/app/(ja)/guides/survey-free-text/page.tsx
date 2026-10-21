@@ -18,7 +18,6 @@ import { ContactMail } from "@/components/track/ContactMail";
 const guide = guideBySlug("survey-free-text");
 
 const NOTE_ARTICLE = "https://note.com/suminawa/n/ne4f938f8fcd4";
-const COCONALA = "https://coconala.com/services/4429481";
 const LANCERS = "https://www.lancers.jp/menu/detail/1346436";
 const ZENN_ARTICLE = "https://zenn.dev/suminawa/articles/cf361521854cb8";
 const SHOT = "/guides/survey-free-text-rows.png";
@@ -143,10 +142,6 @@ export default function SurveyFreeTextGuide() {
           <p className={g.text}>
             質問と分類の設計から、初回の分析とまとめの読み方の説明までを、こちらで行うこともできます（料金にキット一式を含みます）。やり取りはメッセージで行います。
             ──{" "}
-            <a href={COCONALA} className={g.link}>
-              ココナラ
-            </a>
-            {" / "}
             <a href={LANCERS} className={g.link}>
               ランサーズ
             </a>

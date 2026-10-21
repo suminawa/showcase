@@ -286,7 +286,7 @@ export const projects: Project[] = [
     tags: ["Next.js", "TypeScript"],
     category: "kits",
     // 中身は見本サイトそのもの。作品ページから 6 本と /sites へ渡す。制作の代行は /contact の「サイト・LP の制作」と同じ額
-    sale: { status: "onsale", price: 6980, service: { price: 150000, standalone: true } },
+    sale: { status: "onsale", price: 6980, service: { price: 150000, standalone: true }, agency: { price: 13800 } },
   },
   {
     slug: "ai-concierge",
@@ -375,7 +375,7 @@ export const projects: Project[] = [
     category: "kits",
     // 2026-09-30 発売。1 つの値段（記念価格なし）
     // 作品ページの見本は、3D 商品コンフィギュレーターの紙の「Shopify 版」の節と同じもの
-    // 設置代行は公開中の導入代行（ココナラ・ランサーズ。商品 3 点・14 日・テスト注文まで）と同じ額。
+    // 設置代行は導入代行のプラン（商品 3 点・14 日・テスト注文まで）と同じ額。ココナラの出品は 10/21 時点で受付休止中。
     // /contact の「埋め込み部品の設置」（60,000 円から）より範囲が広い（バリエーションの対応づけとテスト注文まで）
     sale: { status: "onsale", price: 16800, service: { price: 100000 } },
   },
