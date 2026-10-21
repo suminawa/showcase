@@ -73,6 +73,8 @@
 
 .body {
   display: grid;
+  /* 列は枠の幅まで。句で折らない名前（auto-phrase）が長いと、最小幅に引っ張られてカードの外へ出る */
+  grid-template-columns: minmax(0, 1fr);
   gap: 6px;
   align-content: start;
   min-width: 0;
@@ -87,6 +89,8 @@
   letter-spacing: 0.02em;
   font-feature-settings: "palt" 1;
   word-break: auto-phrase;
+  /* 句のままでは枠に入らない長い名前（スプレッドシート業務アプリ）だけ、句の途中でも折る */
+  overflow-wrap: anywhere;
 }
 
 /* 品名のリンクをカード全体に広げる（押す先は一つ） */
