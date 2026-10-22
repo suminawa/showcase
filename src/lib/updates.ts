@@ -16,6 +16,12 @@ export type KitUpdate = {
 export const UPDATES: readonly KitUpdate[] = [
   {
     date: "2026-10-22",
+    slug: "dashboard",
+    version: "1.0.3",
+    note: "Next.js のテンプレを Next.js 16（16.4 系）に上げ、残っていた依存の脆弱性を解消しました。画面と使い方の変更はありません。",
+  },
+  {
+    date: "2026-10-22",
     slug: "saas-starter",
     version: "1.1.1",
     note: "Next.js と React をセキュリティ修正版に更新しました。機能の変更はありません。",
