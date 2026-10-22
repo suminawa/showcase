@@ -17,7 +17,7 @@ describe("更新の記録", () => {
   it("品物ごとに引ける", () => {
     expect(updatesFor("form").map((u) => u.version)).toEqual(["1.1.3", "1.1.2", "1.1.1", "1.1.0"]);
     expect(updatesFor("sheet-app").map((u) => u.version)).toEqual(["1.1.4", "1.1.3", "1.1.2", "1.1.1", "1.1.0"]);
-    expect(UPDATES.slice(0, 4).map((u) => `${u.slug} ${u.version}`)).toEqual(["order-report 1.0.0", "saas-starter 1.1.0", "lp-pack 1.0.2", "shopify-configurator 1.1.0"]);
+    expect(UPDATES.slice(0, 4).map((u) => `${u.slug} ${u.version}`)).toEqual(["saas-starter 1.1.1", "lp-pack 1.0.3", "ai-concierge 1.0.3", "doc-reader 1.0.2"]);
     expect(updatesFor("quote-simulator").map((u) => u.version)).toEqual(["1.1.1"]);
     expect(updatesFor("suminagashi")).toEqual([]);
   });

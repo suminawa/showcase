@@ -15,6 +15,54 @@ export type KitUpdate = {
 
 export const UPDATES: readonly KitUpdate[] = [
   {
+    date: "2026-10-22",
+    slug: "saas-starter",
+    version: "1.1.1",
+    note: "Next.js と React をセキュリティ修正版に更新しました。機能の変更はありません。",
+  },
+  {
+    date: "2026-10-22",
+    slug: "lp-pack",
+    version: "1.0.3",
+    note: "Next.js と React をセキュリティ修正版に更新しました。機能・見た目の変更はありません。",
+  },
+  {
+    date: "2026-10-22",
+    slug: "ai-concierge",
+    version: "1.0.3",
+    note: "同梱の Next.js のテンプレが使う Next.js と React をセキュリティ修正版に更新しました。機能の変更はありません。",
+  },
+  {
+    date: "2026-10-22",
+    slug: "doc-reader",
+    version: "1.0.2",
+    note: "同梱の Next.js のテンプレが使う Next.js と React をセキュリティ修正版に更新しました。機能の変更はありません。",
+  },
+  {
+    date: "2026-10-22",
+    slug: "line-concierge",
+    version: "1.0.2",
+    note: "同梱の Next.js のテンプレが使う Next.js と React をセキュリティ修正版に更新しました。機能の変更はありません。",
+  },
+  {
+    date: "2026-10-22",
+    slug: "dashboard",
+    version: "1.0.2",
+    note: "Next.js のテンプレが使う Next.js と React を、セキュリティ修正版より古い版にならないようにしました。機能の変更はありません。",
+  },
+  {
+    date: "2026-10-22",
+    slug: "configurator",
+    version: "1.1.1",
+    note: "手元で動かすための開発用の道具（React など）をセキュリティ修正版に更新しました。機能の変更はなく、サイトに置いている部品は差し替えなくてもお使いいただけます。",
+  },
+  {
+    date: "2026-10-22",
+    slug: "floorplan",
+    version: "1.0.2",
+    note: "手元で動かすための開発用の道具（React など）をセキュリティ修正版に更新しました。機能の変更はなく、サイトに置いている部品は差し替えなくてもお使いいただけます。",
+  },
+  {
     date: "2026-10-21",
     slug: "order-report",
     version: "1.0.0",

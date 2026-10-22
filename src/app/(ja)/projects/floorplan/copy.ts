@@ -48,7 +48,7 @@ const ja: FloorplanCopy = {
       "単体のページ（page/index.html）: ノート PC で開くだけで、相談の席で使えます",
     ],
     alt: "お求めいただく版の画面。左に 1 階の 3D、右に間取り図。間取り図には LDK・和室・玄関ホールなどの面積と帖、ドアの記号が出ている",
-    caption: "お求めいただく版（1.0.1）の画面です。同梱の見本の間取り（9 × 8 m・2 階建て）の 1 階を開いたところです。",
+    caption: "お求めいただく版（1.0.2）の画面です。同梱の見本の間取り（9 × 8 m・2 階建て）の 1 階を開いたところです。",
   },
   sales: {
     proof: [
@@ -152,7 +152,7 @@ export const copy: Record<"ja" | "en" | "fr", FloorplanCopy> = {
         "A standalone page (page/index.html): open it on a laptop and use it at the consultation table",
       ],
       alt: "The version you buy: on the left, the ground floor in 3D; on the right, the floor plan showing room areas, tatami-mat counts, and door symbols",
-      caption: "The version you buy (1.0.1), showing the ground floor of the included sample plan (9 × 8 m, two stories).",
+      caption: "The version you buy (1.0.2), showing the ground floor of the included sample plan (9 × 8 m, two stories).",
     },
     sales: {
       proof: [
@@ -253,7 +253,7 @@ export const copy: Record<"ja" | "en" | "fr", FloorplanCopy> = {
         "Une page autonome (page/index.html) : ouvrez-la sur un ordinateur portable et utilisez-la en rendez-vous",
       ],
       alt: "La version achetée : à gauche, le rez-de-chaussée en 3D ; à droite, le plan avec surfaces des pièces, nombre de tatamis et symboles des portes",
-      caption: "La version achetée (1.0.1), avec le rez-de-chaussée du plan d’exemple fourni (9 × 8 m, un étage).",
+      caption: "La version achetée (1.0.2), avec le rez-de-chaussée du plan d’exemple fourni (9 × 8 m, un étage).",
     },
     sales: {
       proof: [
