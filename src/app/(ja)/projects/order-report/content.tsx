@@ -30,6 +30,9 @@ const SHOT = { src: "/projects/order-report/screen-split.png", width: 2560, heig
 /** 無料版の名。日本語のまま出す（BOOTH のページが日本語のため） */
 const FREE_NAME = "定期通販 受注集計テンプレート 無料版";
 
+/** ココナラの差し込みの出品（テンプレート込み）。名は公開中の題と同じ字にする（出品のページが日本語のため日本語のまま出す） */
+const COCONALA = { name: "定期通販の受注CSVを月次集計の表に差し込みます", href: "https://coconala.com/services/4463588" };
+
 const SCREENS_IN_JAPANESE = {
   en: "The template’s sheets and the screen below are in Japanese.",
   fr: "Les feuilles du modèle et l’écran ci-dessous sont en japonais.",
@@ -95,6 +98,13 @@ export function Content({ lang }: { lang: Lang }) {
           {c.free.after}
         </p>
         <p className={p.body}>{c.service}</p>
+        <p className={p.body}>
+          {c.coconala.before}
+          <a href={COCONALA.href} rel="nofollow" className={u.linkLine}>
+            {COCONALA.name}
+          </a>
+          {c.coconala.after}
+        </p>
         <p className={p.body}>
           {c.consult.before}
           <ContactMail className={u.linkLine} />

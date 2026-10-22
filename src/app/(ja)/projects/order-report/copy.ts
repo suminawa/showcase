@@ -118,6 +118,7 @@ const ja = {
       after: "」を BOOTH でお配りしています。見出しの選び方は有料版と同じです。",
     },
     service: "自社の CSV への差し込みもお受けします。上の「お値段」の「設置まで頼む」が、その値段です。",
+    coconala: { before: "ココナラの「", after: "」（テンプレート込み 8,500 円）からも、ご依頼いただけます。" },
     consult: {
       before: "どの見出しを選べばよいか分からないときは、CSV の 1 行目（見出し）と 2〜3 行目を ",
       after: " へお送りください。無料でお返しします。氏名・住所・電話番号・メールアドレスの列は、消すか「●●」に置き換えてからお送りください。",
@@ -160,6 +161,7 @@ export const copy: Record<"ja" | "en" | "fr", typeof ja> = {
         after: "”, gives orders, sales, and shipping by month and uses the same column selection as the paid version. It’s on BOOTH (the page is in Japanese).",
       },
       service: "We can also fit the template to your own CSV. The price is shown as “Setup done for you” under Price above.",
+      coconala: { before: "You can also order it on Coconala: “", after: "” (template included, ¥8,500; the page is in Japanese)." },
       consult: {
         before: "If you’re not sure which columns to pick, send the first row (headers) and rows 2–3 of your CSV to ",
         after: ", free of charge. Please delete or mask the name, address, phone, and email columns before sending.",
@@ -270,6 +272,7 @@ export const copy: Record<"ja" | "en" | "fr", typeof ja> = {
         after: " », donne commandes, ventes et frais de port par mois, avec le même choix des colonnes que la version payante. Elle est sur BOOTH (page en japonais).",
       },
       service: "Nous pouvons aussi adapter le modèle à votre propre CSV. Le prix figure sous « Installation comprise » dans la section Prix ci-dessus.",
+      coconala: { before: "Vous pouvez aussi passer commande sur Coconala : « ", after: " » (modèle inclus, 8 500 ¥ ; page en japonais)." },
       consult: {
         before: "Si vous ne savez pas quelles colonnes choisir, envoyez la première ligne (en-têtes) et les lignes 2 à 3 de votre CSV à ",
         after: " ; nous répondons gratuitement. Supprimez ou masquez au préalable les colonnes nom, adresse, téléphone et e-mail.",
