@@ -5,6 +5,8 @@ import { SITE_DESCRIPTION } from "@/lib/site";
  * 品物の題・一行・柱の言葉は src/i18n/catalog.ts。数字（本数・値段）はレジストリから数えて関数に渡す。
  */
 const ja = {
+  /* トップの <title> の頭（三つの柱を名で言う）。名乗り（SITE_NAME）は page.tsx が末尾に足す */
+  title: "業務自動化・AI活用・Web制作のキットと受託",
   description: SITE_DESCRIPTION,
   /* 名乗りの一行。三つの柱を名で言う（2026-10-17、持ち主の指示。トップの方眼の見出しと同じ字） */
   tagline: "業務自動化、AI活用、Web制作。",
@@ -58,6 +60,7 @@ const ja = {
 export const copy: Record<"ja" | "en" | "fr", typeof ja> = {
   ja,
   en: {
+    title: "Business automation, AI tools and web production",
     description:
       "suminawa: business automation, AI tools and web production for small businesses. One-time-purchase kits built with Google Apps Script and the Claude API, sample sites, and live demos you can try in your browser.",
     /* 英語版は受託の窓（Contra・Fiverr から来る人）に絞る。仏語は凍結（2026-10-15 監査 改善 8）。名乗りは三つの柱で（2026-10-17） */
@@ -108,6 +111,7 @@ export const copy: Record<"ja" | "en" | "fr", typeof ja> = {
     readsAll: "All guides",
   },
   fr: {
+    title: "Automatisation, outils IA et création web",
     description:
       "suminawa : automatisation, outils IA et création web pour les petites entreprises. Des kits en achat unique (Google Apps Script, API Claude), des sites d’exemple et des démos à essayer directement dans le navigateur.",
     tagline: "Automatisation, outils IA et création web pour les petites entreprises.",

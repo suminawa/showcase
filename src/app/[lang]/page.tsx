@@ -9,7 +9,11 @@ export const dynamic = "force-dynamic";
 
 export async function generateMetadata({ params }: LangParams) {
   const lang = foreignLang((await params).lang);
-  return pageMetadata(lang, "/", { title: SITE_NAME, description: copy[lang].description, absoluteTitle: true });
+  return pageMetadata(lang, "/", {
+    title: `${copy[lang].title} | ${SITE_NAME}`,
+    description: copy[lang].description,
+    absoluteTitle: true,
+  });
 }
 
 export default async function Page({ params }: LangParams) {
