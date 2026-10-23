@@ -88,10 +88,10 @@
     "booth": "https://suminawa.booth.pm/items/9022739"
   },
   "payslip": {
-    "note": "{{NOTE_URL}}",
-    "booth": "{{BOOTH_PAID}}"
+    "note": "https://note.com/suminawa/n/n4286d6dbbf3c",
+    "booth": "https://suminawa.booth.pm/items/9029371"
   },
   "payslip-lite": {
-    "booth": "{{BOOTH_FREE}}"
+    "booth": "https://suminawa.booth.pm/items/9029357"
   }
 }
