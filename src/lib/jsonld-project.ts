@@ -11,8 +11,8 @@ import { priceNow } from "./prices";
 import { projects } from "./projects";
 import { SITE_NAME } from "./site";
 
-/** OGP の画（/og/<slug>.png）を持たない作品ページ */
-export const NO_OG = new Set([
+/** OGP の画（/og/<slug>.png）を持たない作品ページ。共有カードと Product の画は、一覧のカードの写真（/kits/<slug>-960.webp）で代える */
+const NO_OG = new Set([
   "deadline",
   "form",
   "inbox-triage",
@@ -25,6 +25,9 @@ export const NO_OG = new Set([
   "order-report",
   "payslip",
 ]);
+
+/** 作品ページの共有カードと Product の画 */
+export const projectImage = (slug: string) => (NO_OG.has(slug) ? `/kits/${slug}-960.webp` : `/og/${slug}.png`);
 
 export function projectJsonLd(lang: Lang, slug: string, title: string): Record<string, unknown>[] | null {
   const source = projects.find((p) => p.slug === slug);
@@ -46,7 +49,7 @@ export function projectJsonLd(lang: Lang, slug: string, title: string): Record<s
         description: project.description,
         path,
         price: sale.status === "free" ? 0 : priceNow(slug, sale.price!).price,
-        image: NO_OG.has(slug) ? undefined : `/og/${slug}.png`,
+        image: projectImage(slug),
       }),
     );
   }

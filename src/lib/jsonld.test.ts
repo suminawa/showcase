@@ -109,7 +109,7 @@ describe("jsonld", () => {
         expect(product["@type"], slug).toBe("Product");
         expect(product.offers.price, slug).toBe(priceNow(slug, list).price);
         expect(new URL(product.offers.url).pathname).toBe(`${prefix}/projects/${slug}`);
-        expect(product.image).toBeUndefined();
+        expect(new URL(product.image).pathname).toBe(`/kits/${slug}-960.webp`);
       }
     }
   });

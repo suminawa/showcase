@@ -27,7 +27,7 @@ const SERVICE = { name: "GASでスプレッドシートの期限を毎朝通知�
 /** 無料版（期限アラート ライト）。名は日本語のまま出す（BOOTH のページが日本語のため） */
 const FREE = { name: "期限アラート ライト", href: goHref("deadline-lite", "booth", "/projects/deadline") };
 
-export const metadataFor = (lang: Lang) => projectMetadata(lang, "deadline", copy[lang].meta, false);
+export const metadataFor = (lang: Lang) => projectMetadata(lang, "deadline", copy[lang].meta);
 
 export function Content({ lang }: { lang: Lang }) {
   const t = copy[lang];

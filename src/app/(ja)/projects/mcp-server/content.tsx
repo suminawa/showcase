@@ -77,7 +77,7 @@ const SNIPPETS = [
 
 const tsv = (rows: string[][]) => rows.map((r) => r.join("\t")).join("\n");
 
-export const metadataFor = (lang: Lang) => projectMetadata(lang, "mcp-server", copy[lang].meta, false);
+export const metadataFor = (lang: Lang) => projectMetadata(lang, "mcp-server", copy[lang].meta);
 
 function FreeOffer({ lang }: { lang: Lang }) {
   const t = copy[lang].offer;

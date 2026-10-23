@@ -19,7 +19,7 @@ import links from "@/data/links.json";
 import { goHref, type LinkKey } from "@/lib/go";
 import { NoteEmbed } from "@/components/note/NoteEmbed";
 import { guideHref, guides } from "@/lib/guides";
-import { NO_OG, projectJsonLd } from "@/lib/jsonld-project";
+import { projectImage, projectJsonLd } from "@/lib/jsonld-project";
 import { projects } from "@/lib/projects";
 
 import sh from "./shell.module.css";
@@ -27,17 +27,9 @@ import s from "./projects.module.css";
 
 export type PageMeta = { title: string; description: string };
 
-/** 作品ページの metadata。OGP の画は /og/<slug>.png（持たないページは image なし） */
-export function projectMetadata(
-  lang: Lang,
-  slug: string,
-  meta: PageMeta,
-  image = !NO_OG.has(slug),
-) {
-  return pageMetadata(lang, `/projects/${slug}`, {
-    ...meta,
-    image: image ? `/og/${slug}.png` : undefined,
-  });
+/** 作品ページの metadata。OGP の画は projectImage（/og/<slug>.png、無ければ一覧のカードの写真） */
+export function projectMetadata(lang: Lang, slug: string, meta: PageMeta) {
+  return pageMetadata(lang, `/projects/${slug}`, { ...meta, image: projectImage(slug) });
 }
 
 const CRUMBS: Record<Lang, string> = { ja: "現在地", en: "Breadcrumb", fr: "Fil d’Ariane" };

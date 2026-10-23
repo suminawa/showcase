@@ -26,7 +26,7 @@ const SERVICE = { name: "Googleフォームの不具合を直します", href: "
 /** 設定ごと頼める出品（ココナラ ③）。名は公開中の題と同じ字にする */
 const SETUP = { name: "問い合わせフォームに台帳・通知・自動返信をつけます", href: "https://coconala.com/services/4394572" };
 
-export const metadataFor = (lang: Lang) => projectMetadata(lang, "form", copy[lang].meta, false);
+export const metadataFor = (lang: Lang) => projectMetadata(lang, "form", copy[lang].meta);
 
 export function Content({ lang }: { lang: Lang }) {
   const t = copy[lang];

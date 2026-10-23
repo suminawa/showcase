@@ -20,7 +20,7 @@ import { InboxDemo } from "./InboxDemo";
 /** BOOTH・note の鍵（links.json。kit-demos.ts の linkKey と同じ） */
 const LINK = "inbox-triage";
 
-export const metadataFor = (lang: Lang) => projectMetadata(lang, "inbox-triage", copy[lang].meta, false);
+export const metadataFor = (lang: Lang) => projectMetadata(lang, "inbox-triage", copy[lang].meta);
 
 export function Content({ lang }: { lang: Lang }) {
   const t = copy[lang];
