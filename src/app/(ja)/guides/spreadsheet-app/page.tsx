@@ -1,6 +1,6 @@
 /*
- * 検索の言葉「スプレッドシート アプリ化」「gas webアプリ サンプル」の着地の紙。
- * 何が変わるか → 表を整える → Web アプリを手で公開する（コード 2 つ）→ 同時の更新と数式 → 3 つの道、の順に読ませる。
+ * 検索の言葉「スプレッドシート アプリ化 スマホ」「gas webアプリ サンプル」の着地の紙。
+ * 何が変わるか → 3 つの方法を比べる → 表を整える → Web アプリを手で公開する（コード 2 つ）→ 同時の更新と数式 → 3 つの道、の順に読ませる。
  * 事実はキットの販売ページ（sheet-app-gas）と /projects/sheet-app の見本だけから取る。
  * FORM: 方眼（DESIGN.md）。枠は ../parts の GuideArticle。
  */
@@ -11,7 +11,7 @@ import { guideBySlug } from "@/lib/guides";
 
 import g from "../guides.module.css";
 import { NoteEmbed } from "@/components/note/NoteEmbed";
-import { GuideArticle, GuideLinks, guideMetadata } from "../parts";
+import { GuideArticle, GuideCompare, GuideLinks, guideMetadata } from "../parts";
 import { ShopEmbed } from "../../projects/shell";
 
 const PRODUCT_NOTE = "https://note.com/suminawa/n/n206d0f5b8324";
@@ -19,9 +19,8 @@ const PRODUCT_NOTE = "https://note.com/suminawa/n/n206d0f5b8324";
 const IMAGE = "/og/sheet-app.png";
 const guide = guideBySlug("spreadsheet-app");
 
-/** 設定ごと頼める出品。customer-sheet と同じ */
+/** 設定ごと頼める出品（ココナラ）。customer-sheet と同じ */
 const COCONALA = "https://coconala.com/services/4414516";
-const LANCERS = "https://www.lancers.jp/menu/detail/1344800";
 
 const CODE_GS = `// コード.gs ── 開いた人に index.html の画面を返し、シートの中身を渡す
 function doGet() {
@@ -69,6 +68,45 @@ export default function SpreadsheetAppGuide() {
           <p className={g.text}>
             台帳はスプレッドシートのまま残るので、これまでどおりシートを直接開いて直すこともできます。
           </p>
+        </section>
+
+        <section className={g.section}>
+          <h2 className={g.heading}>
+            Google フォーム・AppSheet・GAS は、どう選びますか
+          </h2>
+          <p className={g.text}>
+            入力だけをスマートフォンでしたいなら、まず Google
+            フォームで足ります。回答は「回答」タブからつないだスプレッドシートに 1
+            行ずつ入り、費用もかかりません。ただし、入れた行をあとから一覧で探したり直したりする画面はありません。一覧・検索・修正まで画面でしたいときに、AppSheet
+            か GAS の Web アプリを使います。
+          </p>
+          <GuideCompare
+            rows={[
+              {
+                way: "Google フォーム",
+                cost: "0 円",
+                fits: "現場からの入力だけをスマートフォンでしたい",
+                limit: "入れた行を探す・直す画面がない",
+              },
+              {
+                way: "AppSheet",
+                cost: "Google Workspace の契約に含まれる場合あり。含まれなければ利用者ごとの月額",
+                fits: "コードを書かずに、画面と自動化をまとめて組みたい",
+                limit: "込み入った条件は AppSheet の式で書く。使う人が増えるほど費用が増える",
+              },
+              {
+                way: "自分で書く GAS の Web アプリ",
+                cost: "0 円",
+                fits: "一覧を見るだけの画面でよく、GAS を直せる人がいる",
+                limit: "登録・編集・同時の更新・スマートフォンの見た目は自分で作る",
+              },
+            ]}
+            kit={{
+              way: "sheet-app",
+              fits: "顧客・案件・在庫の台帳を、一覧・検索・登録・編集の画面で使いたい",
+              limit: "画面の項目は「定義」シートの 14 の型の範囲。Google アカウントでのログインが要る",
+            }}
+          />
         </section>
 
         <section className={g.section}>
@@ -163,8 +201,7 @@ export default function SpreadsheetAppGuide() {
               一覧を見るだけなら、上のコードと公開の手順で足ります。費用はかかりません
             </li>
             <li>
-              キットを使う: 「スプレッドシート業務アプリ キット」（¥9,800
-              の買い切り）は、「定義」シートに列の名前と型を書くだけで、一覧・検索・絞り込み・登録・編集・削除・CSV
+              キットを使う: 「スプレッドシート業務アプリ キット」（¥9,800・税込・買い切り）は、「定義」シートに列の名前と型を書くだけで、一覧・検索・絞り込み・登録・編集・削除・CSV
               出力の画面を組みます。幅の狭い画面では表がカードに切り替わり、権限は共有設定のまま効きます。顧客管理・案件管理・在庫管理の見本が入っていて、貼るのは
               3 ファイル、置くのは 10 分ほどです ──{" "}
               <a
@@ -185,16 +222,11 @@ export default function SpreadsheetAppGuide() {
               <ShopEmbed linkKey="sheet-app" />
             </li>
             <li>
-              設定ごと頼む:
-              お使いの表に合わせた定義づくりと権限の設定、スマートフォンでの確認まで、こちらでお受けします
-              ──{" "}
+              設定ごと頼む: お使いの表に合わせた定義づくりと権限の設定、スマートフォンでの確認まで、{" "}
               <a href={COCONALA} className={g.link}>
                 ココナラ
               </a>
-              {" / "}
-              <a href={LANCERS} className={g.link}>
-                ランサーズ
-              </a>
+              でご依頼いただけます
             </li>
           </ul>
           <NoteEmbed url={PRODUCT_NOTE} />

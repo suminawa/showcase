@@ -8,11 +8,13 @@ import Link from "next/link";
 
 import { JsonLd } from "@/components/JsonLd";
 import u from "@/components/site/ui.module.css";
-import { guideHref, guideUpdated, type Guide } from "@/lib/guides";
+import { guideHref, guideUpdated, guides, type Guide } from "@/lib/guides";
+import { yen } from "@/lib/prices";
 import { priceLabel, projects } from "@/lib/projects";
 import { articleJsonLd, breadcrumbJsonLd } from "@/lib/jsonld";
 import { SITE_NAME } from "@/lib/site";
 
+import t from "../projects/kit-parts.module.css";
 import g from "./guides.module.css";
 
 export const GUIDES_TITLE = "悩みから読む";
@@ -126,6 +128,59 @@ function GuideByline({ guide }: { guide: Guide }) {
   );
 }
 
+/** 比べる表の 1 行。やり方・費用・向いている場合・足りなくなるところ */
+export type GuideCompareRow = { way: string; cost: string; fits: string; limit: string };
+
+const COMPARE_COLS = ["やり方", "費用", "向いている場合", "足りなくなるところ"] as const;
+
+/**
+ * 無料・よくある方法とキットを並べる表。表の見た目は作品ページの比較表（kit-parts.module.css）と同じ。
+ * キットの行の費用は projects.ts の定価から組む（紙の上で値段を二重に持たない）
+ */
+export function GuideCompare({ rows, kit, note }: { rows: GuideCompareRow[]; kit: Omit<GuideCompareRow, "cost">; note?: string }) {
+  const price = projects.find((p) => p.slug === kit.way)?.sale?.price;
+  const name = projects.find((p) => p.slug === kit.way)?.title ?? kit.way;
+  const all = [...rows, { ...kit, way: name, cost: price != null ? `${yen(price)}（税込・買い切り）` : "" }];
+  return (
+    <>
+      <table className={t.table}>
+        <thead>
+          <tr>
+            {COMPARE_COLS.map((c) => (
+              <th key={c} scope="col">
+                {c}
+              </th>
+            ))}
+          </tr>
+        </thead>
+        <tbody>
+          {all.map((row, i) => (
+            <tr key={row.way} className={i === all.length - 1 ? t.mine : undefined}>
+              <th scope="row" data-label={COMPARE_COLS[0]}>
+                {row.way}
+              </th>
+              <td data-label={COMPARE_COLS[1]}>{row.cost}</td>
+              <td data-label={COMPARE_COLS[2]}>{row.fits}</td>
+              <td data-label={COMPARE_COLS[3]}>{row.limit}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+      {note && <p className={g.caption}>{note}</p>}
+    </>
+  );
+}
+
+/** この記事と同じキットに結びつく記事と、related に書いた記事（重ねない・自分は除く） */
+export function relatedGuides(guide: Guide): Guide[] {
+  const picked = new Set([
+    ...(guide.related ?? []),
+    ...guides.filter((o) => o.shop === guide.shop || o.kit === guide.kit).map((o) => o.slug),
+  ]);
+  picked.delete(guide.slug);
+  return guides.filter((o) => picked.has(o.slug));
+}
+
 /** 結びの道。帳票の行で 見本 → キット（値段つき）→ ご相談。行ごと押せる */
 export function GuideLinks({ guide }: { guide: Guide }) {
   const kit = projects.find((p) => p.slug === guide.shop);
@@ -167,6 +222,35 @@ export function GuideLinks({ guide }: { guide: Guide }) {
           </Link>
         </li>
       </ul>
+      <RelatedRows guide={guide} />
     </section>
+  );
+}
+
+/** 結びの下の、あわせて読む記事。行の形は結びと同じ */
+function RelatedRows({ guide }: { guide: Guide }) {
+  const related = relatedGuides(guide);
+  if (related.length === 0) return null;
+  return (
+    <>
+      <h2 id="guide-related" className={g.closeHead}>
+        あわせて読む
+      </h2>
+      <ul className={g.links}>
+        {related.map((o) => (
+          <li key={o.slug}>
+            <Link href={guideHref(o)} className={g.rowLink}>
+              <span className={g.rowLabel}>記事</span>
+              <span className={g.rowText}>{o.title}</span>
+            </Link>
+          </li>
+        ))}
+      </ul>
+      <p className={g.caption}>
+        <Link href="/guides" className={g.link}>
+          記事の一覧へ
+        </Link>
+      </p>
+    </>
   );
 }

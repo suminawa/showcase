@@ -1,6 +1,7 @@
 /*
- * 検索の言葉「問い合わせフォーム 自動返信 GAS」「Googleフォーム 自動返信メール 設定」の着地の紙。
- * なぜ要るか → Google フォームの手順（コード 1 つ）→ 自前のフォーム → 迷惑投稿と二重送信 → 通知 → 3 つの道、の順に読ませる。
+ * 検索の言葉「問い合わせフォーム スプレッドシート 自動返信」「問い合わせフォーム 自動返信 GAS」の着地の紙。
+ * なぜ要るか → Google フォームの手順（コード 1 つ）→ 届かないとき → 自前のフォーム → 迷惑投稿と二重送信 → 通知 →
+ * 比べる表 → 3 つの道、の順に読ませる。キットの事実は ops 30days/products/s3-form-intake-gas/booth-description.md から取る。
  * コードの実例はキットと同じく MailApp で送り、1 日の上限を先に確かめる（packages/form-intake-gas/src/gas_mail.js）。
  * FORM: 方眼（DESIGN.md）。枠は ../parts の GuideArticle。
  */
@@ -13,7 +14,7 @@ import { guideBySlug } from "@/lib/guides";
 
 import g from "../guides.module.css";
 import { NoteEmbed } from "@/components/note/NoteEmbed";
-import { GuideArticle, GuideLinks, guideMetadata } from "../parts";
+import { GuideArticle, GuideCompare, GuideLinks, guideMetadata } from "../parts";
 import { ShopEmbed } from "../../projects/shell";
 
 const PRODUCT_NOTE = "https://note.com/suminawa/n/n5cb1589b56b5";
@@ -21,11 +22,8 @@ const PRODUCT_NOTE = "https://note.com/suminawa/n/n5cb1589b56b5";
 const guide = guideBySlug("form-auto-reply");
 
 const SHOT = "/guides/form-auto-reply-email.png";
-/** 設定ごと頼める出品（ココナラ ③）。名は /projects/form と同じ字にする */
-const SETUP = {
-  name: "問い合わせフォームに台帳・通知・自動返信をつけます",
-  href: "https://coconala.com/services/4394572",
-};
+/** 設置込みで頼める出品（ココナラ）。値段は出品の側が持つので、この紙には書かない */
+const COCONALA = "https://coconala.com/services/4394572";
 
 const CODE = `// 回答先のスプレッドシートの Apps Script に貼る。トリガー「フォーム送信時」で動く
 function sendAutoReply(e) {
@@ -68,11 +66,11 @@ export default function FormAutoReplyGuide() {
 
         <section className={g.section}>
           <h2 className={g.heading}>
-            Google フォームで自動返信を付けるには、どうしますか
+            Google フォームで、スプレッドシートへの記録と自動返信を付けるには、どうしますか
           </h2>
           <p className={g.text}>
-            まず、フォームの「設定」→「回答」で、メールアドレスを集める設定と、回答のコピーを送る設定で足りるかを確かめます。送られるのは回答の写しだけなので、お礼の文や会社名を入れたいときは
-            GAS を使います。
+            まず、フォームの「設定」→「回答」で、メールアドレスを集める設定と、回答のコピーを送る設定で足りるかを確かめます。ここまでは無料で、コードも要りません。送られるのは回答の写しだけなので、お礼の文や会社名、次の連絡の目安を入れたいときは
+            GAS を使います。「回答」タブの「スプレッドシートにリンク」を押すと、届いた回答が 1 件ずつスプレッドシートの行に残ります。
           </p>
           <ol className={g.list}>
             <li>
@@ -236,8 +234,39 @@ export default function FormAutoReplyGuide() {
         </section>
 
         <section className={g.section}>
+          <h2 className={g.heading}>回答のコピー・自作の GAS・フォームサービス・キットは、何が違いますか</h2>
+          <GuideCompare
+            rows={[
+              {
+                way: "Google フォームの回答のコピー",
+                cost: "0 円",
+                fits: "Google フォームで受けていて、受け付けたことが伝われば足りる",
+                limit: "届くのは回答の写しだけ。お礼の文や会社名を入れられない",
+              },
+              {
+                way: "自分で書く GAS",
+                cost: "0 円",
+                fits: "Google フォームに自分の文面の返信を付けたい",
+                limit: "迷惑投稿・二重送信・送れなかった日の扱いは自分で作り、直し続ける",
+              },
+              {
+                way: "月額のフォームサービス",
+                cost: "無料プラン〜月額",
+                fits: "フォームの画面づくりから受付の管理まで任せたい",
+                limit: "受付の記録はそのサービスの中。件数や機能で月額が上がる",
+              },
+            ]}
+            kit={{
+              way: "form",
+              fits: "ホームページの自前のフォームを、スプレッドシートと Slack・LINE で受けたい",
+              limit: "Google フォームではなく、ホームページのフォームの受け口として使う",
+            }}
+          />
+        </section>
+
+        <section className={g.section}>
           <h2 className={g.heading}>
-            自分で組むか、キットを使うか、設定ごと頼むか
+            自分で組むか、キットを使うか、設置ごと頼むか
           </h2>
           <p className={g.text}>道は 3 つあります。</p>
           <ul className={g.list}>
@@ -246,11 +275,10 @@ export default function FormAutoReplyGuide() {
               フォームに返信を付けるだけなら、上のコードとトリガーで足ります。費用はかかりません
             </li>
             <li>
-              キットを使う: 「フォーム受付 GAS キット」（¥3,480
-              の買い切り）は、ホームページのフォームの受け口として、受付シートへの記録、受付番号、Slack
+              キットを使う: 「フォーム受付 GAS キット」（¥3,480・税込・買い切り）は、ホームページのフォームの受け口として、受付シートへの記録、受付番号、Slack
               や LINE
               への通知、自動返信、迷惑投稿と二重送信の防止までを行います。貼るのは
-              Code.gs と appsscript.json の 2 ファイルで、設定は 20 分ほどです
+              Code.gs と appsscript.json の 2 ファイルです
               ──{" "}
               <a
                 href={goHref("s3", "booth", "/guides/form-auto-reply")}
@@ -270,12 +298,11 @@ export default function FormAutoReplyGuide() {
               <ShopEmbed linkKey="s3" />
             </li>
             <li>
-              設定ごと頼む: ココナラの「
-              <a href={SETUP.href} className={g.link}>
-                {SETUP.name}
+              設置ごと頼む:{" "}
+              <a href={COCONALA} className={g.link}>
+                ココナラ
               </a>
-              」（30,000 円・7
-              日）で、お使いのフォームのつなぎ替えから動作確認、手順書までお受けします
+              で、設置込みのご依頼もできます
             </li>
           </ul>
           <NoteEmbed url={PRODUCT_NOTE} />

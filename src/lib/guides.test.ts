@@ -21,4 +21,13 @@ describe("guides", () => {
       if (g.demo) expect(paths, g.slug).toContain(g.demo.href);
     }
   });
+  it("あわせて読む記事は、目録にある別の記事を指す", () => {
+    const slugs = guides.map((g) => g.slug);
+    for (const g of guides) {
+      for (const r of g.related ?? []) {
+        expect(slugs, g.slug).toContain(r);
+        expect(r, g.slug).not.toBe(g.slug);
+      }
+    }
+  });
 });

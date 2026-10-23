@@ -15,7 +15,7 @@ const TITLE = GUIDES_TITLE;
 const LEDE = "事務や受付で繰り返し起きる困りごとを 1 つずつ取り上げ、手で解く手順と見本をまとめています。";
 
 /** metadata の description。頭の一行に、扱っている悩みと本数を足す（100〜160 字） */
-const DESCRIPTION = `${LEDE}請求書 PDF の転記、顧客管理の表、LINE や問い合わせの自動返信、予約、期限の通知、売上の集計、LP の構成など、${guides.length} 本の記事があります。`;
+const DESCRIPTION = `${LEDE}請求書 PDF の転記、顧客管理の表、LINE や問い合わせの自動返信、予約、期限の通知、給与明細の配布、売上の集計、LP の構成など、${guides.length} 本の記事があります。`;
 
 export const metadata: Metadata = {
   title: TITLE,
