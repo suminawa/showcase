@@ -15,6 +15,12 @@ export type KitUpdate = {
 
 export const UPDATES: readonly KitUpdate[] = [
   {
+    date: "2026-10-23",
+    slug: "payslip",
+    version: "1.0.0",
+    note: "発売しました。社労士や給与ソフトの一覧を貼ると、1 人ずつの明細 PDF を作り、送る前の 11 の確かめと自分あての試し送りを経て、本人のアドレスだけに渡します。社員 3 人まで・試し送りまでの無料版もあります。",
+  },
+  {
     date: "2026-10-22",
     slug: "dashboard",
     version: "1.0.3",

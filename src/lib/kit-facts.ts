@@ -80,4 +80,4 @@ export function isFlagship(slug: string): slug is FlagshipSlug {
 }
 
 /** 無料版のある品物と、その売り場への道の鍵（links.json） */
-export const FREE_EDITION: Readonly<Partial<Record<string, LinkKey>>> = { deadline: "deadline-lite", "order-report": "order-report-lite" };
+export const FREE_EDITION: Readonly<Partial<Record<string, LinkKey>>> = { deadline: "deadline-lite", "order-report": "order-report-lite", payslip: "payslip-lite" };

@@ -53,6 +53,7 @@ const items = [
   { slug: "mcp-server", src: "mcp-server/assets/tools.png", crop: [40, 300, 1220, 950], frame: false },
   { slug: "quote-simulator", src: "s1-quote-calculator/assets/demo.png", crop: [0, 0, 2400, 1800], frame: true },
   { slug: "order-report", src: "order-report-template/assets/screen-split-raw.png", crop: [1130, 20, 1352, 1176], frame: false },
+  { slug: "payslip", src: "payslip-delivery-gas/assets/first.png", crop: [1070, 470, 1340, 1005], frame: false },
 ];
 
 async function place(input, frame) {

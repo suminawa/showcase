@@ -227,6 +227,10 @@ export const CATALOG: Record<ForeignLang, Catalog> = {
         title: "Subscription Order Report Template",
         description: "Paste your cart’s order and subscription CSVs into Excel to get new customers, cancellations, and next month’s subscription sales by month.",
       },
+      payslip: {
+        title: "Payslip Delivery Kit",
+        description: "Paste your payroll list and each employee gets their own PDF payslip, shared only with their own email address.",
+      },
       "mcp-server": {
         title: "MCP Server Kit",
         description: "Search and add records in your business app, booking, and document sheets from a chat with Claude or ChatGPT.",
@@ -462,6 +466,10 @@ export const CATALOG: Record<ForeignLang, Catalog> = {
       "order-report": {
         title: "Modèle de rapport des commandes par abonnement",
         description: "Collez dans Excel les CSV de commandes et d’abonnements de votre boutique : nouveaux clients, résiliations et ventes d’abonnement du mois prochain, mois par mois.",
+      },
+      payslip: {
+        title: "Kit de distribution des bulletins de paie",
+        description: "Collez votre liste de paie : chaque salarié reçoit son bulletin en PDF, partagé uniquement avec sa propre adresse e-mail.",
       },
       "mcp-server": {
         title: "Kit de serveur MCP",

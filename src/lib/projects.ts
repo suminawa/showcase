@@ -49,7 +49,11 @@ export type Sale = {
    * 制作会社用のライセンス（BOOTH の 2 つめの選択肢「制作会社用（複数人で共有・案件数の上限なし）」）の**税込**の値段（円）。
    * BOOTH に 2 つの選択肢を持つキットだけが持つ。品物のページの購入の箱と「お値段」が、個人・社内用（price）と並べて出す（kit-parts.tsx）。
    */
-  agency?: { price: number };
+  agency?: {
+    price: number;
+    /** advisor: 社労士・制作会社用（顧問先・取引先のスプレッドシートに設置して渡せる）。名前と説明の文が変わる（kit-parts.tsx） */
+    kind?: "advisor";
+  };
 };
 
 export type Project = {
@@ -409,6 +413,16 @@ export const projects: Project[] = [
     sale: { status: "onsale", price: 2980, service: { price: 5000 } },
   },
   {
+    slug: "payslip",
+    title: "給与明細 配布キット",
+    description: "給与の一覧を貼ると、1 人ずつの明細 PDF を本人のアドレスだけに渡します。",
+    tags: ["Google Apps Script"],
+    category: "kits",
+    // 2026-10-23 発売。本体 3,480 円・社労士・制作会社用 9,800 円（BOOTH の 2 つの選択肢）・無料版 0 円。記念価格なし
+    // 設置代行は /contact の品書き「キットの設置をお任せ 30,000 円から」
+    sale: { status: "onsale", price: 3480, service: { price: 30000 }, agency: { price: 9800, kind: "advisor" } },
+  },
+  {
     slug: "mcp-server",
     title: "MCP サーバー キット",
     description: "業務アプリ・予約・書類のシートを、Claude や ChatGPT から読み書きできます。",
@@ -584,7 +598,7 @@ export const PILLARS: readonly Pillar[] = [
     name: "業務自動化",
     short: "業務自動化",
     lede: "表に書けば、仕事が回る。期限の通知、問い合わせの受付、予約のページを、Google スプレッドシートの中で動かします。",
-    slugs: ["deadline", "form", "booking", "sheet-app", "dashboard", "order-report"],
+    slugs: ["deadline", "form", "booking", "sheet-app", "dashboard", "order-report", "payslip"],
     picks: [
       { slug: "deadline", hook: "期限を毎朝 1 通でお知らせします" },
       { slug: "form", hook: "受付を記録して、自動で返信します" },

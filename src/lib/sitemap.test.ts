@@ -9,7 +9,7 @@ describe("sitemap", () => {
     expect(paths).toContain("/contact");
     expect(paths).toContain("/projects/booking");
     expect(paths).toContain("/projects/mcp-server");
-    for (const slug of ["line-concierge", "survey-analysis", "rag-eval-harness", "lp-pack", "shopify-configurator", "order-report"]) {
+    for (const slug of ["line-concierge", "survey-analysis", "rag-eval-harness", "lp-pack", "shopify-configurator", "order-report", "payslip"]) {
       expect(paths).toContain(`/projects/${slug}`);
       expect(paths).toContain(`/en/projects/${slug}`);
       expect(paths).toContain(`/fr/projects/${slug}`);

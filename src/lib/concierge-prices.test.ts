@@ -32,6 +32,7 @@ const DOC_SLUG: Record<string, string> = {
   "product-survey-analysis.md": "survey-analysis",
   "product-rag-eval-harness.md": "rag-eval-harness",
   "product-order-report.md": "order-report",
+  "product-payslip.md": "payslip",
 };
 
 const productDocs = readdirSync(CONTENT).filter((name) => name.startsWith("product-"));

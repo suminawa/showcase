@@ -221,7 +221,8 @@ export function ShopLinks({
 /** 売り物の note の記事のカード（URL は links.json。note が無い売り物は何も出さない） */
 export function ShopEmbed({ linkKey }: { linkKey: LinkKey }) {
   const { note } = links[linkKey] as { note?: string };
-  return note ? <NoteEmbed url={note} /> : null;
+  // 売り場の URL が決まる前の印（「{{NOTE_URL}}」）のあいだは出さない
+  return note?.startsWith("https://") ? <NoteEmbed url={note} /> : null;
 }
 
 /** 英仏の紙にだけ出す、買い方の断り（日本語の売り場・円のまま） */

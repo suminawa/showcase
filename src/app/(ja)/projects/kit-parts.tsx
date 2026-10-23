@@ -103,6 +103,9 @@ const T = {
     agency: "制作会社用",
     agencyNote: "複数人で共有・案件数の上限なし。BOOTH の同じページで選べます",
     agencyShort: "複数人で共有・案件数の上限なし",
+    advisor: "社労士・制作会社用",
+    advisorNote: "顧問先・取引先のスプレッドシートに設置して渡せます。設置する先の数に上限はありません。BOOTH の同じページで選べます",
+    advisorShort: "顧問先に設置して渡せる",
   },
   en: {
     buy: "Buy on BOOTH",
@@ -141,6 +144,9 @@ const T = {
     agency: "Agency",
     agencyNote: "Shared by a team, no limit on projects. Choose it on the same BOOTH page",
     agencyShort: "Shared by a team, unlimited projects",
+    advisor: "Payroll advisor / agency",
+    advisorNote: "Install it in your clients’ spreadsheets and hand it over, with no limit on the number of clients. Choose it on the same BOOTH page",
+    advisorShort: "Install it for your clients",
   },
   fr: {
     buy: "Acheter sur BOOTH",
@@ -179,6 +185,9 @@ const T = {
     agency: "Agence",
     agencyNote: "Partagée par une équipe, sans limite de projets. À choisir sur la même page BOOTH",
     agencyShort: "Équipe, projets illimités",
+    advisor: "Cabinet de paie / agence",
+    advisorNote: "À installer dans les tableurs de vos clients et à leur remettre, sans limite de clients. À choisir sur la même page BOOTH",
+    advisorShort: "À installer chez vos clients",
   },
 } satisfies Record<Lang, unknown>;
 
@@ -196,11 +205,13 @@ export function kitTotals(slug: string, now?: Date) {
   const sale = projects.find((x) => x.slug === slug)?.sale;
   // 制作会社用のライセンス（BOOTH の 2 つめの選択肢。あるキットだけ）
   const agency = sale?.agency?.price;
+  // 社労士・制作会社用（顧問先に設置して渡せる）か、制作会社用（複数人で共有）か。名前と説明の文を分ける
+  const advisor = sale?.agency?.kind === "advisor";
   const service = sale?.service?.price;
-  if (service == null) return { kit, agency };
+  if (service == null) return { kit, agency, advisor };
   // standalone（制作を頼む）はキットを買わなくてよいので、総額にキットを足さない
   const standalone = sale?.service?.standalone === true;
-  return { kit, agency, service, standalone, serviceInTax: withTax(service), total: (standalone ? 0 : kit) + withTax(service) };
+  return { kit, agency, advisor, service, standalone, serviceInTax: withTax(service), total: (standalone ? 0 : kit) + withTax(service) };
 }
 
 const from = (lang: Lang, slug: string) => localePath(lang, `/projects/${slug}`);
@@ -220,7 +231,7 @@ export function KitOffer({ lang, slug, linkKey }: { lang: Lang; slug: string; li
           <span className={p.tax}>{t.tax}</span>
         </p>
       ) : (
-        <Licenses lang={lang} kit={v.kit} agency={v.agency} />
+        <Licenses lang={lang} kit={v.kit} agency={v.agency} advisor={v.advisor} />
       )}
       {intro && <p className={p.small}>{t.intro(dateLabel(lang, intro.until), money(lang, intro.list))}</p>}
       <div className={p.buttons}>
@@ -260,7 +271,7 @@ export function KitOffer({ lang, slug, linkKey }: { lang: Lang; slug: string; li
 }
 
 /** 個人・社内用と制作会社用の 2 つのライセンスの値段（BOOTH の 2 つの選択肢）。購入の箱で、値段の大きな字の代わりに出す */
-function Licenses({ lang, kit, agency }: { lang: Lang; kit: number; agency: number }) {
+function Licenses({ lang, kit, agency, advisor }: { lang: Lang; kit: number; agency: number; advisor: boolean }) {
   const t = T[lang];
   return (
     <dl className={p.licenses}>
@@ -270,8 +281,8 @@ function Licenses({ lang, kit, agency }: { lang: Lang; kit: number; agency: numb
       </dt>
       <dd className={p.yen}>{money(lang, kit)}</dd>
       <dt>
-        {t.agency}
-        <span className={p.licenseNote}>{t.agencyShort}</span>
+        {advisor ? t.advisor : t.agency}
+        <span className={p.licenseNote}>{advisor ? t.advisorShort : t.agencyShort}</span>
       </dt>
       <dd>{money(lang, agency)}</dd>
     </dl>
@@ -404,10 +415,10 @@ export function KitPricing({ lang, slug, linkKey }: { lang: Lang; slug: string; 
         </dd>
         {v.agency != null && (
           <>
-            <dt>{t.agency}</dt>
+            <dt>{v.advisor ? t.advisor : t.agency}</dt>
             <dd>
               <span className={p.figure}>{money(lang, v.agency)}</span>（{t.tax}）
-              <span className={p.breakdown}>{t.agencyNote}</span>
+              <span className={p.breakdown}>{v.advisor ? t.advisorNote : t.agencyNote}</span>
             </dd>
           </>
         )}

@@ -86,5 +86,12 @@
   },
   "order-report-lite": {
     "booth": "https://suminawa.booth.pm/items/9022739"
+  },
+  "payslip": {
+    "note": "{{NOTE_URL}}",
+    "booth": "{{BOOTH_PAID}}"
+  },
+  "payslip-lite": {
+    "booth": "{{BOOTH_FREE}}"
   }
 }

@@ -23,6 +23,7 @@ export const NO_OG = new Set([
   "lp-pack",
   "shopify-configurator",
   "order-report",
+  "payslip",
 ]);
 
 export function projectJsonLd(lang: Lang, slug: string, title: string): Record<string, unknown>[] | null {
