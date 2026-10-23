@@ -90,7 +90,7 @@ const jaSales: KitSales = {
 
 const ja: KitCopy = {
   meta: {
-    title: "LINE のよくある質問に、自社の資料だけで AI が答える｜答えられないことは担当者へ・月額なし（LINE 案内窓口キット）",
+    title: "LINE のよくある質問に、自社の資料だけで AI が答える（LINE 案内窓口キット）",
     description: "LINE 公式アカウントに届いたご質問に、会社案内・料金・よくあるご質問の範囲だけで AI が敬体でお答えし、根拠の URL を添えます。資料に無いことは推測で答えず、担当者へ引き継ぎます。買い切りで、月額のサービス料はかかりません（Next.js・Claude API）。",
   },
   name: "LINE 案内窓口キット",

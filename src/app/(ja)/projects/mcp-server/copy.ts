@@ -74,7 +74,7 @@ type McpCopy = {
 
 const ja: McpCopy = {
   meta: {
-    title: "台帳の決まりを守る Google Sheets MCP サーバー｜顧客・予約・請求を Claude・ChatGPT から安全に読み書き（MCP サーバー キット・無料）",
+    title: "Google Sheets の MCP サーバー｜Claude・ChatGPT から台帳を読み書き（無料）",
     description: "Google スプレッドシートの顧客・予約・請求の台帳を、Claude や ChatGPT との会話から探して直せる MCP サーバーです。「定義」シートの型・必須・選択肢に合わない書き込みは止め、ほかの方が直した行は上書きしません。無料で、TypeScript のソースつき。記録したやり取りを再生する見本つき。",
   },
   name: "MCP サーバー キット（無料）",

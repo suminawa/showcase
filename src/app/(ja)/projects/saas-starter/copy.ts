@@ -85,7 +85,7 @@ const jaSales: KitSales = {
 
 const ja = {
   meta: {
-    title: "日本向け SaaS の土台｜ログイン・組織・権限・月額課金が動く Next.js + Supabase + Stripe（SaaS スターター キット）",
+    title: "日本向け SaaS の土台｜Next.js + Supabase + Stripe（SaaS スターター キット）",
     description: "ログイン・組織とご招待・3 つの役割の権限・Stripe の月額課金・特定商取引法の表記のひな形まで、買ったその日に動く日本向けの SaaS の土台です。Next.js + Supabase + Stripe。API キーなしの見本をその場で触れます。",
   },
   name: "SaaS スターター キット",
