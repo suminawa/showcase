@@ -27,17 +27,17 @@ import type { Span } from "@/components/demos/openHours";
 
 import { ClinicOpenNow } from "./ClinicOpenNow";
 import s from "./clinic.module.css";
+import { DEMO_NOTE } from "@/lib/demos";
 import { SITE_NAME } from "@/lib/site";
 
 const BRAND = "月白歯科クリニック";
 
 const TITLE = "見本 ｜ クリニック・医院の LP";
-const DESCRIPTION =
-  "架空の歯科医院「月白歯科クリニック」の 1 ページ LP。診療時間の表と Web 予約まで動く見本。";
+const DESCRIPTION = `架空の歯科医院「月白歯科クリニック」の 1 ページ LP。診療時間の表と Web 予約まで動く見本。${DEMO_NOTE}`;
 
 export const metadata: Metadata = {
-  // レイアウトの title.template（"%s | 墨縄 suminawa"）がタブに付け足されるのを防ぐ
-  title: { absolute: TITLE },
+  // 末尾の名乗りはレイアウトの title.template（"%s | 墨縄 suminawa"）が付ける
+  title: TITLE,
   description: DESCRIPTION,
   alternates: { canonical: "/demos/clinic-lp" },
   openGraph: {
@@ -45,7 +45,7 @@ export const metadata: Metadata = {
     description: DESCRIPTION,
     url: "/demos/clinic-lp",
     type: "website",
-    images: ["/opengraph-image.png"],
+    images: ["/hub/clinic-lp-640.webp"],
     siteName: SITE_NAME,
     locale: "ja_JP",
   },
@@ -53,7 +53,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: TITLE,
     description: DESCRIPTION,
-    images: ["/opengraph-image.png"],
+    images: ["/hub/clinic-lp-640.webp"],
   },
 };
 

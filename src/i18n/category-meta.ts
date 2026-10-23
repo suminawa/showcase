@@ -8,7 +8,7 @@ export function categoryMetadata(lang: Lang, category: Category) {
   const sheet = localIndexPage(lang, category);
   return pageMetadata(lang, `/${category}`, {
     title: sheet.title,
-    description: sheet.lede,
+    description: sheet.description ?? sheet.lede,
     image: `/og/${category}.png`,
   });
 }

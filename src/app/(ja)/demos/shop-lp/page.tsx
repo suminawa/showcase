@@ -22,6 +22,7 @@ import {
 import { OpenNow } from "@/components/demos/OpenNow";
 
 import s from "./shop.module.css";
+import { DEMO_NOTE } from "@/lib/demos";
 import { SITE_NAME } from "@/lib/site";
 
 const BRAND = "粉とゆげ";
@@ -30,27 +31,28 @@ const BRAND = "粉とゆげ";
 const PAPER_RGB = "124, 106, 78";
 const PAPER_COUNT = 140;
 
+const TITLE = "見本 ｜ 店舗・サロンの LP";
+const DESCRIPTION = `架空の焼き菓子とコーヒーの店「粉とゆげ」の 1 ページ LP。品書きと席の予約まで動く見本。${DEMO_NOTE}`;
+
 export const metadata: Metadata = {
-  title: { absolute: "見本 ｜ 店舗・サロンの LP" },
-  description:
-    "架空の焼き菓子とコーヒーの店「粉とゆげ」の 1 ページ LP。品書きと席の予約まで動く見本。",
+  // 末尾の名乗りはレイアウトの title.template（"%s | 墨縄 suminawa"）が付ける
+  title: TITLE,
+  description: DESCRIPTION,
   alternates: { canonical: "/demos/shop-lp" },
   openGraph: {
-    title: "見本 ｜ 店舗・サロンの LP",
-    description:
-      "架空の焼き菓子とコーヒーの店「粉とゆげ」の 1 ページ LP。品書きと席の予約まで動く見本。",
+    title: TITLE,
+    description: DESCRIPTION,
     url: "/demos/shop-lp",
     type: "website",
-    images: ["/opengraph-image.png"],
+    images: ["/hub/shop-lp-640.webp"],
     siteName: SITE_NAME,
     locale: "ja_JP",
   },
   twitter: {
     card: "summary_large_image",
-    title: "見本 ｜ 店舗・サロンの LP",
-    description:
-      "架空の焼き菓子とコーヒーの店「粉とゆげ」の 1 ページ LP。品書きと席の予約まで動く見本。",
-    images: ["/opengraph-image.png"],
+    title: TITLE,
+    description: DESCRIPTION,
+    images: ["/hub/shop-lp-640.webp"],
   },
 };
 

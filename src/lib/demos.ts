@@ -27,6 +27,10 @@ export type Demo = {
   tags: string[];
 };
 
+/** 見本ページの description の結びの一文（どの見本にも当てはまること） */
+export const DEMO_NOTE =
+  "社名や料金はすべて架空です。同じ見本が業種別 LP テンプレ パック（HTML と Next.js）に入っていて、文言と色を差し替えて使えます。";
+
 export const demos: readonly Demo[] = [
   {
     slug: "corporate-site",

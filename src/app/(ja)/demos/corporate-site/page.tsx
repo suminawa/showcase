@@ -16,15 +16,15 @@ import { WaveField } from "@/components/demos/corporate/WaveField";
 
 import c from "./corporate.module.css";
 import s from "./top.module.css";
+import { DEMO_NOTE } from "@/lib/demos";
 import { SITE_NAME } from "@/lib/site";
 
 const TITLE = "見本 ｜ 会社案内サイト";
-const DESCRIPTION =
-  "架空の海洋・環境調査の計測会社「潮見計測」の会社案内サイト。TOP と下層 3 枚の見本。";
+const DESCRIPTION = `架空の海洋・環境調査の計測会社「潮見計測」の会社案内サイト。TOP と下層 3 枚の見本。${DEMO_NOTE}`;
 
 export const metadata: Metadata = {
-  // レイアウトの title.template（"%s | 墨縄 suminawa"）がタブに付け足されるのを防ぐ
-  title: { absolute: TITLE },
+  // 末尾の名乗りはレイアウトの title.template（"%s | 墨縄 suminawa"）が付ける
+  title: TITLE,
   description: DESCRIPTION,
   alternates: { canonical: NAV_BASE },
   openGraph: {
@@ -32,7 +32,7 @@ export const metadata: Metadata = {
     description: DESCRIPTION,
     url: NAV_BASE,
     type: "website",
-    images: ["/opengraph-image.png"],
+    images: ["/hub/corporate-site-640.webp"],
     siteName: SITE_NAME,
     locale: "ja_JP",
   },
@@ -40,7 +40,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: TITLE,
     description: DESCRIPTION,
-    images: ["/opengraph-image.png"],
+    images: ["/hub/corporate-site-640.webp"],
   },
 };
 

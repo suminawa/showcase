@@ -125,6 +125,8 @@ export type IndexPage = {
   title: string;
   latin: string;
   lede: string;
+  /** metadata の description（100〜160 字）。頭の一行が短い紙だけが持つ。無ければ lede */
+  description?: string;
 };
 
 export const INDEX_PAGES: Record<Category, IndexPage> = {
@@ -137,11 +139,15 @@ export const INDEX_PAGES: Record<Category, IndexPage> = {
     title: "見本サイト",
     latin: "Sites",
     lede: "どれも架空の会社で作った見本です。業種別 LP テンプレ パックの中身でもあります。",
+    description:
+      "架空の会社で作った見本サイトです。会社案内サイトと、BtoB・SaaS、店舗・サロン、建設・工事、士業・研修、クリニック・医院の LP があり、料金の切替や予約まで、その場で動きます。業種別 LP テンプレ パックの中身でもあります。",
   },
   works: {
     title: "作品と道具",
     latin: "Works",
     lede: "その場で触って確かめられる作品と道具です。",
+    description:
+      "その場で触って確かめられる作品と道具です。藍と墨が渦を巻く GPU 流体の水盤「墨流し」、税込の価格から税抜と消費税を出す逆算の道具、条件を入れると内訳と合計が出る見積もり電卓テンプレを置いています。",
   },
 };
 

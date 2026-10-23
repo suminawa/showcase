@@ -11,17 +11,17 @@ import { HeroField } from "@/components/demos/saas/HeroField";
 import { PricingTable } from "@/components/demos/saas/PricingTable";
 
 import s from "./saas.module.css";
+import { DEMO_NOTE } from "@/lib/demos";
 import { SITE_NAME } from "@/lib/site";
 
 const BRAND = "Tabane Works";
 
 const TITLE = "見本 ｜ BtoB・SaaS の LP";
-const DESCRIPTION =
-  "架空の勤怠・工数 SaaS「Tabane Works」の 1 ページ LP。料金切替と FAQ、フォームまで動く見本。";
+const DESCRIPTION = `架空の勤怠・工数 SaaS「Tabane Works」の 1 ページ LP。料金切替と FAQ、フォームまで動く見本。${DEMO_NOTE}`;
 
 export const metadata: Metadata = {
-  // レイアウトの title.template（"%s | 墨縄 suminawa"）がタブに付け足されるのを防ぐ
-  title: { absolute: TITLE },
+  // 末尾の名乗りはレイアウトの title.template（"%s | 墨縄 suminawa"）が付ける
+  title: TITLE,
   description: DESCRIPTION,
   alternates: { canonical: "/demos/saas-lp" },
   openGraph: {
@@ -29,7 +29,7 @@ export const metadata: Metadata = {
     description: DESCRIPTION,
     url: "/demos/saas-lp",
     type: "website",
-    images: ["/opengraph-image.png"],
+    images: ["/hub/saas-lp-640.webp"],
     siteName: SITE_NAME,
     locale: "ja_JP",
   },
@@ -37,7 +37,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: TITLE,
     description: DESCRIPTION,
-    images: ["/opengraph-image.png"],
+    images: ["/hub/saas-lp-640.webp"],
   },
 };
 

@@ -12,17 +12,17 @@ import { AdvisoryPlans } from "@/components/demos/professional/AdvisoryPlans";
 import { HeroRules } from "@/components/demos/professional/HeroRules";
 
 import s from "./professional.module.css";
+import { DEMO_NOTE } from "@/lib/demos";
 import { SITE_NAME } from "@/lib/site";
 
 const BRAND = "霜月会計事務所";
 
 const TITLE = "見本 ｜ 士業・研修の LP";
-const DESCRIPTION =
-  "架空の会計事務所「霜月会計事務所」の 1 ページ LP。料金の切替と相談フォームまで動く見本。";
+const DESCRIPTION = `架空の会計事務所「霜月会計事務所」の 1 ページ LP。料金の切替と相談フォームまで動く見本。${DEMO_NOTE}`;
 
 export const metadata: Metadata = {
-  // レイアウトの title.template（"%s | 墨縄 suminawa"）がタブに付け足されるのを防ぐ
-  title: { absolute: TITLE },
+  // 末尾の名乗りはレイアウトの title.template（"%s | 墨縄 suminawa"）が付ける
+  title: TITLE,
   description: DESCRIPTION,
   alternates: { canonical: "/demos/professional-lp" },
   openGraph: {
@@ -30,7 +30,7 @@ export const metadata: Metadata = {
     description: DESCRIPTION,
     url: "/demos/professional-lp",
     type: "website",
-    images: ["/opengraph-image.png"],
+    images: ["/hub/professional-lp-640.webp"],
     siteName: SITE_NAME,
     locale: "ja_JP",
   },
@@ -38,7 +38,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: TITLE,
     description: DESCRIPTION,
-    images: ["/opengraph-image.png"],
+    images: ["/hub/professional-lp-640.webp"],
   },
 };
 

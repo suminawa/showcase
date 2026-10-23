@@ -124,6 +124,8 @@ export const CATALOG: Record<ForeignLang, Catalog> = {
       works: {
         title: "Works and tools",
         lede: "Works and tools you can try right here on the page.",
+        description:
+          "Works and tools you can try right here on the page: Suminagashi, a GPU fluid basin where indigo and ink swirl; a tool that splits a tax-inclusive price into the net amount and consumption tax; and a quote calculator template.",
       },
     },
     contact: {
@@ -364,6 +366,8 @@ export const CATALOG: Record<ForeignLang, Catalog> = {
       works: {
         title: "Réalisations et outils",
         lede: "Des réalisations et des outils à essayer directement sur la page.",
+        description:
+          "Des réalisations et des outils à essayer directement sur la page : Suminagashi, un bassin de fluide GPU où l’indigo et l’encre tourbillonnent ; un outil qui décompose un prix TTC en montant HT et taxe ; et un modèle de calculateur de devis.",
       },
     },
     contact: {

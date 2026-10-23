@@ -16,13 +16,13 @@ import { formatFrom, SERVICES } from "@/components/demos/construction/services";
 import { HeroField } from "@/components/demos/saas/HeroField";
 
 import s from "./construction.module.css";
+import { DEMO_NOTE } from "@/lib/demos";
 import { SITE_NAME } from "@/lib/site";
 
 const BRAND = "灯月設備";
 
 const TITLE = "見本 ｜ 建設・工事の LP";
-const DESCRIPTION =
-  "架空の設備工事会社「灯月設備」の 1 ページ LP。電話導線と料金の目安まで動く見本。";
+const DESCRIPTION = `架空の設備工事会社「灯月設備」の 1 ページ LP。電話導線と料金の目安まで動く見本。${DEMO_NOTE}`;
 
 /**
  * ヒーローの粒。飾り専用の明るいオレンジ。
@@ -33,8 +33,8 @@ const ACCENT_RGB = "240, 122, 18";
 const ACCENT_COUNT = 70;
 
 export const metadata: Metadata = {
-  // レイアウトの title.template（"%s | 墨縄 suminawa"）がタブに付け足されるのを防ぐ
-  title: { absolute: TITLE },
+  // 末尾の名乗りはレイアウトの title.template（"%s | 墨縄 suminawa"）が付ける
+  title: TITLE,
   description: DESCRIPTION,
   alternates: { canonical: "/demos/construction-lp" },
   openGraph: {
@@ -42,7 +42,7 @@ export const metadata: Metadata = {
     description: DESCRIPTION,
     url: "/demos/construction-lp",
     type: "website",
-    images: ["/opengraph-image.png"],
+    images: ["/hub/construction-lp-640.webp"],
     siteName: SITE_NAME,
     locale: "ja_JP",
   },
@@ -50,7 +50,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: TITLE,
     description: DESCRIPTION,
-    images: ["/opengraph-image.png"],
+    images: ["/hub/construction-lp-640.webp"],
   },
 };
 
