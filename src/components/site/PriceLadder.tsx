@@ -2,7 +2,7 @@
  * 頼み方と目安の階段（PRICE_LADDER）。トップと /contact が同じ表を置く。
  * PC は 3 列の表、スマホは行ごとの札（横に送らない）。
  */
-import { PRICE_LADDER } from "@/lib/projects";
+import { PRICE_LADDER, PRICE_LADDER_NOTE } from "@/lib/projects";
 
 import s from "./price-ladder.module.css";
 
@@ -28,7 +28,7 @@ export function PriceLadder({ caption }: { caption?: string }) {
         ))}
       </tbody>
     </table>
-    <p className={s.note}>キットの値段は税込です。そのほかは税別の目安で、内容を伺ってからお見積もりでお出しします。</p>
+    <p className={s.note}>{PRICE_LADDER_NOTE}</p>
     </div>
   );
 }

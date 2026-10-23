@@ -171,6 +171,9 @@ export const PRICE_LADDER: { how: string; price: string; who: string }[] = [
   { how: "LP・サイトの制作", price: "150,000 円〜", who: "文言・構成から任せたい方" },
 ];
 
+/** 頼み方と目安の階段の下に添える断り（/contact と /llms.txt が同じ字を読む） */
+export const PRICE_LADDER_NOTE = "キットの値段は税込です。そのほかは税別の目安で、内容を伺ってからお見積もりでお出しします。";
+
 /** よくあるご質問（/contact、日本語の紙だけ）。インボイスの登録番号は無い（登録すると公表サイトで本名が引ける）。答えは /about と同じ文に */
 export const CONTACT_FAQ: { q: string; a: string }[] = [
   { q: "お支払いの方法は？", a: "銀行振込か請求書払いでお受けします。" },
