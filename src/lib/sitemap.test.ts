@@ -1,5 +1,7 @@
 import { describe, expect, it } from "vitest";
-import { sitemapEntries, sitemapPaths } from "./sitemap";
+import { guideBySlug, guideUpdated } from "./guides";
+import { SITE_UPDATED, lastModifiedOf, sitemapEntries, sitemapPaths } from "./sitemap";
+import { updatesFor } from "./updates";
 
 describe("sitemap", () => {
   it("トップ・作品ページ・見本サイトが載り、配布の道と外部リンクは載らない", () => {
@@ -26,7 +28,7 @@ describe("sitemap", () => {
     expect(new Set(paths).size).toBe(paths.length);
   });
   it("URL は絶対で、トップ（三言語）だけ priority 1", () => {
-    const entries = sitemapEntries(new Date("2026-09-22T00:00:00Z"));
+    const entries = sitemapEntries();
     expect(entries[0].url).toMatch(/^https?:\/\/.+\/$/);
     const tops = entries.filter((e) => e.priority === 1).map((e) => new URL(e.url).pathname);
     expect(tops).toEqual(["/", "/en", "/fr"]);
@@ -38,11 +40,21 @@ describe("sitemap", () => {
     expect(paths).toContain("/fr/kits");
     expect(paths).toContain("/en/projects/booking");
     expect(paths.some((p) => p.startsWith("/en/demos") || p.startsWith("/fr/guides"))).toBe(false);
-    const entries = sitemapEntries(new Date("2026-09-22T00:00:00Z"));
+    const entries = sitemapEntries();
     const kits = entries.find((e) => new URL(e.url).pathname === "/fr/kits");
     expect(Object.keys(kits?.alternates?.languages ?? {}).sort()).toEqual(["en", "fr", "ja", "x-default"]);
     expect(kits?.alternates?.languages?.["x-default"]).toMatch(/\/kits$/);
     const demo = entries.find((e) => new URL(e.url).pathname === "/demos/shop-lp");
     expect(demo?.alternates).toBeUndefined();
+  });
+  it("lastmod はビルドの時刻ではなく、紙ごとの更新日", () => {
+    const booking = updatesFor("booking")[0].date;
+    expect(lastModifiedOf("/projects/booking")).toBe(booking);
+    expect(lastModifiedOf("/projects/tax-back")).toBe(SITE_UPDATED);
+    expect(lastModifiedOf("/guides/pdf-to-spreadsheet")).toBe(guideUpdated(guideBySlug("pdf-to-spreadsheet")));
+    expect(lastModifiedOf("/about")).toBe(SITE_UPDATED);
+    const fr = sitemapEntries().find((e) => new URL(e.url).pathname === "/fr/projects/booking");
+    expect(fr?.lastModified).toEqual(new Date(`${booking}T00:00:00+09:00`));
+    expect(new Set(sitemapEntries().map((e) => String(e.lastModified))).size).toBeGreaterThan(1);
   });
 });

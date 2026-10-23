@@ -8,7 +8,7 @@ import Link from "next/link";
 
 import { JsonLd } from "@/components/JsonLd";
 import u from "@/components/site/ui.module.css";
-import { guideHref, type Guide } from "@/lib/guides";
+import { guideHref, guideUpdated, type Guide } from "@/lib/guides";
 import { priceLabel, projects } from "@/lib/projects";
 import { articleJsonLd, breadcrumbJsonLd } from "@/lib/jsonld";
 import { SITE_NAME } from "@/lib/site";
@@ -17,7 +17,7 @@ import g from "./guides.module.css";
 
 export const GUIDES_TITLE = "悩みから読む";
 
-const updatedOf = (guide: Guide) => guide.updated ?? guide.date;
+const updatedOf = guideUpdated;
 
 export function guideMetadata(guide: Guide, image: string): Metadata {
   const url = guideHref(guide);

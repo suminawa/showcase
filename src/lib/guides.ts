@@ -279,6 +279,9 @@ export const guides: Guide[] = [
 
 export const guideHref = (guide: Guide) => `/guides/${guide.slug}`;
 
+/** 本文を最後に直した日（無ければ公開日）。記事の署名・Article・sitemap が同じ日を読む */
+export const guideUpdated = (guide: Guide) => guide.updated ?? guide.date;
+
 export function guideBySlug(slug: string): Guide {
   const guide = guides.find((g) => g.slug === slug);
   if (!guide) throw new Error(`guide not found: ${slug}`);
