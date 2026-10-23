@@ -16,6 +16,12 @@ export type KitUpdate = {
 export const UPDATES: readonly KitUpdate[] = [
   {
     date: "2026-10-23",
+    slug: "booking",
+    version: "1.2.0",
+    note: "オンラインのご予約に、Google Meet の会議を付けられるようにしました。会議の URL はお客さまへのメールとお店への通知に入ります。1.1.2 までをお求めの方は無料で更新できます。",
+  },
+  {
+    date: "2026-10-23",
     slug: "payslip",
     version: "1.0.0",
     note: "発売しました。社労士や給与ソフトの一覧を貼ると、1 人ずつの明細 PDF を作り、送る前の 11 の確かめと自分あての試し送りを経て、本人のアドレスだけに渡します。社員 3 人まで・試し送りまでの無料版もあります。",

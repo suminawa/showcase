@@ -12,9 +12,9 @@ const CHECKED_ON = "2026-10-20";
 
 const jaSales: KitSales = {
   proof: [
-    { figure: "324 件", label: "自動テストの数です。版を出すたびに、すべて通してからお届けしています（1.1.2）。" },
+    { figure: "352 件", label: "自動テストの数です。版を出すたびに、すべて通してからお届けしています（1.2.0）。" },
     { figure: "0 円", label: "月額の費用です。ご予約が何件入っても変わりません。" },
-    { figure: "3 回", label: "発売からの更新の回数です（1.1〜1.1.2）。お求めの方には、どれも無料でお届けしています。" },
+    { figure: "4 回", label: "発売からの更新の回数です（1.1〜1.2.0）。お求めの方には、どれも無料でお届けしています。" },
     { figure: "14 日", label: "ご購入から、不具合のご連絡にメールでお応えする期間です（3 営業日以内に返信します）。" },
   ],
   audience: {
@@ -96,7 +96,7 @@ const ja = {
   lede: "レッスン中や施術中は、電話に出られません。スプレッドシートに枠と定員を書くと、その URL が予約ページになり、確認メールと前日のリマインドまで自動で送ります。教室・体験会・相談枠に向いた作りで、ご予約が何件入っても月額はかかりません。",
   intro: "この見本は、架空のお店「ひだまり整体院」の見本データをブラウザの中で動かしています。ご予約はページを閉じると消えます。",
   flow: "お客さまは空きカレンダーから日を選び、時間を選び、お名前と連絡先を入れて、確認をはさんでご予約いただけます。Google アカウントもログインも要りません。受け付けたご予約は「予約」シートに 1 行たまり、お客さまへ確認メール、お店へお知らせのメールが届きます。前日のリマインドも自動で送れます。",
-  options: "Google カレンダーへの登録は任意で、設定を空にしておけば登録しません。キャンセルは確認メールに書かれた URL からお客さまご自身で手続きでき、締切は設定で決められます。お店へのお知らせは、設定に URL を入れれば Slack・Discord・LINE にも届きます。所要時間の違うサービスを並べて選んでいただくこともでき、画面はスマートフォンを先に考えた作りです。",
+  options: "Google カレンダーへの登録は任意で、設定を空にしておけば登録しません。キャンセルは確認メールに書かれた URL からお客さまご自身で手続きでき、締切は設定で決められます。お店へのお知らせは、設定に URL を入れれば Slack・Discord・LINE にも届きます。オンラインで行うサービスには、Google Meet の会議を自動で付けられます（1.2.0）。所要時間の違うサービスを並べて選んでいただくこともでき、画面はスマートフォンを先に考えた作りです。",
   sales: jaSales,
 };
 
@@ -112,12 +112,12 @@ export const copy: Record<"ja" | "en" | "fr", typeof ja> = {
     lede: "You can’t answer the phone mid-lesson or mid-session. Write your slots and capacities in a spreadsheet, and its URL becomes a booking page that sends confirmation emails and day-before reminders on its own. Built for classes, trial sessions, and consultation slots, with no monthly fee however many bookings come in.",
     intro: "This demo runs on sample data for a fictional bodywork clinic, entirely in your browser (the demo is in Japanese). Bookings disappear when you close the page.",
     flow: "Customers pick a day on the availability calendar, choose a time, enter their name and contact details, and confirm. No Google account or login needed. Each booking is added as a row to the bookings sheet; the customer gets a confirmation email and the business gets a notification. Day-before reminders can go out automatically.",
-    options: "Adding bookings to Google Calendar is optional; leave the setting empty to skip it. Customers can cancel on their own from the link in the confirmation email, with a cutoff you set. Notifications to the business can also go to Slack, Discord, or LINE once you add a URL in the settings. You can offer several services with different durations, and the screens are designed mobile-first.",
+    options: "Adding bookings to Google Calendar is optional; leave the setting empty to skip it. Customers can cancel on their own from the link in the confirmation email, with a cutoff you set. Notifications to the business can also go to Slack, Discord, or LINE once you add a URL in the settings. Online services can get a Google Meet link added automatically (1.2.0). You can offer several services with different durations, and the screens are designed mobile-first.",
     sales: {
       proof: [
-        { figure: "324", label: "Automated tests. Every release passes all of them before it ships (1.1.2)." },
+        { figure: "352", label: "Automated tests. Every release passes all of them before it ships (1.2.0)." },
         { figure: "¥0", label: "Monthly cost, however many bookings come in." },
-        { figure: "3", label: "Updates since launch (1.1 to 1.1.2). Every one has been free for existing buyers." },
+        { figure: "4", label: "Updates since launch (1.1 to 1.2.0). Every one has been free for existing buyers." },
         { figure: "14 days", label: "After purchase, we answer bug reports by email (reply within 3 business days)." },
       ],
       audience: {
@@ -198,12 +198,12 @@ export const copy: Record<"ja" | "en" | "fr", typeof ja> = {
     lede: "Pendant un cours ou une séance, impossible de répondre au téléphone. Inscrivez créneaux et places dans un tableur : son URL devient une page de réservation qui envoie elle-même la confirmation et le rappel de la veille. Pensée pour les cours, séances d’essai et consultations, sans abonnement quel que soit le nombre de réservations.",
     intro: "Cette démo, en japonais, fonctionne entièrement dans votre navigateur avec les données d’un cabinet de soins fictif. Les réservations disparaissent à la fermeture de la page.",
     flow: "Le client choisit un jour dans le calendrier des disponibilités, puis une heure, saisit son nom et ses coordonnées et confirme. Aucun compte Google ni connexion requis. Chaque réservation s’ajoute sous forme de ligne dans la feuille des réservations ; le client reçoit un e-mail de confirmation et l’établissement une notification. Un rappel peut aussi être envoyé automatiquement la veille.",
-    options: "L’ajout à Google Agenda est facultatif : laissez le réglage vide pour ne pas l’utiliser. Le client peut annuler lui-même depuis le lien de l’e-mail de confirmation, avec une date limite que vous fixez. Les notifications à l’établissement peuvent aussi aller vers Slack, Discord ou LINE dès que vous indiquez une URL dans les réglages. Vous pouvez proposer plusieurs prestations de durées différentes, et les écrans sont pensés d’abord pour le mobile.",
+    options: "L’ajout à Google Agenda est facultatif : laissez le réglage vide pour ne pas l’utiliser. Le client peut annuler lui-même depuis le lien de l’e-mail de confirmation, avec une date limite que vous fixez. Les notifications à l’établissement peuvent aussi aller vers Slack, Discord ou LINE dès que vous indiquez une URL dans les réglages. Les prestations en ligne peuvent recevoir automatiquement un lien Google Meet (1.2.0). Vous pouvez proposer plusieurs prestations de durées différentes, et les écrans sont pensés d’abord pour le mobile.",
     sales: {
       proof: [
-        { figure: "324", label: "Tests automatisés. Chaque version les passe tous avant d’être livrée (1.1.2)." },
+        { figure: "352", label: "Tests automatisés. Chaque version les passe tous avant d’être livrée (1.2.0)." },
         { figure: "0 ¥", label: "Coût mensuel, quel que soit le nombre de réservations." },
-        { figure: "3", label: "Mises à jour depuis la sortie (1.1 à 1.1.2). Toutes gratuites pour les acheteurs." },
+        { figure: "4", label: "Mises à jour depuis la sortie (1.1 à 1.2.0). Toutes gratuites pour les acheteurs." },
         { figure: "14 jours", label: "Après l’achat, nous répondons par e-mail aux signalements de bugs (sous 3 jours ouvrés)." },
       ],
       audience: {

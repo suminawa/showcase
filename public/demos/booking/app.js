@@ -257,7 +257,8 @@ function addDays(dateKey, days) {
 
 // ===== services.js =====
 /**
- * 「サービス」シート（任意。予約の種類ごとの所要時間・説明・受付可否）を読む。
+ * 「サービス」シート（任意。予約の種類ごとの所要時間・説明・受付可否・オンライン（Meet）か）を読む。
+ * 「オンライン」列は 1.2 で足した列。無いシート（1.1 までの）でも、すべて「付けない」として読む。
  * 誤りは敬体の文で `booking: ` から始めて集め、誤りのあった行は services に含めない。
  */
 
@@ -277,6 +278,7 @@ function parseServices(values) {
     minutes: headerIndex(header, "所要時間"),
     description: headerIndex(header, "説明"),
     active: headerIndex(header, "受付"),
+    meet: headerIndex(header, "オンライン"),
   };
 
   const seen = new Set();
@@ -308,14 +310,27 @@ function parseServices(values) {
 
     const description = textOf(row[col.description]);
     const active = boolOf(row[col.active], true);
+    const meet = meetOf_(row[col.meet]);
+    if (meet === null) {
+      errors.push(errorAt("サービス", rowNum, "オンラインは Meet・TRUE・FALSE のどれかにしてください（空欄は付けません）"));
+      ok = false;
+    }
 
     if (ok) {
       if (name !== "") seen.add(name);
-      services.push({ name: name, minutes: minutes, description: description, active: active });
+      services.push({ name: name, minutes: minutes, description: description, active: active, meet: meet });
     }
   }
 
   return { services: services, errors: errors };
+}
+
+/** 「オンライン」列の値。Meet と TRUE の仲間は true、空と FALSE の仲間は false、読めない字は null */
+function meetOf_(value) {
+  if (textOf(value).toUpperCase() === "MEET") return true;
+  const flag = boolOf(value, null);
+  if (flag !== null) return flag;
+  return textOf(value) === "" ? false : null;
 }
 
 /** サービスの一覧から名前が一致するものを探す。前後の空白は無視。無ければ null */
@@ -1176,22 +1191,73 @@ function varsFor(settings, reservation, cancelUrl) {
   };
 }
 
-/** 確認メール（設定「確認メールの件名・本文」に差し込む） */
-function buildConfirmMail(settings, reservation, cancelUrl) {
+/** 会議の URL が無い（作れなかった）ときに、お客さまへのメールに入れる 1 行 */
+const MEET_LATER_LINE = "会議の URL は追ってお知らせします。";
+
+/** 会議の URL をメールに入れる 1 行 */
+function meetUrlLine(url) {
+  return "オンラインの会議の URL: " + textOf(url);
+}
+
+/**
+ * お客さまへのメールに入れる会議の 1 行。URL があればその行、オンラインのサービスで URL が無ければ「追って」の行、
+ * それ以外（対面のサービス）は ""。URL は「予約」シートの「会議URL」列から読む（店が手で書いた URL も載る）
+ */
+function meetLineFor(services, reservation) {
+  const row = reservation === null || reservation === undefined ? {} : reservation;
+  const url = textOf(row["会議URL"]);
+  if (url !== "") return meetUrlLine(url);
+  const service = findService(services, row["サービス"]);
+  return service !== null && service.meet === true ? MEET_LATER_LINE : "";
+}
+/**
+ * 本文に会議の 1 行を入れる。本文に {会議URL} があればそこに（1.2 より前の本文にも効くように）、
+ * 無ければ「受付番号」で始まる行のすぐ下に、それも無ければ末尾に足す。line が "" なら本文はそのまま
+ */
+function withMeetLine(template, vars, line) {
+  const text = template === null || template === undefined ? "" : String(template);
+  if (text.indexOf("{会議URL}") >= 0) return fillTemplate(text, Object.assign({}, vars, { "会議URL": line }));
+  const body = fillTemplate(text, vars);
+  if (line === "") return body;
+  const lines = body.split("\n");
+  for (let i = 0; i < lines.length; i += 1) {
+    if (lines[i].indexOf("受付番号") === 0) {
+      lines.splice(i + 1, 0, line);
+      return lines.join("\n");
+    }
+  }
+  return body + "\n\n" + line;
+}
+
+/** 確認メール（設定「確認メールの件名・本文」に差し込む）。services は会議の 1 行を決めるのに使う */
+function buildConfirmMail(settings, reservation, cancelUrl, services) {
   const s = settings === null || settings === undefined ? {} : settings;
   const vars = varsFor(s, reservation, cancelUrl);
-  return { subject: fillTemplate(s.confirmSubject, vars), body: fillTemplate(s.confirmBody, vars) };
+  return { subject: fillTemplate(s.confirmSubject, vars), body: withMeetLine(s.confirmBody, vars, meetLineFor(services, reservation)) };
 }
 
 /** 前日リマインドのメール（設定「リマインドの件名・本文」に差し込む） */
-function buildRemindMail(settings, reservation, cancelUrl) {
+function buildRemindMail(settings, reservation, cancelUrl, services) {
   const s = settings === null || settings === undefined ? {} : settings;
   const vars = varsFor(s, reservation, cancelUrl);
-  return { subject: fillTemplate(s.remindSubject, vars), body: fillTemplate(s.remindBody, vars) };
+  return { subject: fillTemplate(s.remindSubject, vars), body: withMeetLine(s.remindBody, vars, meetLineFor(services, reservation)) };
+}
+
+/**
+ * 店に知らせる会議の 1 行。meetFailure は会議を作れなかった理由（calendar.js の MEET_REASONS）。
+ * オンラインでないご予約は ""
+ */
+function ownerMeetLine(services, reservation, meetFailure) {
+  const line = meetLineFor(services, reservation);
+  if (line !== MEET_LATER_LINE) return line;
+  return (
+    "オンラインの会議: 作れませんでした。" + textOf(meetFailure) +
+    " お客さまのメールには「" + MEET_LATER_LINE + "」と書いています。カレンダーの予定に Meet を付け、その URL を「予約」シートの「会議URL」列に書くと、前日のリマインドに載ります。"
+  );
 }
 
 /** 店（連絡先メール）へ送る、予約が入ったことの知らせ */
-function buildOwnerMail(settings, reservation) {
+function buildOwnerMail(settings, reservation, services, meetFailure) {
   const s = settings === null || settings === undefined ? {} : settings;
   const row = reservation === null || reservation === undefined ? {} : reservation;
   const vars = varsFor(s, row, "");
@@ -1206,6 +1272,8 @@ function buildOwnerMail(settings, reservation) {
     "ご要望: " + textOf(row["ご要望"]),
     "受付番号: " + vars["受付番号"],
   ];
+  const meet = ownerMeetLine(services, row, meetFailure);
+  if (meet !== "") lines.push(meet);
   const subject =
     "ご予約が入りました: " + shortDateOf(textOf(row["日付"])) + textOf(row["開始"]) + " " + textOf(row["お名前"]) + " 様";
   return { subject: subject, body: lines.join("\n") };
@@ -1270,7 +1338,7 @@ const SAMPLE_TOKEN_PREFIX = "0123456789abcdef0123456";
 
 const RESERVATION_HEADER = [
   "ID", "状態", "日付", "開始", "終了", "サービス", "お名前", "メール", "電話",
-  "ご要望", "受付日時", "キャンセル日時", "カレンダー", "リマインド", "キャンセル用",
+  "ご要望", "受付日時", "キャンセル日時", "カレンダー", "リマインド", "キャンセル用", "会議URL",
 ];
 
 /** 設定の見本。項目は「初期化」と同じ全部の行を並べ、見本の店の値を入れる（空の項目は既定値で動く） */
@@ -1281,9 +1349,9 @@ function settingsRows_() {
 
 function serviceRows_() {
   return [
-    ["サービス", "所要時間", "説明", "受付"],
-    [SERVICE_FIRST, "60", "初めての方はこちら", "TRUE"],
-    [SERVICE_REGULAR, "45", "2 回目以降の方", "TRUE"],
+    ["サービス", "所要時間", "説明", "受付", "オンライン"],
+    [SERVICE_FIRST, "60", "初めての方はこちら", "TRUE", ""],
+    [SERVICE_REGULAR, "45", "2 回目以降の方", "TRUE", ""],
   ];
 }
 
@@ -1339,6 +1407,7 @@ function reservationRow_(today, index, date, service, slot, cancelled) {
     "",
     "",
     SAMPLE_TOKEN_PREFIX + sequence,
+    "",
   ];
 }
 
