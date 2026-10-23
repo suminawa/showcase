@@ -1,9 +1,9 @@
 import { describe, expect, it } from "vitest";
 
-import { articleJsonLd, breadcrumbJsonLd, productJsonLd, serializeJsonLd, siteJsonLd } from "./jsonld";
+import { articleJsonLd, breadcrumbJsonLd, faqJsonLd, productJsonLd, serializeJsonLd, siteJsonLd } from "./jsonld";
 import { projectJsonLd } from "./jsonld-project";
 import { priceNow } from "./prices";
-import { projects } from "./projects";
+import { CONTACT_FAQ, projects } from "./projects";
 import { SITE_NAME } from "./site";
 
 const roundTrip = (data: Parameters<typeof serializeJsonLd>[0]) => JSON.parse(serializeJsonLd(data));
@@ -112,5 +112,13 @@ describe("jsonld", () => {
         expect(new URL(product.image).pathname).toBe(`/kits/${slug}-960.webp`);
       }
     }
+  });
+
+  it("FAQPage は画面のよくあるご質問と同じ問いと答えを、同じ順で持つ", () => {
+    const faq = roundTrip(faqJsonLd(CONTACT_FAQ));
+    expect(faq["@type"]).toBe("FAQPage");
+    expect(faq.mainEntity.map((m: { name: string; acceptedAnswer: { text: string } }) => [m.name, m.acceptedAnswer.text])).toEqual(
+      CONTACT_FAQ.map((f) => [f.q, f.a]),
+    );
   });
 });

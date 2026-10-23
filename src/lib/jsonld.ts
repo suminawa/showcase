@@ -100,6 +100,19 @@ export function productJsonLd(p: { name: string; description: string; path: stri
   };
 }
 
+/** よくあるご質問の FAQPage。画面の問いと答えと同じ配列から組む（字を二重に持たない） */
+export function faqJsonLd(items: readonly { q: string; a: string }[]): Json {
+  return {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    mainEntity: items.map((item) => ({
+      "@type": "Question",
+      name: item.q,
+      acceptedAnswer: { "@type": "Answer", text: item.a },
+    })),
+  };
+}
+
 /** 悩みから読む紙の Article。日付は YYYY-MM-DD（日本時間の日付として +09:00 を添える） */
 export function articleJsonLd(a: {
   headline: string;

@@ -7,12 +7,14 @@
  * 問い合わせのフォームは、自社のフォーム受付キットを持ち主のアカウントで公開してから（NEXT_PUBLIC_CONTACT_ENDPOINT）。
  * FORM: 方眼（DESIGN.md）
  */
+import { JsonLd } from "@/components/JsonLd";
 import { PriceLadder } from "@/components/site/PriceLadder";
 import u from "@/components/site/ui.module.css";
 import { ContactMail } from "@/components/track/ContactMail";
 import { localContact } from "@/i18n/catalog";
 import { pageMetadata } from "@/i18n/meta";
 import type { Lang } from "@/i18n/routes";
+import { faqJsonLd } from "@/lib/jsonld";
 import { CONTACT_FAQ, ELSEWHERE, EMBED_SERVICE } from "@/lib/projects";
 
 import { ContactForm } from "./ContactForm";
@@ -126,6 +128,7 @@ export function ContactPage({ lang }: { lang: Lang }) {
 
         {lang === "ja" && (
           <section className={c.section} id="faq" aria-labelledby="faq-title">
+            <JsonLd data={faqJsonLd(CONTACT_FAQ)} />
             <h2 id="faq-title" className={u.h2}>
               よくあるご質問
             </h2>
