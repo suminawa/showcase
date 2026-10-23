@@ -136,6 +136,7 @@ const ja = {
       after: "」を BOOTH でお配りしています。取り込み方は有料版と同じです。",
     },
     service: "スプレッドシートへの設置もお受けします。上の「お値段」の「設置まで頼む」が、その値段です。",
+    coconala: { before: "ココナラの「", after: "」（キット込み 15,000 円）からも、ご依頼いただけます。御社の一覧に合わせて項目と文面を設定し、置き方の手順書をお届けします。" },
     consult: {
       before: "お手元の一覧が取り込めるか分からないときは、見出しの行と 1〜2 行目を ",
       after: " へお送りください。無料でお返しします。氏名・金額・メールアドレスは、消すか「●●」に置き換えてからお送りください。",
@@ -196,6 +197,7 @@ export const copy: Record<"ja" | "en" | "fr", typeof ja> = {
         after: "”, handles up to three employees and goes as far as a test send to yourself. It imports the same way as the paid version, and it’s on BOOTH (the page is in Japanese).",
       },
       service: "We can also install it in your spreadsheet. The price is shown as “Setup done for you” under Price above.",
+      coconala: { before: "You can also order it on Coconala: “", after: "” (kit included, ¥15,000; the page is in Japanese). We set the items and wording to fit your payroll list and send setup instructions." },
       consult: {
         before: "If you’re not sure your list will import, send the header rows and the first one or two rows to ",
         after: ", free of charge. Please delete or mask names, amounts, and email addresses before sending.",
@@ -323,6 +325,7 @@ export const copy: Record<"ja" | "en" | "fr", typeof ja> = {
         after: " », va jusqu’à trois salariés et jusqu’à l’envoi d’essai à vous-même. Elle importe de la même façon que la version payante et se trouve sur BOOTH (page en japonais).",
       },
       service: "Nous pouvons aussi l’installer dans votre tableur. Le prix figure sous « Installation comprise » dans la section Prix ci-dessus.",
+      coconala: { before: "Vous pouvez aussi passer commande sur Coconala : « ", after: " » (kit inclus, 15 000 ¥ ; page en japonais). Nous réglons les rubriques et les textes selon votre liste de paie et vous envoyons un guide d’installation." },
       consult: {
         before: "Si vous ne savez pas si votre liste s’importera, envoyez les lignes d’en-tête et une ou deux premières lignes à ",
         after: " ; nous répondons gratuitement. Supprimez ou masquez au préalable noms, montants et adresses e-mail.",

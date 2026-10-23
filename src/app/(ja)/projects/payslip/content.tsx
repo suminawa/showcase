@@ -34,6 +34,9 @@ const SHOT_PDF = { src: "/projects/payslip/pdf.png", width: 2560, height: 1600 }
 /** 無料版の名。日本語のまま出す（BOOTH のページが日本語のため） */
 const FREE_NAME = "給与明細 配布キット 無料版";
 
+/** ココナラの設定の出品（キット込み）。名は公開中の題と同じ字にする（出品のページが日本語のため日本語のまま出す） */
+const COCONALA = { name: "給与明細をPDFで本人だけに配る仕組みを設定します", href: "https://coconala.com/services/4465831" };
+
 const SCREENS_IN_JAPANESE = {
   en: "The kit’s sheets, payslips and the screens below are in Japanese.",
   fr: "Les feuilles du kit, les bulletins et les écrans ci-dessous sont en japonais.",
@@ -127,6 +130,13 @@ export function Content({ lang }: { lang: Lang }) {
           {c.free.after}
         </p>
         <p className={p.body}>{c.service}</p>
+        <p className={p.body}>
+          {c.coconala.before}
+          <a href={COCONALA.href} rel="nofollow" className={u.linkLine}>
+            {COCONALA.name}
+          </a>
+          {c.coconala.after}
+        </p>
         <p className={p.body}>
           {c.consult.before}
           <ContactMail className={u.linkLine} />
